@@ -33,15 +33,6 @@ trait Write[I, +O] extends WriteLike[I, O] {
     this.map(o => w.writes(o))
 }
 
-trait DefaultMonoids {
-  import play.api.libs.functional.Monoid
-
-  implicit def mapMonoid = new Monoid[UrlFormEncoded] {
-    def append(a1: UrlFormEncoded, a2: UrlFormEncoded) = a1 ++ a2
-    def identity = Map.empty
-  }
-}
-
 object Write {
   import scala.language.experimental.macros
 

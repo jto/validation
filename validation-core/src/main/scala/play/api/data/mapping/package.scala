@@ -21,6 +21,4 @@ package object mapping {
   type ValidationError = play.api.data.validation.ValidationError
   def ValidationError(message: String, args: Any*): ValidationError =
     play.api.data.validation.ValidationError.apply(message, args: _*)
-
-  type UrlFormEncoded = Map[String, Seq[String]]
 }

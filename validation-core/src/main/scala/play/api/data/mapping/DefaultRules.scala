@@ -280,7 +280,7 @@ trait GenericRules {
   /**
    * A Rule for HTML checkboxes
    */
-  def checked[I](implicit b: RuleLike[I, Boolean]) = Rule.toRule(b) compose Rules.equalTo(true)
+  def checked[I](implicit b: RuleLike[I, Boolean]) = Rule.toRule(b) compose GenericRules.equalTo(true)
 }
 
 object GenericRules extends GenericRules

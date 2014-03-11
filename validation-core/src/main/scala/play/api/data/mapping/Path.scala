@@ -12,10 +12,6 @@ case class IdxPathNode(idx: Int) extends PathNode {
   override def toString = s"[$idx]"
 }
 
-case class RecursiveSearch(key: String) extends PathNode {
-  override def toString = "//" + key
-}
-
 object \: {
   def unapply(path: Path): Option[(Path, Path)] = {
     path match {
@@ -85,7 +81,6 @@ class Path(val path: List[PathNode]) {
     case hs => hs.foldLeft("") {
       case (path, IdxPathNode(i)) => path + s"[$i]"
       case (path, KeyPathNode(k)) => path + "/" + k
-      case (path, RecursiveSearch(k)) => path + "//" + k
     }
   }
 

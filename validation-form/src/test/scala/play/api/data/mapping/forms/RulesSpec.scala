@@ -1,7 +1,8 @@
-package play.api.data.mapping
+package play.api.data.mapping.forms
 
 import org.specs2.mutable._
 import scala.util.control.Exception._
+import play.api.data.mapping._
 
 object RulesSpec extends Specification {
 

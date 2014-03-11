@@ -1,4 +1,6 @@
-package play.api.data.mapping
+package play.api.data.mapping.forms
+
+import play.api.data.mapping._
 
 /**
  * Play provides you a `Map[String, Seq[String]]` (aliased as `UrlFormEncoded`) in request body for urlFormEncoded requests.

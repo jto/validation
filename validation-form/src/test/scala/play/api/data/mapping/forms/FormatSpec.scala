@@ -1,10 +1,12 @@
 /*
  * Copyright (C) 2009-2013 Typesafe Inc. <http://www.typesafe.com>
  */
-package play.api.data.mapping
+package play.api.data.mapping.forms
 
 import org.specs2.mutable._
 import play.api.libs.functional.syntax._
+import play.api.data.mapping._
+
 
 object FormatSpec extends Specification {
 	case class User(id: Long, name: String)

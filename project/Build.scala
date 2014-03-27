@@ -42,6 +42,7 @@ object Dependencies {
     "org.joda" % "joda-convert" % "1.3.1",
     "org.scala-lang" % "scala-reflect" %  buildScalaVersion,
     "com.typesafe.play" %% "play-functional" % playVersion,
+    "com.chuusai" %% "shapeless"  % "2.0.0-SNAPSHOT" cross CrossVersion.full changing(),
     specsBuild % "test")
 
 	val scalaMacros = Seq(
@@ -62,6 +63,7 @@ object ValidationBuild extends Build {
 		.settings(commonSettings: _*)
 		.settings(libraryDependencies := deps)
 		.settings(scalaMacros: _*)
+		// .dependsOn(ProjectRef(uri("git://github.com/jto/shapeless.git#lens"), "shapeless-core"))
 
 	lazy val json = Project("validation-json", file("validation-json"))
 		.settings(libraryDependencies += specsBuild % "test")

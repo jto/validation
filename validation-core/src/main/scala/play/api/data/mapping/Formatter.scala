@@ -26,6 +26,8 @@ object From {
    */
   def apply[I, O](i: I)(implicit r: RuleLike[I, O]) =
     r.validate(i)
+
+  def apply[I, O](implicit r: RuleLike[I, O]) = Rule.toRule(r)
 }
 
 trait To[I] {
@@ -177,7 +179,7 @@ trait Get[I, O] {
   val lens: Lens[I, O]
 
   def read(sub: => RuleLike[O, O]): Rule[I, I] = Rule { i =>
-    Rule.toRule(sub).repath(_ ++ path)
+    Rule.toRule(sub).repath(path ++ _)
       .fmap(_ => i)
       .validate(lens.get(i))
   }

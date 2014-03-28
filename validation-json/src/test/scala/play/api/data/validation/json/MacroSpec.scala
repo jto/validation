@@ -72,6 +72,27 @@ object MacroSpec extends Specification {
     }
   }
 
+  case class ContactInformation(
+    label: String,
+    email: Option[String],
+    phones: Seq[String])
+
+  object ContactInformation {
+    import Rules._
+    implicit val contactInfoR = Rule.gen[JsValue, ContactInformation]
+  }
+
+  case class Contact(
+    firstname: String,
+    lastname: String,
+    company: Option[String],
+    informations: Seq[ContactInformation])
+
+  object Contact {
+    import Rules._
+    implicit val contactR = Rule.gen[JsValue, Contact]
+  }
+
   "MappingMacros" should {
 
     "create a Rule[User]" in {
@@ -366,6 +387,62 @@ object MacroSpec extends Specification {
       From[JsValue, Person2](
         To[Person2, JsValue](Person2(List("bob", "bobby")))
       ) must beEqualTo(Success(Person2(List("bob", "bobby"))))
+    }
+
+    "compose with a la carte validation" in {
+
+      import js.Writes._
+
+      val validJson = Json.obj(
+        "firstname" -> "Julien",
+        "lastname" -> "Tournay",
+        "age" -> 27,
+        "informations" -> Seq(Json.obj(
+          "label" -> "Personal",
+          "email" -> "fakecontact@gmail.com",
+          "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))))
+
+      val invalidJson1 = Json.obj(
+        "firstname" -> "",
+        "lastname" -> "Tournay",
+        "age" -> 27,
+        "informations" -> Seq(Json.obj(
+          "label" -> "Personal",
+          "email" -> "fakecontact@gmail.com",
+          "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))))
+
+      val invalidJson2 = Json.obj(
+        "firstname" -> "Julien",
+        "lastname" -> "Tournay",
+        "age" -> 27,
+        "informations" -> Seq(Json.obj(
+          "label" -> "",
+          "email" -> "fakecontact@gmail.com",
+          "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))))
+
+      val invalidJson3 = Json.obj(
+        "firstname" -> "Julien",
+        "lastname" -> "Tournay",
+        "age" -> 27)
+
+      val expected =
+        Contact("Julien", "Tournay", None, Seq(
+          ContactInformation("Personal", Some("fakecontact@gmail.com"), List("01.23.45.67.89", "98.76.54.32.10"))))
+
+      import Rules._
+
+      def notEmptySeq[A] = validateWith[Seq[A]]("error.required") { !_.isEmpty }
+
+      val infoV = (Get[ContactInformation] \ 'label).read(notEmpty)
+      val r = From[JsValue, Contact] compose Get[Contact] { __ =>
+        (__ \ 'firstname).read(notEmpty) ~>
+        (__ \ 'informations).read(notEmptySeq |+| seqR(infoV))
+      }
+
+      r.validate(validJson) must beEqualTo(Success(expected))
+      r.validate(invalidJson1) must beEqualTo(Failure(List((Path \ "firstname", List(ValidationError("error.required"))))))
+      r.validate(invalidJson2) must beEqualTo(Failure(List((Path \ "informations" \ 0 \ "label", List(ValidationError("error.required"))))))
+      r.validate(invalidJson3) must beEqualTo(Failure(List((Path \ "informations", List(ValidationError("error.required"))))))
     }
 
   }

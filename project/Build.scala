@@ -64,10 +64,12 @@ object ValidationBuild extends Build {
 		.settings(scalaMacros: _*)
 
 	lazy val json = Project("validation-json", file("validation-json"))
+    .settings(commonSettings: _*)
 		.settings(libraryDependencies += specsBuild % "test")
 		.dependsOn(core)
 
 	lazy val form = Project("validation-form", file("validation-form"))
+    .settings(commonSettings: _*)
 		.settings(libraryDependencies += specsBuild % "test")
 		.dependsOn(core)
 

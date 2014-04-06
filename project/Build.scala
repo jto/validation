@@ -71,5 +71,5 @@ object ValidationBuild extends Build {
 		.settings(libraryDependencies += specsBuild % "test")
 		.dependsOn(core)
 
-	lazy val root = project.in(file(".")).aggregate(core, json, form)
+	lazy val root = project.in(file(".")).aggregate(core, json, form).settings(publishArtifact := false)
 }

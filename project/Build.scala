@@ -21,7 +21,7 @@ object BuildSettings {
   val sourceCodeBranch = "master"
 
 
-	val paradiseVersion = "2.0.0-M3"
+	val paradiseVersion = "2.0.0-M7"
 
 	val commonSettings = Seq(
     organization := org,
@@ -46,7 +46,7 @@ object Dependencies {
 
 	val scalaMacros = Seq(
 		addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full),
-		libraryDependencies += "org.scalamacros" % "quasiquotes" % paradiseVersion cross CrossVersion.full)
+		libraryDependencies += "org.scalamacros" %% "quasiquotes" % paradiseVersion)
 }
 
 object ValidationBuild extends Build {

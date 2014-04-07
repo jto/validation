@@ -72,6 +72,19 @@ object MacroSpec extends Specification {
     }
   }
 
+  case class ManyApplies(foo: String, bar: Int)
+  object ManyApplies {
+    def apply(x: Option[Int]) = 9
+    def apply(y: String) = 4
+    def apply(x: String, y: String) = 10
+  }
+
+  trait NotAClass
+  case class AClass(foo: Int) extends NotAClass
+  object NotAClass {
+    def apply(x: Int) = AClass(x)
+  }
+
   "MappingMacros" should {
 
     "create a Rule[User]" in {
@@ -206,6 +219,40 @@ object MacroSpec extends Specification {
         Json.obj(
           "name" -> "bob",
           "friend" -> Json.obj("name" -> "tom" )))
+    }
+
+    "create Rules for classes with overloaded apply method" in {
+      import Rules._
+      import js.Writes._
+      implicit val manyAppliesRule = Rule.gen[JsValue, ManyApplies]
+
+      manyAppliesRule.validate(
+        Json.obj(
+          "foo" -> "bob",
+          "bar" -> 3)
+      ) must beEqualTo(
+        Success(
+          ManyApplies(
+            "bob",
+            3
+          )
+        )
+      )
+    }
+
+    "create Rules for traits with single apply method" in {
+      import Rules._
+      import js.Writes._
+      implicit val notAClassRule = Rule.gen[JsValue, NotAClass]
+
+      notAClassRule.validate(
+        Json.obj(
+          "x" -> 3)
+      ) must beEqualTo(
+        Success(
+          AClass(3)
+        )
+      )
     }
 
     "manage Boxed class" in {

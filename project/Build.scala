@@ -29,7 +29,8 @@ object BuildSettings {
     scalaVersion := buildScalaVersion,
     ivyLoggingLevel := UpdateLogging.DownloadOnly,
     resolvers ++= all,
-    fork in Test := true)
+    fork in Test := true,
+    publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath + "/Documents/mvn-repo/snapshots"))))
 
 }
 

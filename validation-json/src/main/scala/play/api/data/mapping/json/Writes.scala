@@ -2,7 +2,7 @@ package play.api.data.mapping.json
 
 import play.api.data.mapping._
 
-import play.api.libs.json._
+import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray}
 
 trait DefaultMonoids {
   import play.api.libs.functional.Monoid

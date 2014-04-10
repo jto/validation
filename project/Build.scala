@@ -42,6 +42,7 @@ object Dependencies {
     "org.joda" % "joda-convert" % "1.3.1",
     "org.scala-lang" % "scala-reflect" %  buildScalaVersion,
     "com.typesafe.play" %% "play-functional" % playVersion,
+    "com.typesafe.play" %% "play-json" % playVersion,
     specsBuild % "test")
 
 	val scalaMacros = Seq(

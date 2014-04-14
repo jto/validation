@@ -13,7 +13,7 @@ object Resolvers {
 object BuildSettings {
 	import Resolvers._
 
-	val org = "jto.github.io"
+	val org = "io.github.jto"
 	val buildScalaVersion = "2.10.3"
 	val buildVersion = "1.0-SNAPSHOT"
 	val playVersion = "2.2.2"

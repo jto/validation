@@ -75,5 +75,12 @@ object ValidationBuild extends Build {
 		.settings(libraryDependencies += specsBuild % "test")
 		.dependsOn(core)
 
+	lazy val experimental = Project("validation-experimental", file("validation-experimental"))
+		.settings(commonSettings: _*)
+		.settings(libraryDependencies ++= Seq(
+			specsBuild % "test",
+			"com.chuusai" % "shapeless_2.10.4" % "2.0.0"))
+		.dependsOn(core)
+
 	lazy val root = project.in(file(".")).aggregate(core, json, form).settings(publishArtifact := false)
 }

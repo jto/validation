@@ -82,5 +82,5 @@ object ValidationBuild extends Build {
 			"com.chuusai" % "shapeless_2.10.4" % "2.0.0"))
 		.dependsOn(core)
 
-	lazy val root = project.in(file(".")).aggregate(core, json, form).settings(publishArtifact := false)
+	lazy val root = project.in(file(".")).aggregate(core, json, form, experimental).settings(publishArtifact := false)
 }

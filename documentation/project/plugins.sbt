@@ -14,3 +14,7 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % Option(System.getProperty("pla
 })
 
 libraryDependencies += "com.typesafe.play" %% "play-doc" % "1.0.3"
+
+resolvers += "Typesafe maven repository" at "http://repo.typesafe.com/typesafe/maven-releases/"
+
+libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3"

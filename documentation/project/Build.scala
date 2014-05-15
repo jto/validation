@@ -52,6 +52,7 @@ object ApplicationBuild extends Build {
   }
 
   lazy val main = Project("Play-Documentation", file(".")).settings(
+    resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
     version := PlayVersion.current,
     scalaVersion := PlayVersion.scalaVersion,
     libraryDependencies ++= Seq(

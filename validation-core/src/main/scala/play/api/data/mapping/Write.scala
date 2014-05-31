@@ -57,13 +57,15 @@ object Write {
     }
   }
 
-  implicit def contravariantfunctorWrite[O] = new ContravariantFunctor[({ type λ[I] = Write[I, O] })#λ] {
+  implicit def contravariantFunctorWrite[O] = new ContravariantFunctor[({ type λ[I] = Write[I, O] })#λ] {
     def contramap[A, B](wa: Write[A, O], f: B => A): Write[B, O] = Write[B, O]((b: B) => wa.writes(f(b)))
   }
+
+  implicit def contravariantFunctorExtractorWrite[I, O]: VariantExtractor[({ type λ[I] = Write[I, O] })#λ] =
+    VariantExtractor.contravariantFunctor[({ type λ[I] = Write[I, O] })#λ](contravariantFunctorWrite)
 
   // XXX: Helps the compiler a bit
   import play.api.libs.functional.syntax._
   implicit def fboWrite[I, O: Monoid](a: Write[I, O]) = toFunctionalBuilderOps[({ type λ[I] = Write[I, O] })#λ, I](a)
   implicit def cfoWrite[I, O](a: Write[I, O]) = toContraFunctorOps[({ type λ[I] = Write[I, O] })#λ, I](a)
-
 }

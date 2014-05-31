@@ -149,6 +149,9 @@ object Rule {
     def fmap[A, B](m: Rule[I, A], f: A => B): Rule[I, B] = applicativeRule[I].map(m, f)
   }
 
+  implicit def functorExtractorRule[I, O]: VariantExtractor[({ type λ[O] = Rule[I, O] })#λ] =
+    VariantExtractor.functor[({ type λ[O] = Rule[I, O] })#λ](functorRule)
+
   // XXX: Helps the compiler a bit
   import play.api.libs.functional.syntax._
   implicit def cba[I] = functionalCanBuildApplicative[({ type λ[O] = Rule[I, O] })#λ]

@@ -82,7 +82,7 @@ object MacroSpec extends Specification {
   trait NotAClass
   case class AClass(foo: Int) extends NotAClass
   object NotAClass {
-    def apply(x: Int) = AClass(x)
+    def apply(x: Int): NotAClass = AClass(x)
   }
 
   "MappingMacros" should {

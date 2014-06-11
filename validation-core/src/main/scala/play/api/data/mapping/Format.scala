@@ -23,10 +23,14 @@ object Format {
 
   import play.api.libs.functional._
 
-  implicit def invariantFunctorFormat[IR, IW]: InvariantFunctor[({ type λ[O] = Format[IR, IW, O] })#λ] = new InvariantFunctor[({ type λ[O] = Format[IR, IW, O] })#λ] {
-    def inmap[A, B](fa: Format[IR, IW, A], f1: A => B, f2: B => A): Format[IR, IW, B] =
-      Format[IR, IW, B](Rule.toRule(fa).fmap(f1), Write.toWrite(fa).contramap(f2))
-  }
+  implicit def invariantFunctorFormat[IR, IW]: InvariantFunctor[({ type λ[O] = Format[IR, IW, O] })#λ] =
+    new InvariantFunctor[({ type λ[O] = Format[IR, IW, O] })#λ] {
+      def inmap[A, B](fa: Format[IR, IW, A], f1: A => B, f2: B => A): Format[IR, IW, B] =
+        Format[IR, IW, B](Rule.toRule(fa).fmap(f1), Write.toWrite(fa).contramap(f2))
+    }
+
+  implicit def invariantFunctorExtractorFormat[IR, IW]: VariantExtractor[({ type λ[O] = Format[IR, IW, O] })#λ] =
+    VariantExtractor.invariantFunctor[({ type λ[O] = Format[IR, IW, O] })#λ](invariantFunctorFormat)
 
   implicit def functionalCanBuildFormat[IR, IW: Monoid](implicit rcb: FunctionalCanBuild[({ type λ[O] = Rule[IR, O] })#λ], wcb: FunctionalCanBuild[({ type λ[O] = Write[O, IW] })#λ]): FunctionalCanBuild[({ type λ[O] = Format[IR, IW, O] })#λ] =
     new FunctionalCanBuild[({ type λ[O] = Format[IR, IW, O] })#λ] {

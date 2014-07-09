@@ -68,7 +68,7 @@ The method `validate` of a `Rule[I, O]` always return a `VA[I, O]`
 ## Defining your own Rules
 
 Creating a new `Rule` is almost as simple as creating a new function.
-All there is to do it to pass a function `I => Validation[I, O]` to `Rule.fromMapping`.
+All there is to do is to pass a function `I => Validation[I, O]` to `Rule.fromMapping`.
 
 This example creates a new `Rule` trying to get the first element of a `List[Int]`. 
 In case of an empty `List[Int]`, the rule should return a `Failure`.

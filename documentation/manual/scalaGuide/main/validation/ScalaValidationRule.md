@@ -141,7 +141,7 @@ To fix that, we can pass  an additionnal parameter to `compose`:
 
 Parallel composition means that given two rules `a: Rule[I, O]` and `b: Rule[I, O]`, we can create a new rule `c: Rule[I, O]`.
 
-This form of composition if almost exclusively used for the particular case of rule that are purely constraint, that is, a `Rule[I, I]` checking a value of type `I` satisfies a predicate, but does not transform that value.
+This form of composition is almost exclusively used for the particular case of rules that are purely constraints, that is, a `Rule[I, I]` checking a value of type `I` satisfies a predicate, but does not transform that value.
 
 Consider the following example: We want to write a `Rule` that given a `Int`, check that this `Int` is positive and even.
 The validation API already provides `Rules.min`, we have to define `even` ourselves:

@@ -94,6 +94,11 @@ object ValidationBuild extends Build {
     .settings(specsDep: _*)
     .dependsOn(core)
 
+  lazy val delimited = Project("validation-delimited", file("validation-delimited"))
+    .settings(commonSettings: _*)
+    .settings(specsDep: _*)
+    .dependsOn(core)
+
   lazy val experimental = Project("validation-experimental", file("validation-experimental"))
     .settings(commonSettings: _*)
     .settings(shapelessDep: _*)
@@ -101,7 +106,7 @@ object ValidationBuild extends Build {
     .dependsOn(core)
 
   lazy val root = project.in(file("."))
-    .aggregate(core, json, form, experimental)
+    .aggregate(core, json, form, delimited, experimental)
     .settings(scalaVersions: _*)
     .settings(publishArtifact := false)
 }

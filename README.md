@@ -2,6 +2,16 @@
 
 Play new validation API extracted from Play.
 
+## Using the validation api in your project
+
+Add the following lines in your `build.sbt`
+
+```scala
+resolvers += "JTO snapshots" at "https://raw.github.com/jto/mvn-repo/master/snapshots"
+
+libraryDependencies +="io.github.jto" %% "validation-core" % "1.0-1c770f4"
+```
+
 ## Documentation
 
 ```bash

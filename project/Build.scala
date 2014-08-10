@@ -17,11 +17,11 @@ object BuildSettings {
   val buildVersion = "1.0-SNAPSHOT"
   val playVersion = "2.3.0"
   val paradiseVersion = "2.0.0"
-  
+
   val scalaVersions = Seq(
     scalaVersion := "2.10.4",
     crossScalaVersions := Seq("2.10.4", "2.11.1"))
-  
+
   // Used by api docs generation to link back to the correct branch on GitHub, only when version is a SNAPSHOT
   val sourceCodeBranch = "master"
 
@@ -89,6 +89,12 @@ object ValidationBuild extends Build {
     .settings(specsDep: _*)
     .dependsOn(core)
 
+  lazy val json4s = Project("validation-json4s", file("validation-json4s"))
+    .settings(commonSettings: _*)
+    .settings(specsDep: _*)
+    .settings(libraryDependencies += "org.json4s" %% "json4s-native" % "3.2.10")
+    .dependsOn(core)
+
   lazy val form = Project("validation-form", file("validation-form"))
     .settings(commonSettings: _*)
     .settings(specsDep: _*)
@@ -101,7 +107,7 @@ object ValidationBuild extends Build {
     .dependsOn(core)
 
   lazy val root = project.in(file("."))
-    .aggregate(core, json, form, experimental)
+    .aggregate(core, json, form, experimental, json4s)
     .settings(scalaVersions: _*)
     .settings(publishArtifact := false)
 }

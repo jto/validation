@@ -38,8 +38,8 @@ object Rules extends play.api.data.mapping.DefaultRules[JValue] {
     case JInt(v) if v.isValidLong => Success(v.toLong)
   }("error.number", "Long")
 
-  implicit def jsNumberR = jsonAs[JsonAST.JNumber] {
-    case v: JsonAST.JNumber => Success(v)
+  implicit def jsNumberR[N <: JsonAST.JNumber] = jsonAs[N] {
+    case v: N => Success(v)
   }("error.number", "Number")
 
   implicit def jsBooleanR = jsonAs[JBool] {

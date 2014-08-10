@@ -14,24 +14,50 @@ object BuildSettings {
   import Resolvers._
 
   val org = "io.github.jto"
-  val buildVersion = "1.0-SNAPSHOT"
+  val buildVersion = "1.0"
   val playVersion = "2.3.0"
   val paradiseVersion = "2.0.0"
 
   val scalaVersions = Seq(
-    scalaVersion := "2.10.4",
+    scalaVersion := "2.11.1",
     crossScalaVersions := Seq("2.10.4", "2.11.1"))
 
   // Used by api docs generation to link back to the correct branch on GitHub, only when version is a SNAPSHOT
   val sourceCodeBranch = "master"
+
+  val sonatypeSettings = Seq(
+    publishMavenStyle := true,
+    publishTo := {
+      val nexus = "https://oss.sonatype.org/"
+      if (isSnapshot.value)
+        Some("snapshots" at nexus + "content/repositories/snapshots")
+      else
+        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+    },
+    homepage := Some(url("https://github.com/jto/validation")),
+    organizationHomepage := Some(url("http://jto.github.io/")),
+    description := "The unified validation API",
+    licenses += "The Apache License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"),
+    pomExtra := (
+      <scm>
+        <url>git@github.com:jto/validation.git</url>
+        <connection>scm:git:git@github.com:jto/validation.git</connection>
+      </scm>
+      <developers>
+        <developer>
+          <id>jto</id>
+          <name>Julien Tournay</name>
+          <url>http://jto.github.io</url>
+        </developer>
+      </developers>)
+  )
 
   val commonSettings = scalaVersions ++ Seq(
     organization := org,
     version := buildVersion,
     ivyLoggingLevel := UpdateLogging.DownloadOnly,
     resolvers ++= all,
-    fork in Test := true,
-    publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath + "/Documents/mvn-repo/snapshots"))))
+    fork in Test := true) ++ sonatypeSettings
 }
 
 object Dependencies {
@@ -113,6 +139,7 @@ object ValidationBuild extends Build {
 
   lazy val root = project.in(file("."))
     .aggregate(core, json, form, delimited, json4s, experimental)
+    .settings(commonSettings: _*)
     .settings(scalaVersions: _*)
     .settings(publishArtifact := false)
 }

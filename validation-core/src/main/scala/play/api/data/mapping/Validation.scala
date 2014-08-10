@@ -215,6 +215,10 @@ object Validation {
   import play.api.libs.functional._
   import scala.language.reflectiveCalls
 
+  implicit def functorValidation[I] = new Functor[({ type λ[O] = Validation[I, O] })#λ] {
+    def fmap[A, B](m: Validation[I, A], f: A => B): Validation[I, B] = Validation.applicativeValidation[I].map(m, f)
+  }
+
   implicit def applicativeValidation[E] = new Applicative[({ type λ[A] = Validation[E, A] })#λ] {
 
     def pure[A](a: A): Validation[E, A] = Success(a)
@@ -232,6 +236,7 @@ object Validation {
   // XXX: Helps the compiler a bit
   import play.api.libs.functional.syntax._
   implicit def cba[E] = functionalCanBuildApplicative[({ type λ[A] = Validation[E, A] })#λ]
+  implicit def validationFbo[I, O] = toFunctionalBuilderOps[({ type λ[O] = Validation[I, O] })#λ, O] _
 }
 
 final case class FailProjection[+E, +A](v: Validation[E, A]) {

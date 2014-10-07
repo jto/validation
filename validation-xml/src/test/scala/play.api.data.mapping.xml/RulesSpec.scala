@@ -43,7 +43,7 @@ object RulesSpec extends Specification {
     "extract an attribute path" in {
       val reads = From[Node] { __ =>
         import Rules._
-        (__ \ "job").read(attributeR("type"))
+        (__ \ "job").read(attributeR[String]("type"))
       }
       reads.validate(xmlNode) === Success("fulltime")
     }
@@ -52,7 +52,7 @@ object RulesSpec extends Specification {
       val reads = From[Node] { __ =>
         import Rules._
         (__ \ "phones").read(pickSeq(
-          __.read(attributeR("type"))
+          __.read(attributeR[String]("type"))
         ))
       }
 
@@ -94,12 +94,12 @@ object RulesSpec extends Specification {
         import Rules._
         (
           pickChildWithAttribute("prop", attrKey = "name", attrValue = "job")(
-            __.read(attributeR("value")) ~
-            __.read(attributeR("type"))
+            __.read(attributeR[String]("value")) ~
+            __.read(attributeR[String]("type"))
             tupled
           ) ~
           pickChildWithAttribute("prop", attrKey = "name", attrValue = "age")(
-            __.read(attributeIntR("value"))
+            __.read(attributeR[Int]("value"))
           )
         ) tupled
       }

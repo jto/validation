@@ -6,34 +6,18 @@ import scala.xml._
 object Rules extends DefaultRules[Node] with ParsingRules {
   import scala.language.{higherKinds, implicitConversions}
 
-  implicit def nodeR: Rule[Node, String] = Rule.fromMapping { node =>
+  implicit def nodeR[O](implicit r: RuleLike[String, O]): Rule[Node, O] = Rule.fromMapping[Node, String] { node =>
     val children = (node \ "_")
     if (children.isEmpty) Success(node.text)
     else Failure(Seq(ValidationError("error.invalid", "a non-leaf node can not be validated to String")))
-  }
+  }.compose(r)
 
-  implicit def nodeBooleanR = nodeR compose booleanR
-  implicit def nodeIntR = nodeR compose intR
-  implicit def nodeShortR = nodeR compose shortR
-  implicit def nodeLongR = nodeR compose longR
-  implicit def nodeFloatR = nodeR compose floatR
-  implicit def nodeDoubleR = nodeR compose doubleR
-  implicit def nodeBigDecimalR = nodeR compose bigDecimal
-
-  def attributeR(key: String): Rule[Node, String] = Rule.fromMapping { node =>
+  def attributeR[O](key: String)(implicit r: RuleLike[String, O]): Rule[Node, O] = Rule.fromMapping[Node, String] { node =>
     node.attribute(key).flatMap(_.headOption).map(_.text) match {
       case Some(value) => Success(value)
       case None => Failure(Seq(ValidationError("error.required")))
     }
-  }
-
-  def attributeBooleanR(key: String) = attributeR(key) compose booleanR
-  def attributeIntR(key: String) = attributeR(key) compose intR
-  def attributeShortR(key: String) = attributeR(key) compose shortR
-  def attributeLongR(key: String) = attributeR(key) compose longR
-  def attributeFloatR(key: String) = attributeR(key) compose floatR
-  def attributeDoubleR(key: String) = attributeR(key) compose doubleR
-  def attributeBigDecimalR(key: String) = attributeR(key) compose bigDecimal
+  }.compose(r)
 
   implicit def pickInNode[II <: Node, O](p: Path)(implicit r: RuleLike[Node, O]): Rule[II, O] = {
 

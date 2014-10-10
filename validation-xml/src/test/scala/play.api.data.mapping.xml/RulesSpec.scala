@@ -5,7 +5,80 @@ import play.api.data.mapping._
 import scala.xml._
 
 object RulesSpec extends Specification {
+
   "Xml rules" should {
+    import play.api.data.mapping.xml.Rules._
+
+    val valid =
+      <person>
+        <firstname>Julien</firstname>
+        <lastname>Tournay</lastname>
+        <age>27</age>
+        <informations label="personal">
+          <email>fakecontact@gmail.com</email>
+          <phones>
+            <phone label="mobile">01.02</phone>
+            <phone label="home">02.03</phone>
+          </phones>
+        </informations>
+      </person>
+
+    val invalid =
+      <person>
+        <firstname>Julien</firstname>
+        <lastname>Tournay</lastname>
+        <age>27</age>
+        <informations label="">
+          <email>fakecontact@gmail.com</email>
+          <phones>
+            <phone label="mobile">01.02</phone>
+            <phone label="home">02.03</phone>
+          </phones>
+        </informations>
+      </person>
+
+    "extract data" in {
+      (Path \ "firstname").read[Node, String].validate(valid) === Success("Julien")
+      val errPath = Path \ "foo"
+      val error = Failure(Seq(errPath -> Seq(ValidationError("error.required"))))
+      errPath.read[Node, String].validate(invalid) mustEqual(error)
+    }
+
+    "support attribute checked" in {
+      val xml = <item checked="true">Item 1</item>
+      attributeR[Boolean]("checked").validate(xml) === Success(true)
+      attributeR[Boolean]("checked").validate(<empty></empty>) === Failure(Seq(Path -> Seq(ValidationError("error.required"))))
+    }
+
+    "support primitive types" in {
+
+      "Int" in {
+        Path.read[Node, Int].validate(<a>4</a>) === Success(4)
+        attributeR("attr").validate(<a attr="4"></a>) === Success(4)
+        Path.read[Node, Int].validate(<a>no</a>) === Failure(Seq(Path -> Seq(ValidationError("error.number", "Int"))))
+        Path.read[Node, Int].validate(<a>4.8</a>) === Failure(Seq(Path -> Seq(ValidationError("error.number", "Int"))))
+        (Path \ "b").read[Node, Int].validate(<a><b>4</b></a>) === Success(4)
+        (Path \ "b").read[Node, Int](attributeR("attr")).validate(<a><b attr="4"></b></a>) === Success(4)
+        (Path \ "b").read[Node, Int].validate(Json.obj("n" -> Json.obj("o" -> "foo"))) mustEqual(Failure(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
+      }
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // -----
 
     val xmlNode =
       <person>
@@ -16,6 +89,7 @@ object RulesSpec extends Specification {
           <phone type="mobile">01 123</phone>
           <phone type="home">02 123</phone></phones>
       </person>
+
 
     "extract a path" in {
       val reads = From[Node] { __ =>
@@ -52,7 +126,7 @@ object RulesSpec extends Specification {
       val reads = From[Node] { __ =>
         import Rules._
         (__ \ "phones").read(pickSeq(
-          __.read(attributeR[String]("type"))
+          attributeR[String]("type")
         ))
       }
 
@@ -94,12 +168,12 @@ object RulesSpec extends Specification {
         import Rules._
         (
           pickChildWithAttribute("prop", attrKey = "name", attrValue = "job")(
-            __.read(attributeR[String]("value")) ~
-            __.read(attributeR[String]("type"))
+            attributeR[String]("value") ~
+            attributeR[String]("type")
             tupled
           ) ~
           pickChildWithAttribute("prop", attrKey = "name", attrValue = "age")(
-            __.read(attributeR[Int]("value"))
+            attributeR[Int]("value")
           )
         ) tupled
       }

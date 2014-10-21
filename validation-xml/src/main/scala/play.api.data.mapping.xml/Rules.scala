@@ -19,6 +19,13 @@ object Rules extends DefaultRules[Node] with ParsingRules {
     }
   }.compose(r)
 
+  def optAttributeR[O](key: String)(implicit r: RuleLike[String, O]): Rule[Node, Option[O]] = Rule[Node, Option[O]] { node =>
+    node.attribute(key).flatMap(_.headOption).map(_.text) match {
+      case Some(str) => r.validate(str).map(Some(_))
+      case None => Success(None)
+    }
+  }
+
   implicit def pickInNode[II <: Node, O](p: Path)(implicit r: RuleLike[Node, O]): Rule[II, O] = {
 
     def search(path: Path, node: Node): Option[Node] = path.path match {

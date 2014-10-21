@@ -185,9 +185,22 @@ object RulesSpec extends Specification {
         p.from[Node](attributeR[String]("label") compose notEmpty).validate(invalid) mustEqual(Failure(Seq(p -> Seq(ValidationError("error.required")))))
       }
 
-      "validate optional" in {
-        (Path \ "firstname").read[Node, Option[String]].validate(valid) mustEqual(Success(Some("Julien")))
-        (Path \ "foobar").read[Node, Option[String]].validate(valid) mustEqual(Success(None))
+      "validate optional fields and attributes" in {
+        val reads = From[Node] { __ =>
+          (
+            (__ \ "firstname").read[Option[String]] ~
+            (__ \ "age").read[Option[Int]] ~
+            (__ \ "foo").read[Option[String]] ~
+            (__ \ "firstname").read(optAttributeR[String]("foo"))
+            tupled
+          )
+        }
+        reads.validate(valid) === Success((Some("Julien"), Some(27), None, None))
+
+        val readsInvalid = From[Node] { __ =>
+          (__ \ "foo").read(optAttributeR[String]("foo"))
+        }
+        readsInvalid.validate(valid) === Failure(Seq(Path \ "foo" -> Seq(ValidationError("error.required"))))
       }
 
       "validate deep" in {

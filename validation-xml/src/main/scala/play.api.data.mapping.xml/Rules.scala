@@ -62,7 +62,7 @@ object Rules extends DefaultRules[Node] with ParsingRules {
   def optionR[J, O](r: => RuleLike[J, O], noneValues: RuleLike[Node, Node]*)(implicit pick: Path => RuleLike[Node, Node], coerce: RuleLike[Node, J]): Path => Rule[Node, Option[O]] =
     super.opt[J, O](r, noneValues: _*)
 
-  def pickChildWithAttribute[O](key: String, attrKey: String, attrValue: String)(implicit r: Rule[Node, O]): Rule[Node, O] =
+  def pickChildWithAttribute[O](key: String, attrKey: String, attrValue: String)(implicit r: RuleLike[Node, O]): Rule[Node, O] =
     Rule.fromMapping[Node, Node] { node =>
       val maybeChild = (node \ "_").find(_.attribute(attrKey).filter(_.text == attrValue).isDefined)
       maybeChild match {

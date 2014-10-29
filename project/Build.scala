@@ -131,6 +131,12 @@ object ValidationBuild extends Build {
     .settings(specsDep: _*)
     .dependsOn(core)
 
+  lazy val xml = Project("validation-xml", file("validation-xml"))
+    .settings(commonSettings: _*)
+    .settings(specsDep: _*)
+    .settings(libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.2")
+    .dependsOn(core)
+
   lazy val experimental = Project("validation-experimental", file("validation-experimental"))
     .settings(commonSettings: _*)
     .settings(shapelessDep: _*)
@@ -138,7 +144,7 @@ object ValidationBuild extends Build {
     .dependsOn(core)
 
   lazy val root = project.in(file("."))
-    .aggregate(core, json, form, delimited, json4s, experimental)
+    .aggregate(core, json, form, delimited, xml, json4s, experimental)
     .settings(commonSettings: _*)
     .settings(scalaVersions: _*)
     .settings(publishArtifact := false)

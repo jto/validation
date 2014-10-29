@@ -9,7 +9,16 @@ Add the following lines in your `build.sbt`
 ```scala
 resolvers += "JTO snapshots" at "https://raw.github.com/jto/mvn-repo/master/snapshots"
 
+// If you want only the core
 libraryDependencies +="io.github.jto" %% "validation-core" % "1.0-1c770f4"
+
+// Json validation
+libraryDependencies +="io.github.jto" %% "validation-json" % "1.0-1c770f4"
+
+// Form validation
+libraryDependencies +="io.github.jto" %% "validation-form" % "1.0-1c770f4"
+
+// ...
 ```
 
 ## Documentation

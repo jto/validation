@@ -35,8 +35,8 @@ class RulesSpec extends Specification {
       val str = Array("John Doe", "\\N", "", "9393.12")
 
       (Path \ 0).read[Delimited, String].validate(str) mustEqual Success("John Doe")
-      (Path \ 1).read(optionR(Rules.equalTo("\\N"))).validate(str) mustEqual Success(None)
-      (Path \ 2).read(optionR(Rules.equalTo("\\N"))).validate(str) mustEqual Success(Some(""))
+      (Path \ 1).read[Delimited, Option[String]](optionR(Rules.equalTo("\\N"))).validate(str) mustEqual Success(None)
+      (Path \ 2).read[Delimited, Option[String]](optionR(Rules.equalTo("\\N"))).validate(str) mustEqual Success(Some(""))
       (Path \ 3).read[Delimited, Double].validate(str) mustEqual Success(9393.12)
     }
   }

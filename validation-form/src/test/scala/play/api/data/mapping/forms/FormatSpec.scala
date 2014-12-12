@@ -27,7 +27,7 @@ object FormatSpec extends Specification {
       f.writes(1L) mustEqual(m)
       f.validate(m) mustEqual(Success(1L))
 
-      (Path \ "id").from[UrlFormEncoded](f).validate(Map.empty) mustEqual(Failure(Seq(Path \ "id" -> Seq(ValidationError("error.required")))))
+      (f).validate(Map.empty) mustEqual(Failure(Seq(Path \ "id" -> Seq(ValidationError("error.required")))))
     }
 
 
@@ -44,7 +44,7 @@ object FormatSpec extends Specification {
       f.writes("CAFEBABE") mustEqual(m)
       f.validate(m) mustEqual(Success("CAFEBABE"))
 
-      (Path \ "id").from[UrlFormEncoded](f).validate(Map.empty) mustEqual(Failure(Seq(Path \ "id" -> Seq(ValidationError("error.required")))))
+      (f).validate(Map.empty) mustEqual(Failure(Seq(Path \ "id" -> Seq(ValidationError("error.required")))))
     }
 
     "serialize and deserialize Seq[String]" in {
@@ -231,7 +231,7 @@ object FormatSpec extends Specification {
       "Map[String, Seq[V]]" in {
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Map[String, Seq[String]]] }.validate(Map("n.foo" -> Seq("bar"))) mustEqual(Success(Map("foo" -> Seq("bar"))))
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Map[String, Seq[Int]]] }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("5"))) mustEqual(Success(Map("foo" -> Seq(4), "bar" -> Seq(5))))
-        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "x").format[Map[String, Int]] }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("frack"))) mustEqual(Failure(Seq(Path \ "x" -> Seq(ValidationError("error.required")))))
+        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "x").format[Map[String, Int]] }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("frack"))) mustEqual(Success(Map.empty))
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Map[String, Seq[Int]]] }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("frack"))) mustEqual(Failure(Seq(Path \ "n" \ "bar" \ 0 -> Seq(ValidationError("error.number", "Int")))))
       }
 

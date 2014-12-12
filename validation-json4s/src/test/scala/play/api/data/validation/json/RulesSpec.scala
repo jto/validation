@@ -251,6 +251,12 @@ object RulesSpec extends Specification {
       }.validate(invalid) mustEqual(Failure(Seq(p -> Seq(ValidationError("error.required")))))
     }
 
+    "validate deep optional" in {
+      From[JValue]{ __ =>
+        (__ \ "first" \ "second").read[Option[String]]
+      }validate(JNull) mustEqual Success(None)
+    }
+
     "coerce type" in {
       (Path \ "age").read[JValue, Int].validate(valid) mustEqual(Success(27))
       (Path \ "age").from[JValue](min(20)).validate(valid) mustEqual(Success(27))

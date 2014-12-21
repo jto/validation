@@ -327,6 +327,8 @@ class WritesSpec extends Specification {
     }
 
     "support write of value class" in {
+      import TestValueClass._
+
       val w = To[JsObject] { __ =>
         (__ \ "id").write[Id]
       }
@@ -338,8 +340,10 @@ class WritesSpec extends Specification {
 
 }
 
-case class Id(value: String) extends AnyVal
-object Id {
-  import play.api.data.mapping.Write
-  implicit val writes: Write[Id, JsString] = Write(id => JsString(id.value))
+object TestValueClass {
+  case class Id(value: String) extends AnyVal
+  object Id {
+    import play.api.data.mapping.Write
+    implicit val writes: Write[Id, JsString] = Write(id => JsString(id.value))
+  }
 }

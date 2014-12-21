@@ -52,8 +52,14 @@ object Writes extends DefaultWrites with DefaultMonoids with GenericWrites[JsVal
     Write(s => JsString(s))
 
   private def tToJs[T] = Write[T, JsValue]((i: T) => JsNumber(BigDecimal(i.toString)))
-  implicit def anyval[T <: AnyVal] = tToJs[T]
   implicit def javanumber[T <: java.lang.Number] = tToJs[T]
+
+  implicit val intW = tToJs[Int]
+  implicit val shortW = tToJs[Short]
+  implicit val longW = tToJs[Long]
+  implicit val floatW = tToJs[Float]
+  implicit val doubleW = tToJs[Double]
+  implicit val bigDecimalW = Write[BigDecimal, JsValue](JsNumber.apply _)
 
   implicit def booleanW = Write[Boolean, JsValue](JsBoolean.apply _)
 

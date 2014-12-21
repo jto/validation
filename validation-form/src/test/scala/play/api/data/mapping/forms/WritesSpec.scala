@@ -309,17 +309,16 @@ class WritesSpec extends Specification {
         }
         w3.writes(u1) mustEqual m1
       }
+    }
+    
+    "support write of value class" in {
+      import TestValueClass._
 
-      "support write of value class" in {
-        import TestValueClass._
-
-        val w = To[UrlFormEncoded] { __ =>
-          (__ \ "id").write[Id]
-        }
-
-        w.writes(Id("1")) mustEqual Map("id" -> Seq("1"))
+      val w = To[UrlFormEncoded] { __ =>
+        (__ \ "id").write[Id]
       }
 
+      w.writes(Id("1")) mustEqual Map("id" -> Seq("1"))
     }
 
   }

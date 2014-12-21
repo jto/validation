@@ -15,7 +15,7 @@ trait DefaultMonoids {
   }
 }
 
-object Writes extends DefaultWritesWithPrimitiveTypes with DefaultMonoids with GenericWrites[XmlWriter] {
+object Writes extends DefaultWrites with PrimitiveTypes2StringWrites with DefaultMonoids with GenericWrites[XmlWriter] {
 
   implicit def nodeW[I](implicit w: WriteLike[I, String]): Write[I, XmlWriter] = Write { i =>
     node => node.copy(child = node.child :+ new Text(w.writes(i)))
@@ -58,14 +58,3 @@ object Writes extends DefaultWritesWithPrimitiveTypes with DefaultMonoids with G
     optionW(Write.zero[I])
 
 }
-
-trait DefaultWritesWithPrimitiveTypes extends DefaultWrites {
-  implicit val intW: Write[Int, String] = Write(_.toString)
-  implicit val shortW: Write[Short, String] = Write(_.toString)
-  implicit val booleanW: Write[Boolean, String] = Write(_.toString)
-  implicit val longW: Write[Long, String] = Write(_.toString)
-  implicit val floatW: Write[Float, String] = Write(_.toString)
-  implicit val doubleW: Write[Double, String] = Write(_.toString)
-  implicit val bigDecimalW: Write[BigDecimal, String] = Write(_.toString)
-}
-

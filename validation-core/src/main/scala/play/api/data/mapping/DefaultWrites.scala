@@ -81,7 +81,7 @@ trait GenericWrites[O] {
     Write((_: Set[I]).toSeq) compose w
 }
 
-trait PrimitiveTypes2StringWrites {
+trait NumericTypes2StringWrites {
   implicit val intW: Write[Int, String] = Write(_.toString)
   implicit val shortW: Write[Short, String] = Write(_.toString)
   implicit val booleanW: Write[Boolean, String] = Write(_.toString)

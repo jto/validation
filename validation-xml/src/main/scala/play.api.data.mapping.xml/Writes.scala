@@ -15,7 +15,7 @@ trait DefaultMonoids {
   }
 }
 
-object Writes extends DefaultWrites with PrimitiveTypes2StringWrites with DefaultMonoids with GenericWrites[XmlWriter] {
+object Writes extends DefaultWrites with NumericTypes2StringWrites with DefaultMonoids with GenericWrites[XmlWriter] {
 
   implicit def nodeW[I](implicit w: WriteLike[I, String]): Write[I, XmlWriter] = Write { i =>
     node => node.copy(child = node.child :+ new Text(w.writes(i)))

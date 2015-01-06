@@ -35,3 +35,5 @@ sbt -Dplay.version=2.3.0-RC1 run
 - Nick - https://github.com/stanch
 - Ian Hummel - https://github.com/themodernlife
 - Arthur Gautier - https://github.com/baloo
+- Jacques B - https://github.com/Timshel
+- Alexandre Tamborrino - https://github.com/atamborrino

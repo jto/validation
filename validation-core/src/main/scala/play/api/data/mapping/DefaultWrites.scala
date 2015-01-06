@@ -80,3 +80,13 @@ trait GenericWrites[O] {
   implicit def setW[I](implicit w: WriteLike[Seq[I], O]) =
     Write((_: Set[I]).toSeq) compose w
 }
+
+trait NumericTypes2StringWrites {
+  implicit val intW: Write[Int, String] = Write(_.toString)
+  implicit val shortW: Write[Short, String] = Write(_.toString)
+  implicit val booleanW: Write[Boolean, String] = Write(_.toString)
+  implicit val longW: Write[Long, String] = Write(_.toString)
+  implicit val floatW: Write[Float, String] = Write(_.toString)
+  implicit val doubleW: Write[Double, String] = Write(_.toString)
+  implicit val bigDecimalW: Write[BigDecimal, String] = Write(_.toString)
+}

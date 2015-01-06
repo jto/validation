@@ -11,12 +11,12 @@ object RulesSpec extends Specification {
     import Rules._
     import PM._
     val valid: UrlFormEncoded = Map(
-      "firstname" -> Seq("Julien"),
+      "firstname" -> Seq("Julien", "ignored"),
       "lastname" -> Seq("Tournay"),
       "age" -> Seq("27"),
       "informations.label" -> Seq("Personal"),
       "informations.email" -> Seq("fakecontact@gmail.com"),
-      "informations.phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
+      "informations.phones[]" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
 
     val invalid = Map(
      "firstname" -> Seq("Julien"),
@@ -24,7 +24,7 @@ object RulesSpec extends Specification {
      "age" -> Seq("27"),
      "informations.label" -> Seq(""),
      "informations.email" -> Seq("fakecontact@gmail.com"),
-     "informations.phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
+     "informations.phones[]" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
 
     "extract data" in {
       From[UrlFormEncoded] { __ =>
@@ -210,25 +210,25 @@ object RulesSpec extends Specification {
 
       "Traversable" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[Traversable[String]] }.validate(Map("n" -> Seq("foo"))).get.toSeq must contain(exactly(Seq("foo"): _*))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Traversable[Int]] }.validate(Map("n" -> Seq("1", "2", "3"))).get.toSeq must contain(exactly(Seq(1, 2, 3): _*))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Traversable[Int]] }.validate(Map("n" -> Seq("1", "paf"))) mustEqual(Failure(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.number", "Int")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Traversable[Int]] }.validate(Map("n[]" -> Seq("1", "2", "3"))).get.toSeq must contain(exactly(Seq(1, 2, 3): _*))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Traversable[Int]] }.validate(Map("n[]" -> Seq("1", "paf"))) mustEqual(Failure(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.number", "Int")))))
       }
 
       "Array" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[Array[String]] }.validate(Map("n" -> Seq("foo"))).get.toSeq must contain(exactly(Seq("foo"): _*))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Array[Int]] }.validate(Map("n" -> Seq("1", "2", "3"))).get.toSeq must contain(exactly(Seq(1, 2, 3): _*))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Array[Int]] }.validate(Map("n" -> Seq("1", "paf"))) mustEqual(Failure(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.number", "Int")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Array[Int]] }.validate(Map("n[]" -> Seq("1", "2", "3"))).get.toSeq must contain(exactly(Seq(1, 2, 3): _*))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Array[Int]] }.validate(Map("n[]" -> Seq("1", "paf"))) mustEqual(Failure(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.number", "Int")))))
       }
 
       "Seq" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[Seq[String]] }.validate(Map("n" -> Seq("foo"))).get must contain(exactly(Seq("foo"): _*))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Seq[Int]] }.validate(Map("n" -> Seq("1", "2", "3"))).get must contain(exactly(Seq(1, 2, 3): _*))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Seq[Int]] }.validate(Map("n[]" -> Seq("1", "2", "3"))).get must contain(exactly(Seq(1, 2, 3): _*))
         From[UrlFormEncoded] { __ => (__ \ "n").read[Seq[Int]] }.validate(Map(
           "n[0]" -> Seq("1"),
           "n[1]" -> Seq("2"),
           "n[3]" -> Seq("3")
         )).get must contain(exactly(Seq(1, 2, 3): _*))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Seq[Int]] }.validate(Map("n" -> Seq("1", "paf"))) mustEqual(Failure(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.number", "Int")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Seq[Int]] }.validate(Map("n[]" -> Seq("1", "paf"))) mustEqual(Failure(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.number", "Int")))))
       }
     }
 
@@ -395,7 +395,7 @@ object RulesSpec extends Specification {
         "age" -> Seq("27"),
         "informations[0].label" -> Seq("Personal"),
         "informations[0].email" -> Seq("fakecontact@gmail.com"),
-        "informations[0].phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
+        "informations[0].phones[]" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
 
       val validNoMail1 = Map(
         "firstname" -> Seq("Julien"),
@@ -403,7 +403,7 @@ object RulesSpec extends Specification {
         "age" -> Seq("27"),
         "informations[0].label" -> Seq("Personal"),
         "informations[0].email" -> Seq(),
-        "informations[0].phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
+        "informations[0].phones[]" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
 
       val validNoMail3 = Map(
         "firstname" -> Seq("Julien"),
@@ -411,14 +411,14 @@ object RulesSpec extends Specification {
         "age" -> Seq("27"),
         "informations[0].label" -> Seq("Personal"),
         "informations[0].email" -> Seq(""),
-        "informations[0].phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
+        "informations[0].phones[]" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
 
       val validNoMail2 = Map(
         "firstname" -> Seq("Julien"),
         "lastname" -> Seq("Tournay"),
         "age" -> Seq("27"),
         "informations[0].label" -> Seq("Personal"),
-        "informations[0].phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
+        "informations[0].phones[]" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
 
       val validWithPhones = Map(
         "firstname" -> Seq("Julien"),

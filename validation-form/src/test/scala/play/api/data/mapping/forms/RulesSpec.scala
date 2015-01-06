@@ -204,7 +204,7 @@ object RulesSpec extends Specification {
       "Map[String, Seq[V]]" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[Map[String, Seq[String]]] }.validate(Map("n.foo" -> Seq("bar"))) mustEqual(Success(Map("foo" -> Seq("bar"))))
         From[UrlFormEncoded] { __ => (__ \ "n").read[Map[String, Seq[Int]]] }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("5"))) mustEqual(Success(Map("foo" -> Seq(4), "bar" -> Seq(5))))
-        From[UrlFormEncoded] { __ => (__ \ "x").read[Map[String, Int]] }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("frack"))) mustEqual(Failure(Seq(Path \ "x" -> Seq(ValidationError("error.required")))))
+        From[UrlFormEncoded] { __ => (__ \ "x").read[Map[String, Int]] }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("frack"))) mustEqual(Success(Map.empty))
         From[UrlFormEncoded] { __ => (__ \ "n").read[Map[String, Seq[Int]]] }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("frack"))) mustEqual(Failure(Seq(Path \ "n" \ "bar" \ 0 -> Seq(ValidationError("error.number", "Int")))))
       }
 
@@ -266,6 +266,12 @@ object RulesSpec extends Specification {
          (__ \ "informations").read(
           (__ \ "label").read(notEmpty))
       }.validate(invalid) mustEqual(Failure(Seq(p -> Seq(ValidationError("error.required")))))
+    }
+
+    "validate deep optional" in {
+      From[UrlFormEncoded]{ __ =>
+        (__ \ "first" \ "second").read[Option[String]]
+      }validate(Map.empty) mustEqual Success(None)
     }
 
     "coerce type" in {

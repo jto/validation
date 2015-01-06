@@ -157,10 +157,7 @@ object Rules extends DefaultRules[PM.PM] with ParsingRules {
 
   implicit def pickInPM[O](p: Path)(implicit r: RuleLike[PM, O]): Rule[PM, O] =
     Rule[PM, PM] { pm =>
-      PM.find(p)(pm) match {
-        case sub if sub.isEmpty => Failure(Seq(Path -> Seq(ValidationError("error.required"))))
-        case sub => Success(sub)
-      }
+      Success(PM.find(p)(pm))
     }.compose(r)
 
   // Convert Rules exploring PM, to Rules exploring UrlFormEncoded

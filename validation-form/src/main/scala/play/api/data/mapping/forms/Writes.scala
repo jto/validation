@@ -18,7 +18,13 @@ object Writes extends DefaultWrites with GenericWrites[PM.PM] with DefaultMonoid
   import PM._
 
   // TODO: accept a format ?
-  implicit def anyval[T <: AnyVal] = Write((i: T) => i.toString)
+  implicit val intW: Write[Int, String] = Write(_.toString)
+  implicit val shortW: Write[Short, String] = Write(_.toString)
+  implicit val booleanW: Write[Boolean, String] = Write(_.toString)
+  implicit val longW: Write[Long, String] = Write(_.toString)
+  implicit val floatW: Write[Float, String] = Write(_.toString)
+  implicit val doubleW: Write[Double, String] = Write(_.toString)
+  implicit val bigDecimalW: Write[BigDecimal, String] = Write(_.toString)
   implicit def scalanumber[T <: scala.math.ScalaNumber] = Write((i: T) => i.toString)
   implicit def javanumber[T <: java.lang.Number] = Write((i: T) => i.toString)
 

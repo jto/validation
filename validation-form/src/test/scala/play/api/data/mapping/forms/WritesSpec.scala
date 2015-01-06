@@ -48,8 +48,8 @@ class WritesSpec extends Specification {
       w.writes(Some("Hello World")) mustEqual Map("email" -> Seq("Hello World"))
       w.writes(None) mustEqual Map.empty
 
-      (Path \ "n").write(optionW(anyval[Int])).writes(Some(5)) mustEqual Map("n" -> Seq("5"))
-      (Path \ "n").write(optionW(anyval[Int])).writes(None) mustEqual Map.empty
+      (Path \ "n").write(optionW(intW)).writes(Some(5)) mustEqual Map("n" -> Seq("5"))
+      (Path \ "n").write(optionW(intW)).writes(None) mustEqual Map.empty
 
       case class Foo(name: String)
       implicit val wf = (Path \ "name").write[String, UrlFormEncoded].contramap((_: Foo).name)
@@ -309,9 +309,27 @@ class WritesSpec extends Specification {
         }
         w3.writes(u1) mustEqual m1
       }
+    }
+    
+    "support write of value class" in {
+      import TestValueClass._
 
+      val w = To[UrlFormEncoded] { __ =>
+        (__ \ "id").write[Id]
+      }
+
+      w.writes(Id("1")) mustEqual Map("id" -> Seq("1"))
     }
 
   }
 
 }
+
+object TestValueClass {
+  case class Id(value: String) extends AnyVal
+  object Id {
+    import play.api.data.mapping.forms.Writes._
+    implicit val writes: Write[Id, String] = Write(id => id.value)
+  }
+}
+

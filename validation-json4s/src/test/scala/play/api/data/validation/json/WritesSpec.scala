@@ -49,8 +49,8 @@ class WritesSpec extends Specification {
       w.writes(Some("Hello World")) mustEqual JObject("email" -> JString("Hello World"))
       w.writes(None) mustEqual JObject()
 
-      (Path \ "n").write(optionW(anyval[Int])).writes(Some(5)) mustEqual JObject("n" -> JInt(5))
-      (Path \ "n").write(optionW(anyval[Int])).writes(None) mustEqual JObject()
+      (Path \ "n").write(optionW(intW)).writes(Some(5)) mustEqual JObject("n" -> JInt(5))
+      (Path \ "n").write(optionW(intW)).writes(None) mustEqual JObject()
     }
 
     "write seq" in {
@@ -327,6 +327,26 @@ class WritesSpec extends Specification {
 
     }
 
+    "support write of value class" in {
+      import TestValueClass._
+
+      val w = To[JObject] { __ =>
+        (__ \ "id").write[Id]
+      }
+
+      w.writes(Id("1")) mustEqual JObject("id" -> JString("1"))
+    }
+
   }
 
 }
+
+object TestValueClass {
+  case class Id(value: String) extends AnyVal
+  object Id {
+    import play.api.data.mapping.Write
+    implicit val writes: Write[Id, JString] = Write(id => JString(id.value))
+  }
+}
+
+

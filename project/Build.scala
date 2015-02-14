@@ -57,7 +57,7 @@ object BuildSettings {
     version := buildVersion,
     ivyLoggingLevel := UpdateLogging.DownloadOnly,
     resolvers ++= all,
-    fork in Test := true) ++ sonatypeSettings
+    fork in Test := true) ++ sonatypeSettings ++ tut.Plugin.tutSettings
 }
 
 object Dependencies {
@@ -69,9 +69,6 @@ object Dependencies {
     case _ =>
       Seq()
   })
-
-  val docDep = libraryDependencies +=
-    "com.typesafe.play" %% "play-doc" % "1.0.3"
 
   val specsDep = libraryDependencies +=
     "org.specs2" %% "specs2" % "2.3.12" % "test"
@@ -92,6 +89,9 @@ object Dependencies {
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "com.typesafe.play" %% "play-functional" % playVersion,
       "com.typesafe.play" %% "play-json" % playVersion))
+
+  val docDeps = libraryDependencies ++= Seq(
+    "com.typesafe.play" %% "play" % playVersion)
 }
 
 object ValidationBuild extends Build {
@@ -100,9 +100,9 @@ object ValidationBuild extends Build {
   import Dependencies._
 
   lazy val docs = Project("validation-docs", file("validation-docs"))
-    .settings(Docs.settings: _*)
-    .settings(docDep: _*)
-    .settings(specsDep: _*)
+    .settings(commonSettings: _*)
+    .settings(docDeps: _*)
+    .dependsOn(core, json, json4s, form, xml, experimental)
 
   lazy val core = Project("validation-core", file("validation-core"))
     .settings(commonSettings: _*)

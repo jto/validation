@@ -18,25 +18,68 @@ The generated code:
 
 Traditionally, for a given case class `Person` we would define a `Rule` like this:
 
-@[macro-person-def](code/ScalaValidationMacros.scala)
+```tut
+case class Person(name: String, age: Int, lovesChocolate: Boolean)
+```
 
-@[macro-manual](code/ScalaValidationMacros.scala)
+```tut
+import play.api.libs.json._
+import play.api.data.mapping._
+
+implicit val personRule = From[JsValue] { __ =>
+  import play.api.data.mapping.json.Rules._
+  ((__ \ "name").read[String] and
+   (__ \ "age").read[Int] and
+   (__ \ "lovesChocolate").read[Boolean])(Person.apply _)
+}
+```
 
 Let's test it:
 
-@[macro-manual-test](code/ScalaValidationMacros.scala)
+```tut
+val json = Json.parse("""{
+  "name": "Julien",
+  "age": 28,
+  "lovesChocolate": true
+}""")
+
+personRule.validate(json)
+```
 
 The exact same `Rule` can be generated using `Rule.gen`:
 
-@[macro-macro](code/ScalaValidationMacros.scala)
+```tut
+implicit val personRule = {
+  import play.api.data.mapping.json.Rules._ // let's not leak implicits everywhere
+  Rule.gen[JsValue, Person]
+}
+```
 
 The validation result is identical :
 
-@[macro-macro-test](code/ScalaValidationMacros.scala)
+```tut
+val json = Json.parse("""{
+  "name": "Julien",
+  "age": 28,
+  "lovesChocolate": true
+}""")
+
+personRule.validate(json)
+```
 
 Similarly we can generate a `Write`:
 
-@[macro-write](code/ScalaValidationMacros.scala)
+```tut
+import play.api.libs.json._
+import play.api.data.mapping._
+
+implicit val personWrite = {
+  import play.api.data.mapping.json.Writes._ // let's no leak implicits everywhere
+  Write.gen[Person, JsObject]
+}
+
+personWrite.writes(Person("Julien", 28, true))
+```
 
 ## Known limitations
 

@@ -9,7 +9,10 @@ The API is designed around the concept of `Rule`. A `Rule[I, O]` defines a way t
 Let's say you want to coerce a `String` into an `Float`.
 All you need to do is to define a `Rule` from String to Float:
 
-@[rule-first-ex](code/ScalaValidationRule.scala)
+```tut
+import play.api.data.mapping._
+ def isFloat: Rule[String, Float] = ???
+ ```
 
 When a `String` is parsed into an `Float`, two scenario are possible, either:
 
@@ -26,31 +29,25 @@ Back, to our `Rule`. For now we'll not implement `isFloat`, actually the validat
 
 All you have to do is import the default Rules.
 
-```scala
-scala> import play.api.data.mapping.Rules
-import play.api.data.mapping.Rules
-
-scala> :t Rules.float                   // the :t command shows the type
-play.api.data.mapping.Rule[String,Float]
+```tut
+import play.api.data.mapping._
+object Rules extends GenericRules with ParsingRules
+Rules.floatR
 ```
 
 Let's now test it against different String values:
 
-@[rule-defaults](code/ScalaValidationRule.scala)
+```tut
+Rules.floatR.validate("1")
+Rules.floatR.validate("-13.7")
+Rules.floatR.validate("abc")
+```
 
 > `Rule` is typesafe. You can't apply a `Rule` on an unsupported type, the compiler won't let you:
 >
-```scala
-scala> :t Rules.float
-play.api.data.mapping.Rule[String,Float]
-```
-```scala
-scala> Rules.float.validate(Seq(32))
-<console>:9: error: type mismatch;
- found   : Seq[Int]
- required: String
-              Rules.float.validate(Seq(32))
-                                      ^
+```tut:nofail
+Rules.floatR
+Rules.floatR.validate(Seq(32))
 ```
 
 "abc" is not a valid `Float` but no exception was thrown. Instead of relying on exceptions, `validate` is returning an object of type `Validation` (here `VA` is just a fancy alias for a special kind of validation).
@@ -70,19 +67,34 @@ The method `validate` of a `Rule[I, O]` always return a `VA[I, O]`
 Creating a new `Rule` is almost as simple as creating a new function.
 All there is to do is to pass a function `I => Validation[I, O]` to `Rule.fromMapping`.
 
-This example creates a new `Rule` trying to get the first element of a `List[Int]`. 
+This example creates a new `Rule` trying to get the first element of a `List[Int]`.
 In case of an empty `List[Int]`, the rule should return a `Failure`.
 
+```tut
+val headInt: Rule[List[Int], Int] = Rule.fromMapping {
+  case Nil => Failure(Seq(ValidationError("error.emptyList")))
+  case head :: _ => Success(head)
+}
+```
 
-@[rule-headInt](code/ScalaValidationRule.scala)
-
-@[rule-headInt-test](code/ScalaValidationRule.scala)
+```tut
+headInt.validate(List(1, 2, 3, 4, 5))
+headInt.validate(Nil)
+```
 
 We can make this rule a bit more generic:
 
-@[rule-head](code/ScalaValidationRule.scala)
+```tut
+def head[T]: Rule[List[T], T] = Rule.fromMapping {
+  case Nil => Failure(Seq(ValidationError("error.emptyList")))
+  case head :: _ => Success(head)
+}
+```
 
-@[rule-head-test](code/ScalaValidationRule.scala)
+```tut
+head.validate(List('a', 'b', 'c', 'd'))
+head.validate(List[Char]())
+```
 
 ## Composing Rules
 
@@ -105,27 +117,28 @@ We've done almost all the work already. We just have to create a new `Rule` the 
 
 It would be fairly easy to create such a `Rule` "manually", but we don't have to. A method doing just that is already available:
 
-@[rule-firstFloat](code/ScalaValidationRule.scala)
-
-@[rule-firstFloat-test1](code/ScalaValidationRule.scala)
+```tut
+val firstFloat: Rule[List[String], Float] = head.compose(Rules.floatR)
+firstFloat.validate(List("1", "2"))
+firstFloat.validate(List("1.2", "foo"))
+```
 
 If the list is empty, we get the error from `head`
 
-@[rule-firstFloat-test2](code/ScalaValidationRule.scala)
+```tut
+firstFloat.validate(List())
+```
 
 If the first element is not parseable, we get the error from `Rules.float`.
 
-@[rule-firstFloat-test3](code/ScalaValidationRule.scala)
+```tut
+firstFloat.validate(List("foo", "2"))
+```
 
 Of course everything is still typesafe:
 
-```scala
-scala> firstFloat.validate(List(1, 2, 3))
-<console>:20: error: type mismatch;
- found   : Int(1)
- required: String
-              firstFloat.validate(List(1, 2, 3))
-                                       ^
+```tut:nofail
+firstFloat.validate(List(1, 2, 3))
 ```
 
 #### Improving reporting.
@@ -135,7 +148,10 @@ When a parsing error happens, the `Failure` does not tells us that it happened o
 
 To fix that, we can pass  an additionnal parameter to `compose`:
 
-@[rule-firstFloat-repath](code/ScalaValidationRule.scala)
+```tut
+val firstFloat2: Rule[List[String],Float] = head.compose(Path \ 0)(Rules.floatR)
+firstFloat2.validate(List("foo", "2"))
+```
 
 ### "Parallel" composition
 
@@ -146,15 +162,25 @@ This form of composition is almost exclusively used for the particular case of r
 Consider the following example: We want to write a `Rule` that given a `Int`, check that this `Int` is positive and even.
 The validation API already provides `Rules.min`, we have to define `even` ourselves:
 
-@[par-composition-def](code/ScalaValidationRule.scala)
+```tut
+val positive: Rule[Int,Int] = Rules.min(0)
+val even: Rule[Int,Int] = Rules.validateWith[Int]("error.even"){ _ % 2 == 0 }
+```
 
 Now we can compose those rules using `|+|`
 
-@[par-composition-comp](code/ScalaValidationRule.scala)
+```tut
+val positiveAndEven: Rule[Int,Int] = positive |+| even
+```
 
 Let's test our new `Rule`:
 
-@[par-composition-test](code/ScalaValidationRule.scala)
+```tut
+positiveAndEven.validate(12)
+positiveAndEven.validate(-12)
+positiveAndEven.validate(13)
+positiveAndEven.validate(-13)
+```
 
 Note that both rules are applied. If both fail, we get two `ValidationError`.
 

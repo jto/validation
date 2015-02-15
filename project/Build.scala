@@ -102,6 +102,7 @@ object ValidationBuild extends Build {
   lazy val docs = Project("validation-docs", file("validation-docs"))
     .settings(commonSettings: _*)
     .settings(docDeps: _*)
+    .settings(crossTarget := file(".") / "documentation")
     .dependsOn(core, json, json4s, form, xml, experimental)
 
   lazy val core = Project("validation-core", file("validation-core"))

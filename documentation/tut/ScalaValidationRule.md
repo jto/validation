@@ -40,7 +40,7 @@ scala> object Rules extends GenericRules with ParsingRules
 defined object Rules
 
 scala> Rules.floatR
-res0: play.api.data.mapping.Rule[String,Float] = play.api.data.mapping.Rule$$anon$1@7fe24e5e
+res0: play.api.data.mapping.Rule[String,Float] = play.api.data.mapping.Rule$$anon$1@5c2f09b9
 ```
 
 Let's now test it against different String values:
@@ -60,7 +60,7 @@ res3: play.api.data.mapping.VA[Float] = Failure(List((/,List(ValidationError(err
 >
 ```scala
 scala> Rules.floatR
-res4: play.api.data.mapping.Rule[String,Float] = play.api.data.mapping.Rule$$anon$1@59a58d74
+res4: play.api.data.mapping.Rule[String,Float] = play.api.data.mapping.Rule$$anon$1@72fc446e
 
 scala> Rules.floatR.validate(Seq(32))
 <console>:16: error: type mismatch;
@@ -95,7 +95,7 @@ scala> val headInt: Rule[List[Int], Int] = Rule.fromMapping {
      |   case Nil => Failure(Seq(ValidationError("error.emptyList")))
      |   case head :: _ => Success(head)
      | }
-headInt: play.api.data.mapping.Rule[List[Int],Int] = play.api.data.mapping.Rule$$anon$1@4aede90f
+headInt: play.api.data.mapping.Rule[List[Int],Int] = play.api.data.mapping.Rule$$anon$1@65e450d9
 ```
 
 ```scala
@@ -147,7 +147,7 @@ It would be fairly easy to create such a `Rule` "manually", but we don't have to
 
 ```scala
 scala> val firstFloat: Rule[List[String], Float] = head.compose(Rules.floatR)
-firstFloat: play.api.data.mapping.Rule[List[String],Float] = play.api.data.mapping.Rule$$anon$1@2a63d9df
+firstFloat: play.api.data.mapping.Rule[List[String],Float] = play.api.data.mapping.Rule$$anon$1@323e95e8
 
 scala> firstFloat.validate(List("1", "2"))
 res10: play.api.data.mapping.VA[Float] = Success(1.0)
@@ -200,7 +200,7 @@ To fix that, we can pass  an additionnal parameter to `compose`:
 
 ```scala
 scala> val firstFloat2: Rule[List[String],Float] = head.compose(Path \ 0)(Rules.floatR)
-firstFloat2: play.api.data.mapping.Rule[List[String],Float] = play.api.data.mapping.Rule$$anon$1@37a3ac81
+firstFloat2: play.api.data.mapping.Rule[List[String],Float] = play.api.data.mapping.Rule$$anon$1@2ed8bb8d
 
 scala> firstFloat2.validate(List("foo", "2"))
 res15: play.api.data.mapping.VA[Float] = Failure(List(([0],List(ValidationError(error.number,WrappedArray(Float))))))
@@ -217,17 +217,17 @@ The validation API already provides `Rules.min`, we have to define `even` oursel
 
 ```scala
 scala> val positive: Rule[Int,Int] = Rules.min(0)
-positive: play.api.data.mapping.Rule[Int,Int] = play.api.data.mapping.Rule$$anon$1@72f56190
+positive: play.api.data.mapping.Rule[Int,Int] = play.api.data.mapping.Rule$$anon$1@610755cb
 
 scala> val even: Rule[Int,Int] = Rules.validateWith[Int]("error.even"){ _ % 2 == 0 }
-even: play.api.data.mapping.Rule[Int,Int] = play.api.data.mapping.Rule$$anon$1@78d6728d
+even: play.api.data.mapping.Rule[Int,Int] = play.api.data.mapping.Rule$$anon$1@332605a1
 ```
 
 Now we can compose those rules using `|+|`
 
 ```scala
 scala> val positiveAndEven: Rule[Int,Int] = positive |+| even
-positiveAndEven: play.api.data.mapping.Rule[Int,Int] = play.api.data.mapping.Rule$$anon$1@6e7c7276
+positiveAndEven: play.api.data.mapping.Rule[Int,Int] = play.api.data.mapping.Rule$$anon$1@6283ed44
 ```
 
 Let's test our new `Rule`:
@@ -248,4 +248,4 @@ res19: play.api.data.mapping.VA[Int] = Failure(ArrayBuffer((/,List(ValidationErr
 
 Note that both rules are applied. If both fail, we get two `ValidationError`.
 
-> **Next:** - [[Complex validation with Rule combinators | ScalaValidationRuleCombinators]]
+> **Next:** - [Complex validation with Rule combinators](ScalaValidationRuleCombinators.md)

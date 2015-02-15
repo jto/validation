@@ -2,13 +2,13 @@
 
 ## Introduction
 
-We've already explained what a `Rule` is in [[the previous chapter | ScalaValidationRule]].
-Those examples were only covering simple rules. However most of the time, rules are used to validate and transform complex hierarchical objects, like [[Json|ScalaValidationJson]], or [[Forms|ScalaValidationForm]].
+We've already explained what a `Rule` is in [the previous chapter](ScalaValidationRule.md).
+Those examples were only covering simple rules. However most of the time, rules are used to validate and transform complex hierarchical objects, like [Json](ScalaValidationJson.md), or [Forms](ScalaValidationForm.md).
 
 The validation API allows complex object rules creation by combining simple rules together. This chapter explains how to create complex rules.
 
 > Despite examples below are validating Json objects, the API is not dedicated only to Json and can be used on any type.
-> Please refer to [[Validating Json | ScalaValidationJson]], [[Validating Forms|ScalaValidationForm]], and [[Supporting new types|ScalaValidationExtensions]] for more information.
+> Please refer to [Validating Json](ScalaValidationJson.md), [Validating Forms](ScalaValidationForm.md), and [Supporting new types](ScalaValidationExtensions.md) for more information.
 
 ## Path
 
@@ -290,5 +290,5 @@ It is recommended to always follow this pattern, as it nicely scopes the implici
 
 but repeating `JsValue` all over the place is just not very DRY.
 
-> **Next:** - [[Serialization with Write | ScalaValidationWrite]]
-> **For more examples and snippets:** - [[Cookbook | ScalaValidationCookbook]]
+> **Next:** - [Serialization with Write](ScalaValidationWrite.md)
+> **For more examples and snippets:** - [Cookbook](ScalaValidationCookbook.md)

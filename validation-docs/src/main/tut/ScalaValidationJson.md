@@ -36,7 +36,7 @@ This can be seen as a tree structure using the 2 following structures:
 ## Json Data Types
 
 `play.api.libs.json` package contains 7 JSON data types reflecting exactly the previous structure.
-All types inherit from the generic JSON trait, ```JsValue```. As Stated in [[the Json API documentation | ScalaJson]], we can easily parse this String into a JsValue:
+All types inherit from the generic JSON trait, ```JsValue```. As Stated in [the Json API documentation](https://www.playframework.com/documentation/2.3.x/ScalaJson), we can easily parse this String into a JsValue:
 
 ```tut
 import play.api.libs.json._

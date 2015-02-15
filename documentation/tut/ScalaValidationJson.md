@@ -36,7 +36,7 @@ This can be seen as a tree structure using the 2 following structures:
 ## Json Data Types
 
 `play.api.libs.json` package contains 7 JSON data types reflecting exactly the previous structure.
-All types inherit from the generic JSON trait, ```JsValue```. As Stated in [[the Json API documentation | ScalaJson]], we can easily parse this String into a JsValue:
+All types inherit from the generic JSON trait, ```JsValue```. As Stated in [the Json API documentation](https://www.playframework.com/documentation/2.3.x/ScalaJson), we can easily parse this String into a JsValue:
 
 ```scala
 scala> import play.api.libs.json._
@@ -111,7 +111,7 @@ With those implicits in scope, we can finally create our `Rule`.
 
 ```scala
 scala> val findFriend: Rule[JsValue, JsValue] = location.read[JsValue, JsValue]
-findFriend: play.api.data.mapping.Rule[play.api.libs.json.JsValue,play.api.libs.json.JsValue] = play.api.data.mapping.Rule$$anon$1@31cd8648
+findFriend: play.api.data.mapping.Rule[play.api.libs.json.JsValue,play.api.libs.json.JsValue] = play.api.data.mapping.Rule$$anon$1@9f77d6
 ```
 
 Alright, so far we've defined a `Rule` looking for some data of type JsValue, in an object of type JsValue, at `/user/friend`.

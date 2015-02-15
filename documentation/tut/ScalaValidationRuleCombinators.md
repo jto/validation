@@ -2,13 +2,13 @@
 
 ## Introduction
 
-We've already explained what a `Rule` is in [[the previous chapter | ScalaValidationRule]].
-Those examples were only covering simple rules. However most of the time, rules are used to validate and transform complex hierarchical objects, like [[Json|ScalaValidationJson]], or [[Forms|ScalaValidationForm]].
+We've already explained what a `Rule` is in [the previous chapter](ScalaValidationRule.md).
+Those examples were only covering simple rules. However most of the time, rules are used to validate and transform complex hierarchical objects, like [Json](ScalaValidationJson.md), or [Forms](ScalaValidationForm.md).
 
 The validation API allows complex object rules creation by combining simple rules together. This chapter explains how to create complex rules.
 
 > Despite examples below are validating Json objects, the API is not dedicated only to Json and can be used on any type.
-> Please refer to [[Validating Json | ScalaValidationJson]], [[Validating Forms|ScalaValidationForm]], and [[Supporting new types|ScalaValidationExtensions]] for more information.
+> Please refer to [Validating Json](ScalaValidationJson.md), [Validating Forms](ScalaValidationForm.md), and [Supporting new types](ScalaValidationExtensions.md) for more information.
 
 ## Path
 
@@ -117,7 +117,7 @@ With those implicits in scope, we can finally create our `Rule`:
 
 ```scala
 scala> val findFriend: Rule[JsValue, JsValue] = location.read[JsValue, JsValue]
-findFriend: play.api.data.mapping.Rule[play.api.libs.json.JsValue,play.api.libs.json.JsValue] = play.api.data.mapping.Rule$$anon$1@450cb9a7
+findFriend: play.api.data.mapping.Rule[play.api.libs.json.JsValue,play.api.libs.json.JsValue] = play.api.data.mapping.Rule$$anon$1@e1740d2
 ```
 
 Alright, so far we've defined a `Rule` looking for some data of type `JsValue`, located at `/user/friend` in an object of type `JsValue`.
@@ -142,7 +142,7 @@ We now are capable of extracting data at a given `Path`. Let's do it again on a 
 
 ```scala
 scala> val age = (Path \ "user" \ "age").read[JsValue, JsValue]
-age: play.api.data.mapping.Rule[play.api.libs.json.JsValue,play.api.libs.json.JsValue] = play.api.data.mapping.Rule$$anon$1@6d3684f
+age: play.api.data.mapping.Rule[play.api.libs.json.JsValue,play.api.libs.json.JsValue] = play.api.data.mapping.Rule$$anon$1@4563acfa
 ```
 
 Let's apply this new `Rule`:
@@ -166,7 +166,7 @@ All we have to do is to change the output type in our `Rule` definition:
 
 ```scala
 scala> val age = (Path \ "user" \ "age").read[JsValue, Int]
-age: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Int] = play.api.data.mapping.Rule$$anon$1@49cb022
+age: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Int] = play.api.data.mapping.Rule$$anon$1@232badef
 ```
 
 And apply it:
@@ -209,7 +209,7 @@ scala> val js = Json.parse("""{
 js: play.api.libs.json.JsValue = {"user":{"age":-33}}
 
 scala> val age = (Path \ "user" \ "age").read[JsValue, Int]
-age: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Int] = play.api.data.mapping.Rule$$anon$1@7d0fe1e0
+age: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Int] = play.api.data.mapping.Rule$$anon$1@7304ceaa
 ```
 
 Our current implementation of `age` is rather unsatisfying...
@@ -223,7 +223,7 @@ We can fix that very simply using `from`, and a built-in `Rule`:
 
 ```scala
 scala> val positiveAge = (Path \ "user" \ "age").from[JsValue](min(0))
-positiveAge: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Int] = play.api.data.mapping.Rule$$anon$1@7cd7f8ae
+positiveAge: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Int] = play.api.data.mapping.Rule$$anon$1@7cb5e879
 ```
 
 Let's try that again:
@@ -247,7 +247,7 @@ Let's fix our `age` `Rule`:
 
 ```scala
 scala> val properAge = (Path \ "user" \ "age").from[JsValue](min(0) |+| max(130))
-properAge: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Int] = play.api.data.mapping.Rule$$anon$1@74781693
+properAge: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Int] = play.api.data.mapping.Rule$$anon$1@67f3988a
 ```
 
 and test it:
@@ -288,7 +288,7 @@ scala> val js = Json.parse("""{
 js: play.api.libs.json.JsValue = {"user":{"name":"toto","age":25,"email":"toto@jmail.com","isAlive":true,"friend":{"name":"tata","age":20,"email":"tata@coldmail.com"}}}
 
 scala> val age = (Path \ "user" \ "age").from[JsValue](min(0) |+| max(130))
-age: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Int] = play.api.data.mapping.Rule$$anon$1@2c49565
+age: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Int] = play.api.data.mapping.Rule$$anon$1@292e855b
 
 scala> age.validate(js)
 res11: play.api.data.mapping.VA[Int] = Success(25)
@@ -324,7 +324,7 @@ scala> val userRule = From[JsValue] { __ =>
      |    (__ \ "email").read[Option[String]] and
      |    (__ \ "isAlive").read[Boolean])(User.apply _)
      | }
-userRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,User] = play.api.data.mapping.Rule$$anon$2@e17fb7e
+userRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,User] = play.api.data.mapping.Rule$$anon$2@9b5962
 ```
 
 > **Important:** Note that we're importing `Rules._` **inside** the `From[I]{...}` block.
@@ -340,5 +340,5 @@ It is recommended to always follow this pattern, as it nicely scopes the implici
 
 but repeating `JsValue` all over the place is just not very DRY.
 
-> **Next:** - [[Serialization with Write | ScalaValidationWrite]]
-> **For more examples and snippets:** - [[Cookbook | ScalaValidationCookbook]]
+> **Next:** - [Serialization with Write](ScalaValidationWrite.md)
+> **For more examples and snippets:** - [Cookbook](ScalaValidationCookbook.md)

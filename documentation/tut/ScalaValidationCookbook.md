@@ -1,6 +1,6 @@
 # Cookbook
 
-> All the examples below are validating Json objects. The API is not dedicated only to Json, it can be used on any type. Please refer to [[Validating Json | ScalaValidationJson]], [[Validating Forms|ScalaValidationForm]], and [[Supporting new types|ScalaValidationExtensions]] for more information.
+> All the examples below are validating Json objects. The API is not dedicated only to Json, it can be used on any type. Please refer to [Validating Json](ScalaValidationJson.md), [Validating Forms](ScalaValidationForm.md), and [Supporting new types](ScalaValidationExtensions.md) for more information.
 
 ## `Rule`
 
@@ -25,7 +25,7 @@ scala>   implicit val creatureRule = From[JsValue]{ __ =>
      |       (__ \ "weight").read[Float]
      |     )(Creature.apply _)
      |   }
-creatureRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Creature] = play.api.data.mapping.Rule$$anon$2@4f7373cd
+creatureRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Creature] = play.api.data.mapping.Rule$$anon$2@a8ee0cc
 
 scala>   val js = Json.obj( "name" -> "gremlins", "isDead" -> false, "weight" -> 1.0f)
 js: play.api.libs.json.JsObject = {"name":"gremlins","isDead":false,"weight":1.0}
@@ -69,7 +69,7 @@ scala> val passRule = From[JsValue] { __ =>
      |     // We change the `Path` of errors using `repath`
      |     .repath(_ => (Path \ "verify")))
      | }
-passRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,String] = play.api.data.mapping.Rule$$anon$2@163383fb
+passRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,String] = play.api.data.mapping.Rule$$anon$2@5535de95
 ```
 
 Let's test it:
@@ -163,7 +163,7 @@ scala> val r = From[JsValue] { __ =>
      |   }
      |   (__ \ "values").read(seqR(tupleR))
      | }
-r: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Seq[(String, String)]] = play.api.data.mapping.Rule$$anon$2@199e71a3
+r: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Seq[(String, String)]] = play.api.data.mapping.Rule$$anon$2@3b0a1ba2
 
 scala> r.validate(js)
 res9: play.api.data.mapping.VA[Seq[(String, String)]] = Success(List((foo,bar), (bar,baz)))
@@ -200,19 +200,19 @@ scala> val rb: Rule[JsValue, A] = From[JsValue]{ __ =>
      |   import play.api.data.mapping.json.Rules, Rules._
      |   (__ \ "name").read(Rules.equalTo("B")) ~> (__ \ "foo").read[Int].fmap(B.apply _)
      | }
-rb: play.api.data.mapping.Rule[play.api.libs.json.JsValue,A] = play.api.data.mapping.Rule$$anon$2@71babd81
+rb: play.api.data.mapping.Rule[play.api.libs.json.JsValue,A] = play.api.data.mapping.Rule$$anon$2@c66a285
 
 scala> val rc: Rule[JsValue, A] = From[JsValue]{ __ =>
      |   import play.api.data.mapping.json.Rules, Rules._
      |   (__ \ "name").read(Rules.equalTo("C")) ~> (__ \ "bar").read[Int].fmap(C.apply _)
      | }
-rc: play.api.data.mapping.Rule[play.api.libs.json.JsValue,A] = play.api.data.mapping.Rule$$anon$2@181a5c58
+rc: play.api.data.mapping.Rule[play.api.libs.json.JsValue,A] = play.api.data.mapping.Rule$$anon$2@1c1a178
 
 scala> val typeFailure = Failure(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 typeFailure: play.api.data.mapping.Failure[(play.api.data.mapping.Path.type, Seq[play.api.data.mapping.ValidationError]),Nothing] = Failure(List((/,List(ValidationError(validation.unknownType,WrappedArray())))))
 
 scala> val rule = rb orElse rc orElse Rule(_ => typeFailure)
-rule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,A] = play.api.data.mapping.Rule$$anon$1@4f2f3c46
+rule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,A] = play.api.data.mapping.Rule$$anon$1@3fc99af6
 
 scala> rule.validate(b)
 res10: play.api.data.mapping.VA[A] = Success(B(4))
@@ -238,7 +238,7 @@ scala> val rule = From[JsValue] { __ =>
      | 	  case _ => Rule(_ => typeFailure)
      | 	}
      | }
-rule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,A] = play.api.data.mapping.Rule$$anon$2@7910740d
+rule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,A] = play.api.data.mapping.Rule$$anon$2@1bb8ec14
 
 scala> rule.validate(b)
 res13: play.api.data.mapping.VA[A] = Success(B(4))
@@ -278,7 +278,7 @@ scala> implicit val creatureWrite = To[JsObject]{ __ =>
      |     (__ \ "weight").write[Float]
      |   )(unlift(Creature.unapply _))
      | }
-creatureWrite: play.api.data.mapping.Write[Creature,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@4b659916
+creatureWrite: play.api.data.mapping.Write[Creature,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@66b51b45
 
 scala> To[Creature, JsObject](Creature("gremlins", false, 1f))
 res16: play.api.libs.json.JsObject = {"name":"gremlins","isDead":false,"weight":1.0}
@@ -309,7 +309,7 @@ scala> implicit val latLongWrite = {
      |      (__ \ "long").write[Float])(unlift(LatLong.unapply _))
      |   }
      | }
-latLongWrite: play.api.data.mapping.Write[LatLong,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@4ff2b25e
+latLongWrite: play.api.data.mapping.Write[LatLong,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@588cb6bf
 
 scala> case class Point(coords: LatLong)
 defined class Point
@@ -321,7 +321,7 @@ scala> implicit val pointWrite = {
      |      (__ \ "type").write[String])((_: Point).coords -> "point")
      |   }
      | }
-pointWrite: play.api.data.mapping.Write[Point,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@3ec5ce4c
+pointWrite: play.api.data.mapping.Write[Point,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@178553ee
 
 scala> val p = Point(LatLong(123.3F, 334.5F))
 p: Point = Point(LatLong(123.3,334.5))

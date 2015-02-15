@@ -95,7 +95,7 @@ The general use for `keepAnd` is to apply two validation on the same `JsValue`, 
 }
 ```
 
-You can achieve the same think in the Validation API using [[Rules composition|ScalaValidationRule]]
+You can achieve the same think in the Validation API using [Rules composition](ScalaValidationRule.md)
 
 ```tut
 From[JsValue]{ __ =>
@@ -292,6 +292,6 @@ The validation API does not have an equivalent for `Format`. We find that genera
 
 ## Json Inception (macro)
 
-Macros are also available for the validation API. See [[Validation Inception|ScalaValidationMacros]].
+Macros are also available for the validation API. See [Validation Inception](ScalaValidationMacros.md).
 
-> **Next:** - [[Migration from 2.1.x Form API|ScalaValidationMigrationForm]]
+> **Next:** - [Migration from 2.1.x Form API](ScalaValidationMigrationForm.md)

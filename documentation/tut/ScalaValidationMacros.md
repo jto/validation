@@ -36,7 +36,7 @@ scala> implicit val personRule = From[JsValue] { __ =>
      |    (__ \ "age").read[Int] and
      |    (__ \ "lovesChocolate").read[Boolean])(Person.apply _)
      | }
-personRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Person] = play.api.data.mapping.Rule$$anon$2@50ab7e68
+personRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Person] = play.api.data.mapping.Rule$$anon$2@4fab8bb5
 ```
 
 Let's test it:
@@ -60,7 +60,7 @@ scala> implicit val personRule = {
      |   import play.api.data.mapping.json.Rules._ // let's not leak implicits everywhere
      |   Rule.gen[JsValue, Person]
      | }
-personRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Person] = play.api.data.mapping.Rule$$anon$2@1b8fe274
+personRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Person] = play.api.data.mapping.Rule$$anon$2@4936e30f
 ```
 
 The validation result is identical :
@@ -90,7 +90,7 @@ scala> implicit val personWrite = {
      |   import play.api.data.mapping.json.Writes._ // let's no leak implicits everywhere
      |   Write.gen[Person, JsObject]
      | }
-personWrite: play.api.data.mapping.Write[Person,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@da3bbd3
+personWrite: play.api.data.mapping.Write[Person,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@2e594275
 
 scala> personWrite.writes(Person("Julien", 28, true))
 res2: play.api.libs.json.JsObject = {"name":"Julien","age":28,"lovesChocolate":true}
@@ -102,4 +102,4 @@ res2: play.api.libs.json.JsObject = {"name":"Julien","age":28,"lovesChocolate":t
  - **Macros only work when `apply` and `unapply` have corresponding input/output types**. This is naturally true for case classes. However if you want to validate a trait, you must implement the same `apply`/`unapply` you would have in a case class.
  - **Validation Macros accept `Option`/`Seq`/`List`/`Set` & `Map[String, _]`**. For other generic types, you'll have to test and possibly write your `Rule`/`Write` if it's not working out of the box.
 
-> **Next:** - [[Supporting new types | ScalaValidationExtensions]]
+> **Next:** - [Supporting new types](ScalaValidationExtensions.md)

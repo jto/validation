@@ -2,11 +2,11 @@
 
 ## Introduction
 
-We've already explained what a `Write` is in [[the previous chapter | ScalaValidationWrite]]. Those examples were only covering simple writes. Most of the time, writes are used to transform complex hierarchical objects.
+We've already explained what a `Write` is in [the previous chapter](ScalaValidationWrite.md). Those examples were only covering simple writes. Most of the time, writes are used to transform complex hierarchical objects.
 
 In the validation API, we create complex object writes by combining simple writes. This chapter details the creation of those complex writes.
 
-> All the examples below are transforming classes to Json objects. The API is not dedicated only to Json, it can be used on any type. Please refer to [[Serializing Json | ScalaValidationJson]], [[Serializing Forms|ScalaValidationForm]], and [[Supporting new types|ScalaValidationExtensions]] for more information.
+> All the examples below are transforming classes to Json objects. The API is not dedicated only to Json, it can be used on any type. Please refer to [Serializing Json](ScalaValidationJson.md), [Serializing Forms](ScalaValidationForm.md), and [Supporting new types](ScalaValidationExtensions.md) for more information.
 
 ## Path
 
@@ -64,7 +64,7 @@ With those implicits in scope, we can finally create our `Write`:
 
 ```scala
 scala> val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
-serializeFriend: play.api.data.mapping.Write[play.api.libs.json.JsValue,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$3@7cfcd89
+serializeFriend: play.api.data.mapping.Write[play.api.libs.json.JsValue,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$3@6291c002
 ```
 
 Alright, so far we've defined a `Write` looking for some data of type `JsValue`, located at `/user/friend` in a `JsObject`.
@@ -82,7 +82,7 @@ We now are capable of serializing data to a given `Path`. Let's do it again on a
 
 ```scala
 scala> val agejs = (Path \ "user" \ "age").write[JsValue, JsObject]
-agejs: play.api.data.mapping.Write[play.api.libs.json.JsValue,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$3@78a02ed1
+agejs: play.api.data.mapping.Write[play.api.libs.json.JsValue,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$3@6505c4ad
 ```
 
 And if we apply this new `Write`:
@@ -97,7 +97,7 @@ All we have to do is to change the input type in our `Write` definition:
 
 ```scala
 scala> val age = (Path \ "user" \ "age").write[Int, JsObject]
-age: play.api.data.mapping.Write[Int,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$3@74b36e97
+age: play.api.data.mapping.Write[Int,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$3@70eed3e4
 ```
 
 And apply it:
@@ -169,7 +169,7 @@ scala> val userWrite = To[JsObject] { __ =>
      |    (__ \ "email").write[Option[String]] and
      |    (__ \ "isAlive").write[Boolean])(unlift(User.unapply _))
      | }
-userWrite: play.api.data.mapping.Write[User,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@6e3413f4
+userWrite: play.api.data.mapping.Write[User,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@29d5e0e8
 ```
 
 
@@ -193,5 +193,5 @@ scala> userWrite.writes(User("Julien", 28, None, true))
 res5: play.api.libs.json.JsObject = {"name":"Julien","age":28,"isAlive":true}
 ```
 
-> **Next:** - [[Macro Inception | ScalaValidationMacros]]
-> **For more examples and snippets:** - [[Cookbook | ScalaValidationCookbook]]
+> **Next:** - [Macro Inception](ScalaValidationMacros.md)
+> **For more examples and snippets:** - [Cookbook](ScalaValidationCookbook.md)

@@ -184,4 +184,4 @@ positiveAndEven.validate(-13)
 
 Note that both rules are applied. If both fail, we get two `ValidationError`.
 
-> **Next:** - [[Complex validation with Rule combinators | ScalaValidationRuleCombinators]]
+> **Next:** - [Complex validation with Rule combinators](ScalaValidationRuleCombinators.md)

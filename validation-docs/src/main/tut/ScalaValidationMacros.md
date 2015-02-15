@@ -87,4 +87,4 @@ personWrite.writes(Person("Julien", 28, true))
  - **Macros only work when `apply` and `unapply` have corresponding input/output types**. This is naturally true for case classes. However if you want to validate a trait, you must implement the same `apply`/`unapply` you would have in a case class.
  - **Validation Macros accept `Option`/`Seq`/`List`/`Set` & `Map[String, _]`**. For other generic types, you'll have to test and possibly write your `Rule`/`Write` if it's not working out of the box.
 
-> **Next:** - [[Supporting new types | ScalaValidationExtensions]]
+> **Next:** - [Supporting new types](ScalaValidationExtensions.md)

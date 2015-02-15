@@ -2,11 +2,11 @@
 
 ## Introduction
 
-We've already explained what a `Write` is in [[the previous chapter | ScalaValidationWrite]]. Those examples were only covering simple writes. Most of the time, writes are used to transform complex hierarchical objects.
+We've already explained what a `Write` is in [the previous chapter](ScalaValidationWrite.md). Those examples were only covering simple writes. Most of the time, writes are used to transform complex hierarchical objects.
 
 In the validation API, we create complex object writes by combining simple writes. This chapter details the creation of those complex writes.
 
-> All the examples below are transforming classes to Json objects. The API is not dedicated only to Json, it can be used on any type. Please refer to [[Serializing Json | ScalaValidationJson]], [[Serializing Forms|ScalaValidationForm]], and [[Supporting new types|ScalaValidationExtensions]] for more information.
+> All the examples below are transforming classes to Json objects. The API is not dedicated only to Json, it can be used on any type. Please refer to [Serializing Json](ScalaValidationJson.md), [Serializing Forms](ScalaValidationForm.md), and [Supporting new types](ScalaValidationExtensions.md) for more information.
 
 ## Path
 
@@ -165,5 +165,5 @@ Let's test it now:
 userWrite.writes(User("Julien", 28, None, true))
 ```
 
-> **Next:** - [[Macro Inception | ScalaValidationMacros]]
-> **For more examples and snippets:** - [[Cookbook | ScalaValidationCookbook]]
+> **Next:** - [Macro Inception](ScalaValidationMacros.md)
+> **For more examples and snippets:** - [Cookbook](ScalaValidationCookbook.md)

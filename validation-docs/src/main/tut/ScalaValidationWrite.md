@@ -84,4 +84,4 @@ Let's test our new `Write`:
 productAsPrice.writes(Product("Awesome product", 9.99))
 ```
 
-> **Next:** [[ Complex serialization with Writes combinators | ScalaValidationWriteCombinators]]
+> **Next:** [Complex serialization with Writes combinators](ScalaValidationWriteCombinators.md)

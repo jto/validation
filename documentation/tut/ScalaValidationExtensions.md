@@ -144,7 +144,7 @@ scala> val maybeEmail = From[JsValue]{ __ =>
      |   import play.api.data.mapping.json.Rules._
      |   (__ \ "email").read(optionR(email))
      | }
-maybeEmail: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Option[String]] = play.api.data.mapping.Rule$$anon$2@cded8ae
+maybeEmail: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Option[String]] = play.api.data.mapping.Rule$$anon$2@71303cbe
 
 scala> maybeEmail.validate(Json.obj("email" -> "foo@bar.com"))
 res1: play.api.data.mapping.VA[Option[String]] = Success(Some(foo@bar.com))
@@ -174,7 +174,7 @@ scala> val maybeAge = From[JsValue]{ __ =>
      |   import play.api.data.mapping.json.Rules._
      |   (__ \ "age").read[Option[Int]]
      | }
-maybeAge: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Option[Int]] = play.api.data.mapping.Rule$$anon$2@3ec7a16d
+maybeAge: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Option[Int]] = play.api.data.mapping.Rule$$anon$2@1bd79be9
 ```
 
 ### Lazyness
@@ -260,11 +260,11 @@ scala> val userWrite = To[JsObject] { __ =>
      |    (__ \ "email").write[Option[String]] and
      |    (__ \ "isAlive").write[Boolean])(unlift(User.unapply _))
      | }
-userWrite: play.api.data.mapping.Write[User,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@4d601dee
+userWrite: play.api.data.mapping.Write[User,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@f8e9703
 ```
 
 ## Testing
 
 We highly recommend you to test your rules as much as possible. There's a few tricky cases you need to handle properly. You should port the tests in `RulesSpec.scala` and use them on your rules.
 
-> **Next:** - [[Cookbook | ScalaValidationCookbook]]
+> **Next:** - [Cookbook](ScalaValidationCookbook.md)

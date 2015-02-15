@@ -56,7 +56,7 @@ scala> implicit val creatureRule = From[JsValue]{ __ =>
      |     (__ \ "weight").read[Float]
      |   )(Creature.apply _)
      | }
-creatureRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Creature] = play.api.data.mapping.Rule$$anon$2@28aad66e
+creatureRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Creature] = play.api.data.mapping.Rule$$anon$2@37637a16
 
 scala> val js = Json.obj( "name" -> "gremlins", "isDead" -> false, "weight" -> 1.0F)
 js: play.api.libs.json.JsObject = {"name":"gremlins","isDead":false,"weight":1.0}
@@ -79,7 +79,7 @@ scala> val nullableStringRule = From[JsValue]{ __ =>
      |   import play.api.data.mapping.json.Rules._
      |   (__ \ "foo").read[Option[String]]
      | }
-nullableStringRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Option[String]] = play.api.data.mapping.Rule$$anon$2@4dcd5989
+nullableStringRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Option[String]] = play.api.data.mapping.Rule$$anon$2@4c02bed3
 
 scala> val js1 = Json.obj("foo" -> "bar")
 js1: play.api.libs.json.JsObject = {"foo":"bar"}
@@ -111,17 +111,17 @@ scala> {
      |   import play.api.libs.functional.syntax._
      | 	(JsPath \ "key1").read[String](email keepAnd minLength[String](5))
      | }
-res5: play.api.libs.json.Reads[String] = play.api.libs.json.Reads$$anon$8@6bd9f147
+res5: play.api.libs.json.Reads[String] = play.api.libs.json.Reads$$anon$8@216ba396
 ```
 
-You can achieve the same think in the Validation API using [[Rules composition|ScalaValidationRule]]
+You can achieve the same think in the Validation API using [Rules composition](ScalaValidationRule.md)
 
 ```scala
 scala> From[JsValue]{ __ =>
      |   import play.api.data.mapping.json.Rules._
      |   (__ \ "key1").read(email |+| minLength(5))
      | }
-res6: play.api.data.mapping.Rule[play.api.libs.json.JsValue,String] = play.api.data.mapping.Rule$$anon$2@53e57a41
+res6: play.api.data.mapping.Rule[play.api.libs.json.JsValue,String] = play.api.data.mapping.Rule$$anon$2@6d29005e
 ```
 
 ### lazy reads
@@ -219,7 +219,7 @@ becomes
 
 ```scala
 scala> (Path \ "foo").read[JsValue, String]
-res12: play.api.data.mapping.Rule[play.api.libs.json.JsValue,String] = play.api.data.mapping.Rule$$anon$1@4b0fe660
+res12: play.api.data.mapping.Rule[play.api.libs.json.JsValue,String] = play.api.data.mapping.Rule$$anon$1@67b08d84
 ```
 
 ### pickBranch
@@ -266,7 +266,7 @@ scala> val pick = From[JsValue]{ __ =>
      | 	import play.api.data.mapping.json.Rules._
      | 	(__ \ "field3").read[JsValue]
      | }
-pick: play.api.data.mapping.Rule[play.api.libs.json.JsValue,play.api.libs.json.JsValue] = play.api.data.mapping.Rule$$anon$2@7a244b54
+pick: play.api.data.mapping.Rule[play.api.libs.json.JsValue,play.api.libs.json.JsValue] = play.api.data.mapping.Rule$$anon$2@6f338230
 
 scala> pick.validate(js) // Success({"field31":"beta","field32":345})
 res14: play.api.data.mapping.VA[play.api.libs.json.JsValue] = Success({"field31":"beta","field32":345})
@@ -323,7 +323,7 @@ scala> implicit val creatureWrite = To[JsObject]{ __ =>
      | 	  (__ \ "weight").write[Float]
      | 	)(unlift(Creature.unapply _))
      | }
-creatureWrite: play.api.data.mapping.Write[Creature,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@7ff930a8
+creatureWrite: play.api.data.mapping.Write[Creature,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@541f3198
 
 scala> val c = To[Creature, JsObject](Creature("gremlins", false, 1f))
 c: play.api.libs.json.JsObject = {"name":"gremlins","isDead":false,"weight":1.0}
@@ -335,6 +335,6 @@ The validation API does not have an equivalent for `Format`. We find that genera
 
 ## Json Inception (macro)
 
-Macros are also available for the validation API. See [[Validation Inception|ScalaValidationMacros]].
+Macros are also available for the validation API. See [Validation Inception](ScalaValidationMacros.md).
 
-> **Next:** - [[Migration from 2.1.x Form API|ScalaValidationMigrationForm]]
+> **Next:** - [Migration from 2.1.x Form API](ScalaValidationMigrationForm.md)

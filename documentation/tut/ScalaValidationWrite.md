@@ -26,7 +26,7 @@ scala> object Writes extends NumericTypes2StringWrites
 defined object Writes
 
 scala> Writes.floatW
-res0: play.api.data.mapping.Write[Float,String] = play.api.data.mapping.Write$$anon$3@4c0360d1
+res0: play.api.data.mapping.Write[Float,String] = play.api.data.mapping.Write$$anon$3@809ec6d
 ```
 
 Let's now test it against different `Float` values:
@@ -51,7 +51,7 @@ scala> val currency = Write[Double, String]{ money =>
      |   val f = NumberFormat.getCurrencyInstance(Locale.FRANCE)
      |   f.format(money)
      | }
-currency: play.api.data.mapping.Write[Double,String] = play.api.data.mapping.Write$$anon$3@f7b6673
+currency: play.api.data.mapping.Write[Double,String] = play.api.data.mapping.Write$$anon$3@31a53c55
 ```
 
 Testing it:
@@ -82,14 +82,14 @@ First, we'll create a `Write[Product, Double]` extracting the price of the produ
 
 ```scala
 scala> val productPrice = Write[Product, Double]{ _.price }
-productPrice: play.api.data.mapping.Write[Product,Double] = play.api.data.mapping.Write$$anon$3@7833dc18
+productPrice: play.api.data.mapping.Write[Product,Double] = play.api.data.mapping.Write$$anon$3@4852c923
 ```
 
 Now we just have to compose it with `currency`:
 
 ```scala
 scala> val productAsPrice: Write[Product,String] = productPrice compose currency
-productAsPrice: play.api.data.mapping.Write[Product,String] = play.api.data.mapping.Write$$anon$3@60780a03
+productAsPrice: play.api.data.mapping.Write[Product,String] = play.api.data.mapping.Write$$anon$3@7c5768c1
 ```
 
 Let's test our new `Write`:
@@ -99,4 +99,4 @@ scala> productAsPrice.writes(Product("Awesome product", 9.99))
 res4: String = 9,99 €
 ```
 
-> **Next:** [[ Complex serialization with Writes combinators | ScalaValidationWriteCombinators]]
+> **Next:** [Complex serialization with Writes combinators](ScalaValidationWriteCombinators.md)

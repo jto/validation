@@ -6,7 +6,7 @@ We've already explained what a `Write` is in [the previous chapter](ScalaValidat
 
 In the validation API, we create complex object writes by combining simple writes. This chapter details the creation of those complex writes.
 
-> All the examples below are transforming classes to Json objects. The API is not dedicated only to Json, it can be used on any type. Please refer to [Serializing Json](ScalaValidationJson.md), [Serializing Forms](ScalaValidationForm.md), and [Supporting new types](ScalaValidationExtensions.md) for more information.
+> All the examples below are transforming classes to Json objects. The API is not dedicated only to Json, it can be used on any type. Please refer to [Serializing Json](ScalaValidationJson.md), [Serializing Forms](ScalaValidationMigrationForm.md), and [Supporting new types](ScalaValidationExtensions.md) for more information.
 
 ## Path
 

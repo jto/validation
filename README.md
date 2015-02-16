@@ -23,11 +23,7 @@ libraryDependencies +="io.github.jto" %% "validation-form" % "1.0-1c770f4"
 
 ## Documentation
 
-```bash
-cd documentation
-sbt -Dplay.version=2.3.0-RC1 run
-# browse http://localhost:9000/@documentation/ScalaValidation
-```
+All the required documentation is directly readable from Github: https://github.com/jto/validation/tree/master/documentation/tut
 
 ## Contributors
 

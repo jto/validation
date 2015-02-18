@@ -67,6 +67,15 @@ libraryDependencies +="io.github.jto" %% "validation-form" % "1.0-1c770f4"
 All the required documentation is directly readable from Github: https://github.com/jto/validation/tree/master/documentation/tut
 
 - [Validating and transforming data](documentation/tut/ScalaValidationRule.md)
+- [Combining Rules](ScalaValidationRuleCombinators.md)
+- [Validation Inception](ScalaValidationMacros.md)
+- [Validating Json](documentation/tut/ScalaValidationJson.md)
+- [Serializing data with Write](ScalaValidationWrite.md)
+- [Combining Writes](ScalaValidationWriteCombinators.md)
+- [Play's Form API migration](ScalaValidationMigrationForm.md)
+- [Play's Json API migration](ScalaValidationMigrationJson.md)
+- [Extensions: Supporting new types](ScalaValidationExtensions.md)
+- [Cookbook](documentation/tut/ScalaValidationCookbook.md)
 
 ## Contributors
 

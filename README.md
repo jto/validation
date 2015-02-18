@@ -66,6 +66,8 @@ libraryDependencies +="io.github.jto" %% "validation-form" % "1.0-1c770f4"
 
 All the required documentation is directly readable from Github: https://github.com/jto/validation/tree/master/documentation/tut
 
+- [Validating and transforming data](documentation/tut/ScalaValidationRule.md)
+
 ## Contributors
 
 - Julien Tournay - http://jto.github.io

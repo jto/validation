@@ -4,6 +4,28 @@
 
 The Play validation API aims to provide a comprehensive toolkit to validate data from any format against user defined rules, and transform them to other types.
 
+Basically, assuming you have this:
+
+```scala
+case class Person(name: String, age: Int, lovesChocolate: Boolean)
+
+val json = Json.parse("""{
+  "name": "Julien",
+  "age": 28,
+  "lovesChocolate": true
+}""")
+implicit val personRule = {
+  import play.api.data.mapping.json.Rules._
+  Rule.gen[JsValue, Person]
+}
+```
+
+It can do this:
+
+```scala
+     | personRule.validate(json)
+```
+
 It's also a unification of the [Form Validation API](https://www.playframework.com/documentation/2.3.x/ScalaForms), and the [Json validation API](https://www.playframework.com/documentation/2.3.x/ScalaJsonCombinators).
 
 Being based on the same concepts as the Json validation API available in previous versions, it should feel very similar to any developer already working with it. The validation API is, rather than a totally new design, a simple generalization of those concepts.

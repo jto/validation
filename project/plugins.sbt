@@ -4,3 +4,5 @@ resolvers += Resolver.url(
         Resolver.ivyStylePatterns)
 
 addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.3.0")
+
+addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.0.0")

@@ -48,7 +48,7 @@ To learn more about data validation, please consult [Validation and transformati
 Add the following lines in your `build.sbt`
 
 ```scala
-resolvers += "JTO snapshots" at "https://raw.github.com/jto/mvn-repo/master/snapshots"
+resolvers += Resolver.sonatypeRepo("releases")
 
 // If you want only the core
 libraryDependencies +="io.github.jto" %% "validation-core" % "1.0-1c770f4"

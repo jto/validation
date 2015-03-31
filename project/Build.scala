@@ -70,8 +70,9 @@ object Dependencies {
       Seq()
   })
 
-  val specsDep = libraryDependencies +=
-    "org.specs2" %% "specs2" % "2.3.12" % "test"
+  val specsDep = libraryDependencies ++= Seq(
+    "org.specs2" %% "specs2" % "2.4.9" % "test",
+    "org.specs2" %% "specs2-junit" % "2.4.9" % "test") // This is needed to avoid a classpath issue on scalaz
 
   val shapelessDep = Seq(
     only((2, 10), "com.chuusai" % "shapeless" % "2.0.0" cross CrossVersion.full),

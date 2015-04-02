@@ -61,7 +61,6 @@ res3: play.api.data.mapping.VA[Float] = Failure(List((/,List(ValidationError(err
 ```scala
 scala> Rules.floatR
 res4: play.api.data.mapping.Rule[String,Float] = play.api.data.mapping.Rule$$anon$1@72fc446e
-
 scala> Rules.floatR.validate(Seq(32))
 <console>:16: error: type mismatch;
  found   : Seq[Int]

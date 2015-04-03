@@ -2,7 +2,7 @@
 
 > All the examples below are validating Json objects. The API is not dedicated only to Json, it can be used on any type. Please refer to [Validating Json](ScalaValidationJson.md), [Validating Forms](ScalaValidationMigrationForm.md), and [Supporting new types](ScalaValidationExtensions.md) for more information.
 
-## `Rule`
+## Rule
 
 ### Typical case class validation
 
@@ -250,7 +250,7 @@ scala> rule.validate(e)
 res15: play.api.data.mapping.VA[A] = Failure(List((/,List(ValidationError(validation.unknownType,WrappedArray())))))
 ```
 
-## `Write`
+## Write
 
 ### typical case class `Write`
 

@@ -7,7 +7,8 @@ object Resolvers {
   val all = Seq(
     Resolver.sonatypeRepo("snapshots"),
     Resolver.sonatypeRepo("releases"),
-    typesafeReleases)
+    typesafeReleases,
+    "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases")
 }
 
 object BuildSettings {
@@ -57,7 +58,7 @@ object BuildSettings {
     version := buildVersion,
     ivyLoggingLevel := UpdateLogging.DownloadOnly,
     resolvers ++= all,
-    fork in Test := true) ++ sonatypeSettings ++ tut.Plugin.tutSettings
+    fork in Test := true) ++ sonatypeSettings
 }
 
 object Dependencies {
@@ -103,6 +104,7 @@ object ValidationBuild extends Build {
   lazy val docs = Project("validation-docs", file("validation-docs"))
     .settings(commonSettings: _*)
     .settings(docDeps: _*)
+    .settings(tut.Plugin.tutSettings: _*)
     .settings(crossTarget := file(".") / "documentation")
     .dependsOn(core, json, json4s, form, xml, experimental)
 

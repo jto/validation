@@ -2,12 +2,11 @@ import sbt._
 import Keys._
 
 object Resolvers {
-  val typesafeReleases = "Typesafe Releases Repository" at "http://repo.typesafe.com/typesafe/releases/"
 
   val all = Seq(
     Resolver.sonatypeRepo("snapshots"),
     Resolver.sonatypeRepo("releases"),
-    typesafeReleases,
+    Resolver.typesafeRepo("releases"),
     "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases")
 }
 

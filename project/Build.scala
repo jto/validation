@@ -2,12 +2,12 @@ import sbt._
 import Keys._
 
 object Resolvers {
-  val typesafeReleases = "Typesafe Releases Repository" at "http://repo.typesafe.com/typesafe/releases/"
 
   val all = Seq(
     Resolver.sonatypeRepo("snapshots"),
     Resolver.sonatypeRepo("releases"),
-    typesafeReleases)
+    Resolver.typesafeRepo("releases"),
+    "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases")
 }
 
 object BuildSettings {
@@ -16,11 +16,11 @@ object BuildSettings {
   val org = "io.github.jto"
   val buildVersion = "1.0"
   val playVersion = "2.3.0"
-  val paradiseVersion = "2.0.0"
+  val paradiseVersion = "2.0.1"
 
   val scalaVersions = Seq(
-    scalaVersion := "2.11.1",
-    crossScalaVersions := Seq("2.10.4", "2.11.1"))
+    scalaVersion := "2.11.6",
+    crossScalaVersions := Seq("2.10.4", "2.11.6"))
 
   // Used by api docs generation to link back to the correct branch on GitHub, only when version is a SNAPSHOT
   val sourceCodeBranch = "master"
@@ -57,7 +57,7 @@ object BuildSettings {
     version := buildVersion,
     ivyLoggingLevel := UpdateLogging.DownloadOnly,
     resolvers ++= all,
-    fork in Test := true) ++ sonatypeSettings ++ tut.Plugin.tutSettings
+    fork in Test := true) ++ sonatypeSettings
 }
 
 object Dependencies {
@@ -103,6 +103,7 @@ object ValidationBuild extends Build {
   lazy val docs = Project("validation-docs", file("validation-docs"))
     .settings(commonSettings: _*)
     .settings(docDeps: _*)
+    .settings(tut.Plugin.tutSettings: _*)
     .settings(crossTarget := file(".") / "documentation")
     .dependsOn(core, json, json4s, form, xml, experimental)
 

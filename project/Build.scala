@@ -17,11 +17,11 @@ object BuildSettings {
   val org = "io.github.jto"
   val buildVersion = "1.0"
   val playVersion = "2.3.0"
-  val paradiseVersion = "2.0.0"
+  val paradiseVersion = "2.0.1"
 
   val scalaVersions = Seq(
-    scalaVersion := "2.11.1",
-    crossScalaVersions := Seq("2.10.4", "2.11.1"))
+    scalaVersion := "2.11.6",
+    crossScalaVersions := Seq("2.10.4", "2.11.6"))
 
   // Used by api docs generation to link back to the correct branch on GitHub, only when version is a SNAPSHOT
   val sourceCodeBranch = "master"

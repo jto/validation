@@ -2,25 +2,23 @@ import sbt._
 import Keys._
 
 object Resolvers {
-  val typesafeReleases = "Typesafe Releases Repository" at "http://repo.typesafe.com/typesafe/releases/"
-
   val all = Seq(
     Resolver.sonatypeRepo("snapshots"),
     Resolver.sonatypeRepo("releases"),
-    typesafeReleases)
+    Resolver.bintrayRepo("scalaz", "releases"),
+    Resolver.typesafeRepo("releases")
+  )
 }
 
 object BuildSettings {
-  import Resolvers._
-
   val org = "io.github.jto"
   val buildVersion = "1.0"
   val playVersion = "2.3.0"
-  val paradiseVersion = "2.0.0"
+  val paradiseVersion = "2.0.1"
 
   val scalaVersions = Seq(
-    scalaVersion := "2.11.1",
-    crossScalaVersions := Seq("2.10.4", "2.11.1"))
+    scalaVersion := "2.11.6",
+    crossScalaVersions := Seq("2.10.5", "2.11.6"))
 
   // Used by api docs generation to link back to the correct branch on GitHub, only when version is a SNAPSHOT
   val sourceCodeBranch = "master"
@@ -56,7 +54,7 @@ object BuildSettings {
     organization := org,
     version := buildVersion,
     ivyLoggingLevel := UpdateLogging.DownloadOnly,
-    resolvers ++= all,
+    resolvers ++= Resolvers.all,
     fork in Test := true) ++ sonatypeSettings ++ tut.Plugin.tutSettings
 }
 
@@ -81,6 +79,9 @@ object Dependencies {
   val macrosDep = Seq(
     only((2, 10), "org.scalamacros" %% "quasiquotes" % paradiseVersion),
     addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full))
+
+  val xmlDep = Seq(
+    only((2, 11), "org.scala-lang.modules" %% "scala-xml" % "1.0.2"))
 
   val coreDeps = Seq(
     only((2, 11), "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1"),
@@ -135,8 +136,8 @@ object ValidationBuild extends Build {
 
   lazy val xml = Project("validation-xml", file("validation-xml"))
     .settings(commonSettings: _*)
+    .settings(xmlDep: _*)
     .settings(specsDep: _*)
-    .settings(libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.2")
     .dependsOn(core)
 
   lazy val experimental = Project("validation-experimental", file("validation-experimental"))

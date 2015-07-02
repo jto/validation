@@ -12,7 +12,7 @@ object Resolvers {
 
 object BuildSettings {
   val org = "io.github.jto"
-  val buildVersion = "1.0"
+  val buildVersion = "1.0.1"
   val playVersion = "2.3.0"
   val paradiseVersion = "2.0.1"
 

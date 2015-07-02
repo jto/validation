@@ -51,13 +51,13 @@ Add the following lines in your `build.sbt`
 resolvers += Resolver.sonatypeRepo("releases")
 
 // If you want only the core
-libraryDependencies +="io.github.jto" %% "validation-core" % "1.0"
+libraryDependencies +="io.github.jto" %% "validation-core" % "1.0.1"
 
 // Json validation
-libraryDependencies +="io.github.jto" %% "validation-json" % "1.0"
+libraryDependencies +="io.github.jto" %% "validation-json" % "1.0.1"
 
 // Form validation
-libraryDependencies +="io.github.jto" %% "validation-form" % "1.0"
+libraryDependencies +="io.github.jto" %% "validation-form" % "1.0.1"
 
 // ...
 ```

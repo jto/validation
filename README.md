@@ -51,16 +51,20 @@ Add the following lines in your `build.sbt`
 resolvers += Resolver.sonatypeRepo("releases")
 
 // If you want only the core
-libraryDependencies +="io.github.jto" %% "validation-core" % "1.0.1"
+libraryDependencies +="io.github.jto" %% "validation-core" % "1.1"
 
 // Json validation
-libraryDependencies +="io.github.jto" %% "validation-json" % "1.0.1"
+libraryDependencies +="io.github.jto" %% "validation-json" % "1.1"
 
 // Form validation
-libraryDependencies +="io.github.jto" %% "validation-form" % "1.0.1"
+libraryDependencies +="io.github.jto" %% "validation-form" % "1.1"
 
 // ...
 ```
+
+## Play dependency
+
+The 1.1.X versions are builded with play 2.4, if you are using play 2.3 you need to use the 1.0.1 version.
 
 ## Documentation
 

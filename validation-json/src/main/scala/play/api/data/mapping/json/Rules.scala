@@ -97,7 +97,7 @@ object Rules extends play.api.data.mapping.DefaultRules[JsValue] {
     super.opt[J, O](r, (jsNullR.fmap(n => n: JsValue) +: noneValues): _*)
 
   implicit def mapR[O](implicit r: RuleLike[JsValue, O]): Rule[JsValue, Map[String, O]] =
-    super.mapR[JsValue, O](r, jsObjectR.fmap { case JsObject(fs) => fs })
+    super.mapR[JsValue, O](r, jsObjectR.fmap { case JsObject(fs) => fs.toSeq })
 
   implicit def JsValue[O](implicit r: RuleLike[JsObject, O]): Rule[JsValue, O] =
     jsObjectR.compose(r)

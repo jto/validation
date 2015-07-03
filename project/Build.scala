@@ -12,13 +12,13 @@ object Resolvers {
 
 object BuildSettings {
   val org = "io.github.jto"
-  val buildVersion = "1.0.1"
-  val playVersion = "2.3.0"
+  val buildVersion = "1.1"
+  val playVersion = "2.4.1"
   val paradiseVersion = "2.0.1"
 
   val scalaVersions = Seq(
-    scalaVersion := "2.11.6",
-    crossScalaVersions := Seq("2.10.5", "2.11.6"))
+    scalaVersion := "2.11.7",
+    crossScalaVersions := Seq("2.10.5", scalaVersion.value))
 
   // Used by api docs generation to link back to the correct branch on GitHub, only when version is a SNAPSHOT
   val sourceCodeBranch = "master"

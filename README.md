@@ -64,7 +64,7 @@ libraryDependencies +="io.github.jto" %% "validation-form" % "1.1"
 
 ## Play dependency
 
-The 1.1.X versions are builded with play 2.4, if you are using play 2.3 you need to use the 1.0.1 version.
+The 1.1.X versions are builded with play 2.4, if you are using play 2.3 you need to use the 1.0.2 version.
 
 ## Documentation
 

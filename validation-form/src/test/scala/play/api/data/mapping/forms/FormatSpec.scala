@@ -264,8 +264,8 @@ object FormatSpec extends Specification {
 			import Writes._
 
 			val f = Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
-        ((__ \ "firstname").format(notEmpty) ~
-         (__ \ "lastname").format(notEmpty)).tupled
+        ((__ \ "firstname").format(notEmpty, Write.zero[String]) ~
+         (__ \ "lastname").format(notEmpty, Write.zero[String])).tupled
       }
 
 			val valid = Map(
@@ -300,7 +300,7 @@ object FormatSpec extends Specification {
 
       Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "firstname").format[Seq[String]] }.validate(valid) mustEqual(Success(Seq("Julien")))
       Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "foobar").format[Seq[String]] }.validate(valid) mustEqual(Success(Seq()))
-      Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "foobar").format(isNotEmpty[Seq[Int]]) }.validate(valid) mustEqual(Failure(Seq(Path \ "foobar" -> Seq(ValidationError("error.notEmpty")))))
+      Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "foobar").format(isNotEmpty[Seq[Int]], Write.zero[Seq[Int]]) }.validate(valid) mustEqual(Failure(Seq(Path \ "foobar" -> Seq(ValidationError("error.notEmpty")))))
     }
 
     "format recursive" in {

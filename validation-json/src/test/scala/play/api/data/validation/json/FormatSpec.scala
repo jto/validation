@@ -263,8 +263,8 @@ object FormatSpec extends Specification {
 			import Writes._
 
 			val f = Formatting[JsValue, JsObject] { __ =>
-        ((__ \ "firstname").format(notEmpty) ~
-         (__ \ "lastname").format(notEmpty)).tupled
+        ((__ \ "firstname").format(notEmpty, Write.zero[String]) ~
+         (__ \ "lastname").format(notEmpty, Write.zero[String])).tupled
       }
 
 			val valid = Json.obj(
@@ -299,7 +299,7 @@ object FormatSpec extends Specification {
 
       Formatting[JsValue, JsObject] { __ => (__ \ "firstname").format[Seq[String]] }.validate(valid) mustEqual(Success(Seq("Julien")))
       Formatting[JsValue, JsObject] { __ => (__ \ "foobar").format[Seq[String]] }.validate(valid) mustEqual(Success(Seq()))
-      Formatting[JsValue, JsObject] { __ => (__ \ "foobar").format(isNotEmpty[Seq[Int]]) }.validate(valid) mustEqual(Failure(Seq(Path \ "foobar" -> Seq(ValidationError("error.notEmpty")))))
+      Formatting[JsValue, JsObject] { __ => (__ \ "foobar").format(isNotEmpty[Seq[Int]], Write.zero[Seq[Int]]) }.validate(valid) mustEqual(Failure(Seq(Path \ "foobar" -> Seq(ValidationError("error.notEmpty")))))
     }
 
     "format recursive" in {
@@ -382,6 +382,37 @@ object FormatSpec extends Specification {
 			}
 			win.writes(luigi) mustEqual(m2)
 		}
+    
+    "be composable with other format" in {
+      import Rules._
+      import Writes._
+
+      val userF = Formatting[JsValue, JsObject] { __ =>
+        ((__ \ "id").format[Long] ~
+         (__ \ "name").format[String])(User.apply _, unlift(User.unapply _))
+      }
+      
+      case class Family(father: User, mother: User)
+      
+      val familyF = Formatting[JsValue, JsObject] { __ =>
+        (
+          (__ \ "father").format(userF) ~
+          (__ \ "mother").format(userF)
+        )(Family.apply _, unlift(Family.unapply _))
+      }
+      
+      val nintendo = Family(luigi, User(2, "peach"))
+      familyF.validate(familyF.writes(nintendo)) mustEqual(Success(nintendo))
+      
+      case class UserAndFamily(user: User, family: Family)
+      
+      val userAndFamilyF = Formatting[JsValue, JsObject] { __ =>
+        (userF ~ familyF)(UserAndFamily.apply _, unlift(UserAndFamily.unapply _))
+      }
+      
+      val mario = UserAndFamily(User(3, "mario"), nintendo)
+      userAndFamilyF.validate(userAndFamilyF.writes(mario)) mustEqual(Success(mario))
+    }
 
 	}
 

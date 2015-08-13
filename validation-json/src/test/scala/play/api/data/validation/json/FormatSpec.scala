@@ -383,6 +383,20 @@ object FormatSpec extends Specification {
 			win.writes(luigi) mustEqual(m2)
 		}
 
+    "be covarianace in the write type" in {
+      trait Animal
+      trait Cat extends Animal
+      case object MyCat extends Cat
+      
+      val f1: Format[Animal, Cat, Unit] = Format(Rule(_ => Success(())), Write(_ => MyCat))
+      val f2: Format[Animal, Animal, Unit] = f1
+      
+      // Note that we can achieve the above without covarianace on Format IW as follows:
+      val f3: Format[Animal, Animal, Unit] = Format(Rule.toRule(f1), Write(f1.writes))
+      
+      f1.writes(()) mustEqual f2.writes(())
+      f1.validate(MyCat) mustEqual f2.validate(MyCat)
+    }
 	}
 
 }

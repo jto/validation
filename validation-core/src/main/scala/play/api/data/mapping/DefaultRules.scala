@@ -1,4 +1,4 @@
-package play.api.data.mapping
+package jto.validation
 
 /**
  * This trait provides default Rule implementations,
@@ -42,7 +42,6 @@ trait DateRules {
    */
   def jodaDateRule(pattern: String, corrector: String => String = identity) = Rule.fromMapping[String, org.joda.time.DateTime] { s =>
     import scala.util.Try
-    import org.joda.time.DateTime
 
     val df = org.joda.time.format.DateTimeFormat.forPattern(pattern)
     Try(df.parseDateTime(corrector(s)))
@@ -84,7 +83,6 @@ trait DateRules {
    */
   val isoDate = Rule.fromMapping[String, java.util.Date] { s =>
     import scala.util.Try
-    import java.util.Date
     import org.joda.time.format.ISODateTimeFormat
     val parser = ISODateTimeFormat.dateOptionalTimeParser()
     Try(parser.parseDateTime(s).toDate())
@@ -99,7 +97,7 @@ trait DateRules {
    * @param corrector a simple string transformation function that can be used to transform input String before parsing. Useful when standards are not exactly respected and require a few tweaks
    */
   def sqlDateRule(pattern: String, corrector: String => String = identity): Rule[String, java.sql.Date] =
-    date(pattern, corrector).fmap(d => new java.sql.Date(d.getTime))
+    date(pattern, corrector).map((d: java.util.Date) => new java.sql.Date(d.getTime))
 
   /**
    * the default implicit Rule for `java.sql.Date`
@@ -136,7 +134,7 @@ trait GenericRules {
    * @return A new Rule
    */
   implicit def arrayR[I, O: scala.reflect.ClassTag](implicit r: RuleLike[I, O]): Rule[Seq[I], Array[O]] =
-    seqR[I, O](r).fmap(_.toArray)
+    seqR[I, O](r).map(_.toArray)
 
   /**
    * lift a `Rule[I, O]` to a Rule of `Rule[Seq[I], Traversable[O]]`
@@ -147,7 +145,7 @@ trait GenericRules {
    * @return A new Rule
    */
   implicit def traversableR[I, O](implicit r: RuleLike[I, O]): Rule[Seq[I], Traversable[O]] =
-    seqR[I, O](r).fmap(_.toTraversable)
+    seqR[I, O](r).map(_.toTraversable)
 
   /**
    * lift a `Rule[I, O]` to a Rule of `Rule[Seq[I], Set[O]]`
@@ -158,7 +156,7 @@ trait GenericRules {
    * @return A new Rule
    */
   implicit def setR[I, O](implicit r: RuleLike[I, O]): Rule[Seq[I], Set[O]] =
-    seqR[I, O](r).fmap(_.toSet)
+    seqR[I, O](r).map(_.toSet)
 
   /**
    * lift a `Rule[I, O]` to a Rule of `Rule[Seq[I], Seq[O]]`
@@ -187,7 +185,7 @@ trait GenericRules {
    * @return A new Rule
    */
   implicit def listR[I, O](implicit r: RuleLike[I, O]): Rule[Seq[I], List[O]] =
-    seqR[I, O](r).fmap(_.toList)
+    seqR[I, O](r).map(_.toList)
 
   /**
    * Create a Rule validation that a Seq[I] is not empty, and attempt to convert it's first element as a `O`
@@ -275,7 +273,7 @@ trait GenericRules {
   /**
    * A Rule that always succeed
    */
-  def noConstraint[From]: Constraint[From] = Success(_)
+  def noConstraint[F]: Constraint[F] = Success(_)
 
   /**
    * A Rule for HTML checkboxes
@@ -334,7 +332,6 @@ trait ParsingRules {
     case s if isValidDouble(s) => Success(s.toDouble)
   }("Double")
 
-  import java.{ math => jm }
   implicit def javaBigDecimalR = stringAs {
     case s => Success(s.bigDecimal)
   }("BigDecimal")
@@ -349,18 +346,15 @@ trait ParsingRules {
  * Extends this trait if your implementing a new set of Rules for `I`.
  */
 trait DefaultRules[I] extends GenericRules with DateRules {
-  import scala.language.implicitConversions
-  import play.api.libs.functional._
-
   protected def opt[J, O](r: => RuleLike[J, O], noneValues: RuleLike[I, I]*)(implicit pick: Path => RuleLike[I, I], coerce: RuleLike[I, J]) = (path: Path) =>
     Rule[I, Option[O]] {
       (d: I) =>
-        val isNone = not(noneValues.foldLeft(Rule.zero[I])(_ compose not(_))).fmap(_ => None)
+        val isNone = not(noneValues.foldLeft(Rule.zero[I])(_ compose not(_))).map(_ => None)
         val v = (pick(path).validate(d).map(Some.apply) orElse Success(None))
         v.viaEither {
           _.right.flatMap {
             case None => Right(None)
-            case Some(i) => isNone.orElse(Rule.toRule(coerce).compose(r).fmap[Option[O]](Some.apply)).validate(i).asEither
+            case Some(i) => isNone.orElse(Rule.toRule(coerce).compose(r).map[Option[O]](Some.apply)).validate(i).asEither
           }
         }
     }

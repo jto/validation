@@ -1,4 +1,4 @@
-package play.api.data.mapping
+package jto.validation
 
 trait DateWrites {
   /**
@@ -11,7 +11,6 @@ trait DateWrites {
   implicit val date: Write[java.util.Date, String] = date()
 
   val isoDate = Write[java.util.Date, String] { d =>
-    import java.util.Date
     import org.joda.time.format.ISODateTimeFormat
     val fmt = ISODateTimeFormat.dateTimeNoMillis()
     fmt.print(d.getTime)
@@ -48,8 +47,6 @@ trait DateWrites {
 }
 
 trait DefaultWrites extends DateWrites {
-  import play.api.libs.functional.Monoid
-
   protected def optionW[I, J, O](r: => WriteLike[I, J], empty: O)(implicit w: Path => WriteLike[J, O]) =
     (p: Path) => Write[Option[I], O] { maybeI =>
       maybeI.map { i =>
@@ -67,7 +64,6 @@ trait DefaultWrites extends DateWrites {
 }
 
 trait GenericWrites[O] {
-
   implicit def arrayW[I](implicit w: WriteLike[Seq[I], O]) =
     Write((_: Array[I]).toSeq) compose w
 

@@ -1,4 +1,6 @@
-package play.api.data.mapping
+package jto.validation
+
+import cats.{Functor, Applicative}
 
 /**
  * Validation[E, A] is the result of a validation, where E is the type of each error, and A is the type of the result if the validation is successful
@@ -212,20 +214,16 @@ object Validation {
     }
   }
 
-  import play.api.libs.functional._
-  import scala.language.reflectiveCalls
-
-  implicit def functorValidation[I] = new Functor[({ type λ[O] = Validation[I, O] })#λ] {
-    def fmap[A, B](m: Validation[I, A], f: A => B): Validation[I, B] = Validation.applicativeValidation[I].map(m, f)
+  implicit def functorValidation[I] = new Functor[Validation[I, ?]] {
+    def map[A, B](m: Validation[I, A])(f: A => B): Validation[I, B] = Validation.applicativeValidation[I].map(m, f)
   }
 
-  implicit def applicativeValidation[E] = new Applicative[({ type λ[A] = Validation[E, A] })#λ] {
-
+  implicit def applicativeValidation[E] = new Applicative[Validation[E, ?]] {
     def pure[A](a: A): Validation[E, A] = Success(a)
 
     def map[A, B](m: Validation[E, A], f: A => B): Validation[E, B] = m.map(f)
 
-    def apply[A, B](mf: Validation[E, A => B], ma: Validation[E, A]): Validation[E, B] = (mf, ma) match {
+    def ap[A, B](ma: Validation[E, A])(mf: Validation[E, A => B]): Validation[E, B] = (mf, ma) match {
       case (Success(f), Success(a)) => Success(f(a))
       case (Failure(e1), Failure(e2)) => Failure.merge(Failure(e1), Failure(e2))
       case (Failure(e), _) => Failure(e)
@@ -234,9 +232,8 @@ object Validation {
   }
 
   // XXX: Helps the compiler a bit
-  import play.api.libs.functional.syntax._
-  implicit def cba[E] = functionalCanBuildApplicative[({ type λ[A] = Validation[E, A] })#λ]
-  implicit def validationFbo[I, O] = toFunctionalBuilderOps[({ type λ[O] = Validation[I, O] })#λ, O] _
+  // implicit def cba[E] = functionalCanBuildApplicative[({ type λ[A] = Validation[E, A] })#λ]
+  // implicit def validationFbo[I, O] = toFunctionalBuilderOps[({ type λ[O] = Validation[I, O] })#λ, O] _
 }
 
 final case class FailProjection[+E, +A](v: Validation[E, A]) {
@@ -288,8 +285,6 @@ object Success {
 }
 
 object Failure {
-  import play.api.libs.functional.Monoid
-
   def apply[E, A](errors: Seq[E]): Failure[E, A] = new Failure(errors)
   def unapply[E, A](f: Failure[E, A]): Option[Seq[E]] = Some(f.errors)
 

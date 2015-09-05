@@ -1,4 +1,4 @@
-package play.api.data.mapping
+package jto.validation
 
 trait From[I] {
   def apply[O](f: Reader[I] => RuleLike[I, O]): Rule[I, O] = Rule.toRule(f(Reader[I]()))

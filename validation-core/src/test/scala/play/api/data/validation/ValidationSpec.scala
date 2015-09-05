@@ -1,9 +1,6 @@
-package play.api.data.mapping
+import jto.validation._
 
 import org.specs2.mutable._
-import scala.util.control.Exception._
-import play.api.libs.functional._
-import play.api.libs.functional.syntax._
 
 object ValidationSpec extends Specification {
 
@@ -39,31 +36,31 @@ object ValidationSpec extends Specification {
     }
 
     "have an Applicative" in {
-      val app = implicitly[Applicative[({type f[A] = Validation[String, A]})#f]]
+      val app = implicitly[cats.Applicative[({type f[A] = Validation[String, A]})#f]]
 
       val u = Success[String, Int => Int](_ + 2)
       val v = Success[String, Int => Int](_ * 3)
       val w = Success[String, Int](5)
 
-      app.apply(app.pure((_: Int) + 2), app.pure(5)) must equalTo(app.pure(7))
+      app.ap(app.pure(5))(app.pure((_: Int) + 2)) must equalTo(app.pure(7))
 
       // identity
-      app.apply(app.pure[Int => Int](identity _), success) must equalTo(success)
-      app.apply(app.pure[Int => Int](identity _), failure) must equalTo(failure)
+      app.ap(success)(app.pure[Int => Int](identity _)) must equalTo(success)
+      app.ap(failure)(app.pure[Int => Int](identity _)) must equalTo(failure)
 
       // composition
       val p = app.pure((f: Int => Int) => f compose (_: Int => Int))
-      app.apply(app.apply(app.apply(p, u), v), w) must equalTo(
-        app.apply(u, app.apply(v, w)))
+      app.ap(w)(app.ap(v)(app.ap(u)(p))) must equalTo(
+        app.ap(app.ap(w)(v))(u))
 
       // homomorphism
       val f = (_: Int) + 2
       val x = 5
-      app.apply(app.pure(f), app.pure(x)) must equalTo(app.pure(f(x)))
+      app.ap(app.pure(x))(app.pure(f)) must equalTo(app.pure(f(x)))
 
       // interchange
-      app.apply(u, app.pure(x)) must equalTo(
-        app.apply(app.pure((f: Int => Int) => f(x)), u))
+      app.ap(app.pure(x))(u) must equalTo(
+        app.ap(u)(app.pure((f: Int => Int) => f(x))))
     }
 
     "implement filter" in {

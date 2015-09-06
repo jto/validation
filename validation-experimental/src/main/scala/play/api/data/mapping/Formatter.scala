@@ -1,4 +1,4 @@
-package play.api.data.mapping
+package jto.validation
 
 import shapeless._
 import ops.record.{ Selector => RSelector, Updater }
@@ -11,7 +11,7 @@ trait Get[I, O] {
 
   def read(sub: => RuleLike[O, O]): Rule[I, I] = Rule { i =>
     Rule.toRule(sub).repath(path ++ _)
-      .fmap(_ => i)
+      .map(_ => i)
       .validate(lens.get(i))
   }
   // def read[I, O](implicit r: Path => RuleLike[I, O]): Rule[I, O] =
@@ -19,7 +19,10 @@ trait Get[I, O] {
   def \[Out0 <: HList : lens.Gen, V](k: Witness)(implicit s: RSelector.Aux[Out0, k.T, V], u: Updater.Aux[Out0, FieldType[k.T, V], Out0]) =
     new Get[I, V]{
       val nodeName = k match {
-        case w: Witness.Aux[Symbol] => w.value.name
+        // TODO: Original line generates "a pattern match on a refinement type is unchecked"
+        // I removed the problematic pattern and added `asInstanceOf`, IRDK the implications...
+        // case w: Witness.Aux[Symbol] => w.value.name
+        case w: Witness => w.value.asInstanceOf[Symbol].name
         case _ => k.value.toString
       }
       val path = outer.path \ nodeName

@@ -1,11 +1,9 @@
-package play.api.data.mapping.xml
+package jto.validation
+package xml
 
-import play.api.data.mapping._
 import scala.xml._
 
 object Rules extends DefaultRules[Node] with ParsingRules {
-  import scala.language.{higherKinds, implicitConversions}
-
   implicit def nodeR[O](implicit r: RuleLike[String, O]): Rule[Node, O] = Rule.fromMapping[Node, String] { node =>
     val children = (node \ "_")
     if (children.isEmpty) Success(node.text)
@@ -27,7 +25,6 @@ object Rules extends DefaultRules[Node] with ParsingRules {
   }
 
   implicit def pickInNode[II <: Node, O](p: Path)(implicit r: RuleLike[Node, O]): Rule[II, O] = {
-
     def search(path: Path, node: Node): Option[Node] = path.path match {
       case KeyPathNode(key) :: tail =>
         (node \ key).headOption.flatMap(childNode => search(Path(tail), childNode))

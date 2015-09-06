@@ -1,17 +1,15 @@
-package play.api.data.mapping.xml
+package jto.validation
+package xml
 
-import play.api.data.mapping._
-
+import cats.Monoid
 import scala.xml._
 
 trait DefaultMonoids {
-  import play.api.libs.functional.Monoid
-
   // We define a monoid of the endofunctor xml.Elem => xml.Elem (alias XmlWriter)
   // Monoid[XmlWriter] thus has the propriety of a Monad in xml.Elem (being a monoid in the category of endofunctor)
   implicit def xmlMonoid = new Monoid[XmlWriter] {
-    def append(a1: XmlWriter, a2: XmlWriter): XmlWriter = a1 andThen a2
-    def identity: XmlWriter = scala.Predef.identity
+    def combine(a1: XmlWriter, a2: XmlWriter): XmlWriter = a1 andThen a2
+    def empty: XmlWriter = identity
   }
 }
 
@@ -27,7 +25,7 @@ object Writes extends DefaultWrites with NumericTypes2StringWrites with DefaultM
 
   def optAttributeW[I](name: String)(implicit w: WriteLike[I, String]): Write[Option[I], XmlWriter] = Write {
     case Some(i) => attributeW(name)(w).writes(i)
-    case None => xmlMonoid.identity
+    case None => xmlMonoid.empty
   }
 
   implicit def writeXml[I](path: Path)(implicit w: WriteLike[I, XmlWriter]): Write[I, XmlWriter] = Write { i =>
@@ -36,7 +34,7 @@ object Writes extends DefaultWrites with NumericTypes2StringWrites with DefaultM
       case Nil => w.writes(i)
 
       case KeyPathNode(key) :: tail =>
-        val lastElem = w.writes(i).apply(new Elem(null, key, Null, TopScope, false, Seq.empty: _*))
+        val lastElem = w.writes(i).apply(new Elem(null, key, Null, TopScope, false))
         val newNode = tail.foldLeft(lastElem) {
           case (acc, IdxPathNode(_)) => acc
           case (acc, KeyPathNode(key)) => new Elem(null, key, Null, TopScope, false, acc)
@@ -48,11 +46,11 @@ object Writes extends DefaultWrites with NumericTypes2StringWrites with DefaultM
   }
 
   implicit def seqToNodeSeq[I](implicit w: WriteLike[I, XmlWriter]): Write[Seq[I], XmlWriter] = Write { is =>
-    is.map(w.writes).foldLeft(xmlMonoid.identity)(xmlMonoid.append)
+    is.map(w.writes).foldLeft(xmlMonoid.empty)(xmlMonoid.combine)
   }
 
   def optionW[I, J](r: => WriteLike[I, J])(implicit w: Path => WriteLike[J, XmlWriter]): Path => Write[Option[I], XmlWriter] =
-    super.optionW[I, J, XmlWriter](r, xmlMonoid.identity)
+    super.optionW[I, J, XmlWriter](r, xmlMonoid.empty)
 
   implicit def optionW[I](implicit w: Path => WriteLike[I, XmlWriter]): Path => Write[Option[I], XmlWriter] =
     optionW(Write.zero[I])

@@ -1,6 +1,7 @@
-package play.api.data.mapping.forms
+package jto.validation
+package forms
 
-import play.api.data.mapping._
+import scala.util.parsing.combinator.{ Parsers, RegexParsers }
 
 /**
  * Play provides you a `Map[String, Seq[String]]` (aliased as `UrlFormEncoded`) in request body for urlFormEncoded requests.
@@ -9,8 +10,6 @@ import play.api.data.mapping._
  * @note We use the alias `UrlFormEncoded`, which is just a `Map[String, Seq[String]]`
  */
 object PM {
-
-  import scala.util.parsing.combinator.{ Parsers, RegexParsers }
   /**
    * A parser converting a key of a Map[String, [Seq[String]]] to a Path instance
    * `foo.bar[0].baz` becomes `Path \ "foo" \ "bar" \ 0 \ "baz"`
@@ -101,16 +100,10 @@ object PM {
  * This object provides Rules for Map[String, Seq[String]]
  */
 object Rules extends DefaultRules[PM.PM] with ParsingRules {
-  import scala.language.implicitConversions
-  import scala.language.higherKinds
-
-  import play.api.libs.functional._
-  import play.api.libs.functional.syntax._
-
   import PM._
 
   implicit def mapR[O](implicit r: RuleLike[Seq[String], O]): Rule[PM, Map[String, O]] =
-    super.mapR[Seq[String], O](r, Rule.zero[PM].fmap { toM(_).toSeq })
+    super.mapR[Seq[String], O](r, Rule.zero[PM].map { toM(_).toSeq })
 
   private val isEmpty = validateWith[PM]("validation.empty") { pm =>
     pm.filter { case (_, vs) => !vs.isEmpty }.isEmpty
@@ -122,7 +115,7 @@ object Rules extends DefaultRules[PM.PM] with ParsingRules {
     path => {
       val nones = isEmpty +: noneValues
       val o = opt[J, O](r, nones: _*)(pick, coerce)(path)
-      Rule.zero[UrlFormEncoded].fmap(toPM).compose(o)
+      Rule.zero[UrlFormEncoded].map(toPM).compose(o)
     }
 
   implicit def parseString[O](implicit r: RuleLike[String, O]): Rule[PM, O] = {
@@ -130,18 +123,18 @@ object Rules extends DefaultRules[PM.PM] with ParsingRules {
       _.map(Success(_)).getOrElse(Failure(Seq(Path -> Seq(ValidationError("error.required")))))
     }
     Rule.zero[PM]
-      .fmap(_.get(Path))
+      .map(_.get(Path))
       .compose(find)
       .compose(r)
   }
 
   implicit def inArray[O: scala.reflect.ClassTag](implicit r: RuleLike[Seq[PM], Array[O]]): Path => Rule[PM, Array[O]] =
-    inT[O, Traversable](Rule.toRule(r).fmap(_.toTraversable))(_).fmap(_.toArray)
+    inT[O, Traversable](Rule.toRule(r).map(_.toTraversable))(_).map(_.toArray)
 
   implicit def inT[O, T[_] <: Traversable[_]](implicit r: RuleLike[Seq[PM], T[O]]): Path => Rule[PM, T[O]] =
     path =>
       pickInPM(path)(Rule.zero).orElse(Rule[PM, PM](_ => Success(Map.empty)))
-        .fmap { pm =>
+        .map { pm =>
           val (root, others) = pm.partition(_._1 == Path)
           val arrays = others.toSeq.flatMap {
             case (Path(IdxPathNode(i) :: Nil) \: t, v) => Seq(i -> Map(t -> v))
@@ -164,9 +157,9 @@ object Rules extends DefaultRules[PM.PM] with ParsingRules {
   // Convert Rules exploring PM, to Rules exploring UrlFormEncoded
   implicit def convertToInM[O](p: Path)(implicit r: Path => RuleLike[PM, O]): Rule[UrlFormEncoded, O] =
     Rule.zero[UrlFormEncoded]
-      .fmap(toPM)
+      .map(toPM)
       .compose(r(p))
 
   implicit def convertRule[O](implicit r: RuleLike[UrlFormEncoded, O]): Rule[PM, O] =
-    Rule.zero[PM].fmap(toM).compose(r)
+    Rule.zero[PM].map(toM).compose(r)
 }

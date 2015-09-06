@@ -1,16 +1,13 @@
-package play.api.data.mapping.json4s
+package jto.validation
+package json4s
 
-import play.api.data.mapping._
-
+import cats.Monoid
 import org.json4s._
-import org.json4s.native.JsonMethods._
 
 trait DefaultMonoids {
-  import play.api.libs.functional.Monoid
-
   implicit def jsonMonoid = new Monoid[JObject] {
-    def append(a1: JObject, a2: JObject) = a1 merge a2
-    def identity = JObject()
+    def combine(a1: JObject, a2: JObject) = a1 merge a2
+    def empty = JObject()
   }
 }
 

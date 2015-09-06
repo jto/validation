@@ -1,4 +1,4 @@
-package play.api.data.mapping
+package jto.validation
 
 package object xml {
 

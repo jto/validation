@@ -1,6 +1,6 @@
-package play.api.data.mapping.delimited
+package jto.validation.delimited
 
-import play.api.data.mapping._
+import jto.validation._
 
 /**
  * Rules for parsing/validating/transforming Array[String] as typically returned from CSV parsers.
@@ -69,12 +69,12 @@ object Rules extends DefaultRules[Delimited] with ParsingRules {
   private def myOpt[O](coerce: => RuleLike[String, O], noneValues: RuleLike[String, String]*)(implicit pick: Path => RuleLike[Delimited, String]) =
     (path: Path) =>
       Rule[Delimited, Option[O]] { delimited =>
-        val isNone = not(noneValues.foldLeft(Rule.zero[String])(_ compose not(_))).fmap(_ => None)
+        val isNone = not(noneValues.foldLeft(Rule.zero[String])(_ compose not(_))).map(_ => None)
         val v = (pick(path).validate(delimited).map(Some.apply) orElse Success(None))
         v.viaEither {
           _.right.flatMap {
             case None => Right(None)
-            case Some(i) => isNone.orElse(Rule.toRule(coerce).fmap[Option[O]](Some.apply)).validate(i).asEither
+            case Some(i) => isNone.orElse(Rule.toRule(coerce).map[Option[O]](Some.apply)).validate(i).asEither
           }
         }
       }

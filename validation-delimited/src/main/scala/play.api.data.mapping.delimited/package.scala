@@ -1,4 +1,4 @@
-package play.api.data.mapping
+package jto.validation
 
 package object delimited {
   type Delimited = Array[String]

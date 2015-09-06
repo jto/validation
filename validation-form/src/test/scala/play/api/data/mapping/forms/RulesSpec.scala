@@ -1,15 +1,12 @@
-package play.api.data.mapping.forms
-
+import jto.validation._
+import jto.validation.forms._
 import org.specs2.mutable._
-import scala.util.control.Exception._
-import play.api.data.mapping._
 
 object RulesSpec extends Specification {
 
   "Rules" should {
 
     import Rules._
-    import PM._
     val valid: UrlFormEncoded = Map(
       "firstname" -> Seq("Julien", "ignored"),
       "lastname" -> Seq("Tournay"),
@@ -346,11 +343,11 @@ object RulesSpec extends Specification {
 
       "by trying all possible Rules" in {
         val rb: Rule[UrlFormEncoded, A] = From[UrlFormEncoded]{ __ =>
-          (__ \ "name").read(Rules.equalTo("B")) ~> (__ \ "foo").read[Int].fmap(B.apply _)
+          (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply _)
         }
 
         val rc: Rule[UrlFormEncoded, A] = From[UrlFormEncoded]{ __ =>
-          (__ \ "name").read(Rules.equalTo("C")) ~> (__ \ "bar").read[Int].fmap(C.apply _)
+          (__ \ "name").read(Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply _)
         }
 
         val rule = rb orElse rc orElse Rule(_ => typeFailure)
@@ -364,8 +361,8 @@ object RulesSpec extends Specification {
 
         val rule = From[UrlFormEncoded] { __ =>
           (__ \ "name").read[String].flatMap[A] {
-            case "B" => (__ \ "foo").read[Int].fmap(B.apply _)
-            case "C" => (__ \ "bar").read[Int].fmap(C.apply _)
+            case "B" => (__ \ "foo").read[Int].map(B.apply _)
+            case "C" => (__ \ "bar").read[Int].map(C.apply _)
             case _ => Rule(_ => typeFailure)
           }
         }

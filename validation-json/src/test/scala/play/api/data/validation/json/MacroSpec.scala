@@ -1,26 +1,15 @@
-package play.api.data.mapping.json
-
+import jto.validation._
+import jto.validation.json._
 import org.specs2.mutable._
-import scala.util.control.Exception._
-import play.api.libs.functional._
-import play.api.libs.functional.syntax._
-
-import play.api.libs.json._
-import play.api.data.mapping._
-import play.api.data.mapping.{ json => js }
-import js._
+import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray, JsNull}
 
 object MacroSpec extends Specification {
 
   case class User(age: Int, name: String)
   case class Dog(name: String, master: User)
-
   case class Cat(name: String)
-
   case class RecUser(name: String, cat: Option[Cat] = None, hobbies: Seq[String] = Seq(), friends: Seq[RecUser] = Seq())
-
   case class User1(name: String, friend: Option[User1] = None)
-
   case class UserMap(name: String, friends: Map[String, UserMap] = Map())
 
   case class Toto(name: String)
@@ -54,7 +43,7 @@ object MacroSpec extends Specification {
       Rule.gen[JsValue, Person]
     }
     implicit val personWrite = {
-      import js.Writes._
+      import Writes._
       Write.gen[Person, JsObject]
     }
   }
@@ -63,11 +52,11 @@ object MacroSpec extends Specification {
 
   object Person2{
     implicit val personRule = {
-      import js.Rules._
+      import Rules._
       Rule.gen[JsValue, Person2]
     }
     implicit val personWrite = {
-      import js.Writes._
+      import Writes._
       Write.gen[Person2, JsObject]
     }
   }
@@ -89,23 +78,21 @@ object MacroSpec extends Specification {
 
     "create a Rule[User]" in {
       import Rules._
-      import Writes._
       implicit val userReads = Rule.gen[JsValue, User]
       userReads.validate(Json.obj("name" -> "toto", "age" -> 45)) must beEqualTo(Success(User(45, "toto")))
     }
 
     "create a Write[User]" in {
-      import js.Writes._
+      import Writes._
       implicit val userWrites = Write.gen[User, JsObject]
       userWrites.writes(User(45, "toto")) must beEqualTo(Json.obj("name" -> "toto", "age" -> 45))
     }
 
     "create a Rule[Dog]" in {
-      import js.Rules._
+      import Rules._
       implicit val userRule = Rule.gen[JsValue, User]
       implicit val dogRule = Rule.gen[JsValue, Dog]
 
-      import Writes._
       dogRule.validate(
         Json.obj(
           "name" -> "medor",
@@ -116,7 +103,7 @@ object MacroSpec extends Specification {
     }
 
     "create a Write[Dog]" in {
-      import js.Writes._
+      import Writes._
       implicit val userWrite = Write.gen[User, JsObject]
       implicit val dogWrite = Write.gen[Dog, JsObject]
 
@@ -132,7 +119,6 @@ object MacroSpec extends Specification {
       import Rules._
 
       implicit val catRule = Rule.gen[JsValue, Cat]
-      import Writes._
       catRule.validate(
         Json.obj("name" -> "minou")
       ) must beEqualTo(Success(Cat("minou")))
@@ -161,7 +147,7 @@ object MacroSpec extends Specification {
     }
 
     "create a Write[RecUser]" in {
-      import js.Writes._
+      import Writes._
 
       implicit val catWrite = Write.gen[Cat, JsObject]
       catWrite.writes(Cat("minou")) must beEqualTo(Json.obj("name" -> "minou"))
@@ -190,7 +176,6 @@ object MacroSpec extends Specification {
       import Rules._
 
       implicit lazy val userRule: Rule[JsValue, User1] = Rule.gen[JsValue, User1]
-      import Writes._
       userRule.validate(
         Json.obj(
           "name" -> "bob",
@@ -208,7 +193,7 @@ object MacroSpec extends Specification {
 
 
     "create a writes[User1]" in {
-      import js.Writes._
+      import Writes._
       implicit lazy val userWrites: Write[User1, JsValue] = Write.gen[User1, JsObject]
 
       userWrites.writes(
@@ -223,7 +208,6 @@ object MacroSpec extends Specification {
 
     "create Rules for classes with overloaded apply method" in {
       import Rules._
-      import js.Writes._
       implicit val manyAppliesRule = Rule.gen[JsValue, ManyApplies]
 
       manyAppliesRule.validate(
@@ -242,7 +226,6 @@ object MacroSpec extends Specification {
 
     "create Rules for traits with single apply method" in {
       import Rules._
-      import js.Writes._
       implicit val notAClassRule = Rule.gen[JsValue, NotAClass]
 
       notAClassRule.validate(
@@ -256,19 +239,17 @@ object MacroSpec extends Specification {
     }
 
     "manage Boxed class" in {
-      import play.api.libs.functional.syntax._
       import Rules._
 
       implicit def idRule[A]: Rule[A, Id[A]] =
-        Rule.zero[A].fmap{ Id[A](_) }
+        Rule.zero[A].map{ Id[A](_) }
 
       implicit def c1Rule[A](implicit rds: Rule[A, Id[A]], e: Path => Rule[JsValue, A]) =
         From[JsValue]{ __ =>
-          ((__ \ "id").read(rds) and
+          ((__ \ "id").read(rds) ~
            (__ \ "name").read[String])( (id, name) => C1[A](id, name) )
         }
 
-      import Writes._
       val js = Json.obj(
         "id" -> 123L,
         "name" -> "toto")
@@ -293,7 +274,7 @@ object MacroSpec extends Specification {
       }
 
       "Write" in {
-        import js.Writes._
+        import Writes._
         implicit val XWrites = Write.gen[X, JsObject]
         success
       }
@@ -313,7 +294,7 @@ object MacroSpec extends Specification {
       }
 
       "Write" in {
-        import js.Writes._
+        import Writes._
         implicit val totoWrite = Write.gen[Toto, JsObject]
         success
       }
@@ -327,7 +308,7 @@ object MacroSpec extends Specification {
       }
 
       "Write" in {
-        import js.Writes._
+        import Writes._
         implicit val toto2Write = Write.gen[Toto2, JsObject]
         success
       }
@@ -341,7 +322,7 @@ object MacroSpec extends Specification {
       }
 
       "Write" in {
-        import js.Writes._
+        import Writes._
         implicit val toto3Write = Write.gen[Toto3, JsObject]
         success
       }
@@ -355,7 +336,7 @@ object MacroSpec extends Specification {
       }
 
       "Write" in {
-        import js.Writes._
+        import Writes._
         implicit val toto4Write = Write.gen[Toto4, JsObject]
         success
       }
@@ -369,7 +350,7 @@ object MacroSpec extends Specification {
       }
 
       "Write" in {
-        import js.Writes._
+        import Writes._
         implicit val toto5Write = Write.gen[Toto5, JsObject]
         success
       }
@@ -381,8 +362,6 @@ object MacroSpec extends Specification {
       implicit val userRule = Rule.gen[JsValue, User]
       implicit val dogRule = Rule.gen[JsValue, Dog]
       implicit val toto6Rule = Rule.gen[JsValue, Toto6]
-
-      import Writes._
 
       val js = Json.obj("name" -> Json.arr(
         Json.obj(
@@ -414,7 +393,5 @@ object MacroSpec extends Specification {
         To[Person2, JsValue](Person2(List("bob", "bobby")))
       ) must beEqualTo(Success(Person2(List("bob", "bobby"))))
     }
-
   }
-
 }

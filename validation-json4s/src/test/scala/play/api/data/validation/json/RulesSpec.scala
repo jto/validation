@@ -1,18 +1,13 @@
-package play.api.libs.json4s
-
+import jto.validation._
+import jto.validation.json4s._
 import org.specs2.mutable._
-import scala.util.control.Exception._
-import play.api.data.mapping._
 import org.json4s._
-
-import scala.language.reflectiveCalls
 
 object RulesSpec extends Specification {
 
   "Json Rules" should {
-    import play.api.data.mapping.json4s._
+    
     import Rules._
-    import Writes._
 
     val valid = JObject(
     "firstname" -> JString("Julien"),
@@ -346,11 +341,11 @@ object RulesSpec extends Specification {
 
       "by trying all possible Rules" in {
         val rb: Rule[JValue, A] = From[JValue]{ __ =>
-          (__ \ "name").read(Rules.equalTo("B")) ~> (__ \ "foo").read[Int].fmap(B.apply _)
+          (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply _)
         }
 
         val rc: Rule[JValue, A] = From[JValue]{ __ =>
-          (__ \ "name").read(Rules.equalTo("C")) ~> (__ \ "bar").read[Int].fmap(C.apply _)
+          (__ \ "name").read(Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply _)
         }
 
         val rule = rb orElse rc orElse Rule(_ => typeFailure)
@@ -364,8 +359,8 @@ object RulesSpec extends Specification {
 
         val rule = From[JValue] { __ =>
           (__ \ "name").read[String].flatMap[A] {
-            case "B" => (__ \ "foo").read[Int].fmap(B.apply _)
-            case "C" => (__ \ "bar").read[Int].fmap(C.apply _)
+            case "B" => (__ \ "foo").read[Int].map(B.apply _)
+            case "C" => (__ \ "bar").read[Int].map(C.apply _)
             case _ => Rule(_ => typeFailure)
           }
         }
@@ -492,7 +487,7 @@ object RulesSpec extends Specification {
         }
 
       val jsonR = {
-        import play.api.data.mapping.json4s.Rules._
+        
         genR[JValue](optionR(_))
       }
 
@@ -504,7 +499,7 @@ object RulesSpec extends Specification {
 
 
       // val formR = {
-      //   import play.api.data.mapping..Rules._
+      //   
       //   genR[UrlFormEncoded](optionR(_))
       // }
       // val form = Map("name" -> Seq("bob"), "color" -> Seq("blue"))

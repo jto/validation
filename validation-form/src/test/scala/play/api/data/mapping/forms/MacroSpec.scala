@@ -1,19 +1,12 @@
-package play.api.data.mapping.forms
-
+import jto.validation._
+import jto.validation.forms._
 import org.specs2.mutable._
-import scala.util.control.Exception._
-import play.api.libs.functional._
-import play.api.data.mapping._
 
 case class User(age: Int, name: String)
 case class Dog(name: String, master: User)
-
 case class Cat(name: String)
-
 case class RecUser(name: String, cat: Option[Cat] = None, hobbies: Seq[String] = Seq(), friends: Seq[RecUser] = Seq())
-
 case class User1(name: String, friend: Option[User1] = None)
-
 case class UserMap(name: String, friends: Map[String, UserMap] = Map())
 
 case class Toto(name: String)
@@ -64,7 +57,6 @@ object Person2{
     Write.gen[Person2, UrlFormEncoded]
   }
 }
-
 
 object MacroSpec extends Specification {
 
@@ -267,15 +259,14 @@ object MacroSpec extends Specification {
     }
 
     "manage Boxed class" in {
-      import play.api.libs.functional.syntax._
       import Rules._
 
       implicit def idRule[A]: Rule[A, Id[A]] =
-        Rule.zero[A].fmap{ Id[A](_) }
+        Rule.zero[A].map{ Id[A](_) }
 
       implicit def c1Rule[A](implicit rds: Rule[A, Id[A]], e: Path => Rule[UrlFormEncoded, A]) =
         From[UrlFormEncoded]{ __ =>
-          ((__ \ "id").read(rds) and
+          ((__ \ "id").read(rds) ~
            (__ \ "name").read[String])( (id, name) => C1[A](id, name) )
         }
 
@@ -459,7 +450,5 @@ object MacroSpec extends Specification {
         To[Person2, UrlFormEncoded](Person2(List("bob", "bobby")))
       ) must beEqualTo(Success(Person2(List("bob", "bobby"))))
     }
-
   }
-
 }

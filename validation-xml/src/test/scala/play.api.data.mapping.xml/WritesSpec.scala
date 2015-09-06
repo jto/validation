@@ -1,10 +1,10 @@
-package play.api.data.mapping.xml
-
+import jto.validation._
+import jto.validation.xml._
+import jto.validation.xml.Writes._
+import java.text.NumberFormat
+import java.util.{Date, Locale}
+import org.joda.time.{DateTime, LocalDate}
 import org.specs2.mutable._
-import play.api.libs.functional.syntax._
-import play.api.data.mapping._
-
-import scala.xml._
 
 class WritesSpec extends Specification {
 
@@ -23,8 +23,6 @@ class WritesSpec extends Specification {
 
   val contact = Contact("Julien", "Tournay", None, Seq(
   ContactInformation("Personal", Some("fakecontact@gmail.com"), Seq("01.23.45.67.89", "98.76.54.32.10"))))
-
-  import play.api.data.mapping.xml.Writes._
 
   "Writes" should {
 
@@ -104,14 +102,12 @@ class WritesSpec extends Specification {
       }
 
       "date" in {
-        import java.util.Date
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val d = f.parse("1985-09-10")
         Path.write(date).writes(d)(<a></a>) mustEqual(<a>1985-09-10</a>)
       }
 
       "joda" in {
-        import org.joda.time.DateTime
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val dd = f.parse("1985-09-10")
         val jd = new DateTime(dd)
@@ -121,14 +117,12 @@ class WritesSpec extends Specification {
         }
 
         "local date" in {
-          import org.joda.time.LocalDate
           val ld = new LocalDate()
           Path.write(jodaLocalDate).writes(ld)(<a></a>) mustEqual(<a>{ld.toString}</a>)
         }
       }
 
       "sql date" in {
-        import java.util.Date
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val dd = f.parse("1985-09-10")
         val ds = new java.sql.Date(dd.getTime())
@@ -145,8 +139,6 @@ class WritesSpec extends Specification {
 
     "format data" in {
       val formatter = Write[Double, String]{ money =>
-        import java.text.NumberFormat
-        import java.util.Locale
         val f = NumberFormat.getCurrencyInstance(Locale.FRANCE)
         f.format(money)
       }
@@ -194,8 +186,6 @@ class WritesSpec extends Specification {
     }
 
     "do a complex write" in {
-      import play.api.libs.functional._
-
       val w = To[XmlWriter] { __ => (
         (__ \ "email").write[Option[String]] ~
         (__ \ "phones").write(seqToNodeSeq(
@@ -227,18 +217,18 @@ class WritesSpec extends Specification {
       "using explicit notation" in {
         lazy val w: Write[RecUser, XmlWriter] = To[XmlWriter]{ __ =>
           ((__ \ "name").write[String] ~
-            (__ \ "friends").write(seqW(w)))(unlift(RecUser.unapply _))
+            (__ \ "friends").write(seqW(w)))(RecUser.unapply _)
         }
         w.writes(u)(<user></user>) mustEqual m
 
         lazy val w2: Write[RecUser, XmlWriter] =
           ((Path \ "name").write[String, XmlWriter] ~
-            (Path \ "friends").write(seqW(w2)))(unlift(RecUser.unapply _))
+            (Path \ "friends").write(seqW(w2)))(RecUser.unapply _)
         w2.writes(u)(<user></user>) mustEqual m
 
         lazy val w3: Write[User1, XmlWriter] = To[XmlWriter]{ __ =>
           ((__ \ "name").write[String] ~
-            (__ \ "friend").write(optionW(w3)))(unlift(User1.unapply _))
+            (__ \ "friend").write(optionW(w3)))(User1.unapply _)
         }
         w3.writes(u1)(<user></user>) mustEqual m1
       }
@@ -246,20 +236,16 @@ class WritesSpec extends Specification {
       "using implicit notation" in {
         implicit lazy val w: Write[RecUser, XmlWriter] = To[XmlWriter]{ __ =>
           ((__ \ "name").write[String] ~
-            (__ \ "friends").write[Seq[RecUser]])(unlift(RecUser.unapply _))
+            (__ \ "friends").write[Seq[RecUser]])(RecUser.unapply _)
         }
         w.writes(u)(<user></user>) mustEqual m
 
         implicit lazy val w3: Write[User1, XmlWriter] = To[XmlWriter]{ __ =>
           ((__ \ "name").write[String] ~
-            (__ \ "friend").write[Option[User1]])(unlift(User1.unapply _))
+            (__ \ "friend").write[Option[User1]])(User1.unapply _)
         }
         w3.writes(u1)(<user></user>) mustEqual m1
       }
-
     }
-
-
   }
-
 }

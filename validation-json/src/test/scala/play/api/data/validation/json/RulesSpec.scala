@@ -1,17 +1,12 @@
-package play.api.libs.json
-
+import jto.validation._
+import jto.validation.json._
 import org.specs2.mutable._
-import scala.util.control.Exception._
-import play.api.data.mapping._
-
-import scala.language.reflectiveCalls
+import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray, JsNull}
 
 object RulesSpec extends Specification {
 
   "Json Rules" should {
-    import play.api.data.mapping.json._
     import Rules._
-    import Writes._
 
     val valid = Json.obj(
     "firstname" -> "Julien",
@@ -345,11 +340,11 @@ object RulesSpec extends Specification {
 
       "by trying all possible Rules" in {
         val rb: Rule[JsValue, A] = From[JsValue]{ __ =>
-          (__ \ "name").read(Rules.equalTo("B")) ~> (__ \ "foo").read[Int].fmap(B.apply _)
+          (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply _)
         }
 
         val rc: Rule[JsValue, A] = From[JsValue]{ __ =>
-          (__ \ "name").read(Rules.equalTo("C")) ~> (__ \ "bar").read[Int].fmap(C.apply _)
+          (__ \ "name").read(Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply _)
         }
 
         val rule = rb orElse rc orElse Rule(_ => typeFailure)
@@ -363,8 +358,8 @@ object RulesSpec extends Specification {
 
         val rule = From[JsValue] { __ =>
           (__ \ "name").read[String].flatMap[A] {
-            case "B" => (__ \ "foo").read[Int].fmap(B.apply _)
-            case "C" => (__ \ "bar").read[Int].fmap(C.apply _)
+            case "B" => (__ \ "foo").read[Int].map(B.apply _)
+            case "C" => (__ \ "bar").read[Int].map(C.apply _)
             case _ => Rule(_ => typeFailure)
           }
         }
@@ -410,14 +405,14 @@ object RulesSpec extends Specification {
       val infoValidation = From[JsValue] { __ =>
          ((__ \ "label").read(notEmpty) ~
           (__ \ "email").read(optionR(email)) ~
-          (__ \ "phones").read(seqR(notEmpty))) (ContactInformation.apply _)
+          (__ \ "phones").read(seqR(notEmpty)))(ContactInformation.apply _)
       }
 
       val contactValidation = From[JsValue] { __ =>
         ((__ \ "firstname").read(notEmpty) ~
          (__ \ "lastname").read(notEmpty) ~
          (__ \ "company").read[Option[String]] ~
-         (__ \ "informations").read(seqR(infoValidation))) (Contact.apply _)
+         (__ \ "informations").read(seqR(infoValidation)))(Contact.apply _)
       }
 
       val expected =
@@ -480,7 +475,6 @@ object RulesSpec extends Specification {
 
     }
 
-
     "completely generic" in {
       type OptString[In] = Rule[String, String] => Path => Rule[In, Option[String]]
 
@@ -491,7 +485,7 @@ object RulesSpec extends Specification {
         }
 
       val jsonR = {
-        import play.api.data.mapping.json.Rules._
+        
         genR[JsValue](optionR(_))
       }
 
@@ -500,18 +494,6 @@ object RulesSpec extends Specification {
 
       jsonR.validate(json) mustEqual Success(("bob", Some("blue")))
       jsonR.validate(invalidJson) mustEqual Failure(Seq((Path \ "name", Seq(ValidationError("error.required")))))
-
-
-      // val formR = {
-      //   import play.api.data.mapping..Rules._
-      //   genR[UrlFormEncoded](optionR(_))
-      // }
-      // val form = Map("name" -> Seq("bob"), "color" -> Seq("blue"))
-      // val invalidForm = Map("color" -> Seq("blue"))
-
-      // formR.validate(form) mustEqual Success(("bob", Some("blue")))
-      // formR.validate(invalidForm) mustEqual Failure(Seq((Path \ "name", Seq(ValidationError("error.required")))))
     }
-
   }
 }

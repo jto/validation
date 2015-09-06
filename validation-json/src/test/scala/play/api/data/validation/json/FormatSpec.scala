@@ -1,22 +1,13 @@
-/*
- * Copyright (C) 2009-2013 Typesafe Inc. <http://www.typesafe.com>
- */
-package play.api.libs.json
-
+import jto.validation._
+import jto.validation.json._
 import org.specs2.mutable._
-import play.api.libs.functional.syntax._
+import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray, JsNull}
 
 object FormatSpec extends Specification {
   case class User(id: Long, name: String)
   val luigi = User(1, "Luigi")
 
   "Format" should {
-
-    import play.api.data.mapping._
-    import play.api.data.mapping.json.Rules
-    import play.api.data.mapping.json.Writes
-    import Writes._
-
     "serialize and deserialize primitives" in {
       import Rules._
       import Writes._
@@ -67,7 +58,7 @@ object FormatSpec extends Specification {
 
       implicit val userF = Formatting[JsValue, JsObject] { __ =>
         ((__ \ "id").format[Long] ~
-         (__ \ "name").format[String])(User.apply _, unlift(User.unapply _))
+         (__ \ "name").format[String])(User.apply _, User.unapply _)
       }
 
       val m = Json.obj("id" -> 1L, "name" -> "Luigi")
@@ -324,14 +315,14 @@ object FormatSpec extends Specification {
 
         lazy val w: Format[JsValue, JsObject, RecUser] = Formatting[JsValue, JsObject]{ __ =>
           ((__ \ "name").format[String] ~
-           (__ \ "friends").format(seqR(w), seqW(w)))(RecUser.apply _, unlift(RecUser.unapply _))
+           (__ \ "friends").format(seqR(w), seqW(w)))(RecUser.apply _, RecUser.unapply _)
         }
         w.validate(m) mustEqual Success(u)
         w.writes(u) mustEqual m
 
         lazy val w3: Format[JsValue, JsObject, User1] = Formatting[JsValue, JsObject]{ __ =>
           ((__ \ "name").format[String] ~
-           (__ \ "friend").format(optionR(w3), optionW(w3)))(User1.apply _, unlift(User1.unapply _))
+           (__ \ "friend").format(optionR(w3), optionW(w3)))(User1.apply _, User1.unapply _)
         }
         w3.validate(m1) mustEqual Success(u1)
         w3.writes(u1) mustEqual m1
@@ -343,14 +334,14 @@ object FormatSpec extends Specification {
 
         implicit lazy val w: Format[JsValue, JsObject, RecUser] = Formatting[JsValue, JsObject]{ __ =>
           ((__ \ "name").format[String] ~
-           (__ \ "friends").format[Seq[RecUser]])(RecUser.apply _, unlift(RecUser.unapply _))
+           (__ \ "friends").format[Seq[RecUser]])(RecUser.apply _, RecUser.unapply _)
         }
         w.validate(m) mustEqual Success(u)
         w.writes(u) mustEqual m
 
         implicit lazy val w3: Format[JsValue, JsObject, User1] = Formatting[JsValue, JsObject]{ __ =>
           ((__ \ "name").format[String] ~
-           (__ \ "friend").format[Option[User1]])(User1.apply _, unlift(User1.unapply _))
+           (__ \ "friend").format[Option[User1]])(User1.apply _, User1.unapply _)
         }
         w3.validate(m1) mustEqual Success(u1)
         w3.writes(u1) mustEqual m1
@@ -363,7 +354,7 @@ object FormatSpec extends Specification {
 
       implicit val userF = Formatting[JsValue, JsObject] { __ =>
         ((__ \ "id").format[Long] ~
-         (__ \ "name").format[String])(User.apply _, unlift(User.unapply _))
+         (__ \ "name").format[String])(User.apply _, User.unapply _)
       }
 
       val  userJs = Json.obj("id" -> 1L, "name" -> "Luigi")

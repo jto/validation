@@ -1,12 +1,6 @@
-/*
- * Copyright (C) 2009-2013 Typesafe Inc. <http://www.typesafe.com>
- */
-package play.api.data.mapping.forms
-
+import jto.validation._
+import jto.validation.forms._
 import org.specs2.mutable._
-import play.api.libs.functional.syntax._
-import play.api.data.mapping._
-
 
 object FormatSpec extends Specification {
   case class User(id: Long, name: String)
@@ -64,7 +58,7 @@ object FormatSpec extends Specification {
 
       implicit val userF: Format[UrlFormEncoded, UrlFormEncoded, User] = Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
         ((__ \ "id").format[Long] ~
-         (__ \ "name").format[String])(User.apply _, unlift(User.unapply _))
+         (__ \ "name").format[String])(User.apply _, User.unapply _)
       }
 
       val m = Map("id" -> Seq("1"), "name" -> Seq("Luigi"))
@@ -326,14 +320,14 @@ object FormatSpec extends Specification {
 
         lazy val w: Format[UrlFormEncoded, UrlFormEncoded, RecUser] = Formatting[UrlFormEncoded, UrlFormEncoded]{ __ =>
           ((__ \ "name").format[String] ~
-           (__ \ "friends").format(seqR(w), seqW(w)))(RecUser.apply _, unlift(RecUser.unapply _))
+           (__ \ "friends").format(seqR(w), seqW(w)))(RecUser.apply _, RecUser.unapply _)
         }
         w.validate(m) mustEqual Success(u)
         w.writes(u) mustEqual (m - "friends[0].friends")
 
         lazy val w3: Format[UrlFormEncoded, UrlFormEncoded, User1] = Formatting[UrlFormEncoded, UrlFormEncoded]{ __ =>
           ((__ \ "name").format[String] ~
-           (__ \ "friend").format(optionR(w3), optionW(w3)))(User1.apply _, unlift(User1.unapply _))
+           (__ \ "friend").format(optionR(w3), optionW(w3)))(User1.apply _, User1.unapply _)
         }
         w3.validate(m1) mustEqual Success(u1)
         w3.writes(u1) mustEqual m1
@@ -345,14 +339,14 @@ object FormatSpec extends Specification {
 
         implicit lazy val w: Format[UrlFormEncoded, UrlFormEncoded, RecUser] = Formatting[UrlFormEncoded, UrlFormEncoded]{ __ =>
           ((__ \ "name").format[String] ~
-           (__ \ "friends").format[Seq[RecUser]])(RecUser.apply _, unlift(RecUser.unapply _))
+           (__ \ "friends").format[Seq[RecUser]])(RecUser.apply _, RecUser.unapply _)
         }
         w.validate(m) mustEqual Success(u)
         w.writes(u) mustEqual (m - "friends[0].friends")
 
         implicit lazy val w3: Format[UrlFormEncoded, UrlFormEncoded, User1] = Formatting[UrlFormEncoded, UrlFormEncoded]{ __ =>
           ((__ \ "name").format[String] ~
-           (__ \ "friend").format[Option[User1]])(User1.apply _, unlift(User1.unapply _))
+           (__ \ "friend").format[Option[User1]])(User1.apply _, User1.unapply _)
         }
         w3.validate(m1) mustEqual Success(u1)
         w3.writes(u1) mustEqual m1

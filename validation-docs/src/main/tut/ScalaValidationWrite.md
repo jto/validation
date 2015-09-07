@@ -10,7 +10,7 @@ Let's say you want to serialize a `Float` to `String`.
 All you need to do is to define a `Write` from `Float` to `String`:
 
 ```tut
-import play.api.data.mapping._
+import jto.validation._
 def floatToString: Write[Float, String] = ???
 ```
 

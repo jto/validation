@@ -19,18 +19,13 @@ import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-
 import anorm._
-
 import views._
 import models._
 
 object Application extends Controller {
 
-
-  /**
-   * Describe the computer form (used in both edit and create screens).
-   */
+  /** Describe the computer form (used in both edit and create screens). */
   val computerForm = Form(
     mapping(
       "id" -> ignored(NotAssigned:Pk[Long]),
@@ -95,11 +90,11 @@ import java.util.Date
 
 case class Computer(id: Option[Long] = None, name: String, introduced: Option[Date], discontinued: Option[Date], companyId: Option[Long])
 
-import play.api.data.mapping._
-import play.api.data.mapping.forms.UrlFormEncoded
+import jto.validation._
+import jto.validation.forms.UrlFormEncoded
 
-implicit val computerValidation = From[UrlFormEncoded] { __ =>
-  import play.api.data.mapping.forms.Rules._
+implicit val computerValidated = From[UrlFormEncoded] { __ =>
+  import jto.validation.forms.Rules._
   ((__ \ "id").read(ignored[UrlFormEncoded, Option[Long]](None)) ~
    (__ \ "name").read(notEmpty) ~
    (__ \ "introduced").read(optionR(date("yyyy-MM-dd"))) ~
@@ -141,14 +136,13 @@ You can use the `Form.fill` method to create a `Form` from a class.
 `Form.fill` needs an instance of `Write[T, UrlFormEncoded]`, where `T` is your class type.
 
 ```tut
- import play.api.libs.functional.syntax.unlift
 implicit val computerW = To[UrlFormEncoded] { __ =>
-  import play.api.data.mapping.forms.Writes._
+  import jto.validation.forms.Writes._
   ((__ \ "id").write[Option[Long]] ~
    (__ \ "name").write[String] ~
    (__ \ "introduced").write(optionW(date("yyyy-MM-dd"))) ~
    (__ \ "discontinued").write(optionW(date("yyyy-MM-dd"))) ~
-   (__ \ "company").write[Option[Long]]) (unlift(Computer.unapply _))
+   (__ \ "company").write[Option[Long]]) (Computer.unapply _)
 }
 ```
 
@@ -160,7 +154,7 @@ Handling validation errors is vastly similar to the old api, the main difference
 
 ```scala
 def save = Action(parse.urlFormEncoded) { implicit request =>
-  val r = computerValidation.validate(request.body)
+  val r = computerValidated.validate(request.body)
   r.fold(
     err => BadRequest(html.createForm((request.body, r), Company.options)),
     computer => {

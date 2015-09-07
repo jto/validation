@@ -12,7 +12,7 @@ trait RuleLike[I, O] {
 }
 
 object RuleLike {
-  implicit def zero[O]: RuleLike[O, O] = Rule[O, O](Success.apply)
+  implicit def zero[O]: RuleLike[O, O] = Rule[O, O](Valid.apply)
 }
 
 trait Rule[I, O] extends RuleLike[I, O] {
@@ -25,7 +25,7 @@ trait Rule[I, O] extends RuleLike[I, O] {
    *   val r = r1.compose(r2)
    *
    * }}}
-   * @param path a prefix for the errors path if the result is a `Failure`
+   * @param path a prefix for the errors path if the result is a `Invalid`
    * @param sub the second Rule to apply
    * @return The combination of the two Rules
    */
@@ -37,7 +37,7 @@ trait Rule[I, O] extends RuleLike[I, O] {
       this.validate(d)
         .map(f)
         .fold(
-          es => Failure(es),
+          es => Invalid(es),
           r => r.validate(d))
     }
 
@@ -51,7 +51,7 @@ trait Rule[I, O] extends RuleLike[I, O] {
    *   val rc: Rule[JsValue, A] = From[JsValue]{ __ =>
    *     ((__ \ "name").read[String] ~ (__ \ "bar").read[Int])(C.apply _)
    *   }
-   *   val rule = rb orElse rc orElse Rule(_ => typeFailure)
+   *   val rule = rb orElse rc orElse Rule(_ => typeInvalid)
    * }}}
    * @param t an alternative Rule
    * @return a Rule
@@ -71,30 +71,25 @@ trait Rule[I, O] extends RuleLike[I, O] {
    *      "firstname" -> "Julien",
    *      "lastname" -> "Tournay")
    *   val composed = notEmpty |+| minLength(3)
-   *   (Path \ "firstname").read(composed).validate(valid) // Success("Julien")
+   *   (Path \ "firstname").read(composed).validate(valid) // Valid("Julien")
    *  }}}
    */
   def |+|[OO <: O](r2: RuleLike[I, OO]): Rule[I, O] =
     Rule[I, O] { v =>
-      (this.validate(v) *> r2.validate(v)).fail.map {
+      (this.validate(v) *> r2.validate(v)).bimap(
         _.groupBy(_._1).map {
           case (path, errs) =>
             path -> errs.flatMap(_._2)
-        }.toSeq
-      }
+        }.toSeq,
+        identity
+      )
     }
 
   /**
-   * This methods allows you to modify the Path of errors (if the result is a Failure) when aplying the Rule
+   * This methods allows you to modify the Path of errors (if the result is a Invalid) when aplying the Rule
    */
   def repath(f: Path => Path): Rule[I, O] =
-    Rule { d =>
-      this.validate(d).fail.map {
-        _.map {
-          case (p, errs) => f(p) -> errs
-        }
-      }
-    }
+    Rule(d => this.validate(d).bimap(_.map { case (p, errs) => f(p) -> errs }, identity))
 
   def map[B](f: O => B): Rule[I, B] =
     Rule(d => this.validate(d).map(f))
@@ -103,7 +98,7 @@ trait Rule[I, O] extends RuleLike[I, O] {
     Rule { d =>
       val a = validate(d)
       val f = mf.validate(d)
-      (f *> a).viaEither { _.right.flatMap(x => f.asEither.right.map(_(x))) }
+      Validated.fromEither((f *> a).toEither.right.flatMap(x => f.toEither.right.map(_(x))))
     }
 }
 
@@ -126,7 +121,7 @@ object Rule {
     toRule(RuleLike.zero[O])
   
   def pure[I, O](o: O): Rule[I, O] =
-    Rule(_ => Success(o))
+    Rule(_ => Valid(o))
 
   def apply[I, O](m: Mapping[(Path, Seq[ValidationError]), I, O]): Rule[I, O] =
     new Rule[I, O] {
@@ -139,7 +134,7 @@ object Rule {
     }
 
   def fromMapping[I, O](f: Mapping[ValidationError, I, O]): Rule[I, O] =
-    Rule[I, O](f(_: I).fail.map(errs => Seq(Path -> errs)))
+    Rule[I, O](f(_: I).bimap(errs => Seq(Path -> errs), identity))
 
   implicit def applicativeRule[I]: Applicative[Rule[I, ?]] =
     new Applicative[Rule[I, ?]] {

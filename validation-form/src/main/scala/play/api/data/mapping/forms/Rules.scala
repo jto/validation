@@ -120,7 +120,7 @@ object Rules extends DefaultRules[PM.PM] with ParsingRules {
 
   implicit def parseString[O](implicit r: RuleLike[String, O]): Rule[PM, O] = {
     val find = Rule[Option[String], String] {
-      _.map(Success(_)).getOrElse(Failure(Seq(Path -> Seq(ValidationError("error.required")))))
+      _.map(Valid(_)).getOrElse(Invalid(Seq(Path -> Seq(ValidationError("error.required")))))
     }
     Rule.zero[PM]
       .map(_.get(Path))
@@ -133,7 +133,7 @@ object Rules extends DefaultRules[PM.PM] with ParsingRules {
 
   implicit def inT[O, T[_] <: Traversable[_]](implicit r: RuleLike[Seq[PM], T[O]]): Path => Rule[PM, T[O]] =
     path =>
-      pickInPM(path)(Rule.zero).orElse(Rule[PM, PM](_ => Success(Map.empty)))
+      pickInPM(path)(Rule.zero).orElse(Rule[PM, PM](_ => Valid(Map.empty)))
         .map { pm =>
           val (root, others) = pm.partition(_._1 == Path)
           val arrays = others.toSeq.flatMap {
@@ -151,7 +151,7 @@ object Rules extends DefaultRules[PM.PM] with ParsingRules {
 
   implicit def pickInPM[O](p: Path)(implicit r: RuleLike[PM, O]): Rule[PM, O] =
     Rule[PM, PM] { pm =>
-      Success(PM.find(p)(pm))
+      Valid(PM.find(p)(pm))
     }.compose(r)
 
   // Convert Rules exploring PM, to Rules exploring UrlFormEncoded

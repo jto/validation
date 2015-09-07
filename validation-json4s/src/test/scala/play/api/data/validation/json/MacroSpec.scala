@@ -79,7 +79,7 @@ object MacroSpec extends Specification {
     "create a Rule[User]" in {
       import Rules._
       implicit val userReads = Rule.gen[JValue, User]
-      userReads.validate(JObject("name" -> JString("toto"), "age" -> JInt(45))) must beEqualTo(Success(User(45, "toto")))
+      userReads.validate(JObject("name" -> JString("toto"), "age" -> JInt(45))) must beEqualTo(Valid(User(45, "toto")))
     }
 
     "create a Write[User]" in {
@@ -98,7 +98,7 @@ object MacroSpec extends Specification {
           "name" -> JString("medor"),
           "master" -> JObject("name" -> JString("toto"), "age" -> JInt(45))
         )
-      ) must beEqualTo(Success(Dog("medor", User(45, "toto"))))
+      ) must beEqualTo(Valid(Dog("medor", User(45, "toto"))))
 
     }
 
@@ -121,7 +121,7 @@ object MacroSpec extends Specification {
       implicit val catRule = Rule.gen[JValue, Cat]
       catRule.validate(
         JObject("name" -> JString("minou"))
-      ) must beEqualTo(Success(Cat("minou")))
+      ) must beEqualTo(Valid(Cat("minou")))
 
       implicit lazy val recUserRule: Rule[JValue, RecUser] =
         Rule.gen[JValue, RecUser]
@@ -134,7 +134,7 @@ object MacroSpec extends Specification {
           "friends" -> JArray(List(JObject( "name" -> JString("tom"), "hobbies" -> JArray(Nil), "friends" -> JArray(Nil))))
         )
       ) must beEqualTo(
-        Success(
+        Valid(
           RecUser(
             "bob",
             Some(Cat("minou")),
@@ -182,7 +182,7 @@ object MacroSpec extends Specification {
           "friend" -> JObject( "name" -> JString("tom"))
         )
       ) must beEqualTo(
-        Success(
+        Valid(
           User1(
             "bob",
             Some(User1("tom"))
@@ -215,7 +215,7 @@ object MacroSpec extends Specification {
           "foo" -> JString("bob"),
           "bar" -> JInt(3))
       ) must beEqualTo(
-        Success(
+        Valid(
           ManyApplies(
             "bob",
             3
@@ -232,7 +232,7 @@ object MacroSpec extends Specification {
         JObject(
           "x" -> JInt(3))
       ) must beEqualTo(
-        Success(
+        Valid(
           AClass(3)
         )
       )
@@ -254,7 +254,7 @@ object MacroSpec extends Specification {
         "id" -> JInt(123L),
         "name" -> JString("toto"))
 
-      c1Rule[Long].validate(js) must beEqualTo(Success(C1[Long](Id[Long](123L), "toto")))
+      c1Rule[Long].validate(js) must beEqualTo(Valid(C1[Long](Id[Long](123L), "toto")))
     }
 
     // test to validate it doesn't compile if missing implicit
@@ -374,7 +374,7 @@ object MacroSpec extends Specification {
         )
       )))
 
-      toto6Rule.validate(js) must beEqualTo(Success(
+      toto6Rule.validate(js) must beEqualTo(Valid(
         Toto6(Seq(
           Dog("medor", User(45, "toto")),
           Dog("brutus", User(23, "tata"))
@@ -385,13 +385,13 @@ object MacroSpec extends Specification {
     "test case reads in companion object" in {
       From[JValue, Person](
         To[Person, JValue](Person("bob", 15))
-      ) must beEqualTo(Success(Person("bob", 15)))
+      ) must beEqualTo(Valid(Person("bob", 15)))
     }
 
     "test case single-field in companion object" in {
       From[JValue, Person2](
         To[Person2, JValue](Person2(List("bob", "bobby")))
-      ) must beEqualTo(Success(Person2(List("bob", "bobby"))))
+      ) must beEqualTo(Valid(Person2(List("bob", "bobby"))))
     }
   }
 }

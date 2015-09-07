@@ -37,15 +37,17 @@ object Writes extends DefaultWrites with DefaultMonoids with GenericWrites[JValu
       })
   }
 
-  implicit def errors(implicit wErrs: WriteLike[Seq[ValidationError], JValue]) = Write[(Path, Seq[ValidationError]), JObject] {
-    case (p, errs) =>
-      JObject(p.toString -> wErrs.writes(errs))
-  }
+  implicit def errors(implicit wErrs: WriteLike[Seq[ValidationError], JValue]) =
+    Write[(Path, Seq[ValidationError]), JObject] {
+      case (p, errs) =>
+        JObject(p.toString -> wErrs.writes(errs))
+    }
 
-  implicit def failure[O](implicit w: WriteLike[(Path, Seq[ValidationError]), JObject]) = Write[Failure[(Path, Seq[ValidationError]), O], JObject] {
-    case Failure(errs) =>
-      errs.map(w.writes).reduce(_ merge _)
-  }
+  implicit def failure(implicit w: WriteLike[(Path, Seq[ValidationError]), JObject]) =
+    Write[Invalid[Seq[(Path, Seq[ValidationError])]], JObject] {
+      case Invalid(errs) =>
+        errs.map(w.writes).reduce(_ merge _)
+    }
 
   implicit val string: Write[String, JValue] =
     Write(s => JString(s))

@@ -17,8 +17,8 @@ import jto.validation._
  *   val csv1 = "Ian Hummel,ian@example.com,1981-07-24".split(",")
  *   val csv2 = "Jane Doe,jane@example.com,N/A".split(",")
  *
- *   contactReads.validate(csv1) // returns Success(Contact("Ian Hummel", "ian@example.com", Some(new LocalDate(1981, 7, 24))))
- *   contactReads.validate(csv2) // returns Success(Contact("Jane Doe", "jane@example.com", None))
+ *   contactReads.validate(csv1) // returns Valid(Contact("Ian Hummel", "ian@example.com", Some(new LocalDate(1981, 7, 24))))
+ *   contactReads.validate(csv2) // returns Valid(Contact("Jane Doe", "jane@example.com", None))
  * }}
  */
 object Rules extends DefaultRules[Delimited] with ParsingRules {
@@ -30,13 +30,13 @@ object Rules extends DefaultRules[Delimited] with ParsingRules {
    * @param p  An index into the array
    * @param r  A [[Rule]] for converting the value from String to O
    * @tparam O The desired type for the value
-   * @return   Failure if the index is out of bounds or the [[Path]] was not an [[IdxPathNode]]
+   * @return   Invalid if the index is out of bounds or the [[Path]] was not an [[IdxPathNode]]
    */
   implicit def pick[O](p: Path)(implicit r: RuleLike[String, O]): Rule[Delimited, O] =
     Rule[Delimited, String] { delimited =>
       p.path match {
-        case IdxPathNode(i) :: t if i < delimited.length => Success(delimited(i))
-        case _ => Failure(Seq(Path -> Seq(ValidationError("error.required"))))
+        case IdxPathNode(i) :: t if i < delimited.length => Valid(delimited(i))
+        case _ => Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
       }
     }.compose(r)
 
@@ -70,13 +70,13 @@ object Rules extends DefaultRules[Delimited] with ParsingRules {
     (path: Path) =>
       Rule[Delimited, Option[O]] { delimited =>
         val isNone = not(noneValues.foldLeft(Rule.zero[String])(_ compose not(_))).map(_ => None)
-        val v = (pick(path).validate(delimited).map(Some.apply) orElse Success(None))
-        v.viaEither {
-          _.right.flatMap {
+        val v = (pick(path).validate(delimited).map(Some.apply) orElse Valid(None))
+        Validated.fromEither(
+          v.toEither.right.flatMap {
             case None => Right(None)
-            case Some(i) => isNone.orElse(Rule.toRule(coerce).map[Option[O]](Some.apply)).validate(i).asEither
+            case Some(i) => isNone.orElse(Rule.toRule(coerce).map[Option[O]](Some.apply)).validate(i).toEither
           }
-        }
+        )
       }
 
   /**

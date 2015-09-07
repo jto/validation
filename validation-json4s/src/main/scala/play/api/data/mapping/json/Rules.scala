@@ -4,60 +4,60 @@ package json4s
 import org.json4s._
 
 object Rules extends DefaultRules[JValue] {
-  private def jsonAs[T](f: PartialFunction[JValue, Validation[ValidationError, T]])(msg: String, args: Any*) =
+  private def jsonAs[T](f: PartialFunction[JValue, Validated[Seq[ValidationError], T]])(msg: String, args: Any*) =
     Rule.fromMapping[JValue, T](
       f.orElse {
-        case j => Failure(Seq(ValidationError(msg, args: _*)))
+        case j => Invalid(Seq(ValidationError(msg, args: _*)))
       })
 
   implicit def stringR = jsonAs[String] {
-    case JString(v) => Success(v)
+    case JString(v) => Valid(v)
   }("error.invalid", "String")
 
   implicit def booleanR = jsonAs[Boolean] {
-    case JBool(v) => Success(v)
+    case JBool(v) => Valid(v)
   }("error.invalid", "Boolean")
 
   // Note: Mappings of JsNumber to Number are validating that the JsNumber is indeed valid
   // in the target type. i.e: JsNumber(4.5) is not considered parseable as an Int.
   implicit def intR = jsonAs[Int] {
-    case JInt(v) if v.isValidInt => Success(v.toInt)
+    case JInt(v) if v.isValidInt => Valid(v.toInt)
   }("error.number", "Int")
 
   implicit def shortR = jsonAs[Short] {
-    case JInt(v) if v.isValidShort => Success(v.toShort)
+    case JInt(v) if v.isValidShort => Valid(v.toShort)
   }("error.number", "Short")
 
   implicit def longR = jsonAs[Long] {
-    case JInt(v) if v.isValidLong => Success(v.toLong)
+    case JInt(v) if v.isValidLong => Valid(v.toLong)
   }("error.number", "Long")
 
   implicit def jsDouble = jsonAs[JsonAST.JDouble] {
-    case v: JsonAST.JDouble => Success(v)
+    case v: JsonAST.JDouble => Valid(v)
   }("error.number", "Number")
   
   implicit def jsDecimal = jsonAs[JsonAST.JDecimal] {
-    case v: JsonAST.JDecimal => Success(v)
+    case v: JsonAST.JDecimal => Valid(v)
   }("error.number", "Number")
   
   implicit def jsInt = jsonAs[JsonAST.JInt] {
-    case v: JsonAST.JInt => Success(v)
+    case v: JsonAST.JInt => Valid(v)
   }("error.number", "Number")
   
   implicit def jsBooleanR = jsonAs[JBool] {
-    case v @ JBool(_) => Success(v)
+    case v @ JBool(_) => Valid(v)
   }("error.invalid", "Boolean")
 
   implicit def jsStringR = jsonAs[JString] {
-    case v @ JString(_) => Success(v)
+    case v @ JString(_) => Valid(v)
   }("error.invalid", "String")
 
   implicit def jsObjectR = jsonAs[JObject] {
-    case v @ JObject(_) => Success(v)
+    case v @ JObject(_) => Valid(v)
   }("error.invalid", "Object")
 
   implicit def jsArrayR = jsonAs[JArray] {
-    case v @ JArray(_) => Success(v)
+    case v @ JArray(_) => Valid(v)
   }("error.invalid", "Array")
 
   // BigDecimal.isValidFloat is buggy, see [SI-6699]
@@ -67,9 +67,9 @@ object Rules extends DefaultRules[JValue] {
     !d.isInfinity && bd.bigDecimal.compareTo(new java.math.BigDecimal(jl.Float.toString(d), bd.mc)) == 0
   }
   implicit def floatR = jsonAs[Float] {
-    case JDecimal(v) if isValidFloat(v) => Success(v.toFloat)
-    case JDouble(v) if isValidFloat(v) => Success(v.toFloat)
-    case JInt(v) => Success(v.toFloat)
+    case JDecimal(v) if isValidFloat(v) => Valid(v.toFloat)
+    case JDouble(v) if isValidFloat(v) => Valid(v.toFloat)
+    case JInt(v) => Valid(v.toFloat)
   }("error.number", "Float")
 
   // BigDecimal.isValidDouble is buggy, see [SI-6699]
@@ -78,26 +78,26 @@ object Rules extends DefaultRules[JValue] {
     !d.isInfinity && bd.bigDecimal.compareTo(new java.math.BigDecimal(jl.Double.toString(d), bd.mc)) == 0
   }
   implicit def doubleR = jsonAs[Double] {
-    case JDecimal(v) if isValidDouble(v) => Success(v.toDouble)
-    case JDouble(v) => Success(v)
-    case JInt(v) => Success(v.toDouble)
+    case JDecimal(v) if isValidDouble(v) => Valid(v.toDouble)
+    case JDouble(v) => Valid(v)
+    case JInt(v) => Valid(v.toDouble)
   }("error.number", "Double")
 
   implicit def bigDecimal = jsonAs[BigDecimal] {
-    case JDecimal(v) => Success(v)
-    case JDouble(v) => Success(v)
-    case JInt(v) => Success(BigDecimal(v))
+    case JDecimal(v) => Valid(v)
+    case JDouble(v) => Valid(v)
+    case JInt(v) => Valid(BigDecimal(v))
   }("error.number", "BigDecimal")
 
   import java.{ math => jm }
   implicit def javaBigDecimal = jsonAs[jm.BigDecimal] {
-    case JDecimal(v) => Success(v.bigDecimal)
-    case JDouble(v) => Success(BigDecimal(v).bigDecimal)
-    case JInt(v) => Success(BigDecimal(v).bigDecimal)
+    case JDecimal(v) => Valid(v.bigDecimal)
+    case JDouble(v) => Valid(BigDecimal(v).bigDecimal)
+    case JInt(v) => Valid(BigDecimal(v).bigDecimal)
   }("error.number", "BigDecimal")
 
   implicit val jsNullR = jsonAs[JNull.type] {
-    case JNull => Success(JNull)
+    case JNull => Valid(JNull)
   }("error.invalid", "null")
 
   implicit def ooo[O](p: Path)(implicit pick: Path => RuleLike[JValue, JValue], coerce: RuleLike[JValue, O]): Rule[JValue, Option[O]] =
@@ -131,8 +131,8 @@ object Rules extends DefaultRules[JValue] {
 
     Rule[II, JValue] { json =>
       search(p, json) match {
-        case None => Failure(Seq(Path -> Seq(ValidationError("error.required"))))
-        case Some(js) => Success(js)
+        case None => Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
+        case Some(js) => Valid(js)
       }
     }.compose(r)
   }

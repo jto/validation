@@ -10,7 +10,7 @@ object From {
    *     ((__ \ "firstname").read(notEmpty) ~
    *      (__ \ "age").read(min(1)).tupled
    *   }
-   *   r.validate(valid) == Success("Julien" -> 28)
+   *   r.validate(valid) == Valid("Julien" -> 28)
    * }}}
    */
   def apply[I] = new From[I] {}
@@ -21,7 +21,7 @@ object From {
    *   val m = Map(
    *     "name" -> Seq("bob"),
    *     "friend.name" -> Seq("bobby"))
-   *   From[UrlFormEncoded, Person](m) == Success(Person(List("bob", "bobby")))
+   *   From[UrlFormEncoded, Person](m) == Valid(Person(List("bob", "bobby")))
    * }}}
    */
   def apply[I, O](i: I)(implicit r: RuleLike[I, O]) =
@@ -71,9 +71,9 @@ case class Reader[I](path: Path = Path(Nil)) {
    *        "label": "test"
    *      }
    *   }""")
-   *   val infoValidation = From[JsValue]{ __ => (__ \ "label").read(nonEmptyText) }
-   *   val v = From[JsValue]{ __ => (__ \ "informations").read(infoValidation)) }
-   *   v.validate(json) == Success("test")
+   *   val infoValidated = From[JsValue]{ __ => (__ \ "label").read(nonEmptyText) }
+   *   val v = From[JsValue]{ __ => (__ \ "informations").read(infoValidated)) }
+   *   v.validate(json) == Valid("test")
    * }}}
    * @param sub the constraint to apply on the subdata
    * @param l a lookup function. This function finds data in a structure of type I, and coerce it to type O
@@ -90,9 +90,9 @@ case class Reader[I](path: Path = Path(Nil)) {
    *        "label": "test"
    *      }
    *   }""")
-   *   implicit val infoValidation = From[JsValue]{ __ => (__ \ "label").read[String] }
+   *   implicit val infoValidated = From[JsValue]{ __ => (__ \ "label").read[String] }
    *   val v = From[JsValue]{ __ => (__ \ "informations").read[Informations]) }
-   *   v.validate(json) == Success("test")
+   *   v.validate(json) == Valid("test")
    * }}}
    * @param r a lookup function. This function finds data in a structure of type I, and coerce it to type O
    * @return A Rule validating the existence and validity of data at `path`.

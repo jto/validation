@@ -19,9 +19,9 @@ object FormatSpec extends Specification {
       val m = Json.obj("id" -> 1L)
 
       f.writes(1L) mustEqual(m)
-      f.validate(m) mustEqual(Success(1L))
+      f.validate(m) mustEqual(Valid(1L))
 
-      (Path \ "id").from[JsValue](f).validate(Json.obj()) mustEqual(Failure(Seq(Path \ "id" -> Seq(ValidationError("error.required")))))
+      (Path \ "id").from[JsValue](f).validate(Json.obj()) mustEqual(Invalid(Seq(Path \ "id" -> Seq(ValidationError("error.required")))))
     }
 
 
@@ -36,9 +36,9 @@ object FormatSpec extends Specification {
       val m = Json.obj("id" -> "CAFEBABE")
 
       f.writes("CAFEBABE") mustEqual(m)
-      f.validate(m) mustEqual(Success("CAFEBABE"))
+      f.validate(m) mustEqual(Valid("CAFEBABE"))
 
-      (Path \ "id").from[JsValue](f).validate(Json.obj()) mustEqual(Failure(Seq(Path \ "id" -> Seq(ValidationError("error.required")))))
+      (Path \ "id").from[JsValue](f).validate(Json.obj()) mustEqual(Invalid(Seq(Path \ "id" -> Seq(ValidationError("error.required")))))
     }
 
     "serialize and deserialize Seq[String]" in {
@@ -48,7 +48,7 @@ object FormatSpec extends Specification {
       val f = Formatting[JsValue, JsObject] { __ => (__ \ "ids").format[Seq[String]] }
       val m = Json.obj("ids" -> Seq("CAFEBABE", "FOOBAR"))
 
-      f.validate(m) mustEqual(Success(Seq("CAFEBABE", "FOOBAR")))
+      f.validate(m) mustEqual(Valid(Seq("CAFEBABE", "FOOBAR")))
       f.writes(Seq("CAFEBABE", "FOOBAR")) mustEqual(m)
     }
 
@@ -62,7 +62,7 @@ object FormatSpec extends Specification {
       }
 
       val m = Json.obj("id" -> 1L, "name" -> "Luigi")
-      userF.validate(m) mustEqual(Success(luigi))
+      userF.validate(m) mustEqual(Valid(luigi))
     }
 
     "support primitives types" in {
@@ -70,55 +70,55 @@ object FormatSpec extends Specification {
       import Writes._
 
       "Int" in {
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Int] }.validate(Json.obj("n" -> 4)) mustEqual(Success(4))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Int] }.validate(Json.obj("n" -> "foo")) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Int] }.validate(Json.obj("n" -> 4.8)) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n" \ "o").format[Int] }.validate(Json.obj("n" -> Json.obj("o" -> 4))) mustEqual(Success(4))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n" \ "o").format[Int] }.validate(Json.obj("n" -> Json.obj("o" -> "foo"))) mustEqual(Failure(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Int] }.validate(Json.obj("n" -> 4)) mustEqual(Valid(4))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Int] }.validate(Json.obj("n" -> "foo")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Int] }.validate(Json.obj("n" -> 4.8)) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n" \ "o").format[Int] }.validate(Json.obj("n" -> Json.obj("o" -> 4))) mustEqual(Valid(4))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n" \ "o").format[Int] }.validate(Json.obj("n" -> Json.obj("o" -> "foo"))) mustEqual(Invalid(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
 
-        Formatting[JsValue, JsObject] { __ => (__ \ "n" \ "o" \ "p").format[Int] }.validate(Json.obj("n" -> Json.obj("o" -> Json.obj("p" -> 4)))) mustEqual(Success(4))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n" \ "o" \ "p").format[Int] }.validate(Json.obj("n" -> Json.obj("o" -> Json.obj("p" -> "foo")))) mustEqual(Failure(Seq(Path \ "n" \ "o" \ "p" -> Seq(ValidationError("error.number", "Int")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n" \ "o" \ "p").format[Int] }.validate(Json.obj("n" -> Json.obj("o" -> Json.obj("p" -> 4)))) mustEqual(Valid(4))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n" \ "o" \ "p").format[Int] }.validate(Json.obj("n" -> Json.obj("o" -> Json.obj("p" -> "foo")))) mustEqual(Invalid(Seq(Path \ "n" \ "o" \ "p" -> Seq(ValidationError("error.number", "Int")))))
 
         val errPath = Path \ "foo"
-        val error = Failure(Seq(errPath -> Seq(ValidationError("error.required"))))
+        val error = Invalid(Seq(errPath -> Seq(ValidationError("error.required"))))
         Formatting[JsValue, JsObject] { __ => (__ \ "foo").format[Int] }.validate(Json.obj("n" -> 4)) mustEqual(error)
       }
 
       "Short" in {
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Short] }.validate(Json.obj("n" -> 4)) mustEqual(Success(4))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Short] }.validate(Json.obj("n" -> "foo")) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Short] }.validate(Json.obj("n" -> 4.8)) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Short] }.validate(Json.obj("n" -> 4)) mustEqual(Valid(4))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Short] }.validate(Json.obj("n" -> "foo")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Short] }.validate(Json.obj("n" -> 4.8)) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
       }
 
       "Long" in {
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Long] }.validate(Json.obj("n" -> 4)) mustEqual(Success(4))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Long] }.validate(Json.obj("n" -> "foo")) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Long] }.validate(Json.obj("n" -> 4.8)) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Long] }.validate(Json.obj("n" -> 4)) mustEqual(Valid(4))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Long] }.validate(Json.obj("n" -> "foo")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Long] }.validate(Json.obj("n" -> 4.8)) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
       }
 
       "Float" in {
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Float] }.validate(Json.obj("n" -> 4)) mustEqual(Success(4))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Float] }.validate(Json.obj("n" -> "foo")) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Float] }.validate(Json.obj("n" -> 4.8)) mustEqual(Success(4.8F))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Float] }.validate(Json.obj("n" -> 4)) mustEqual(Valid(4))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Float] }.validate(Json.obj("n" -> "foo")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Float] }.validate(Json.obj("n" -> 4.8)) mustEqual(Valid(4.8F))
       }
 
       "Double" in {
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Double] }.validate(Json.obj("n" -> 4)) mustEqual(Success(4))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Double] }.validate(Json.obj("n" -> "foo")) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Double] }.validate(Json.obj("n" -> 4.8)) mustEqual(Success(4.8))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Double] }.validate(Json.obj("n" -> 4)) mustEqual(Valid(4))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Double] }.validate(Json.obj("n" -> "foo")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Double] }.validate(Json.obj("n" -> 4.8)) mustEqual(Valid(4.8))
       }
 
       "java BigDecimal" in {
         import java.math.{ BigDecimal => jBigDecimal }
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> 4)) mustEqual(Success(new jBigDecimal("4")))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> "foo")) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> 4.8)) mustEqual(Success(new jBigDecimal("4.8")))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> 4)) mustEqual(Valid(new jBigDecimal("4")))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> "foo")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> 4.8)) mustEqual(Valid(new jBigDecimal("4.8")))
       }
 
       "scala BigDecimal" in {
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[BigDecimal] }.validate(Json.obj("n" -> 4)) mustEqual(Success(BigDecimal(4)))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[BigDecimal] }.validate(Json.obj("n" -> "foo")) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[BigDecimal] }.validate(Json.obj("n" -> 4.8)) mustEqual(Success(BigDecimal(4.8)))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[BigDecimal] }.validate(Json.obj("n" -> 4)) mustEqual(Valid(BigDecimal(4)))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[BigDecimal] }.validate(Json.obj("n" -> "foo")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[BigDecimal] }.validate(Json.obj("n" -> 4.8)) mustEqual(Valid(BigDecimal(4.8)))
       }
 
       "date" in {
@@ -126,11 +126,11 @@ object FormatSpec extends Specification {
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         Formatting[JsValue, JsObject] { __ =>
           (__ \ "n").format(Rules.date, Writes.date)
-        }.validate(Json.obj("n" -> "1985-09-10")) mustEqual(Success(f.parse("1985-09-10")))
+        }.validate(Json.obj("n" -> "1985-09-10")) mustEqual(Valid(f.parse("1985-09-10")))
 
         Formatting[JsValue, JsObject] { __ =>
           (__ \ "n").format(Rules.date, Writes.date)
-        }.validate(Json.obj("n" -> "foo")) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
+        }.validate(Json.obj("n" -> "foo")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
       }
 
       "iso date" in {
@@ -139,11 +139,11 @@ object FormatSpec extends Specification {
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         Formatting[JsValue, JsObject] { __ =>
           (__ \ "n").format(Rules.isoDate, Writes.isoDate)
-        }.validate(Json.obj("n" -> "1985-09-10T00:00:00+02:00")) mustEqual(Success(f.parse("1985-09-10")))
+        }.validate(Json.obj("n" -> "1985-09-10T00:00:00+02:00")) mustEqual(Valid(f.parse("1985-09-10")))
 
         Formatting[JsValue, JsObject] { __ =>
           (__ \ "n").format(Rules.isoDate, Writes.isoDate)
-        }.validate(Json.obj("n" -> "foo")) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date.isoformat")))))
+        }.validate(Json.obj("n" -> "foo")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date.isoformat")))))
       }
 
       "joda" in {
@@ -155,21 +155,21 @@ object FormatSpec extends Specification {
         "date" in {
           Formatting[JsValue, JsObject] { __ =>
             (__ \ "n").format(Rules.jodaDate, Writes.jodaDate)
-          }.validate(Json.obj("n" -> "1985-09-10")) mustEqual(Success(jd))
+          }.validate(Json.obj("n" -> "1985-09-10")) mustEqual(Valid(jd))
 
           Formatting[JsValue, JsObject] { __ =>
             (__ \ "n").format(Rules.jodaDate, Writes.jodaDate)
-          }.validate(Json.obj("n" -> "foo")) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
+          }.validate(Json.obj("n" -> "foo")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
         }
 
         "time" in {
           Formatting[JsValue, JsObject] { __ =>
             (__ \ "n").format(Rules.jodaTime, Writes.jodaTime)
-          }.validate(Json.obj("n" -> dd.getTime)) mustEqual(Success(jd))
+          }.validate(Json.obj("n" -> dd.getTime)) mustEqual(Valid(jd))
 
           Formatting[JsValue, JsObject] { __ =>
             (__ \ "n").format(Rules.jodaDate, Writes.jodaTime)
-          }.validate(Json.obj("n" -> "foo")) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
+          }.validate(Json.obj("n" -> "foo")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
         }
 
         "local date" in {
@@ -178,11 +178,11 @@ object FormatSpec extends Specification {
 
           Formatting[JsValue, JsObject] { __ =>
             (__ \ "n").format(Rules.jodaLocalDate, Writes.jodaLocalDate)
-          }.validate(Json.obj("n" -> ld.toString())) mustEqual(Success(ld))
+          }.validate(Json.obj("n" -> ld.toString())) mustEqual(Valid(ld))
 
           Formatting[JsValue, JsObject] { __ =>
             (__ \ "n").format(Rules.jodaLocalDate, Writes.jodaLocalDate)
-          }.validate(Json.obj("n" -> "foo")) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "")))))
+          }.validate(Json.obj("n" -> "foo")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "")))))
         }
       }
 
@@ -194,55 +194,55 @@ object FormatSpec extends Specification {
 
         Formatting[JsValue, JsObject] { __ =>
           (__ \ "n").format(Rules.sqlDate, Writes.sqlDate)
-        }.validate(Json.obj("n" -> "1985-09-10")) mustEqual(Success(ds))
+        }.validate(Json.obj("n" -> "1985-09-10")) mustEqual(Valid(ds))
       }
 
       "Boolean" in {
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Boolean] }.validate(Json.obj("n" -> true)) mustEqual(Success(true))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Boolean] }.validate(Json.obj("n" -> "foo")) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Boolean] }.validate(Json.obj("n" -> true)) mustEqual(Valid(true))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Boolean] }.validate(Json.obj("n" -> "foo")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
       }
 
       "String" in {
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[String] }.validate(Json.obj("n" -> "foo")) mustEqual(Success("foo"))
-        Formatting[JsValue, JsObject] { __ => (__ \ "o").format[String] }.validate(Json.obj("o.n" -> "foo")) mustEqual(Failure(Seq(Path \ "o" -> Seq(ValidationError("error.required")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[String] }.validate(Json.obj("n" -> "foo")) mustEqual(Valid("foo"))
+        Formatting[JsValue, JsObject] { __ => (__ \ "o").format[String] }.validate(Json.obj("o.n" -> "foo")) mustEqual(Invalid(Seq(Path \ "o" -> Seq(ValidationError("error.required")))))
       }
 
       "Option" in {
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Option[Boolean]] }.validate(Json.obj("n" -> true)) mustEqual(Success(Some(true)))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Option[Boolean]] }.validate(Json.obj()) mustEqual(Success(None))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Option[Boolean]] }.validate(Json.obj("foo" -> "bar")) mustEqual(Success(None))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Option[Boolean]] }.validate(Json.obj("n" -> "bar")) mustEqual(Failure(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Option[Boolean]] }.validate(Json.obj("n" -> true)) mustEqual(Valid(Some(true)))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Option[Boolean]] }.validate(Json.obj()) mustEqual(Valid(None))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Option[Boolean]] }.validate(Json.obj("foo" -> "bar")) mustEqual(Valid(None))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Option[Boolean]] }.validate(Json.obj("n" -> "bar")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
       }
 
       "Map[String, Seq[V]]" in {
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Map[String, Seq[String]]] }.validate(Json.obj("n" -> Json.obj("foo" -> Seq("bar")))) mustEqual(Success(Map("foo" -> Seq("bar"))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Map[String, Seq[Int]]] }.validate(Json.obj("n" -> Json.obj("foo" -> Seq(4), "bar" -> Seq(5)))) mustEqual(Success(Map("foo" -> Seq(4), "bar" -> Seq(5))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "x").format[Map[String, Int]] }.validate(Json.obj("n" -> Json.obj("foo" -> 4, "bar" -> "frack"))) mustEqual(Failure(Seq(Path \ "x" -> Seq(ValidationError("error.required")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Map[String, Seq[Int]]] }.validate(Json.obj("n" -> Json.obj("foo" -> Seq(4), "bar" -> Seq("frack")))) mustEqual(Failure(Seq(Path \ "n" \ "bar" \ 0 -> Seq(ValidationError("error.number", "Int")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Map[String, Seq[String]]] }.validate(Json.obj("n" -> Json.obj("foo" -> Seq("bar")))) mustEqual(Valid(Map("foo" -> Seq("bar"))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Map[String, Seq[Int]]] }.validate(Json.obj("n" -> Json.obj("foo" -> Seq(4), "bar" -> Seq(5)))) mustEqual(Valid(Map("foo" -> Seq(4), "bar" -> Seq(5))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "x").format[Map[String, Int]] }.validate(Json.obj("n" -> Json.obj("foo" -> 4, "bar" -> "frack"))) mustEqual(Invalid(Seq(Path \ "x" -> Seq(ValidationError("error.required")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Map[String, Seq[Int]]] }.validate(Json.obj("n" -> Json.obj("foo" -> Seq(4), "bar" -> Seq("frack")))) mustEqual(Invalid(Seq(Path \ "n" \ "bar" \ 0 -> Seq(ValidationError("error.number", "Int")))))
       }
 
       "Traversable" in {
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Traversable[String]] }.validate(Json.obj("n" -> Seq("foo"))).get.toSeq must contain(exactly(Seq("foo"): _*))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Traversable[Int]] }.validate(Json.obj("n" -> Seq(1, 2, 3))).get.toSeq must contain(exactly(Seq(1, 2, 3): _*))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Traversable[Int]] }.validate(Json.obj("n" -> Seq("1", "paf"))) mustEqual(Failure(Seq(
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Traversable[String]] }.validate(Json.obj("n" -> Seq("foo"))).toOption.get.toSeq must contain(exactly(Seq("foo"): _*))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Traversable[Int]] }.validate(Json.obj("n" -> Seq(1, 2, 3))).toOption.get.toSeq must contain(exactly(Seq(1, 2, 3): _*))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Traversable[Int]] }.validate(Json.obj("n" -> Seq("1", "paf"))) mustEqual(Invalid(Seq(
           Path \ "n" \ 0 -> Seq(ValidationError("error.number", "Int")),
           Path \ "n" \ 1 -> Seq(ValidationError("error.number", "Int"))
         )))
       }
 
       "Array" in {
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Array[String]] }.validate(Json.obj("n" -> Seq("foo"))).get.toSeq must contain(exactly(Seq("foo"): _*))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Array[Int]] }.validate(Json.obj("n" -> Seq(1, 2, 3))).get.toSeq must contain(exactly(Seq(1, 2, 3): _*))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Array[Int]] }.validate(Json.obj("n" -> Seq("1", "paf"))) mustEqual(Failure(Seq(
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Array[String]] }.validate(Json.obj("n" -> Seq("foo"))).toOption.get.toSeq must contain(exactly(Seq("foo"): _*))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Array[Int]] }.validate(Json.obj("n" -> Seq(1, 2, 3))).toOption.get.toSeq must contain(exactly(Seq(1, 2, 3): _*))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Array[Int]] }.validate(Json.obj("n" -> Seq("1", "paf"))) mustEqual(Invalid(Seq(
           Path \ "n" \ 0 -> Seq(ValidationError("error.number", "Int")),
           Path \ "n" \ 1 -> Seq(ValidationError("error.number", "Int"))
         )))
       }
 
       "Seq" in {
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Seq[String]] }.validate(Json.obj("n" -> Seq("foo"))).get must contain(exactly(Seq("foo"): _*))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Seq[Int]] }.validate(Json.obj("n" -> Seq(1, 2, 3))).get must contain(exactly(Seq(1, 2, 3): _*))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Seq[Int]] }.validate(Json.obj("n" -> Seq("1", "paf"))) mustEqual(Failure(Seq(
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Seq[String]] }.validate(Json.obj("n" -> Seq("foo"))).toOption.get must contain(exactly(Seq("foo"): _*))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Seq[Int]] }.validate(Json.obj("n" -> Seq(1, 2, 3))).toOption.get must contain(exactly(Seq(1, 2, 3): _*))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Seq[Int]] }.validate(Json.obj("n" -> Seq("1", "paf"))) mustEqual(Invalid(Seq(
           Path \ "n" \ 0 -> Seq(ValidationError("error.number", "Int")),
           Path \ "n" \ 1 -> Seq(ValidationError("error.number", "Int"))
         )))
@@ -267,9 +267,9 @@ object FormatSpec extends Specification {
       val result = ("Julien", "Tournay")
 
       f.writes(result) mustEqual(valid)
-      f.validate(valid) mustEqual(Success(result))
+      f.validate(valid) mustEqual(Valid(result))
 
-      f.validate(invalid) mustEqual(Failure(Seq((Path \ "firstname", Seq(ValidationError("error.required"))))))
+      f.validate(invalid) mustEqual(Invalid(Seq((Path \ "firstname", Seq(ValidationError("error.required"))))))
     }
 
     "format seq" in {
@@ -288,9 +288,9 @@ object FormatSpec extends Specification {
 
       def isNotEmpty[T <: Traversable[_]] = validateWith[T]("error.notEmpty"){ !_.isEmpty }
 
-      Formatting[JsValue, JsObject] { __ => (__ \ "firstname").format[Seq[String]] }.validate(valid) mustEqual(Success(Seq("Julien")))
-      Formatting[JsValue, JsObject] { __ => (__ \ "foobar").format[Seq[String]] }.validate(valid) mustEqual(Success(Seq()))
-      Formatting[JsValue, JsObject] { __ => (__ \ "foobar").format(isNotEmpty[Seq[Int]]) }.validate(valid) mustEqual(Failure(Seq(Path \ "foobar" -> Seq(ValidationError("error.notEmpty")))))
+      Formatting[JsValue, JsObject] { __ => (__ \ "firstname").format[Seq[String]] }.validate(valid) mustEqual(Valid(Seq("Julien")))
+      Formatting[JsValue, JsObject] { __ => (__ \ "foobar").format[Seq[String]] }.validate(valid) mustEqual(Valid(Seq()))
+      Formatting[JsValue, JsObject] { __ => (__ \ "foobar").format(isNotEmpty[Seq[Int]]) }.validate(valid) mustEqual(Invalid(Seq(Path \ "foobar" -> Seq(ValidationError("error.notEmpty")))))
     }
 
     "format recursive" in {
@@ -317,14 +317,14 @@ object FormatSpec extends Specification {
           ((__ \ "name").format[String] ~
            (__ \ "friends").format(seqR(w), seqW(w)))(RecUser.apply _, RecUser.unapply _)
         }
-        w.validate(m) mustEqual Success(u)
+        w.validate(m) mustEqual Valid(u)
         w.writes(u) mustEqual m
 
         lazy val w3: Format[JsValue, JsObject, User1] = Formatting[JsValue, JsObject]{ __ =>
           ((__ \ "name").format[String] ~
            (__ \ "friend").format(optionR(w3), optionW(w3)))(User1.apply _, User1.unapply _)
         }
-        w3.validate(m1) mustEqual Success(u1)
+        w3.validate(m1) mustEqual Valid(u1)
         w3.writes(u1) mustEqual m1
       }
 
@@ -336,14 +336,14 @@ object FormatSpec extends Specification {
           ((__ \ "name").format[String] ~
            (__ \ "friends").format[Seq[RecUser]])(RecUser.apply _, RecUser.unapply _)
         }
-        w.validate(m) mustEqual Success(u)
+        w.validate(m) mustEqual Valid(u)
         w.writes(u) mustEqual m
 
         implicit lazy val w3: Format[JsValue, JsObject, User1] = Formatting[JsValue, JsObject]{ __ =>
           ((__ \ "name").format[String] ~
            (__ \ "friend").format[Option[User1]])(User1.apply _, User1.unapply _)
         }
-        w3.validate(m1) mustEqual Success(u1)
+        w3.validate(m1) mustEqual Valid(u1)
         w3.writes(u1) mustEqual m1
       }
     }
@@ -358,7 +358,7 @@ object FormatSpec extends Specification {
       }
 
       val  userJs = Json.obj("id" -> 1L, "name" -> "Luigi")
-      userF.validate(userJs) mustEqual(Success(luigi))
+      userF.validate(userJs) mustEqual(Valid(luigi))
       userF.writes(luigi) mustEqual(userJs)
 
       val fin = From[JsObject] { __ =>
@@ -366,7 +366,7 @@ object FormatSpec extends Specification {
       }
 
       val m2 = Json.obj("user" -> userJs)
-      fin.validate(m2) mustEqual(Success(luigi))
+      fin.validate(m2) mustEqual(Valid(luigi))
 
       val win = To[JsValue] { __ =>
         (__ \ "user").write[User]
@@ -379,7 +379,7 @@ object FormatSpec extends Specification {
       trait Cat extends Animal
       case object MyCat extends Cat
 
-      val f1: Format[Animal, Cat, Unit] = Format(Rule(_ => Success(())), Write(_ => MyCat))
+      val f1: Format[Animal, Cat, Unit] = Format(Rule(_ => Valid(())), Write(_ => MyCat))
       val f2: Format[Animal, Animal, Unit] = f1
 
       // Note that we can achieve the above without covarianace on Format IW as follows:

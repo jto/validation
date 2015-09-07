@@ -65,7 +65,7 @@ object MacroSpec extends Specification {
     "create a Rule[User]" in {
       import Rules._
       implicit val userReads = Rule.gen[UrlFormEncoded, User]
-      userReads.validate(Map("name" -> Seq("toto"), "age" -> Seq("45"))) must beEqualTo(Success(User(45, "toto")))
+      userReads.validate(Map("name" -> Seq("toto"), "age" -> Seq("45"))) must beEqualTo(Valid(User(45, "toto")))
     }
 
     "create a Write[User]" in {
@@ -85,7 +85,7 @@ object MacroSpec extends Specification {
           "master.name" -> Seq("toto"),
           "master.age" -> Seq("45")
         )
-      ) must beEqualTo(Success(Dog("medor", User(45, "toto"))))
+      ) must beEqualTo(Valid(Dog("medor", User(45, "toto"))))
 
     }
 
@@ -114,7 +114,7 @@ object MacroSpec extends Specification {
           "master.name" -> Seq("toto"),
           "master.age" -> Seq("45")
         )
-      ) must beEqualTo(Success(Dog("medor", User(45, "toto"))))
+      ) must beEqualTo(Valid(Dog("medor", User(45, "toto"))))
 
     }
 
@@ -125,7 +125,7 @@ object MacroSpec extends Specification {
 
       catRule.validate(
         Map("name" -> Seq("minou"))
-      ) must beEqualTo(Success(Cat("minou")))
+      ) must beEqualTo(Valid(Cat("minou")))
 
       implicit lazy val recUserRule: Rule[UrlFormEncoded, RecUser] =
         Rule.gen[UrlFormEncoded, RecUser]
@@ -139,7 +139,7 @@ object MacroSpec extends Specification {
           "friends[0].name" -> Seq("tom")
         )
       ) must beEqualTo(
-        Success(
+        Valid(
           RecUser(
             "bob",
             Some(Cat("minou")),
@@ -186,7 +186,7 @@ object MacroSpec extends Specification {
       val catMap = Map("name" -> Seq("minou"))
 
       catFormat.writes(cat) must beEqualTo(catMap)
-      catFormat.validate(catMap) must beEqualTo(Success(cat))
+      catFormat.validate(catMap) must beEqualTo(Valid(cat))
 
       implicit lazy val recUserFormat: Format[UrlFormEncoded, UrlFormEncoded, RecUser] =
         Format.gen[UrlFormEncoded, UrlFormEncoded, RecUser]
@@ -204,7 +204,7 @@ object MacroSpec extends Specification {
         List("bobsleig", "manhunting"),
         List(RecUser("tom")))
 
-      recUserFormat.validate(recMap) must beEqualTo(Success(u))
+      recUserFormat.validate(recMap) must beEqualTo(Valid(u))
       recUserFormat.writes(u) must beEqualTo(recMap)
 
     }
@@ -219,7 +219,7 @@ object MacroSpec extends Specification {
           "name" -> Seq("bob"),
           "friend.name" -> Seq("tom"))
       ) must beEqualTo(
-        Success(
+        Valid(
           User1(
             "bob",
             Some(User1("tom"))
@@ -254,7 +254,7 @@ object MacroSpec extends Specification {
         "friend.name" -> Seq("tom"))
       val user = User1("bob",Some(User1("tom")))
 
-      userFormat.validate(userMap) must beEqualTo(Success(user))
+      userFormat.validate(userMap) must beEqualTo(Valid(user))
       userFormat.writes(user) must beEqualTo(userMap)
     }
 
@@ -274,7 +274,7 @@ object MacroSpec extends Specification {
         "id" -> Seq("123"),
         "name" -> Seq("toto"))
 
-      c1Rule[Long].validate(map) must beEqualTo(Success(C1[Long](Id[Long](123L), "toto")))
+      c1Rule[Long].validate(map) must beEqualTo(Valid(C1[Long](Id[Long](123L), "toto")))
     }
 
     /* // test to validate it doesn't compile if missing implicit
@@ -431,7 +431,7 @@ object MacroSpec extends Specification {
         "name[1].master.name" -> Seq("tata"),
         "name[1].master.age" -> Seq("23"))
 
-      toto6Rule.validate(map) must beEqualTo(Success(
+      toto6Rule.validate(map) must beEqualTo(Valid(
         Toto6(Seq(
           Dog("medor", User(45, "toto")),
           Dog("brutus", User(23, "tata"))
@@ -442,13 +442,13 @@ object MacroSpec extends Specification {
     "test case reads in companion object" in {
       From[UrlFormEncoded, Person](
         To[Person, UrlFormEncoded](Person("bob", 15))
-      ) must beEqualTo(Success(Person("bob", 15)))
+      ) must beEqualTo(Valid(Person("bob", 15)))
     }
 
     "test case single-field in companion object" in {
       From[UrlFormEncoded, Person2](
         To[Person2, UrlFormEncoded](Person2(List("bob", "bobby")))
-      ) must beEqualTo(Success(Person2(List("bob", "bobby"))))
+      ) must beEqualTo(Valid(Person2(List("bob", "bobby"))))
     }
   }
 }

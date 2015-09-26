@@ -5,7 +5,7 @@ import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolea
 
 trait DefaultMonoids {
   import cats.Monoid
-  
+
   implicit def jsonMonoid = new Monoid[JsObject] {
     def combine(a1: JsObject, a2: JsObject): JsObject = a1 deepMerge a2
     def empty: JsObject = Json.obj()
@@ -13,7 +13,6 @@ trait DefaultMonoids {
 }
 
 object Writes extends DefaultWrites with DefaultMonoids with GenericWrites[JsValue] {
-
   private def writeObj(j: JsValue, n: PathNode) = n match {
     case IdxPathNode(_) => Json.arr(j)
     case KeyPathNode(key) => Json.obj(key -> j)
@@ -37,13 +36,13 @@ object Writes extends DefaultWrites with DefaultMonoids with GenericWrites[JsVal
       })
   }
 
-  implicit def errors(implicit wErrs: WriteLike[Seq[ValidationError], JsValue]) =
+  implicit def errorsW(implicit wErrs: WriteLike[Seq[ValidationError], JsValue]) =
     Write[(Path, Seq[ValidationError]), JsObject] {
       case (p, errs) =>
         Json.obj(p.toString -> wErrs.writes(errs))
     }
 
-  implicit def failure(implicit w: WriteLike[(Path, Seq[ValidationError]), JsObject]) =
+  implicit def failureW(implicit w: WriteLike[(Path, Seq[ValidationError]), JsObject]) =
     Write[Invalid[Seq[(Path, Seq[ValidationError])]], JsObject] {
       case Invalid(errs) =>
         errs.map(w.writes).reduce(_ ++ _)
@@ -61,9 +60,7 @@ object Writes extends DefaultWrites with DefaultMonoids with GenericWrites[JsVal
   implicit val floatW = tToJs[Float]
   implicit val doubleW = tToJs[Double]
   implicit val bigDecimalW = Write[BigDecimal, JsValue](JsNumber.apply _)
-
   implicit def booleanW = Write[Boolean, JsValue](JsBoolean.apply _)
-
   implicit def seqToJsArray[I](implicit w: WriteLike[I, JsValue]): Write[Seq[I], JsValue] =
     Write(ss => JsArray(ss.map(w.writes _)))
 

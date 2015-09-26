@@ -89,7 +89,7 @@ object ValidatedSpec extends Specification {
       val f2: Validated[List[String], String] = Invalid(List("err2"))
       val s1: Validated[List[String], String] = Valid("1")
       val s2: Validated[List[String], String] = Valid("2")
-      
+
       import cats.std.list._
       import cats.syntax.traverse._
       List(s1, s2).sequenceU must equalTo(Valid(List("1", "2")))

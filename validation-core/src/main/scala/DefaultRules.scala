@@ -66,7 +66,7 @@ trait DateRules {
   implicit def jodaLocalDateRule(pattern: String, corrector: String => String = identity) = Rule.fromMapping[String, org.joda.time.LocalDate] { s =>
     import scala.util.Try
     import org.joda.time.LocalDate
-    import org.joda.time.format.{ DateTimeFormat, ISODateTimeFormat }
+    import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
 
     val df = if (pattern == "") ISODateTimeFormat.localDateParser else DateTimeFormat.forPattern(pattern)
     Try(LocalDate.parse(corrector(s), df))
@@ -316,7 +316,7 @@ trait ParsingRules {
   }("Long")
 
   // BigDecimal.isValidFloat is buggy, see [SI-6699]
-  import java.{ lang => jl }
+  import java.{lang => jl}
   private def isValidFloat(bd: BigDecimal) = {
     val d = bd.toFloat
     !d.isInfinity && bd.bigDecimal.compareTo(new java.math.BigDecimal(jl.Float.toString(d), bd.mc)) == 0

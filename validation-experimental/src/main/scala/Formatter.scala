@@ -1,7 +1,7 @@
 package jto.validation
 
 import shapeless._
-import ops.record.{ Selector => RSelector, Updater }
+import ops.record.{Selector => RSelector, Updater}
 import labelled.FieldType
 
 trait Get[I, O] {

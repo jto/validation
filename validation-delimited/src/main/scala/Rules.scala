@@ -22,8 +22,6 @@ import jto.validation._
  * }}
  */
 object Rules extends DefaultRules[Delimited] with ParsingRules {
-  import scala.language.{higherKinds, implicitConversions}
-
   /**
    * Extract the value at a given index, transforming it into a given type.
    *

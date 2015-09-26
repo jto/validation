@@ -22,10 +22,10 @@ object Boilerplate {
   }
 
   val header = "// Auto-generated boilerplate"
-  
+
   val minArity = 2
   val maxArity = 22
-  
+
   /** Returns a seq of the generated files. As a side-effect, it actually generates them... */
   def gen(dir: File) = {
     val template = FunctionalBuilder
@@ -82,13 +82,13 @@ object Boilerplate {
 
     def content(tv: TemplateVals) = {
       import tv._
-      
+
       val `a~n`          = synVals.mkString(" ~ ")
       val `A~N`          = synTypes.mkString(" ~ ")
       val `A~N-1`        = (0 until arity - 1).map(n => s"A$n").mkString(" ~ ")
       val `a._1..a._N`   = (1 to arity) map (n => s"a._$n") mkString ", "
       val `new ~(.., n)` = synVals.reduce[String] { case (acc, el) => s"new ~($acc, $el)" }
-      
+
       val next = if (arity + 1 <= maxArity)
         s"def ~[A$arity](m3: M[A$arity]) = new CanBuild${arity+1}[${`A..N`}, A$arity](canBuild(m1, m2), m3)"
       else
@@ -124,28 +124,28 @@ object Boilerplate {
         -    $next
         -
         -    $and
-        -    
+        -
         -    def apply[B](f: (${`A..N`}) => B)(implicit fu: Functor[M]): M[B] =
         -      fu.map[${`A~N`}, B](canBuild(m1, m2))({ case ${`a~n`} => f(${`a..n`}) })
-        -    
+        -
         -    def apply[B](f: B => (${`A..N`}))(implicit fu: Contravariant[M], d: DummyImplicit): M[B] =
         -      fu.contramap(canBuild(m1, m2))((b: B) => { val (${`a..n`}) = f(b); ${`new ~(.., n)`} })
-        -    
+        -
         -    def apply[B](f: B => Option[(${`A..N`})])(implicit fu: Contravariant[M]): M[B] =
         -      fu.contramap(canBuild(m1, m2))((b: B) => { val (${`a..n`}) = f(b).get; ${`new ~(.., n)`} })
-        -    
+        -
         -    def apply[B](f1: (${`A..N`}) => B, f2: B => (${`A..N`}))(implicit fu: Invariant[M], d: DummyImplicit): M[B] =
         -      fu.imap[${`A~N`}, B](
         -        canBuild(m1, m2))({ case ${`a~n`} => f1(${`a..n`}) })(
         -        (b: B) => { val (${`a..n`}) = f2(b); ${`new ~(.., n)`} }
         -      )
-        -    
+        -
         -    def apply[B](f1: (${`A..N`}) => B, f2: B => Option[(${`A..N`})])(implicit fu: Invariant[M]): M[B] =
         -      fu.imap[${`A~N`}, B](
         -        canBuild(m1, m2))({ case ${`a~n`} => f1(${`a..n`}) })(
         -        (b: B) => { val (${`a..n`}) = f2(b).get; ${`new ~(.., n)`} }
         -      )
-        -    
+        -
         -    def tupled(implicit fu: Invariant[M]): M[(${`A..N`})] =
         -      apply[(${`A..N`})]({ (${`a:A..n:N`}) => (${`a..n`}) }, { (a: (${`A..N`})) => (${`a._1..a._N`}) })
         -  }

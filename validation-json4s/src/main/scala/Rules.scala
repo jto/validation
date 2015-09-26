@@ -35,15 +35,15 @@ object Rules extends DefaultRules[JValue] {
   implicit def jsDouble = jsonAs[JsonAST.JDouble] {
     case v: JsonAST.JDouble => Valid(v)
   }("error.number", "Number")
-  
+
   implicit def jsDecimal = jsonAs[JsonAST.JDecimal] {
     case v: JsonAST.JDecimal => Valid(v)
   }("error.number", "Number")
-  
+
   implicit def jsInt = jsonAs[JsonAST.JInt] {
     case v: JsonAST.JInt => Valid(v)
   }("error.number", "Number")
-  
+
   implicit def jsBooleanR = jsonAs[JBool] {
     case v @ JBool(_) => Valid(v)
   }("error.invalid", "Boolean")
@@ -61,7 +61,7 @@ object Rules extends DefaultRules[JValue] {
   }("error.invalid", "Array")
 
   // BigDecimal.isValidFloat is buggy, see [SI-6699]
-  import java.{ lang => jl }
+  import java.{lang => jl}
   private def isValidFloat(bd: BigDecimal) = {
     val d = bd.toFloat
     !d.isInfinity && bd.bigDecimal.compareTo(new java.math.BigDecimal(jl.Float.toString(d), bd.mc)) == 0
@@ -89,7 +89,7 @@ object Rules extends DefaultRules[JValue] {
     case JInt(v) => Valid(BigDecimal(v))
   }("error.number", "BigDecimal")
 
-  import java.{ math => jm }
+  import java.{math => jm}
   implicit def javaBigDecimal = jsonAs[jm.BigDecimal] {
     case JDecimal(v) => Valid(v.bigDecimal)
     case JDouble(v) => Valid(BigDecimal(v).bigDecimal)

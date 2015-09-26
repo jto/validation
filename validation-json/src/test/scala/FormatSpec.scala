@@ -109,7 +109,7 @@ object FormatSpec extends Specification {
       }
 
       "java BigDecimal" in {
-        import java.math.{ BigDecimal => jBigDecimal }
+        import java.math.{BigDecimal => jBigDecimal}
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> 4)) mustEqual(Valid(new jBigDecimal("4")))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> "foo")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> 4.8)) mustEqual(Valid(new jBigDecimal("4.8")))

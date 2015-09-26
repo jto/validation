@@ -6,7 +6,7 @@ import org.json4s._
 object RulesSpec extends Specification {
 
   "Json Rules" should {
-    
+
     import Rules._
 
     val valid = JObject(
@@ -90,7 +90,7 @@ object RulesSpec extends Specification {
       }
 
       "java BigDecimal" in {
-        import java.math.{ BigDecimal => jBigDecimal }
+        import java.math.{BigDecimal => jBigDecimal}
         (Path \ "n").read[JValue, jBigDecimal].validate(JObject("n" -> JInt(4))) mustEqual(Valid(new jBigDecimal("4")))
         (Path \ "n").read[JValue, jBigDecimal].validate(JObject("n" -> JString("foo"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
         (Path \ "n").read[JValue, jBigDecimal].validate(JObject("n" -> JDecimal(4.8))) mustEqual(Valid(new jBigDecimal("4.8")))
@@ -487,7 +487,7 @@ object RulesSpec extends Specification {
         }
 
       val jsonR = {
-        
+
         genR[JValue](optionR(_))
       }
 
@@ -499,7 +499,7 @@ object RulesSpec extends Specification {
 
 
       // val formR = {
-      //   
+      //
       //   genR[UrlFormEncoded](optionR(_))
       // }
       // val form = Map("name" -> Seq("bob"), "color" -> Seq("blue"))

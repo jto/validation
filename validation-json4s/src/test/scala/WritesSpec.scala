@@ -87,7 +87,7 @@ class WritesSpec extends Specification {
       }
 
       "java BigDecimal" in {
-        import java.math.{ BigDecimal => jBigDecimal }
+        import java.math.{BigDecimal => jBigDecimal}
         (Path \ "n").write[jBigDecimal, JObject].writes(new jBigDecimal("4.0")) mustEqual(JObject("n" -> JDecimal(4.0)))
         (Path \ "n" \ "o").write[jBigDecimal, JObject].writes(new jBigDecimal("4.8")) mustEqual(JObject("n" -> JObject("o"-> JDecimal(4.8))))
         (Path \ "n" \ "o" \ "p").write[jBigDecimal, JObject].writes(new jBigDecimal("4.8")) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JDecimal(4.8)))))

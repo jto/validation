@@ -26,7 +26,7 @@ trait DateWrites {
   }
 
   def jodaLocalDate(pattern: String) = Write[org.joda.time.LocalDate, String] { d =>
-    import org.joda.time.format.{ DateTimeFormat, ISODateTimeFormat }
+    import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
     val fmt = if (pattern == "") ISODateTimeFormat.date else DateTimeFormat.forPattern(pattern)
     fmt.print(d)
   }

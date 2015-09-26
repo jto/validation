@@ -39,7 +39,7 @@ object Arbitrary {
       h: Arbitrary[H],
       t: Arbitrary[T]
     ): Arbitrary[H :+: T] =
-      Arbitrary((if(Random.nextBoolean) Inl(h.value) else Inr(t.value)))
+      Arbitrary((if (Random.nextBoolean) Inl(h.value) else Inr(t.value)))
 
   implicit val arbitraryHNil: Arbitrary[HNil] =
     Arbitrary(HNil)

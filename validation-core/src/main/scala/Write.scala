@@ -33,7 +33,7 @@ trait Write[I, +O] extends WriteLike[I, O] {
    */
   def compose[OO >: O, P](w: WriteLike[OO, P]): Write[I, P] =
     this.map(o => w.writes(o))
-  
+
   def contramap[B](f: B => I): Write[B, O] =
     Write[B, O]((b: B) => writes(f(b)))
 }
@@ -62,14 +62,14 @@ object Write {
       def contramap[A, B](wa: Write[A, O])(f: B => A): Write[B, O] =
         wa.contramap(f)
     }
-  
+
   implicit def functionalCanBuildWrite[O](implicit m: Monoid[O]): FunctionalCanBuild[Write[?, O]] =
     new FunctionalCanBuild[Write[?, O]] {
-      def apply[A, B](wa: Write[A, O], wb: Write[B, O]): Write[A ~ B, O] = Write[A ~ B, O] { 
+      def apply[A, B](wa: Write[A, O], wb: Write[B, O]): Write[A ~ B, O] = Write[A ~ B, O] {
         case a ~ b => m.combine(wa.writes(a), wb.writes(b))
       }
     }
-    
+
   implicit def fboWrite[I, O : Monoid](w: Write[I, O]): FunctionalBuilderOps[Write[?, O], I] =
     toFunctionalBuilderOps[Write[?, O], I](w)
 }

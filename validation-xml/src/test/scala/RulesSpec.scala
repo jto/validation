@@ -8,7 +8,7 @@ import org.specs2.mutable._
 import scala.xml.Node
 
 object RulesSpec extends Specification {
-  
+
   "Xml rules" should {
 
     val valid =
@@ -296,7 +296,7 @@ object RulesSpec extends Specification {
         trait A
         case class B(foo: Int) extends A
         case class C(bar: Int) extends A
-          
+
         val b = <a><name>B</name><foo>4</foo></a>
         val c = <a><name>C</name><bar>6</bar></a>
         val e = <a><name>E</name><eee>6</eee></a>

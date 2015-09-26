@@ -89,7 +89,7 @@ object RulesSpec extends Specification {
       }
 
       "java BigDecimal" in {
-        import java.math.{ BigDecimal => jBigDecimal }
+        import java.math.{BigDecimal => jBigDecimal}
         (Path \ "n").read[JsValue, jBigDecimal].validate(Json.obj("n" -> 4)) mustEqual(Valid(new jBigDecimal("4")))
         (Path \ "n").read[JsValue, jBigDecimal].validate(Json.obj("n" -> "foo")) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
         (Path \ "n").read[JsValue, jBigDecimal].validate(Json.obj("n" -> 4.8)) mustEqual(Valid(new jBigDecimal("4.8")))
@@ -485,7 +485,7 @@ object RulesSpec extends Specification {
         }
 
       val jsonR = {
-        
+
         genR[JsValue](optionR(_))
       }
 

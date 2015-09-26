@@ -94,7 +94,7 @@ class WritesSpec extends Specification {
       }
 
       "java BigDecimal" in {
-        import java.math.{ BigDecimal => jBigDecimal }
+        import java.math.{BigDecimal => jBigDecimal}
         To[UrlFormEncoded] { __ => (__ \ "n").write[jBigDecimal] }.writes(new jBigDecimal("4.0")) mustEqual(Map("n" -> Seq("4.0")))
         To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[jBigDecimal] }.writes(new jBigDecimal("4.8")) mustEqual(Map("n.o" -> Seq("4.8")))
         To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[jBigDecimal] }.writes(new jBigDecimal("4.8")) mustEqual(Map("n.o.p" -> Seq("4.8")))
@@ -306,7 +306,7 @@ class WritesSpec extends Specification {
         w3.writes(u1) mustEqual m1
       }
     }
-    
+
     "support write of value class" in {
       import TestValueClass._
 

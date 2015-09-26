@@ -9,9 +9,9 @@ object FormatSpec extends Specification {
 
   "Format" should {
 
-    
-    
-    
+
+
+
 
     "serialize and deserialize primitives" in {
       import Rules._
@@ -113,7 +113,7 @@ object FormatSpec extends Specification {
       }
 
       "java BigDecimal" in {
-        import java.math.{ BigDecimal => jBigDecimal }
+        import java.math.{BigDecimal => jBigDecimal}
         Formatting[JValue, JObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(JObject("n" -> JInt(4))) mustEqual(Valid(new jBigDecimal("4")))
         Formatting[JValue, JObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(JObject("n" -> JString("foo"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
         Formatting[JValue, JObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(JObject("n" -> JDecimal(4.8))) mustEqual(Valid(new jBigDecimal("4.8")))

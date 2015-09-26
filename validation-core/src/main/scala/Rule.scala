@@ -94,7 +94,7 @@ trait Rule[I, O] extends RuleLike[I, O] {
 
   def map[B](f: O => B): Rule[I, B] =
     Rule(d => this.validate(d).map(f))
-  
+
   def ap[A](mf: Rule[I, O => A]): Rule[I, A] =
     Rule { d =>
       val a = validate(d)
@@ -123,7 +123,7 @@ object Rule {
 
   def zero[O]: Rule[O, O] =
     toRule(RuleLike.zero[O])
-  
+
   def pure[I, O](o: O): Rule[I, O] =
     Rule(_ => Valid(o))
 

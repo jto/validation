@@ -18,7 +18,7 @@ object Writes extends DefaultWrites with NumericTypes2StringWrites with DefaultM
   implicit def nodeW[I](implicit w: WriteLike[I, String]): Write[I, XmlWriter] = Write { i =>
     node => node.copy(child = node.child :+ new Text(w.writes(i)))
   }
-  
+
   def attributeW[I](name: String)(implicit w: WriteLike[I, String]): Write[I, XmlWriter] = Write { i =>
     node => node.copy(attributes = node.attributes.append(new UnprefixedAttribute(name, w.writes(i), Null)))
   }

@@ -54,8 +54,8 @@ object Rules extends DefaultRules[JsValue] with LowPriorityImplicit {
   }("error.invalid", "Array")
 
   // BigDecimal.isValidFloat is buggy, see [SI-6699]
-  import java.{ lang => jl }
-  private def isValidFloat(bd: BigDecimal) = {
+  import java.{lang => jl}
+  private def isValidFloat(bd: BigDecimal): Boolean = {
     val d = bd.toFloat
     !d.isInfinity && bd.bigDecimal.compareTo(new java.math.BigDecimal(jl.Float.toString(d), bd.mc)) == 0
   }
@@ -76,12 +76,12 @@ object Rules extends DefaultRules[JsValue] with LowPriorityImplicit {
     case JsNumber(v) => Valid(v)
   }("error.number", "BigDecimal")
 
-  import java.{ math => jm }
+  import java.{math => jm}
   implicit def javaBigDecimal = jsonAs[jm.BigDecimal] {
     case JsNumber(v) => Valid(v.bigDecimal)
   }("error.number", "BigDecimal")
 
-  implicit val jsNullR = jsonAs[JsNull.type] {
+  implicit val jsNullR: Rule[JsValue, JsNull.type] = jsonAs[JsNull.type] {
     case JsNull => Valid(JsNull)
   }("error.invalid", "null")
 
@@ -111,7 +111,6 @@ object Rules extends DefaultRules[JsValue] with LowPriorityImplicit {
 
 trait LowPriorityImplicit {
   implicit def pickInJson[II <: JsValue, O](p: Path)(implicit r: RuleLike[JsValue, O]): Rule[II, O] = {
-
     def search(path: Path, json: JsValue): Option[JsValue] = path.path match {
       case KeyPathNode(k) :: t =>
         json match {

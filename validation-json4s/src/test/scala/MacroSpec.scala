@@ -179,7 +179,7 @@ object MacroSpec extends Specification {
       userRule.validate(
         JObject(
           "name" -> JString("bob"),
-          "friend" -> JObject( "name" -> JString("tom"))
+          "friend" -> JObject("name" -> JString("tom"))
         )
       ) must beEqualTo(
         Valid(
@@ -203,7 +203,7 @@ object MacroSpec extends Specification {
       ) must beEqualTo(
         JObject(
           "name" -> JString("bob"),
-          "friend" -> JObject( "name" -> JString("tom"))))
+          "friend" -> JObject("name" -> JString("tom"))))
     }
 
     "create Rules for classes with overloaded apply method" in {
@@ -247,7 +247,7 @@ object MacroSpec extends Specification {
       implicit def c1Rule[A](implicit rds: Rule[A, Id[A]], e: Path => Rule[JValue, A]) =
         From[JValue]{ __ =>
           ((__ \ "id").read(rds) ~
-           (__ \ "name").read[String])( (id, name) => C1[A](id, name) )
+           (__ \ "name").read[String])((id, name) => C1[A](id, name))
         }
 
       val js = JObject(

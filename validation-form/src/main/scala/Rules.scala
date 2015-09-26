@@ -1,7 +1,7 @@
 package jto.validation
 package forms
 
-import scala.util.parsing.combinator.{ Parsers, RegexParsers }
+import scala.util.parsing.combinator.{Parsers, RegexParsers}
 
 /**
  * Play provides you a `Map[String, Seq[String]]` (aliased as `UrlFormEncoded`) in request body for urlFormEncoded requests.
@@ -56,7 +56,7 @@ object PM {
   def toPM(m: UrlFormEncoded): PM =
     m.toSeq.flatMap {
       case (p, vs) =>
-        if( p.endsWith("[]") ) {
+        if (p.endsWith("[]")) {
           vs.zipWithIndex.map { case (v, i) => (asPath(p.dropRight(2)) \ i) -> v }
         } else {
           vs.headOption.map { asPath(p) -> _ }.toSeq

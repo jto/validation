@@ -3,7 +3,7 @@ package json
 
 import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray, JsNull}
 
-object Rules extends DefaultRules[JsValue] {
+object Rules extends DefaultRules[JsValue] with LowPriorityImplicit {
   private def jsonAs[T](f: PartialFunction[JsValue, Validated[Seq[ValidationError], T]])(msg: String, args: Any*) =
     Rule.fromMapping[JsValue, T](
       f.orElse {
@@ -85,8 +85,10 @@ object Rules extends DefaultRules[JsValue] {
     case JsNull => Valid(JsNull)
   }("error.invalid", "null")
 
-  implicit def ooo[O](p: Path)(implicit pick: Path => RuleLike[JsValue, JsValue], coerce: RuleLike[JsValue, O]): Rule[JsValue, Option[O]] =
+  implicit def ooo[O](p: Path)(implicit coerce: RuleLike[JsValue, O]): Rule[JsValue, Option[O]] = {
+    val pick = implicitly[Path => RuleLike[JsValue, JsValue]]
     optionR(Rule.zero[O])(pick, coerce)(p)
+  }
 
   def optionR[J, O](r: => RuleLike[J, O], noneValues: RuleLike[JsValue, JsValue]*)(implicit pick: Path => RuleLike[JsValue, JsValue], coerce: RuleLike[JsValue, J]): Path => Rule[JsValue, Option[O]] =
     super.opt[J, O](r, (jsNullR.map(n => n: JsValue) +: noneValues): _*)
@@ -97,6 +99,17 @@ object Rules extends DefaultRules[JsValue] {
   implicit def JsValue[O](implicit r: RuleLike[JsObject, O]): Rule[JsValue, O] =
     jsObjectR.compose(r)
 
+  // // XXX: a bit of boilerplate
+  private def pickInS[T](implicit r: RuleLike[Seq[JsValue], T]): Rule[JsValue, T] =
+    jsArrayR.map { case JsArray(fs) => fs }.compose(r)
+  implicit def pickSeq[O](implicit r: RuleLike[JsValue, O]) = pickInS(seqR[JsValue, O])
+  implicit def pickSet[O](implicit r: RuleLike[JsValue, O]) = pickInS(setR[JsValue, O])
+  implicit def pickList[O](implicit r: RuleLike[JsValue, O]) = pickInS(listR[JsValue, O])
+  implicit def pickArray[O: scala.reflect.ClassTag](implicit r: RuleLike[JsValue, O]) = pickInS(arrayR[JsValue, O])
+  implicit def pickTraversable[O](implicit r: RuleLike[JsValue, O]) = pickInS(traversableR[JsValue, O])
+}
+
+trait LowPriorityImplicit {
   implicit def pickInJson[II <: JsValue, O](p: Path)(implicit r: RuleLike[JsValue, O]): Rule[II, O] = {
 
     def search(path: Path, json: JsValue): Option[JsValue] = path.path match {
@@ -121,14 +134,4 @@ object Rules extends DefaultRules[JsValue] {
       }
     }.compose(r)
   }
-
-  // // XXX: a bit of boilerplate
-  private def pickInS[T](implicit r: RuleLike[Seq[JsValue], T]): Rule[JsValue, T] =
-    jsArrayR.map { case JsArray(fs) => fs }.compose(r)
-  implicit def pickSeq[O](implicit r: RuleLike[JsValue, O]) = pickInS(seqR[JsValue, O])
-  implicit def pickSet[O](implicit r: RuleLike[JsValue, O]) = pickInS(setR[JsValue, O])
-  implicit def pickList[O](implicit r: RuleLike[JsValue, O]) = pickInS(listR[JsValue, O])
-  implicit def pickArray[O: scala.reflect.ClassTag](implicit r: RuleLike[JsValue, O]) = pickInS(arrayR[JsValue, O])
-  implicit def pickTraversable[O](implicit r: RuleLike[JsValue, O]) = pickInS(traversableR[JsValue, O])
-
 }

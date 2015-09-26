@@ -1,5 +1,6 @@
 package jto.validation
 
+import shapeless.{Path => _, _}
 import cats.Monoid
 import cats.functor.Contravariant
 
@@ -39,6 +40,9 @@ trait Write[I, +O] extends WriteLike[I, O] {
 
 object Write {
   def gen[I, O]: Write[I, O] = macro MappingMacros.write[I, O]
+
+  def derive[O, F, G](implicit gen: LabelledGeneric.Aux[F, G], sg: Lazy[Path => WriteLike[G, O]]): WriteLike[F, O] =
+    new WriteGeneric{}.writeGeneric
 
   def apply[I, O](w: I => O): Write[I, O] =
     new Write[I, O] {

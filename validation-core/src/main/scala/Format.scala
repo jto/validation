@@ -25,12 +25,12 @@ object Format {
         Format[IR, IW, B](Rule.toRule(fa).map(f1), Write.toWrite(fa).contramap(f2))
     }
 
-  implicit def functionalCanBuildFormat[IR, IW : Monoid](implicit rcb: FunctionalCanBuild[Rule[IR, ?]], wcb: FunctionalCanBuild[Write[?, IW]]): FunctionalCanBuild[Format[IR, IW, ?]] =
-    new FunctionalCanBuild[Format[IR, IW, ?]] {
+  implicit def formatSyntaxCombine[IR, IW : Monoid](implicit rcb: SyntaxCombine[Rule[IR, ?]], wcb: SyntaxCombine[Write[?, IW]]): SyntaxCombine[Format[IR, IW, ?]] =
+    new SyntaxCombine[Format[IR, IW, ?]] {
       def apply[A, B](fa: Format[IR, IW, A], fb: Format[IR, IW, B]): Format[IR, IW, A ~ B] =
         Format[IR, IW, A ~ B](rcb(Rule.toRule(fa), Rule.toRule(fb)), wcb(Write.toWrite(fa), Write.toWrite(fb)))
     }
 
-  implicit def fboFormat[IR, IW : Monoid, O](f: Format[IR, IW, O])(implicit fcb: FunctionalCanBuild[Format[IR, IW, ?]]): FunctionalBuilderOps[Format[IR, IW, ?], O] =
-    toFunctionalBuilderOps[Format[IR, IW, ?], O](f)(fcb)
+  implicit def formatInvariantSyntaxObs[IR, IW : Monoid, O](f: Format[IR, IW, O])(implicit fcb: SyntaxCombine[Format[IR, IW, ?]]): InvariantSyntaxObs[Format[IR, IW, ?], O] =
+    new InvariantSyntaxObs[Format[IR, IW, ?], O](f)(fcb)
 }

@@ -26,25 +26,36 @@ object Boilerplate {
   val minArity = 2
   val maxArity = 22
 
+  val templates: Seq[Template] = List(
+    InvariantSyntax,
+    FunctorSyntax,
+    ContravariantSyntax
+  )
+
   /** Returns a seq of the generated files. As a side-effect, it actually generates them... */
-  def gen(dir: File) = {
-    val template = FunctionalBuilder
-    val tgtFile = template.filename(dir)
-    IO.write(tgtFile, template.body)
-    Seq(tgtFile)
-  }
+  def gen(dir: File) =
+    for(template <- templates) yield {
+      val tgtFile = template.filename(dir / "jto" / "validation")
+      IO.write(tgtFile, template.body)
+      tgtFile
+    }
 
   class TemplateVals(val arity: Int) {
-    val synTypes     = (0 until arity) map (n => s"A$n")
-    val synVals      = (0 until arity) map (n => s"a$n")
-    val synTypedVals = (synVals zip synTypes) map { case (v,t) => v + ": " + t}
-    val `A..N`       = synTypes.mkString(", ")
-    val `a..n`       = synVals.mkString(", ")
-    val `_.._`       = Seq.fill(arity)("_").mkString(", ")
-    val `(A..N)`     = if (arity == 1) "Tuple1[A]" else synTypes.mkString("(", ", ", ")")
-    val `(_.._)`     = if (arity == 1) "Tuple1[_]" else Seq.fill(arity)("_").mkString("(", ", ", ")")
-    val `(a..n)`     = if (arity == 1) "Tuple1(a)" else synVals.mkString("(", ", ", ")")
-    val `a:A..n:N`   = synTypedVals mkString ", "
+    val synTypes       = (0 until arity) map (n => s"A$n")
+    val synVals        = (0 until arity) map (n => s"a$n")
+    val synTypedVals   = (synVals zip synTypes) map { case (v,t) => v + ": " + t}
+    val `A..N`         = synTypes.mkString(", ")
+    val `a..n`         = synVals.mkString(", ")
+    val `_.._`         = Seq.fill(arity)("_").mkString(", ")
+    val `(A..N)`       = if (arity == 1) "Tuple1[A]" else synTypes.mkString("(", ", ", ")")
+    val `(_.._)`       = if (arity == 1) "Tuple1[_]" else Seq.fill(arity)("_").mkString("(", ", ", ")")
+    val `(a..n)`       = if (arity == 1) "Tuple1(a)" else synVals.mkString("(", ", ", ")")
+    val `a:A..n:N`     = synTypedVals mkString ", "
+    val `a~n`          = synVals.mkString(" ~ ")
+    val `A~N`          = synTypes.mkString(" ~ ")
+    val `A~N-1`        = (0 until arity - 1).map(n => s"A$n").mkString(" ~ ")
+    val `a._1..a._N`   = (1 to arity) map (n => s"a._$n") mkString ", "
+    val `new ~(.., n)` = synVals.reduce[String] { case (acc, el) => s"new ~($acc, $el)" }
   }
 
   trait Template {
@@ -61,7 +72,6 @@ object Boilerplate {
     }
   }
 
-
   /*
     Blocks in the templates below use a custom interpolator, combined with post-processing to produce the body
 
@@ -77,77 +87,95 @@ object Boilerplate {
     The block otherwise behaves as a standard interpolated string with regards to variable substitution.
   */
 
-  object FunctionalBuilder extends Template {
-    def filename(root: File) = root /  "jto" / "validation" / "FunctionalBuilder.scala"
+  object InvariantSyntax extends Template {
+    def filename(root: File) = root / "InvariantSyntax.scala"
 
     def content(tv: TemplateVals) = {
       import tv._
 
-      val `a~n`          = synVals.mkString(" ~ ")
-      val `A~N`          = synTypes.mkString(" ~ ")
-      val `A~N-1`        = (0 until arity - 1).map(n => s"A$n").mkString(" ~ ")
-      val `a._1..a._N`   = (1 to arity) map (n => s"a._$n") mkString ", "
-      val `new ~(.., n)` = synVals.reduce[String] { case (acc, el) => s"new ~($acc, $el)" }
+      val next = if (arity >= maxArity) "" else
+        s"def ~[A$arity](m3: M[A$arity]) = new InvariantSyntax${arity+1}[${`A..N`}, A$arity](combine(m1, m2), m3)"
 
-      val next = if (arity + 1 <= maxArity)
-        s"def ~[A$arity](m3: M[A$arity]) = new CanBuild${arity+1}[${`A..N`}, A$arity](canBuild(m1, m2), m3)"
-      else
-        ""
+      block"""
+        |package jto.validation
+        |
+        |import cats.functor.Invariant
+        |
+        |class InvariantSyntax[M[_]](combine: SyntaxCombine[M]) {
+        |
+        -  class InvariantSyntax$arity[${`A..N`}](m1: M[${`A~N-1`}], m2: M[A${arity-1}]) {
+        -    $next
+        -
+        -    def apply[B](f1: (${`A..N`}) => B, f2: B => Option[(${`A..N`})])(implicit fu: Invariant[M]): M[B] =
+        -      fu.imap[${`A~N`}, B](
+        -        combine(m1, m2))({ case ${`a~n`} => f1(${`a..n`}) })(
+        -        (b: B) => { val (${`a..n`}) = f2(b).get; ${`new ~(.., n)`} }
+        -      )
+        -
+        -    def tupled(implicit fu: Invariant[M]): M[(${`A..N`})] =
+        -      apply[(${`A..N`})]({ (${`a:A..n:N`}) => (${`a..n`}) }, { (a: (${`A..N`})) => Some((${`a._1..a._N`})) })
+        -  }
+        -
+        |}
+      """
+    }
+  }
 
-      val and = if (arity + 1 <= maxArity)
-        s"def and[A$arity](m3: M[A$arity]) = this.~(m3)"
-      else
-        ""
+  object FunctorSyntax extends Template {
+    def filename(root: File) = root / "FunctorSyntax.scala"
+
+    def content(tv: TemplateVals) = {
+      import tv._
+
+      val next = if (arity >= maxArity) "" else
+        s"def ~[A$arity](m3: M[A$arity]) = new FunctorSyntax${arity+1}[${`A..N`}, A$arity](combine(m1, m2), m3)"
 
       block"""
         |package jto.validation
         |
         |import cats.Functor
-        |import cats.functor._
         |
-        |case class ~[A, B](_1: A, _2: B)
+        |class FunctorSyntax[M[_]](combine: SyntaxCombine[M]) {
         |
-        |trait FunctionalCanBuild[M[_]] {
-        |  def apply[A, B](ma: M[A], mb: M[B]): M[A ~ B]
-        |}
-        |
-        |class FunctionalBuilderOps[M[_], A](ma: M[A])(implicit fcb: FunctionalCanBuild[M]) {
-        |  def ~[B](mb: M[B]): FunctionalBuilder[M]#CanBuild2[A, B] = {
-        |    val b = new FunctionalBuilder(fcb)
-        |    new b.CanBuild2[A, B](ma, mb)
-        |  }
-        |}
-        |
-        |class FunctionalBuilder[M[_]](canBuild: FunctionalCanBuild[M]) {
-        |
-        -  class CanBuild$arity[${`A..N`}](m1: M[${`A~N-1`}], m2: M[A${arity-1}]) {
+        -  class FunctorSyntax${arity}[${`A..N`}](m1: M[${`A~N-1`}], m2: M[A${arity-1}]) {
         -    $next
         -
-        -    $and
-        -
         -    def apply[B](f: (${`A..N`}) => B)(implicit fu: Functor[M]): M[B] =
-        -      fu.map[${`A~N`}, B](canBuild(m1, m2))({ case ${`a~n`} => f(${`a..n`}) })
+        -      fu.map[${`A~N`}, B](combine(m1, m2))({ case ${`a~n`} => f(${`a..n`}) })
         -
-        -    def apply[B](f: B => (${`A..N`}))(implicit fu: Contravariant[M], d: DummyImplicit): M[B] =
-        -      fu.contramap(canBuild(m1, m2))((b: B) => { val (${`a..n`}) = f(b); ${`new ~(.., n)`} })
+        -    def tupled(implicit fu: Functor[M]): M[(${`A..N`})] =
+        -      apply[(${`A..N`})]({ (${`a:A..n:N`}) => (${`a..n`}) })
+        -  }
+        -
+        |}
+      """
+    }
+  }
+
+  object ContravariantSyntax extends Template {
+    def filename(root: File) = root / "ContravariantSyntax.scala"
+
+    def content(tv: TemplateVals) = {
+      import tv._
+
+      val next = if (arity >= maxArity) "" else
+        s"def ~[A$arity](m3: M[A$arity]) = new ContravariantSyntax${arity+1}[${`A..N`}, A$arity](combine(m1, m2), m3)"
+
+      block"""
+        |package jto.validation
+        |
+        |import cats.functor.Contravariant
+        |
+        |class ContravariantSyntax[M[_]](combine: SyntaxCombine[M]) {
+        |
+        -  class ContravariantSyntax${arity}[${`A..N`}](m1: M[${`A~N-1`}], m2: M[A${arity-1}]) {
+        -    $next
         -
         -    def apply[B](f: B => Option[(${`A..N`})])(implicit fu: Contravariant[M]): M[B] =
-        -      fu.contramap(canBuild(m1, m2))((b: B) => { val (${`a..n`}) = f(b).get; ${`new ~(.., n)`} })
+        -      fu.contramap(combine(m1, m2))((b: B) => { val (${`a..n`}) = f(b).get; ${`new ~(.., n)`} })
         -
-        -    def apply[B](f1: (${`A..N`}) => B, f2: B => (${`A..N`}))(implicit fu: Invariant[M], d: DummyImplicit): M[B] =
-        -      fu.imap[${`A~N`}, B](
-        -        canBuild(m1, m2))({ case ${`a~n`} => f1(${`a..n`}) })(
-        -        (b: B) => { val (${`a..n`}) = f2(b); ${`new ~(.., n)`} }
-        -      )
-        -
-        -    def apply[B](f1: (${`A..N`}) => B, f2: B => Option[(${`A..N`})])(implicit fu: Invariant[M]): M[B] =
-        -      fu.imap[${`A~N`}, B](
-        -        canBuild(m1, m2))({ case ${`a~n`} => f1(${`a..n`}) })(
-        -        (b: B) => { val (${`a..n`}) = f2(b).get; ${`new ~(.., n)`} }
-        -      )
-        -
-        -    def tupled(implicit fu: Invariant[M]): M[(${`A..N`})] =
-        -      apply[(${`A..N`})]({ (${`a:A..n:N`}) => (${`a..n`}) }, { (a: (${`A..N`})) => (${`a._1..a._N`}) })
+        -    def tupled(implicit fu: Contravariant[M]): M[(${`A..N`})] =
+        -      apply[(${`A..N`})]({ (a: (${`A..N`})) => Some((${`a._1..a._N`})) })
         -  }
         -
         |}

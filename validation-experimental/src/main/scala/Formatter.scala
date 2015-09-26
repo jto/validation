@@ -2,28 +2,30 @@ package jto.validation
 
 import shapeless._
 import ops.record.{ Selector => RSelector, Updater }
-import record.{ FieldType }
+import labelled.FieldType
 
 trait Get[I, O] {
   outer =>
-  val path: Path
-  val lens: Lens[I, O]
+  def path: Path
+  def lens: Lens[I, O]
 
   def read(sub: => RuleLike[O, O]): Rule[I, I] = Rule { i =>
-    Rule.toRule(sub).repath(path ++ _)
+    Rule.toRule(sub)
+      .repath(path ++ _)
       .map(_ => i)
       .validate(lens.get(i))
   }
-  // def read[I, O](implicit r: Path => RuleLike[I, O]): Rule[I, O] =
 
-  def \[Out0 <: HList : lens.Gen, V](k: Witness)(implicit s: RSelector.Aux[Out0, k.T, V], u: Updater.Aux[Out0, FieldType[k.T, V], Out0]) =
-    new Get[I, V]{
-      val nodeName = k match {
-        // TODO: Original line generates "a pattern match on a refinement type is unchecked"
-        // I removed the problematic pattern and added `asInstanceOf`, IRDK the implications...
-        // case w: Witness.Aux[Symbol] => w.value.name
-        case w: Witness => w.value.asInstanceOf[Symbol].name
-        case _ => k.value.toString
+  def \[Out0 <: HList, V](k: Witness)
+    (implicit
+      s: RSelector.Aux[Out0, k.T, V],
+      u: Updater.Aux[Out0, FieldType[k.T, V], Out0],
+      mkLens: MkFieldLens[O, k.T]
+    ) =
+    new Get[I, mkLens.Elem] {
+      val nodeName = k.value match {
+        case s: Symbol => s.name
+        case s => s.toString
       }
       val path = outer.path \ nodeName
       val lens = outer.lens >> k

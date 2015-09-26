@@ -10,11 +10,11 @@ Let's say you want to serialize a `Float` to `String`.
 All you need to do is to define a `Write` from `Float` to `String`:
 
 ```scala
-scala> import play.api.data.mapping._
-import play.api.data.mapping._
+scala> import jto.validation._
+import jto.validation._
 
 scala> def floatToString: Write[Float, String] = ???
-floatToString: play.api.data.mapping.Write[Float,String]
+floatToString: jto.validation.Write[Float,String]
 ```
 
 For now we'll not implement `floatToString`, actually the validation API comes with a number of built-in Writes, including `Writes.floatW[T]`.
@@ -26,7 +26,7 @@ scala> object Writes extends NumericTypes2StringWrites
 defined object Writes
 
 scala> Writes.floatW
-res0: play.api.data.mapping.Write[Float,String] = play.api.data.mapping.Write$$anon$3@809ec6d
+res0: jto.validation.Write[Float,String] = jto.validation.Write$$anon$2@7ff6507
 ```
 
 Let's now test it against different `Float` values:
@@ -51,7 +51,7 @@ scala> val currency = Write[Double, String]{ money =>
      |   val f = NumberFormat.getCurrencyInstance(Locale.FRANCE)
      |   f.format(money)
      | }
-currency: play.api.data.mapping.Write[Double,String] = play.api.data.mapping.Write$$anon$3@31a53c55
+currency: jto.validation.Write[Double,String] = jto.validation.Write$$anon$2@1b003646
 ```
 
 Testing it:
@@ -82,14 +82,14 @@ First, we'll create a `Write[Product, Double]` extracting the price of the produ
 
 ```scala
 scala> val productPrice = Write[Product, Double]{ _.price }
-productPrice: play.api.data.mapping.Write[Product,Double] = play.api.data.mapping.Write$$anon$3@4852c923
+productPrice: jto.validation.Write[Product,Double] = jto.validation.Write$$anon$2@3f542994
 ```
 
 Now we just have to compose it with `currency`:
 
 ```scala
 scala> val productAsPrice: Write[Product,String] = productPrice compose currency
-productAsPrice: play.api.data.mapping.Write[Product,String] = play.api.data.mapping.Write$$anon$3@7c5768c1
+productAsPrice: jto.validation.Write[Product,String] = jto.validation.Write$$anon$2@5fc64696
 ```
 
 Let's test our new `Write`:

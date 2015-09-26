@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The API is designed around the concept of `Rule`. A `Rule[I, O]` defines a way to validate and coerce data, from type `I` to type `O`. It's basically a function `I => Validation[O]`, where `I` is the type of the input to validate, and `O` is the expected output type.
+The API is designed around the concept of `Rule`. A `Rule[I, O]` defines a way to validate and coerce data, from type `I` to type `O`. It's basically a function `I => Validated[O]`, where `I` is the type of the input to validate, and `O` is the expected output type.
 
 ## A simple example
 
@@ -10,12 +10,12 @@ Let's say you want to coerce a `String` into an `Float`.
 All you need to do is to define a `Rule` from String to Float:
 
 ```scala
-scala> import play.api.data.mapping._
-import play.api.data.mapping._
+scala> import jto.validation._
+import jto.validation._
 
-scala>  def isFloat: Rule[String, Float] = ???
-isFloat: play.api.data.mapping.Rule[String,Float]
- ```
+scala> def isFloat: Rule[String, Float] = ???
+isFloat: jto.validation.Rule[String,Float]
+```
 
 When a `String` is parsed into an `Float`, two scenario are possible, either:
 
@@ -33,94 +33,95 @@ Back, to our `Rule`. For now we'll not implement `isFloat`, actually the validat
 All you have to do is import the default Rules.
 
 ```scala
-scala> import play.api.data.mapping._
-import play.api.data.mapping._
+scala> import jto.validation._
+import jto.validation._
 
 scala> object Rules extends GenericRules with ParsingRules
 defined object Rules
 
 scala> Rules.floatR
-res0: play.api.data.mapping.Rule[String,Float] = play.api.data.mapping.Rule$$anon$1@5c2f09b9
+res0: jto.validation.Rule[String,Float] = jto.validation.Rule$$anon$2@44d7ddd2
 ```
 
 Let's now test it against different String values:
 
 ```scala
 scala> Rules.floatR.validate("1")
-res1: play.api.data.mapping.VA[Float] = Success(1.0)
+res1: jto.validation.VA[Float] = Valid(1.0)
 
 scala> Rules.floatR.validate("-13.7")
-res2: play.api.data.mapping.VA[Float] = Success(-13.7)
+res2: jto.validation.VA[Float] = Valid(-13.7)
 
 scala> Rules.floatR.validate("abc")
-res3: play.api.data.mapping.VA[Float] = Failure(List((/,List(ValidationError(error.number,WrappedArray(Float))))))
+res3: jto.validation.VA[Float] = Invalid(List((/,List(ValidationError(List(error.number),WrappedArray(Float))))))
 ```
 
 > `Rule` is typesafe. You can't apply a `Rule` on an unsupported type, the compiler won't let you:
 >
 ```scala
 scala> Rules.floatR
-res4: play.api.data.mapping.Rule[String,Float] = play.api.data.mapping.Rule$$anon$1@72fc446e
+res4: jto.validation.Rule[String,Float] = jto.validation.Rule$$anon$2@538017dc
+
 scala> Rules.floatR.validate(Seq(32))
-<console>:16: error: type mismatch;
+<console>:19: error: type mismatch;
  found   : Seq[Int]
  required: String
-              Rules.floatR.validate(Seq(32))
-                                       ^
+       Rules.floatR.validate(Seq(32))
+                                ^
 ```
 
-"abc" is not a valid `Float` but no exception was thrown. Instead of relying on exceptions, `validate` is returning an object of type `Validation` (here `VA` is just a fancy alias for a special kind of validation).
+"abc" is not a valid `Float` but no exception was thrown. Instead of relying on exceptions, `validate` is returning an object of type `Validated` (here `VA` is just a fancy alias for a special kind of validation).
 
-`Validation` represents possible outcomes of Rule application, it can be either :
+`Validated` represents possible outcomes of Rule application, it can be either :
 
-- A `Success`, holding the value being validated
-  When we use `Rule.float` on "1", since "1" is a valid representation of a `Float`, it returns `Success(1.0)`
-- A `Failure`, containing all the errors.
-  When we use `Rule.float` on "abc", since "abc" is *not* a valid representation of a `Float`, it returns `Failure(List((/,List(ValidationError(validation.type-mismatch,WrappedArray(Float))))))`. That `Failure` tells us all there is to know: it give us a nice message explaining what has failed, and even gives us a parameter `"Float"`, indicating which type the `Rule` expected to find.
+- A `Valid`, holding the value being validated
+  When we use `Rule.float` on "1", since "1" is a valid representation of a `Float`, it returns `Valid(1.0)`
+- A `Invalid`, containing all the errors.
+  When we use `Rule.float` on "abc", since "abc" is *not* a valid representation of a `Float`, it returns `Invalid(List((/,List(ValidationError(validation.type-mismatch,WrappedArray(Float))))))`. That `Invalid` tells us all there is to know: it give us a nice message explaining what has failed, and even gives us a parameter `"Float"`, indicating which type the `Rule` expected to find.
 
-> Note that `Validation` is a parameterized type. Just like `Rule`, it keeps track of the input and output types.
+> Note that `Validated` is a parameterized type. Just like `Rule`, it keeps track of the input and output types.
 The method `validate` of a `Rule[I, O]` always return a `VA[I, O]`
 
 ## Defining your own Rules
 
 Creating a new `Rule` is almost as simple as creating a new function.
-All there is to do is to pass a function `I => Validation[I, O]` to `Rule.fromMapping`.
+All there is to do is to pass a function `I => Validated[I, O]` to `Rule.fromMapping`.
 
 This example creates a new `Rule` trying to get the first element of a `List[Int]`.
-In case of an empty `List[Int]`, the rule should return a `Failure`.
+In case of an empty `List[Int]`, the rule should return a `Invalid`.
 
 ```scala
 scala> val headInt: Rule[List[Int], Int] = Rule.fromMapping {
-     |   case Nil => Failure(Seq(ValidationError("error.emptyList")))
-     |   case head :: _ => Success(head)
+     |   case Nil => Invalid(Seq(ValidationError("error.emptyList")))
+     |   case head :: _ => Valid(head)
      | }
-headInt: play.api.data.mapping.Rule[List[Int],Int] = play.api.data.mapping.Rule$$anon$1@65e450d9
+headInt: jto.validation.Rule[List[Int],Int] = jto.validation.Rule$$anon$2@35727db3
 ```
 
 ```scala
 scala> headInt.validate(List(1, 2, 3, 4, 5))
-res6: play.api.data.mapping.VA[Int] = Success(1)
+res6: jto.validation.VA[Int] = Valid(1)
 
 scala> headInt.validate(Nil)
-res7: play.api.data.mapping.VA[Int] = Failure(List((/,List(ValidationError(error.emptyList,WrappedArray())))))
+res7: jto.validation.VA[Int] = Invalid(List((/,List(ValidationError(List(error.emptyList),WrappedArray())))))
 ```
 
 We can make this rule a bit more generic:
 
 ```scala
 scala> def head[T]: Rule[List[T], T] = Rule.fromMapping {
-     |   case Nil => Failure(Seq(ValidationError("error.emptyList")))
-     |   case head :: _ => Success(head)
+     |   case Nil => Invalid(Seq(ValidationError("error.emptyList")))
+     |   case head :: _ => Valid(head)
      | }
-head: [T]=> play.api.data.mapping.Rule[List[T],T]
+head: [T]=> jto.validation.Rule[List[T],T]
 ```
 
 ```scala
 scala> head.validate(List('a', 'b', 'c', 'd'))
-res8: play.api.data.mapping.VA[Char] = Success(a)
+res8: jto.validation.VA[Char] = Valid(a)
 
 scala> head.validate(List[Char]())
-res9: play.api.data.mapping.VA[Char] = Failure(List((/,List(ValidationError(error.emptyList,WrappedArray())))))
+res9: jto.validation.VA[Char] = Invalid(List((/,List(ValidationError(List(error.emptyList),WrappedArray())))))
 ```
 
 ## Composing Rules
@@ -140,69 +141,69 @@ We already have defined:
 1. `head: Rule[List[T], T]` returns the first element of a `List`
 2. `float: Rule[String, Float]` parses a `String` into a `Float`
 
-We've done almost all the work already. We just have to create a new `Rule` the applies the first `Rule` and if it return a `Success`, apply the second `Rule`.
+We've done almost all the work already. We just have to create a new `Rule` the applies the first `Rule` and if it return a `Valid`, apply the second `Rule`.
 
 It would be fairly easy to create such a `Rule` "manually", but we don't have to. A method doing just that is already available:
 
 ```scala
 scala> val firstFloat: Rule[List[String], Float] = head.compose(Rules.floatR)
-firstFloat: play.api.data.mapping.Rule[List[String],Float] = play.api.data.mapping.Rule$$anon$1@323e95e8
+firstFloat: jto.validation.Rule[List[String],Float] = jto.validation.Rule$$anon$2@631fb201
 
 scala> firstFloat.validate(List("1", "2"))
-res10: play.api.data.mapping.VA[Float] = Success(1.0)
+res10: jto.validation.VA[Float] = Valid(1.0)
 
 scala> firstFloat.validate(List("1.2", "foo"))
-res11: play.api.data.mapping.VA[Float] = Success(1.2)
+res11: jto.validation.VA[Float] = Valid(1.2)
 ```
 
 If the list is empty, we get the error from `head`
 
 ```scala
 scala> firstFloat.validate(List())
-res12: play.api.data.mapping.VA[Float] = Failure(List((/,List(ValidationError(error.emptyList,WrappedArray())))))
+res12: jto.validation.VA[Float] = Invalid(List((/,List(ValidationError(List(error.emptyList),WrappedArray())))))
 ```
 
 If the first element is not parseable, we get the error from `Rules.float`.
 
 ```scala
 scala> firstFloat.validate(List("foo", "2"))
-res13: play.api.data.mapping.VA[Float] = Failure(List((/,List(ValidationError(error.number,WrappedArray(Float))))))
+res13: jto.validation.VA[Float] = Invalid(List((/,List(ValidationError(List(error.number),WrappedArray(Float))))))
 ```
 
 Of course everything is still typesafe:
 
 ```scala
 scala> firstFloat.validate(List(1, 2, 3))
-<console>:18: error: type mismatch;
+<console>:21: error: type mismatch;
  found   : Int(1)
  required: String
-              firstFloat.validate(List(1, 2, 3))
-                                       ^
-<console>:18: error: type mismatch;
+       firstFloat.validate(List(1, 2, 3))
+                                ^
+<console>:21: error: type mismatch;
  found   : Int(2)
  required: String
-              firstFloat.validate(List(1, 2, 3))
-                                          ^
-<console>:18: error: type mismatch;
+       firstFloat.validate(List(1, 2, 3))
+                                   ^
+<console>:21: error: type mismatch;
  found   : Int(3)
  required: String
-              firstFloat.validate(List(1, 2, 3))
-                                             ^
+       firstFloat.validate(List(1, 2, 3))
+                                      ^
 ```
 
 #### Improving reporting.
 
 All is fine with our new `Rule` but the error reporting when we parse an element is not perfect yet.
-When a parsing error happens, the `Failure` does not tells us that it happened on the first element of the `List`.
+When a parsing error happens, the `Invalid` does not tells us that it happened on the first element of the `List`.
 
 To fix that, we can pass  an additionnal parameter to `compose`:
 
 ```scala
 scala> val firstFloat2: Rule[List[String],Float] = head.compose(Path \ 0)(Rules.floatR)
-firstFloat2: play.api.data.mapping.Rule[List[String],Float] = play.api.data.mapping.Rule$$anon$1@2ed8bb8d
+firstFloat2: jto.validation.Rule[List[String],Float] = jto.validation.Rule$$anon$2@522dffef
 
 scala> firstFloat2.validate(List("foo", "2"))
-res15: play.api.data.mapping.VA[Float] = Failure(List(([0],List(ValidationError(error.number,WrappedArray(Float))))))
+res15: jto.validation.VA[Float] = Invalid(List(([0],List(ValidationError(List(error.number),WrappedArray(Float))))))
 ```
 
 ### "Parallel" composition
@@ -216,33 +217,33 @@ The validation API already provides `Rules.min`, we have to define `even` oursel
 
 ```scala
 scala> val positive: Rule[Int,Int] = Rules.min(0)
-positive: play.api.data.mapping.Rule[Int,Int] = play.api.data.mapping.Rule$$anon$1@610755cb
+positive: jto.validation.Rule[Int,Int] = jto.validation.Rule$$anon$2@5a41d2fc
 
 scala> val even: Rule[Int,Int] = Rules.validateWith[Int]("error.even"){ _ % 2 == 0 }
-even: play.api.data.mapping.Rule[Int,Int] = play.api.data.mapping.Rule$$anon$1@332605a1
+even: jto.validation.Rule[Int,Int] = jto.validation.Rule$$anon$2@56b273b6
 ```
 
 Now we can compose those rules using `|+|`
 
 ```scala
 scala> val positiveAndEven: Rule[Int,Int] = positive |+| even
-positiveAndEven: play.api.data.mapping.Rule[Int,Int] = play.api.data.mapping.Rule$$anon$1@6283ed44
+positiveAndEven: jto.validation.Rule[Int,Int] = jto.validation.Rule$$anon$2@2623bfd3
 ```
 
 Let's test our new `Rule`:
 
 ```scala
 scala> positiveAndEven.validate(12)
-res16: play.api.data.mapping.VA[Int] = Success(12)
+res16: jto.validation.VA[Int] = Valid(12)
 
 scala> positiveAndEven.validate(-12)
-res17: play.api.data.mapping.VA[Int] = Failure(ArrayBuffer((/,List(ValidationError(error.min,WrappedArray(0))))))
+res17: jto.validation.VA[Int] = Invalid(ArrayBuffer((/,List(ValidationError(List(error.min),WrappedArray(0))))))
 
 scala> positiveAndEven.validate(13)
-res18: play.api.data.mapping.VA[Int] = Failure(ArrayBuffer((/,List(ValidationError(error.even,WrappedArray())))))
+res18: jto.validation.VA[Int] = Invalid(ArrayBuffer((/,List(ValidationError(List(error.even),WrappedArray())))))
 
 scala> positiveAndEven.validate(-13)
-res19: play.api.data.mapping.VA[Int] = Failure(ArrayBuffer((/,List(ValidationError(error.min,WrappedArray(0)), ValidationError(error.even,WrappedArray())))))
+res19: jto.validation.VA[Int] = Invalid(ArrayBuffer((/,List(ValidationError(List(error.min),WrappedArray(0)), ValidationError(List(error.even),WrappedArray())))))
 ```
 
 Note that both rules are applied. If both fail, we get two `ValidationError`.

@@ -28,7 +28,7 @@ It can do this:
 
 ```scala
 scala> personRule.validate(json)
-res0: play.api.data.mapping.VA[Person] = Success(Person(Julien,28,true))
+res0: play.api.data.mapping.VA[Person] = Valid(Person(Julien,28,true))
 ```
 
 > **BUT IT'S NOT LIMITED TO JSON**
@@ -89,3 +89,4 @@ All the required documentation is directly readable from Github: https://github.
 - Arthur Gautier - https://github.com/baloo
 - Jacques B - https://github.com/Timshel
 - Alexandre Tamborrino - https://github.com/atamborrino
+- Olivier Blanvillain - https://github.com/OlivierBlanvillain

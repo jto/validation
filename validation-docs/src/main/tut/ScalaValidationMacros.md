@@ -23,14 +23,14 @@ case class Person(name: String, age: Int, lovesChocolate: Boolean)
 ```
 
 ```tut
+import jto.validation._
 import play.api.libs.json._
-import play.api.data.mapping._
 
 implicit val personRule = From[JsValue] { __ =>
-  import play.api.data.mapping.json.Rules._
-  ((__ \ "name").read[String] and
-   (__ \ "age").read[Int] and
-   (__ \ "lovesChocolate").read[Boolean])(Person.apply _)
+  import jto.validation.json.Rules._
+  ((__ \ "name").read[String] ~
+   (__ \ "age").read[Int] ~
+   (__ \ "lovesChocolate").read[Boolean]) (Person.apply _)
 }
 ```
 
@@ -49,8 +49,11 @@ personRule.validate(json)
 The exact same `Rule` can be generated using `Rule.gen`:
 
 ```tut
+import jto.validation._
+import play.api.libs.json._
+
 implicit val personRule = {
-  import play.api.data.mapping.json.Rules._ // let's not leak implicits everywhere
+  import jto.validation.json.Rules._ // let's not leak implicits everywhere
   Rule.gen[JsValue, Person]
 }
 ```
@@ -70,11 +73,11 @@ personRule.validate(json)
 Similarly we can generate a `Write`:
 
 ```tut
+import jto.validation._
 import play.api.libs.json._
-import play.api.data.mapping._
 
 implicit val personWrite = {
-  import play.api.data.mapping.json.Writes._ // let's no leak implicits everywhere
+  import jto.validation.json.Writes._ // let's no leak implicits everywhere
   Write.gen[Person, JsObject]
 }
 

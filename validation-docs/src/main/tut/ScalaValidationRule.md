@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The API is designed around the concept of `Rule`. A `Rule[I, O]` defines a way to validate and coerce data, from type `I` to type `O`. It's basically a function `I => Validation[O]`, where `I` is the type of the input to validate, and `O` is the expected output type.
+The API is designed around the concept of `Rule`. A `Rule[I, O]` defines a way to validate and coerce data, from type `I` to type `O`. It's basically a function `I => Validated[O]`, where `I` is the type of the input to validate, and `O` is the expected output type.
 
 ## A simple example
 
@@ -10,9 +10,9 @@ Let's say you want to coerce a `String` into an `Float`.
 All you need to do is to define a `Rule` from String to Float:
 
 ```tut
-import play.api.data.mapping._
- def isFloat: Rule[String, Float] = ???
- ```
+import jto.validation._
+def isFloat: Rule[String, Float] = ???
+```
 
 When a `String` is parsed into an `Float`, two scenario are possible, either:
 
@@ -30,7 +30,7 @@ Back, to our `Rule`. For now we'll not implement `isFloat`, actually the validat
 All you have to do is import the default Rules.
 
 ```tut
-import play.api.data.mapping._
+import jto.validation._
 object Rules extends GenericRules with ParsingRules
 Rules.floatR
 ```
@@ -50,30 +50,30 @@ Rules.floatR
 Rules.floatR.validate(Seq(32))
 ```
 
-"abc" is not a valid `Float` but no exception was thrown. Instead of relying on exceptions, `validate` is returning an object of type `Validation` (here `VA` is just a fancy alias for a special kind of validation).
+"abc" is not a valid `Float` but no exception was thrown. Instead of relying on exceptions, `validate` is returning an object of type `Validated` (here `VA` is just a fancy alias for a special kind of validation).
 
-`Validation` represents possible outcomes of Rule application, it can be either :
+`Validated` represents possible outcomes of Rule application, it can be either :
 
-- A `Success`, holding the value being validated
-  When we use `Rule.float` on "1", since "1" is a valid representation of a `Float`, it returns `Success(1.0)`
-- A `Failure`, containing all the errors.
-  When we use `Rule.float` on "abc", since "abc" is *not* a valid representation of a `Float`, it returns `Failure(List((/,List(ValidationError(validation.type-mismatch,WrappedArray(Float))))))`. That `Failure` tells us all there is to know: it give us a nice message explaining what has failed, and even gives us a parameter `"Float"`, indicating which type the `Rule` expected to find.
+- A `Valid`, holding the value being validated
+  When we use `Rule.float` on "1", since "1" is a valid representation of a `Float`, it returns `Valid(1.0)`
+- A `Invalid`, containing all the errors.
+  When we use `Rule.float` on "abc", since "abc" is *not* a valid representation of a `Float`, it returns `Invalid(List((/,List(ValidationError(validation.type-mismatch,WrappedArray(Float))))))`. That `Invalid` tells us all there is to know: it give us a nice message explaining what has failed, and even gives us a parameter `"Float"`, indicating which type the `Rule` expected to find.
 
-> Note that `Validation` is a parameterized type. Just like `Rule`, it keeps track of the input and output types.
+> Note that `Validated` is a parameterized type. Just like `Rule`, it keeps track of the input and output types.
 The method `validate` of a `Rule[I, O]` always return a `VA[I, O]`
 
 ## Defining your own Rules
 
 Creating a new `Rule` is almost as simple as creating a new function.
-All there is to do is to pass a function `I => Validation[I, O]` to `Rule.fromMapping`.
+All there is to do is to pass a function `I => Validated[I, O]` to `Rule.fromMapping`.
 
 This example creates a new `Rule` trying to get the first element of a `List[Int]`.
-In case of an empty `List[Int]`, the rule should return a `Failure`.
+In case of an empty `List[Int]`, the rule should return a `Invalid`.
 
 ```tut
 val headInt: Rule[List[Int], Int] = Rule.fromMapping {
-  case Nil => Failure(Seq(ValidationError("error.emptyList")))
-  case head :: _ => Success(head)
+  case Nil => Invalid(Seq(ValidationError("error.emptyList")))
+  case head :: _ => Valid(head)
 }
 ```
 
@@ -86,8 +86,8 @@ We can make this rule a bit more generic:
 
 ```tut
 def head[T]: Rule[List[T], T] = Rule.fromMapping {
-  case Nil => Failure(Seq(ValidationError("error.emptyList")))
-  case head :: _ => Success(head)
+  case Nil => Invalid(Seq(ValidationError("error.emptyList")))
+  case head :: _ => Valid(head)
 }
 ```
 
@@ -113,7 +113,7 @@ We already have defined:
 1. `head: Rule[List[T], T]` returns the first element of a `List`
 2. `float: Rule[String, Float]` parses a `String` into a `Float`
 
-We've done almost all the work already. We just have to create a new `Rule` the applies the first `Rule` and if it return a `Success`, apply the second `Rule`.
+We've done almost all the work already. We just have to create a new `Rule` the applies the first `Rule` and if it return a `Valid`, apply the second `Rule`.
 
 It would be fairly easy to create such a `Rule` "manually", but we don't have to. A method doing just that is already available:
 
@@ -144,7 +144,7 @@ firstFloat.validate(List(1, 2, 3))
 #### Improving reporting.
 
 All is fine with our new `Rule` but the error reporting when we parse an element is not perfect yet.
-When a parsing error happens, the `Failure` does not tells us that it happened on the first element of the `List`.
+When a parsing error happens, the `Invalid` does not tells us that it happened on the first element of the `List`.
 
 To fix that, we can pass  an additionnal parameter to `compose`:
 

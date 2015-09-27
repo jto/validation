@@ -24,19 +24,19 @@ defined class Person
 ```
 
 ```scala
+scala> import jto.validation._
+import jto.validation._
+
 scala> import play.api.libs.json._
 import play.api.libs.json._
 
-scala> import play.api.data.mapping._
-import play.api.data.mapping._
-
 scala> implicit val personRule = From[JsValue] { __ =>
-     |   import play.api.data.mapping.json.Rules._
-     |   ((__ \ "name").read[String] and
-     |    (__ \ "age").read[Int] and
-     |    (__ \ "lovesChocolate").read[Boolean])(Person.apply _)
+     |   import jto.validation.json.Rules._
+     |   ((__ \ "name").read[String] ~
+     |    (__ \ "age").read[Int] ~
+     |    (__ \ "lovesChocolate").read[Boolean]) (Person.apply)
      | }
-personRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Person] = play.api.data.mapping.Rule$$anon$2@4fab8bb5
+personRule: jto.validation.Rule[play.api.libs.json.JsValue,Person] = jto.validation.Rule$$anon$3@56087431
 ```
 
 Let's test it:
@@ -50,17 +50,23 @@ scala> val json = Json.parse("""{
 json: play.api.libs.json.JsValue = {"name":"Julien","age":28,"lovesChocolate":true}
 
 scala> personRule.validate(json)
-res0: play.api.data.mapping.VA[Person] = Success(Person(Julien,28,true))
+res0: jto.validation.VA[Person] = Valid(Person(Julien,28,true))
 ```
 
 The exact same `Rule` can be generated using `Rule.gen`:
 
 ```scala
+scala> import jto.validation._
+import jto.validation._
+
+scala> import play.api.libs.json._
+import play.api.libs.json._
+
 scala> implicit val personRule = {
-     |   import play.api.data.mapping.json.Rules._ // let's not leak implicits everywhere
+     |   import jto.validation.json.Rules._ // let's not leak implicits everywhere
      |   Rule.gen[JsValue, Person]
      | }
-personRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Person] = play.api.data.mapping.Rule$$anon$2@4936e30f
+personRule: jto.validation.Rule[play.api.libs.json.JsValue,Person] = jto.validation.Rule$$anon$3@8ce8ff7
 ```
 
 The validation result is identical :
@@ -74,23 +80,23 @@ scala> val json = Json.parse("""{
 json: play.api.libs.json.JsValue = {"name":"Julien","age":28,"lovesChocolate":true}
 
 scala> personRule.validate(json)
-res1: play.api.data.mapping.VA[Person] = Success(Person(Julien,28,true))
+res1: jto.validation.VA[Person] = Valid(Person(Julien,28,true))
 ```
 
 Similarly we can generate a `Write`:
 
 ```scala
+scala> import jto.validation._
+import jto.validation._
+
 scala> import play.api.libs.json._
 import play.api.libs.json._
 
-scala> import play.api.data.mapping._
-import play.api.data.mapping._
-
 scala> implicit val personWrite = {
-     |   import play.api.data.mapping.json.Writes._ // let's no leak implicits everywhere
+     |   import jto.validation.json.Writes._ // let's no leak implicits everywhere
      |   Write.gen[Person, JsObject]
      | }
-personWrite: play.api.data.mapping.Write[Person,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@2e594275
+personWrite: jto.validation.Write[Person,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@51338487
 
 scala> personWrite.writes(Person("Julien", 28, true))
 res2: play.api.libs.json.JsObject = {"name":"Julien","age":28,"lovesChocolate":true}

@@ -19,7 +19,7 @@ implicit val creatureRule = From[JsValue]{ __ =>
   import jto.validation.json.Rules._
   ((__ \ "name").read[String] ~
    (__ \ "isDead").read[Boolean] ~
-   (__ \ "weight").read[Float]) (Creature.apply _)
+   (__ \ "weight").read[Float]) (Creature.apply)
 }
 
 val js = Json.obj( "name" -> "gremlins", "isDead" -> false, "weight" -> 1.0f)
@@ -91,7 +91,7 @@ implicit lazy val userRule: Rule[JsValue, User] = From[JsValue] { __ =>
    (__ \ "age").read[Int] ~
    (__ \ "email").read[Option[String]] ~
    (__ \ "isAlive").read[Boolean] ~
-   (__ \ "friend").read[Option[User]]) (User.apply _)
+   (__ \ "friend").read[Option[User]]) (User.apply)
 }
 ```
 
@@ -123,7 +123,7 @@ val js = Json.parse("""
 
 val r = From[JsValue] { __ =>
   import jto.validation.json.Rules._
-  
+
   val tupleR = Rule.fromMapping[JsValue, (String, String)] {
     case JsObject(Seq((key, JsString(value)))) => Valid(key.toString -> value)
     case _ => Invalid(Seq(ValidationError("BAAAM")))
@@ -154,12 +154,12 @@ val e = Json.obj("name" -> "E", "eee" -> 6)
 ```tut
 val rb: Rule[JsValue, A] = From[JsValue] { __ =>
   import jto.validation.json.Rules._
-  (__ \ "name").read(json.Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply _)
+  (__ \ "name").read(json.Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
 }
 
 val rc: Rule[JsValue, A] = From[JsValue] { __ =>
   import jto.validation.json.Rules._
-  (__ \ "name").read(json.Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply _)
+  (__ \ "name").read(json.Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply)
 }
 
 val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
@@ -178,8 +178,8 @@ val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownTyp
 val rule = From[JsValue] { __ =>
   import jto.validation.json.Rules._
 	(__ \ "name").read[String].flatMap[A] {
-	  case "B" => (__ \ "foo").read[Int].map(B.apply _)
-	  case "C" => (__ \ "bar").read[Int].map(C.apply _)
+	  case "B" => (__ \ "foo").read[Int].map(B.apply)
+	  case "C" => (__ \ "bar").read[Int].map(C.apply)
 	  case _ => Rule(_ => typeInvalid)
 	}
 }
@@ -206,7 +206,7 @@ implicit val creatureWrite = To[JsObject] { __ =>
   import jto.validation.json.Writes._
   ((__ \ "name").write[String] ~
    (__ \ "isDead").write[Boolean] ~
-   (__ \ "weight").write[Float]) (Creature.unapply _)
+   (__ \ "weight").write[Float]) (Creature.unapply)
 }
 
 To[Creature, JsObject](Creature("gremlins", false, 1f))
@@ -224,7 +224,7 @@ implicit val latLongWrite = {
   import jto.validation.json.Writes._
   To[JsObject] { __ =>
     ((__ \ "lat").write[Float] ~
-     (__ \ "long").write[Float]) (LatLong.unapply _)
+     (__ \ "long").write[Float]) (LatLong.unapply)
   }
 }
 
@@ -234,7 +234,7 @@ implicit val pointWrite = {
   import jto.validation.json.Writes._
   To[JsObject] { __ =>
     ((__ \ "coords").write[LatLong] ~
-     (__ \ "type").write[String]) ((_: Point).coords -> "point")
+     (__ \ "type").write[String]) ((p: Point) => Some(p.coords -> "point"))
   }
 }
 

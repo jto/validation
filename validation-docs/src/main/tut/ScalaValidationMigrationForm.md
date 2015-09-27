@@ -99,7 +99,7 @@ implicit val computerValidated = From[UrlFormEncoded] { __ =>
    (__ \ "name").read(notEmpty) ~
    (__ \ "introduced").read(optionR(date("yyyy-MM-dd"))) ~
    (__ \ "discontinued").read(optionR(date("yyyy-MM-dd"))) ~
-   (__ \ "company").read[Option[Long]]) (Computer.apply _)
+   (__ \ "company").read[Option[Long]]) (Computer.apply)
 }
 ```
 
@@ -142,7 +142,7 @@ implicit val computerW = To[UrlFormEncoded] { __ =>
    (__ \ "name").write[String] ~
    (__ \ "introduced").write(optionW(date("yyyy-MM-dd"))) ~
    (__ \ "discontinued").write(optionW(date("yyyy-MM-dd"))) ~
-   (__ \ "company").write[Option[Long]]) (Computer.unapply _)
+   (__ \ "company").write[Option[Long]]) (Computer.unapply)
 }
 ```
 

@@ -49,7 +49,7 @@ implicit val creatureRule = From[JsValue] { __ =>
   import jto.validation.json.Rules._
   ((__ \ "name").read[String] ~
    (__ \ "isDead").read[Boolean] ~
-   (__ \ "weight").read[Float]) (Creature.apply _)
+   (__ \ "weight").read[Float]) (Creature.apply)
 }
 
 val js = Json.obj( "name" -> "gremlins", "isDead" -> false, "weight" -> 1.0F)
@@ -137,7 +137,7 @@ implicit lazy val userRule: Rule[JsValue, User] = From[JsValue]{ __ =>
   import jto.validation.json.Rules._
   ((__ \ "id").read[Long] ~
    (__ \ "name").read[String] ~
-   (__ \ "friend").read(optionR(userRule))) (User.apply _)
+   (__ \ "friend").read(optionR(userRule))) (User.apply)
 }
 
 val js = Json.obj(
@@ -251,7 +251,7 @@ For example, you would have defined a `Writes` for the `Creature` case class thi
 	  (__ \ "name").write[String] and
 	  (__ \ "isDead").write[Boolean] and
 	  (__ \ "weight").write[Float]
-	)(unlift(Creature.unapply _))
+	)(unlift(Creature.unapply))
 
 	Json.toJson(Creature("gremlins", false, 1f))
 }
@@ -272,7 +272,7 @@ implicit val creatureWrite = To[JsObject]{ __ =>
   import jto.validation.json.Writes._
 	((__ \ "name").write[String] ~
 	 (__ \ "isDead").write[Boolean] ~
-	 (__ \ "weight").write[Float]) (Creature.unapply _)
+	 (__ \ "weight").write[Float]) (Creature.unapply)
 }
 
 val c = To[Creature, JsObject](Creature("gremlins", false, 1f))

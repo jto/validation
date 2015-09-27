@@ -110,6 +110,7 @@ object ValidationBuild extends Build {
   lazy val docs = Project("validation-docs", file("validation-docs"))
     .settings(commonSettings: _*)
     .settings(crossTarget := file(".") / "documentation")
+    .settings(scalacOptions -= "-Ywarn-unused-import")
     .dependsOn(core, json, json4s, form, xml, experimental)
 
   lazy val core = Project("validation-core", file("validation-core"))

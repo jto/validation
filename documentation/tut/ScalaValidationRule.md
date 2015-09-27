@@ -40,7 +40,7 @@ scala> object Rules extends GenericRules with ParsingRules
 defined object Rules
 
 scala> Rules.floatR
-res0: jto.validation.Rule[String,Float] = jto.validation.Rule$$anon$2@44d7ddd2
+res0: jto.validation.Rule[String,Float] = jto.validation.Rule$$anon$2@2af645cc
 ```
 
 Let's now test it against different String values:
@@ -60,7 +60,7 @@ res3: jto.validation.VA[Float] = Invalid(List((/,List(ValidationError(List(error
 >
 ```scala
 scala> Rules.floatR
-res4: jto.validation.Rule[String,Float] = jto.validation.Rule$$anon$2@538017dc
+res4: jto.validation.Rule[String,Float] = jto.validation.Rule$$anon$2@632b659a
 
 scala> Rules.floatR.validate(Seq(32))
 <console>:19: error: type mismatch;
@@ -95,7 +95,7 @@ scala> val headInt: Rule[List[Int], Int] = Rule.fromMapping {
      |   case Nil => Invalid(Seq(ValidationError("error.emptyList")))
      |   case head :: _ => Valid(head)
      | }
-headInt: jto.validation.Rule[List[Int],Int] = jto.validation.Rule$$anon$2@35727db3
+headInt: jto.validation.Rule[List[Int],Int] = jto.validation.Rule$$anon$2@3cc3cca
 ```
 
 ```scala
@@ -147,7 +147,7 @@ It would be fairly easy to create such a `Rule` "manually", but we don't have to
 
 ```scala
 scala> val firstFloat: Rule[List[String], Float] = head.compose(Rules.floatR)
-firstFloat: jto.validation.Rule[List[String],Float] = jto.validation.Rule$$anon$2@631fb201
+firstFloat: jto.validation.Rule[List[String],Float] = jto.validation.Rule$$anon$2@6958a2ef
 
 scala> firstFloat.validate(List("1", "2"))
 res10: jto.validation.VA[Float] = Valid(1.0)
@@ -200,7 +200,7 @@ To fix that, we can pass  an additionnal parameter to `compose`:
 
 ```scala
 scala> val firstFloat2: Rule[List[String],Float] = head.compose(Path \ 0)(Rules.floatR)
-firstFloat2: jto.validation.Rule[List[String],Float] = jto.validation.Rule$$anon$2@522dffef
+firstFloat2: jto.validation.Rule[List[String],Float] = jto.validation.Rule$$anon$2@57e331
 
 scala> firstFloat2.validate(List("foo", "2"))
 res15: jto.validation.VA[Float] = Invalid(List(([0],List(ValidationError(List(error.number),WrappedArray(Float))))))
@@ -217,17 +217,17 @@ The validation API already provides `Rules.min`, we have to define `even` oursel
 
 ```scala
 scala> val positive: Rule[Int,Int] = Rules.min(0)
-positive: jto.validation.Rule[Int,Int] = jto.validation.Rule$$anon$2@5a41d2fc
+positive: jto.validation.Rule[Int,Int] = jto.validation.Rule$$anon$2@296b519b
 
 scala> val even: Rule[Int,Int] = Rules.validateWith[Int]("error.even"){ _ % 2 == 0 }
-even: jto.validation.Rule[Int,Int] = jto.validation.Rule$$anon$2@56b273b6
+even: jto.validation.Rule[Int,Int] = jto.validation.Rule$$anon$2@320819e2
 ```
 
 Now we can compose those rules using `|+|`
 
 ```scala
 scala> val positiveAndEven: Rule[Int,Int] = positive |+| even
-positiveAndEven: jto.validation.Rule[Int,Int] = jto.validation.Rule$$anon$2@2623bfd3
+positiveAndEven: jto.validation.Rule[Int,Int] = jto.validation.Rule$$anon$2@4ebc604
 ```
 
 Let's test our new `Rule`:

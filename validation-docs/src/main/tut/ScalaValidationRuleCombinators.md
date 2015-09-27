@@ -273,7 +273,7 @@ val userRule = From[JsValue] { __ =>
   ((__ \ "name").read[String] ~
    (__ \ "age").read[Int] ~
    (__ \ "email").read[Option[String]] ~
-   (__ \ "isAlive").read[Boolean]) (User.apply _)
+   (__ \ "isAlive").read[Boolean]) (User.apply)
 }
 ```
 

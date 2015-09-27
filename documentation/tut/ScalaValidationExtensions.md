@@ -148,7 +148,7 @@ scala> val maybeEmail = From[JsValue]{ __ =>
      |   import jto.validation.json.Rules._
      |   (__ \ "email").read(optionR(email))
      | }
-maybeEmail: jto.validation.Rule[play.api.libs.json.JsValue,Option[String]] = jto.validation.Rule$$anon$3@630dac5e
+maybeEmail: jto.validation.Rule[play.api.libs.json.JsValue,Option[String]] = jto.validation.Rule$$anon$3@3179617b
 
 scala> maybeEmail.validate(Json.obj("email" -> "foo@bar.com"))
 res1: jto.validation.VA[Option[String]] = Valid(Some(foo@bar.com))
@@ -178,7 +178,7 @@ scala> val maybeAge = From[JsValue]{ __ =>
      |   import jto.validation.json.Rules._
      |   (__ \ "age").read[Option[Int]]
      | }
-maybeAge: jto.validation.Rule[play.api.libs.json.JsValue,Option[Int]] = jto.validation.Rule$$anon$3@11bbedc6
+maybeAge: jto.validation.Rule[play.api.libs.json.JsValue,Option[Int]] = jto.validation.Rule$$anon$3@6756d615
 ```
 
 ### Lazyness
@@ -197,7 +197,7 @@ u: RecUser = RecUser(bob,List(RecUser(tom,List())))
 scala> lazy val w: Rule[JsValue, RecUser] = From[JsValue]{ __ =>
      |   import jto.validation.json.Rules._
      |   ((__ \ "name").read[String] ~
-     |    (__ \ "friends").read(seqR(w))) (RecUser.apply _) // !!! recursive rule definition
+     |    (__ \ "friends").read(seqR(w))) (RecUser.apply) // !!! recursive rule definition
      | }
 w: jto.validation.Rule[play.api.libs.json.JsValue,RecUser] = <lazy>
 ```
@@ -255,9 +255,9 @@ scala> val userWrite = To[JsObject] { __ =>
      |   ((__ \ "name").write[String] ~
      |    (__ \ "age").write[Int] ~
      |    (__ \ "email").write[Option[String]] ~
-     |    (__ \ "isAlive").write[Boolean]) (User.unapply _)
+     |    (__ \ "isAlive").write[Boolean]) (User.unapply)
      | }
-userWrite: jto.validation.Write[User,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@4e2f4358
+userWrite: jto.validation.Write[User,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@70d8a539
 ```
 
 ## Testing

@@ -23,9 +23,9 @@ scala> implicit val creatureRule = From[JsValue]{ __ =>
      |   import jto.validation.json.Rules._
      |   ((__ \ "name").read[String] ~
      |    (__ \ "isDead").read[Boolean] ~
-     |    (__ \ "weight").read[Float]) (Creature.apply _)
+     |    (__ \ "weight").read[Float]) (Creature.apply)
      | }
-creatureRule: jto.validation.Rule[play.api.libs.json.JsValue,Creature] = jto.validation.Rule$$anon$3@7e4ec374
+creatureRule: jto.validation.Rule[play.api.libs.json.JsValue,Creature] = jto.validation.Rule$$anon$3@6b53e74d
 
 scala> val js = Json.obj( "name" -> "gremlins", "isDead" -> false, "weight" -> 1.0f)
 js: play.api.libs.json.JsObject = {"name":"gremlins","isDead":false,"weight":1}
@@ -63,7 +63,7 @@ scala> val passRule = From[JsValue] { __ =>
      |     // We change the `Path` of errors using `repath`
      |     .repath(_ => (Path \ "verify")))
      | }
-passRule: jto.validation.Rule[play.api.libs.json.JsValue,String] = jto.validation.Rule$$anon$3@55f34249
+passRule: jto.validation.Rule[play.api.libs.json.JsValue,String] = jto.validation.Rule$$anon$3@1873decb
 ```
 
 Let's test it:
@@ -117,7 +117,7 @@ scala> // Note the lazy keyword, and the explicit typing
      |    (__ \ "age").read[Int] ~
      |    (__ \ "email").read[Option[String]] ~
      |    (__ \ "isAlive").read[Boolean] ~
-     |    (__ \ "friend").read[Option[User]]) (User.apply _)
+     |    (__ \ "friend").read[Option[User]]) (User.apply)
      | }
 userRule: jto.validation.Rule[play.api.libs.json.JsValue,User] = <lazy>
 ```
@@ -160,7 +160,7 @@ js: play.api.libs.json.JsValue = {"values":[{"foo":"bar"},{"bar":"baz"}]}
 
 scala> val r = From[JsValue] { __ =>
      |   import jto.validation.json.Rules._
-     |   
+     | 
      |   val tupleR = Rule.fromMapping[JsValue, (String, String)] {
      |     case JsObject(Seq((key, JsString(value)))) => Valid(key.toString -> value)
      |     case _ => Invalid(Seq(ValidationError("BAAAM")))
@@ -168,7 +168,7 @@ scala> val r = From[JsValue] { __ =>
      | 
      |   (__ \ "values").read(seqR(tupleR))
      | }
-r: jto.validation.Rule[play.api.libs.json.JsValue,Seq[(String, String)]] = jto.validation.Rule$$anon$3@1d3979b9
+r: jto.validation.Rule[play.api.libs.json.JsValue,Seq[(String, String)]] = jto.validation.Rule$$anon$3@74329825
 
 scala> r.validate(js)
 res9: jto.validation.VA[Seq[(String, String)]] = Invalid(List((/values[0],List(ValidationError(List(BAAAM),WrappedArray()))), (/values[1],List(ValidationError(List(BAAAM),WrappedArray())))))
@@ -203,21 +203,21 @@ e: play.api.libs.json.JsObject = {"name":"E","eee":6}
 ```scala
 scala> val rb: Rule[JsValue, A] = From[JsValue] { __ =>
      |   import jto.validation.json.Rules._
-     |   (__ \ "name").read(json.Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply _)
+     |   (__ \ "name").read(json.Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
      | }
-rb: jto.validation.Rule[play.api.libs.json.JsValue,A] = jto.validation.Rule$$anon$3@220f6957
+rb: jto.validation.Rule[play.api.libs.json.JsValue,A] = jto.validation.Rule$$anon$3@6ae4856a
 
 scala> val rc: Rule[JsValue, A] = From[JsValue] { __ =>
      |   import jto.validation.json.Rules._
-     |   (__ \ "name").read(json.Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply _)
+     |   (__ \ "name").read(json.Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply)
      | }
-rc: jto.validation.Rule[play.api.libs.json.JsValue,A] = jto.validation.Rule$$anon$3@39494753
+rc: jto.validation.Rule[play.api.libs.json.JsValue,A] = jto.validation.Rule$$anon$3@67690dc9
 
 scala> val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 typeInvalid: cats.data.Validated.Invalid[Seq[(jto.validation.Path.type, Seq[jto.validation.ValidationError])]] = Invalid(List((/,List(ValidationError(List(validation.unknownType),WrappedArray())))))
 
 scala> val rule = rb orElse rc orElse Rule(_ => typeInvalid)
-rule: jto.validation.Rule[play.api.libs.json.JsValue,A] = jto.validation.Rule$$anon$2@4f56d204
+rule: jto.validation.Rule[play.api.libs.json.JsValue,A] = jto.validation.Rule$$anon$2@1d368518
 
 scala> rule.validate(b)
 res10: jto.validation.VA[A] = Valid(B(4))
@@ -238,12 +238,12 @@ typeInvalid: cats.data.Validated.Invalid[Seq[(jto.validation.Path.type, Seq[jto.
 scala> val rule = From[JsValue] { __ =>
      |   import jto.validation.json.Rules._
      | 	(__ \ "name").read[String].flatMap[A] {
-     | 	  case "B" => (__ \ "foo").read[Int].map(B.apply _)
-     | 	  case "C" => (__ \ "bar").read[Int].map(C.apply _)
+     | 	  case "B" => (__ \ "foo").read[Int].map(B.apply)
+     | 	  case "C" => (__ \ "bar").read[Int].map(C.apply)
      | 	  case _ => Rule(_ => typeInvalid)
      | 	}
      | }
-rule: jto.validation.Rule[play.api.libs.json.JsValue,A] = jto.validation.Rule$$anon$3@5aade489
+rule: jto.validation.Rule[play.api.libs.json.JsValue,A] = jto.validation.Rule$$anon$3@4db6ff2e
 
 scala> rule.validate(b)
 res13: jto.validation.VA[A] = Valid(B(4))
@@ -276,9 +276,9 @@ scala> implicit val creatureWrite = To[JsObject] { __ =>
      |   import jto.validation.json.Writes._
      |   ((__ \ "name").write[String] ~
      |    (__ \ "isDead").write[Boolean] ~
-     |    (__ \ "weight").write[Float]) (Creature.unapply _)
+     |    (__ \ "weight").write[Float]) (Creature.unapply)
      | }
-creatureWrite: jto.validation.Write[Creature,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@4a32d1cf
+creatureWrite: jto.validation.Write[Creature,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@3673461
 
 scala> To[Creature, JsObject](Creature("gremlins", false, 1f))
 res16: play.api.libs.json.JsObject = {"name":"gremlins","isDead":false,"weight":1}
@@ -300,10 +300,10 @@ scala> implicit val latLongWrite = {
      |   import jto.validation.json.Writes._
      |   To[JsObject] { __ =>
      |     ((__ \ "lat").write[Float] ~
-     |      (__ \ "long").write[Float]) (LatLong.unapply _)
+     |      (__ \ "long").write[Float]) (LatLong.unapply)
      |   }
      | }
-latLongWrite: jto.validation.Write[LatLong,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@5cc48e72
+latLongWrite: jto.validation.Write[LatLong,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@5f943fc5
 
 scala> case class Point(coords: LatLong)
 defined class Point
@@ -312,10 +312,10 @@ scala> implicit val pointWrite = {
      |   import jto.validation.json.Writes._
      |   To[JsObject] { __ =>
      |     ((__ \ "coords").write[LatLong] ~
-     |      (__ \ "type").write[String]) ((_: Point).coords -> "point")
+     |      (__ \ "type").write[String]) ((p: Point) => Some(p.coords -> "point"))
      |   }
      | }
-pointWrite: jto.validation.Write[Point,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@5923886d
+pointWrite: jto.validation.Write[Point,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@24ed0db8
 
 scala> val p = Point(LatLong(123.3F, 334.5F))
 p: Point = Point(LatLong(123.3,334.5))

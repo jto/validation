@@ -54,9 +54,9 @@ scala> implicit val creatureRule = From[JsValue] { __ =>
      |   import jto.validation.json.Rules._
      |   ((__ \ "name").read[String] ~
      |    (__ \ "isDead").read[Boolean] ~
-     |    (__ \ "weight").read[Float]) (Creature.apply _)
+     |    (__ \ "weight").read[Float]) (Creature.apply)
      | }
-creatureRule: jto.validation.Rule[play.api.libs.json.JsValue,Creature] = jto.validation.Rule$$anon$3@3abf6854
+creatureRule: jto.validation.Rule[play.api.libs.json.JsValue,Creature] = jto.validation.Rule$$anon$3@4ee01399
 
 scala> val js = Json.obj( "name" -> "gremlins", "isDead" -> false, "weight" -> 1.0F)
 js: play.api.libs.json.JsObject = {"name":"gremlins","isDead":false,"weight":1}
@@ -79,7 +79,7 @@ scala> val nullableStringRule = From[JsValue] { __ =>
      |   import jto.validation.json.Rules._
      |   (__ \ "foo").read[Option[String]]
      | }
-nullableStringRule: jto.validation.Rule[play.api.libs.json.JsValue,Option[String]] = jto.validation.Rule$$anon$3@5a5cb50e
+nullableStringRule: jto.validation.Rule[play.api.libs.json.JsValue,Option[String]] = jto.validation.Rule$$anon$3@71f404f
 
 scala> val js1 = Json.obj("foo" -> "bar")
 js1: play.api.libs.json.JsObject = {"foo":"bar"}
@@ -111,7 +111,7 @@ scala> {
      |   import play.api.libs.functional.syntax._
      | 	(JsPath \ "key1").read[String](email keepAnd minLength[String](5))
      | }
-res5: play.api.libs.json.Reads[String] = play.api.libs.json.Reads$$anon$8@2fe6247b
+res5: play.api.libs.json.Reads[String] = play.api.libs.json.Reads$$anon$8@614cf5a6
 ```
 
 You can achieve the same think in the Validation API using [Rules composition](ScalaValidationRule.md)
@@ -121,7 +121,7 @@ scala> From[JsValue] { __ =>
      |   import jto.validation.json.Rules._
      |   (__ \ "key1").read(email |+| minLength(5))
      | }
-res6: jto.validation.Rule[play.api.libs.json.JsValue,String] = jto.validation.Rule$$anon$3@6397918d
+res6: jto.validation.Rule[play.api.libs.json.JsValue,String] = jto.validation.Rule$$anon$3@7797aa10
 ```
 
 ### lazy reads
@@ -161,7 +161,7 @@ scala> implicit lazy val userRule: Rule[JsValue, User] = From[JsValue]{ __ =>
      |   import jto.validation.json.Rules._
      |   ((__ \ "id").read[Long] ~
      |    (__ \ "name").read[String] ~
-     |    (__ \ "friend").read(optionR(userRule))) (User.apply _)
+     |    (__ \ "friend").read(optionR(userRule))) (User.apply)
      | }
 userRule: jto.validation.Rule[play.api.libs.json.JsValue,User] = <lazy>
 
@@ -220,7 +220,7 @@ becomes
 
 ```scala
 scala> (Path \ "foo").read[JsValue, String]
-res12: jto.validation.Rule[play.api.libs.json.JsValue,String] = jto.validation.Rule$$anon$2@4e074299
+res12: jto.validation.Rule[play.api.libs.json.JsValue,String] = jto.validation.Rule$$anon$2@768ea7c1
 ```
 
 ### pickBranch
@@ -269,7 +269,7 @@ scala> val pick = From[JsValue] { __ =>
      | 	import jto.validation.json.Rules._
      | 	(__ \ "field3").read[JsValue]
      | }
-pick: jto.validation.Rule[play.api.libs.json.JsValue,play.api.libs.json.JsValue] = jto.validation.Rule$$anon$3@6cd6c5b7
+pick: jto.validation.Rule[play.api.libs.json.JsValue,play.api.libs.json.JsValue] = jto.validation.Rule$$anon$3@1e033e0b
 
 scala> pick.validate(js) // Valid({"field31":"beta","field32":345})
 res14: jto.validation.VA[play.api.libs.json.JsValue] = Valid({"field31":"beta","field32":345})
@@ -295,7 +295,7 @@ scala> {
      | 	  (__ \ "name").write[String] and
      | 	  (__ \ "isDead").write[Boolean] and
      | 	  (__ \ "weight").write[Float]
-     | 	)(unlift(Creature.unapply _))
+     | 	)(unlift(Creature.unapply))
      | 
      | 	Json.toJson(Creature("gremlins", false, 1f))
      | }
@@ -321,9 +321,9 @@ scala> implicit val creatureWrite = To[JsObject]{ __ =>
      |   import jto.validation.json.Writes._
      | 	((__ \ "name").write[String] ~
      | 	 (__ \ "isDead").write[Boolean] ~
-     | 	 (__ \ "weight").write[Float]) (Creature.unapply _)
+     | 	 (__ \ "weight").write[Float]) (Creature.unapply)
      | }
-creatureWrite: jto.validation.Write[Creature,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@29ec112c
+creatureWrite: jto.validation.Write[Creature,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@5fbb9755
 
 scala> val c = To[Creature, JsObject](Creature("gremlins", false, 1f))
 c: play.api.libs.json.JsObject = {"name":"gremlins","isDead":false,"weight":1}

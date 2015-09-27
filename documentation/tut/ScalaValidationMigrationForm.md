@@ -104,9 +104,9 @@ scala> implicit val computerValidated = From[UrlFormEncoded] { __ =>
      |    (__ \ "name").read(notEmpty) ~
      |    (__ \ "introduced").read(optionR(date("yyyy-MM-dd"))) ~
      |    (__ \ "discontinued").read(optionR(date("yyyy-MM-dd"))) ~
-     |    (__ \ "company").read[Option[Long]]) (Computer.apply _)
+     |    (__ \ "company").read[Option[Long]]) (Computer.apply)
      | }
-computerValidated: jto.validation.Rule[jto.validation.forms.UrlFormEncoded,Computer] = jto.validation.Rule$$anon$3@eb4b5b9
+computerValidated: jto.validation.Rule[jto.validation.forms.UrlFormEncoded,Computer] = jto.validation.Rule$$anon$3@254a4c1b
 ```
 
 You start by defining a simple validation for each field.
@@ -148,9 +148,9 @@ scala> implicit val computerW = To[UrlFormEncoded] { __ =>
      |    (__ \ "name").write[String] ~
      |    (__ \ "introduced").write(optionW(date("yyyy-MM-dd"))) ~
      |    (__ \ "discontinued").write(optionW(date("yyyy-MM-dd"))) ~
-     |    (__ \ "company").write[Option[Long]]) (Computer.unapply _)
+     |    (__ \ "company").write[Option[Long]]) (Computer.unapply)
      | }
-computerW: jto.validation.Write[Computer,jto.validation.forms.UrlFormEncoded] = jto.validation.Write$$anon$3@2e876f4e
+computerW: jto.validation.Write[Computer,jto.validation.forms.UrlFormEncoded] = jto.validation.Write$$anon$3@1ab6c615
 ```
 
 > Note that this `Write` takes care of formatting.

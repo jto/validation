@@ -341,11 +341,11 @@ object RulesSpec extends Specification {
 
       "by trying all possible Rules" in {
         val rb: Rule[JValue, A] = From[JValue]{ __ =>
-          (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply _)
+          (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
         }
 
         val rc: Rule[JValue, A] = From[JValue]{ __ =>
-          (__ \ "name").read(Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply _)
+          (__ \ "name").read(Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply)
         }
 
         val rule = rb orElse rc orElse Rule(_ => typeInvalid)
@@ -359,8 +359,8 @@ object RulesSpec extends Specification {
 
         val rule = From[JValue] { __ =>
           (__ \ "name").read[String].flatMap[A] {
-            case "B" => (__ \ "foo").read[Int].map(B.apply _)
-            case "C" => (__ \ "bar").read[Int].map(C.apply _)
+            case "B" => (__ \ "foo").read[Int].map(B.apply)
+            case "C" => (__ \ "bar").read[Int].map(C.apply)
             case _ => Rule(_ => typeInvalid)
           }
         }
@@ -406,14 +406,14 @@ object RulesSpec extends Specification {
       val infoValidated = From[JValue] { __ =>
          ((__ \ "label").read(notEmpty) ~
           (__ \ "email").read(optionR(email)) ~
-          (__ \ "phones").read(seqR(notEmpty))) (ContactInformation.apply _)
+          (__ \ "phones").read(seqR(notEmpty))) (ContactInformation.apply)
       }
 
       val contactValidated = From[JValue] { __ =>
         ((__ \ "firstname").read(notEmpty) ~
          (__ \ "lastname").read(notEmpty) ~
          (__ \ "company").read[Option[String]] ~
-         (__ \ "informations").read(seqR(infoValidated))) (Contact.apply _)
+         (__ \ "informations").read(seqR(infoValidated))) (Contact.apply)
       }
 
       val expected =
@@ -444,18 +444,18 @@ object RulesSpec extends Specification {
       "using explicit notation" in {
         lazy val w: Rule[JValue, RecUser] = From[JValue]{ __ =>
           ((__ \ "name").read[String] ~
-           (__ \ "friends").read(seqR(w)))(RecUser.apply _)
+           (__ \ "friends").read(seqR(w)))(RecUser.apply)
         }
         w.validate(m) mustEqual Valid(u)
 
         lazy val w2: Rule[JValue, RecUser] =
           ((Path \ "name").read[JValue, String] ~
-           (Path \ "friends").from[JValue](seqR(w2)))(RecUser.apply _)
+           (Path \ "friends").from[JValue](seqR(w2)))(RecUser.apply)
         w2.validate(m) mustEqual Valid(u)
 
         lazy val w3: Rule[JValue, User1] = From[JValue]{ __ =>
           ((__ \ "name").read[String] ~
-           (__ \ "friend").read(optionR(w3)))(User1.apply _)
+           (__ \ "friend").read(optionR(w3)))(User1.apply)
         }
         w3.validate(m1) mustEqual Valid(u1)
       }
@@ -463,13 +463,13 @@ object RulesSpec extends Specification {
       "using implicit notation" in {
         implicit lazy val w: Rule[JValue, RecUser] = From[JValue]{ __ =>
           ((__ \ "name").read[String] ~
-           (__ \ "friends").read[Seq[RecUser]])(RecUser.apply _)
+           (__ \ "friends").read[Seq[RecUser]])(RecUser.apply)
         }
         w.validate(m) mustEqual Valid(u)
 
         implicit lazy val w3: Rule[JValue, User1] = From[JValue]{ __ =>
           ((__ \ "name").read[String] ~
-           (__ \ "friend").read[Option[User1]])(User1.apply _)
+           (__ \ "friend").read[Option[User1]])(User1.apply)
         }
         w3.validate(m1) mustEqual Valid(u1)
       }

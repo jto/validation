@@ -45,11 +45,11 @@ trait Rule[I, O] extends RuleLike[I, O] {
    * Create a new Rule that try `this` Rule, and apply `t` if it fails
    * {{{
    *   val rb: Rule[JsValue, A] = From[JsValue]{ __ =>
-   *     ((__ \ "name").read[String] ~ (__ \ "foo").read[Int])(B.apply _)
+   *     ((__ \ "name").read[String] ~ (__ \ "foo").read[Int])(B.apply)
    *   }
    *
    *   val rc: Rule[JsValue, A] = From[JsValue]{ __ =>
-   *     ((__ \ "name").read[String] ~ (__ \ "bar").read[Int])(C.apply _)
+   *     ((__ \ "name").read[String] ~ (__ \ "bar").read[Int])(C.apply)
    *   }
    *   val rule = rb orElse rc orElse Rule(_ => typeInvalid)
    * }}}

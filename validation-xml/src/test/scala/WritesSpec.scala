@@ -217,18 +217,18 @@ class WritesSpec extends Specification {
       "using explicit notation" in {
         lazy val w: Write[RecUser, XmlWriter] = To[XmlWriter]{ __ =>
           ((__ \ "name").write[String] ~
-            (__ \ "friends").write(seqW(w))).unlifted(RecUser.unapply _)
+            (__ \ "friends").write(seqW(w))).unlifted(RecUser.unapply)
         }
         w.writes(u)(<user></user>) mustEqual m
 
         lazy val w2: Write[RecUser, XmlWriter] =
           ((Path \ "name").write[String, XmlWriter] ~
-            (Path \ "friends").write(seqW(w2))).unlifted(RecUser.unapply _)
+            (Path \ "friends").write(seqW(w2))).unlifted(RecUser.unapply)
         w2.writes(u)(<user></user>) mustEqual m
 
         lazy val w3: Write[User1, XmlWriter] = To[XmlWriter]{ __ =>
           ((__ \ "name").write[String] ~
-            (__ \ "friend").write(optionW(w3))).unlifted(User1.unapply _)
+            (__ \ "friend").write(optionW(w3))).unlifted(User1.unapply)
         }
         w3.writes(u1)(<user></user>) mustEqual m1
       }
@@ -236,13 +236,13 @@ class WritesSpec extends Specification {
       "using implicit notation" in {
         implicit lazy val w: Write[RecUser, XmlWriter] = To[XmlWriter]{ __ =>
           ((__ \ "name").write[String] ~
-            (__ \ "friends").write[Seq[RecUser]]).unlifted(RecUser.unapply _)
+            (__ \ "friends").write[Seq[RecUser]]).unlifted(RecUser.unapply)
         }
         w.writes(u)(<user></user>) mustEqual m
 
         implicit lazy val w3: Write[User1, XmlWriter] = To[XmlWriter]{ __ =>
           ((__ \ "name").write[String] ~
-            (__ \ "friend").write[Option[User1]]).unlifted(User1.unapply _)
+            (__ \ "friend").write[Option[User1]]).unlifted(User1.unapply)
         }
         w3.writes(u1)(<user></user>) mustEqual m1
       }

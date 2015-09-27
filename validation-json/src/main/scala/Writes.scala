@@ -5,7 +5,7 @@ import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolea
 
 trait DefaultMonoids {
   import cats.Monoid
-  
+
   implicit def jsonMonoid = new Monoid[JsObject] {
     def combine(a1: JsObject, a2: JsObject): JsObject = a1 deepMerge a2
     def empty: JsObject = Json.obj()
@@ -60,9 +60,10 @@ object Writes extends DefaultWrites with DefaultMonoids with GenericWrites[JsVal
   implicit val longW = tToJs[Long]
   implicit val floatW = tToJs[Float]
   implicit val doubleW = tToJs[Double]
-  implicit val bigDecimalW = Write[BigDecimal, JsValue](JsNumber.apply _)
 
-  implicit def booleanW = Write[Boolean, JsValue](JsBoolean.apply _)
+  implicit val bigDecimalW = Write[BigDecimal, JsValue](JsNumber.apply)
+
+  implicit def booleanW = Write[Boolean, JsValue](JsBoolean.apply)
 
   implicit def seqToJsArray[I](implicit w: WriteLike[I, JsValue]): Write[Seq[I], JsValue] =
     Write(ss => JsArray(ss.map(w.writes _)))

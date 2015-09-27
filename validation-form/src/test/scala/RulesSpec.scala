@@ -343,11 +343,11 @@ object RulesSpec extends Specification {
 
       "by trying all possible Rules" in {
         val rb: Rule[UrlFormEncoded, A] = From[UrlFormEncoded]{ __ =>
-          (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply _)
+          (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
         }
 
         val rc: Rule[UrlFormEncoded, A] = From[UrlFormEncoded]{ __ =>
-          (__ \ "name").read(Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply _)
+          (__ \ "name").read(Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply)
         }
 
         val rule = rb orElse rc orElse Rule(_ => typeInvalid)
@@ -361,8 +361,8 @@ object RulesSpec extends Specification {
 
         val rule = From[UrlFormEncoded] { __ =>
           (__ \ "name").read[String].flatMap[A] {
-            case "B" => (__ \ "foo").read[Int].map(B.apply _)
-            case "C" => (__ \ "bar").read[Int].map(C.apply _)
+            case "B" => (__ \ "foo").read[Int].map(B.apply)
+            case "C" => (__ \ "bar").read[Int].map(C.apply)
             case _ => Rule(_ => typeInvalid)
           }
         }
@@ -437,14 +437,14 @@ object RulesSpec extends Specification {
       val infoValidated = From[UrlFormEncoded]{ __ =>
        ((__ \ "label").read(notEmpty) ~
         (__ \ "email").read(optionR(email)) ~
-        (__ \ "phones").read(seqR(notEmpty))) (ContactInformation.apply _)
+        (__ \ "phones").read(seqR(notEmpty))) (ContactInformation.apply)
       }
 
       val contactValidated = From[UrlFormEncoded]{ __ =>
        ((__ \ "firstname").read(notEmpty) ~
         (__ \ "lastname").read(notEmpty) ~
         (__ \ "company").read[Option[String]] ~
-        (__ \ "informations").read(seqR(infoValidated))) (Contact.apply _)
+        (__ \ "informations").read(seqR(infoValidated))) (Contact.apply)
       }
 
       val expected =
@@ -484,18 +484,18 @@ object RulesSpec extends Specification {
       "using explicit notation" in {
         lazy val w: Rule[UrlFormEncoded, RecUser] = From[UrlFormEncoded]{ __ =>
           ((__ \ "name").read[String] ~
-           (__ \ "friends").read(seqR(w)))(RecUser.apply _)
+           (__ \ "friends").read(seqR(w)))(RecUser.apply)
         }
         w.validate(m) mustEqual Valid(u)
 
         lazy val w2: Rule[UrlFormEncoded, RecUser] =
           ((Path \ "name").read[UrlFormEncoded, String] ~
-           (Path \ "friends").from[UrlFormEncoded](seqR(w2)))(RecUser.apply _)
+           (Path \ "friends").from[UrlFormEncoded](seqR(w2)))(RecUser.apply)
         w2.validate(m) mustEqual Valid(u)
 
         lazy val w3: Rule[UrlFormEncoded, User1] = From[UrlFormEncoded]{ __ =>
           ((__ \ "name").read[String] ~
-           (__ \ "friend").read(optionR(w3)))(User1.apply _)
+           (__ \ "friend").read(optionR(w3)))(User1.apply)
         }
         w3.validate(m1) mustEqual Valid(u1)
       }
@@ -503,13 +503,13 @@ object RulesSpec extends Specification {
       "using implicit notation" in {
         implicit lazy val w: Rule[UrlFormEncoded, RecUser] = From[UrlFormEncoded]{ __ =>
           ((__ \ "name").read[String] ~
-           (__ \ "friends").read[Seq[RecUser]])(RecUser.apply _)
+           (__ \ "friends").read[Seq[RecUser]])(RecUser.apply)
         }
         w.validate(m) mustEqual Valid(u)
 
         implicit lazy val w3: Rule[UrlFormEncoded, User1] = From[UrlFormEncoded]{ __ =>
           ((__ \ "name").read[String] ~
-           (__ \ "friend").read[Option[User1]])(User1.apply _)
+           (__ \ "friend").read[Option[User1]])(User1.apply)
         }
         w3.validate(m1) mustEqual Valid(u1)
       }

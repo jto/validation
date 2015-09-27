@@ -64,10 +64,10 @@ object Writes extends DefaultWrites with DefaultMonoids with GenericWrites[JValu
   implicit val longW = tToJs[Long]
   implicit val floatW = tToJs[Float]
   implicit val doubleW = tToJs[Double]
-  implicit val bigDecimalW = Write[BigDecimal, JValue](JDecimal.apply _)
+  implicit val bigDecimalW = Write[BigDecimal, JValue](JDecimal.apply)
   implicit def javanumber[T <: java.lang.Number] = tToJs[T]
 
-  implicit def booleanW = Write[Boolean, JValue](JBool.apply _)
+  implicit def booleanW = Write[Boolean, JValue](JBool.apply)
 
   implicit def seqToJsArray[I](implicit w: WriteLike[I, JValue]): Write[Seq[I], JValue] =
     Write(ss => JArray(ss.map(w.writes _).toList))

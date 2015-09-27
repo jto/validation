@@ -58,7 +58,7 @@ object FormatSpec extends Specification {
 
       implicit val userF: Format[UrlFormEncoded, UrlFormEncoded, User] = Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
         ((__ \ "id").format[Long] ~
-         (__ \ "name").format[String])(User.apply _, User.unapply _)
+         (__ \ "name").format[String])(User.apply, User.unapply)
       }
 
       val m = Map("id" -> Seq("1"), "name" -> Seq("Luigi"))
@@ -320,14 +320,14 @@ object FormatSpec extends Specification {
 
         lazy val w: Format[UrlFormEncoded, UrlFormEncoded, RecUser] = Formatting[UrlFormEncoded, UrlFormEncoded]{ __ =>
           ((__ \ "name").format[String] ~
-           (__ \ "friends").format(seqR(w), seqW(w)))(RecUser.apply _, RecUser.unapply _)
+           (__ \ "friends").format(seqR(w), seqW(w)))(RecUser.apply, RecUser.unapply)
         }
         w.validate(m) mustEqual Valid(u)
         w.writes(u) mustEqual (m - "friends[0].friends")
 
         lazy val w3: Format[UrlFormEncoded, UrlFormEncoded, User1] = Formatting[UrlFormEncoded, UrlFormEncoded]{ __ =>
           ((__ \ "name").format[String] ~
-           (__ \ "friend").format(optionR(w3), optionW(w3)))(User1.apply _, User1.unapply _)
+           (__ \ "friend").format(optionR(w3), optionW(w3)))(User1.apply, User1.unapply)
         }
         w3.validate(m1) mustEqual Valid(u1)
         w3.writes(u1) mustEqual m1
@@ -339,14 +339,14 @@ object FormatSpec extends Specification {
 
         implicit lazy val w: Format[UrlFormEncoded, UrlFormEncoded, RecUser] = Formatting[UrlFormEncoded, UrlFormEncoded]{ __ =>
           ((__ \ "name").format[String] ~
-           (__ \ "friends").format[Seq[RecUser]])(RecUser.apply _, RecUser.unapply _)
+           (__ \ "friends").format[Seq[RecUser]])(RecUser.apply, RecUser.unapply)
         }
         w.validate(m) mustEqual Valid(u)
         w.writes(u) mustEqual (m - "friends[0].friends")
 
         implicit lazy val w3: Format[UrlFormEncoded, UrlFormEncoded, User1] = Formatting[UrlFormEncoded, UrlFormEncoded]{ __ =>
           ((__ \ "name").format[String] ~
-           (__ \ "friend").format[Option[User1]])(User1.apply _, User1.unapply _)
+           (__ \ "friend").format[Option[User1]])(User1.apply, User1.unapply)
         }
         w3.validate(m1) mustEqual Valid(u1)
         w3.writes(u1) mustEqual m1

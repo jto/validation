@@ -57,7 +57,7 @@ class Path(val path: List[PathNode]) {
    * {{{
    *   val contact = Contact("Julien", "Tournay")
    *   implicit def contactWrite = (Path \ "firstname").write[String, UrlFormEncoded]
-   *   contactWrite.writes(contact) mustEqual Map("firstname" -> "Julien")
+   *   contactWrite.writes(contact) shouldBe Map("firstname" -> "Julien")
    * }}}
    */
   def write[I, O](implicit w: Path => WriteLike[I, O]): Write[I, O] =

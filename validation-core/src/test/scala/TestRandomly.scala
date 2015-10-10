@@ -6,7 +6,7 @@ import org.specs2.matcher.MatchResult
 object TestRandomly extends Specification {
   def apply[O, OO <: O, T](format: Format[O, OO, T])(implicit arbitrary: Arbitrary[T]): MatchResult[Any] = {
     val t = arbitrary.value
-    t mustEqual format.validate(format.writes(t)).toOption.get
+    t shouldBe format.validate(format.writes(t)).toOption.get
     ()
   }
 

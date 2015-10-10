@@ -32,85 +32,85 @@ class WritesSpec extends Specification {
 
     "write string" in {
       val w = (Path \ "label").write[String, UrlFormEncoded]
-      w.writes("Hello World") mustEqual Map("label" -> Seq("Hello World"))
+      w.writes("Hello World") shouldBe Map("label" -> Seq("Hello World"))
     }
 
     "ignore values" in {
-      (Path \ "n").write(ignored("foo")).writes("test") mustEqual Map("n" -> Seq("foo"))
-      (Path \ "n").write(ignored(42)).writes(0) mustEqual Map("n" -> Seq("42"))
+      (Path \ "n").write(ignored("foo")).writes("test") shouldBe Map("n" -> Seq("foo"))
+      (Path \ "n").write(ignored(42)).writes(0) shouldBe Map("n" -> Seq("42"))
     }
 
     "write option" in {
       val w = (Path \ "email").write[Option[String], UrlFormEncoded]
-      w.writes(Some("Hello World")) mustEqual Map("email" -> Seq("Hello World"))
-      w.writes(None) mustEqual Map.empty
+      w.writes(Some("Hello World")) shouldBe Map("email" -> Seq("Hello World"))
+      w.writes(None) shouldBe Map.empty
 
-      (Path \ "n").write(optionW(intW)).writes(Some(5)) mustEqual Map("n" -> Seq("5"))
-      (Path \ "n").write(optionW(intW)).writes(None) mustEqual Map.empty
+      (Path \ "n").write(optionW(intW)).writes(Some(5)) shouldBe Map("n" -> Seq("5"))
+      (Path \ "n").write(optionW(intW)).writes(None) shouldBe Map.empty
 
       case class Foo(name: String)
       implicit val wf = (Path \ "name").write[String, UrlFormEncoded].contramap((_: Foo).name)
       val wmf = (Path \ "maybe").write[Option[Foo], UrlFormEncoded]
-      wmf.writes(Some(Foo("bar"))) mustEqual Map("maybe.name" -> Seq("bar"))
-      wmf.writes(None) mustEqual Map.empty
+      wmf.writes(Some(Foo("bar"))) shouldBe Map("maybe.name" -> Seq("bar"))
+      wmf.writes(None) shouldBe Map.empty
     }
 
     "write seq" in {
       val w = (Path \ "phones").write[Seq[String], UrlFormEncoded]
-      w.writes(Seq("01.23.45.67.89", "98.76.54.32.10")) mustEqual Map("phones[0]" -> Seq("01.23.45.67.89"), "phones[1]" -> Seq("98.76.54.32.10"))
-      w.writes(Nil) mustEqual Map.empty
+      w.writes(Seq("01.23.45.67.89", "98.76.54.32.10")) shouldBe Map("phones[0]" -> Seq("01.23.45.67.89"), "phones[1]" -> Seq("98.76.54.32.10"))
+      w.writes(Nil) shouldBe Map.empty
     }
 
     "support primitives types" in {
 
       "Int" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Int] }.writes(4) mustEqual(Map("n" -> Seq("4")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Int] }.writes(4) mustEqual(Map("n.o" -> Seq("4")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Int] }.writes(4) mustEqual(Map("n.o.p" -> Seq("4")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Int] }.writes(4) shouldBe(Map("n" -> Seq("4")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Int] }.writes(4) shouldBe(Map("n.o" -> Seq("4")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Int] }.writes(4) shouldBe(Map("n.o.p" -> Seq("4")))
       }
 
       "Short" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Short] }.writes(4) mustEqual(Map("n" -> Seq("4")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Short] }.writes(4) mustEqual(Map("n.o" -> Seq("4")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Short] }.writes(4) mustEqual(Map("n.o.p" -> Seq("4")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Short] }.writes(4) shouldBe(Map("n" -> Seq("4")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Short] }.writes(4) shouldBe(Map("n.o" -> Seq("4")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Short] }.writes(4) shouldBe(Map("n.o.p" -> Seq("4")))
       }
 
       "Long" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Long] }.writes(4) mustEqual(Map("n" -> Seq("4")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Long] }.writes(4) mustEqual(Map("n.o" -> Seq("4")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Long] }.writes(4) mustEqual(Map("n.o.p" -> Seq("4")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Long] }.writes(4) shouldBe(Map("n" -> Seq("4")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Long] }.writes(4) shouldBe(Map("n.o" -> Seq("4")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Long] }.writes(4) shouldBe(Map("n.o.p" -> Seq("4")))
       }
 
       "Float" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Float] }.writes(4) mustEqual(Map("n" -> Seq("4.0")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Float] }.writes(4.8F) mustEqual(Map("n.o" -> Seq("4.8")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Float] }.writes(4.8F) mustEqual(Map("n.o.p" -> Seq("4.8")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Float] }.writes(4) shouldBe(Map("n" -> Seq("4.0")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Float] }.writes(4.8F) shouldBe(Map("n.o" -> Seq("4.8")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Float] }.writes(4.8F) shouldBe(Map("n.o.p" -> Seq("4.8")))
       }
 
       "Double" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Double] }.writes(4) mustEqual(Map("n" -> Seq("4.0")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Double] }.writes(4.8D) mustEqual(Map("n.o" -> Seq("4.8")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Double] }.writes(4.8D) mustEqual(Map("n.o.p" -> Seq("4.8")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Double] }.writes(4) shouldBe(Map("n" -> Seq("4.0")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Double] }.writes(4.8D) shouldBe(Map("n.o" -> Seq("4.8")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Double] }.writes(4.8D) shouldBe(Map("n.o.p" -> Seq("4.8")))
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
-        To[UrlFormEncoded] { __ => (__ \ "n").write[jBigDecimal] }.writes(new jBigDecimal("4.0")) mustEqual(Map("n" -> Seq("4.0")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[jBigDecimal] }.writes(new jBigDecimal("4.8")) mustEqual(Map("n.o" -> Seq("4.8")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[jBigDecimal] }.writes(new jBigDecimal("4.8")) mustEqual(Map("n.o.p" -> Seq("4.8")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[jBigDecimal] }.writes(new jBigDecimal("4.0")) shouldBe(Map("n" -> Seq("4.0")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[jBigDecimal] }.writes(new jBigDecimal("4.8")) shouldBe(Map("n.o" -> Seq("4.8")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[jBigDecimal] }.writes(new jBigDecimal("4.8")) shouldBe(Map("n.o.p" -> Seq("4.8")))
       }
 
       "scala BigDecimal" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[BigDecimal] }.writes(BigDecimal("4.0")) mustEqual(Map("n" -> Seq("4.0")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[BigDecimal] }.writes(BigDecimal("4.8")) mustEqual(Map("n.o" -> Seq("4.8")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[BigDecimal] }.writes(BigDecimal("4.8")) mustEqual(Map("n.o.p" -> Seq("4.8")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[BigDecimal] }.writes(BigDecimal("4.0")) shouldBe(Map("n" -> Seq("4.0")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[BigDecimal] }.writes(BigDecimal("4.8")) shouldBe(Map("n.o" -> Seq("4.8")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[BigDecimal] }.writes(BigDecimal("4.8")) shouldBe(Map("n.o.p" -> Seq("4.8")))
       }
 
       "date" in {
         import java.util.Date
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val d = f.parse("1985-09-10")
-        To[UrlFormEncoded] { __ => (__ \ "n").write(date) }.writes(d) mustEqual(Map("n" -> Seq("1985-09-10")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write(date) }.writes(d) shouldBe(Map("n" -> Seq("1985-09-10")))
       }
 
       "iso date" in {
@@ -118,7 +118,7 @@ class WritesSpec extends Specification {
         import java.util.Date
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val d = f.parse("1985-09-10")
-        To[UrlFormEncoded] { __ => (__ \ "n").write(isoDate) }.writes(d) mustEqual(Map("n" -> Seq("1985-09-10T00:00:00+02:00")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write(isoDate) }.writes(d) shouldBe(Map("n" -> Seq("1985-09-10T00:00:00+02:00")))
       }
 
       "joda" in {
@@ -128,17 +128,17 @@ class WritesSpec extends Specification {
         val jd = new DateTime(dd)
 
         "date" in {
-          To[UrlFormEncoded] { __ => (__ \ "n").write(jodaDate) }.writes(jd) mustEqual(Map("n" -> Seq("1985-09-10")))
+          To[UrlFormEncoded] { __ => (__ \ "n").write(jodaDate) }.writes(jd) shouldBe(Map("n" -> Seq("1985-09-10")))
         }
 
         "time" in {
-          To[UrlFormEncoded] { __ => (__ \ "n").write(jodaTime) }.writes(jd) mustEqual(Map("n" -> Seq(dd.getTime.toString)))
+          To[UrlFormEncoded] { __ => (__ \ "n").write(jodaTime) }.writes(jd) shouldBe(Map("n" -> Seq(dd.getTime.toString)))
         }
 
         "local date" in {
           import org.joda.time.LocalDate
           val ld = new LocalDate()
-          To[UrlFormEncoded] { __ => (__ \ "n").write(jodaLocalDate) }.writes(ld) mustEqual(Map("n" -> Seq(ld.toString)))
+          To[UrlFormEncoded] { __ => (__ \ "n").write(jodaLocalDate) }.writes(ld) shouldBe(Map("n" -> Seq(ld.toString)))
         }
       }
 
@@ -147,67 +147,67 @@ class WritesSpec extends Specification {
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val dd = f.parse("1985-09-10")
         val ds = new java.sql.Date(dd.getTime())
-        To[UrlFormEncoded] { __ => (__ \ "n").write(sqlDate) }.writes(ds) mustEqual(Map("n" -> Seq("1985-09-10")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write(sqlDate) }.writes(ds) shouldBe(Map("n" -> Seq("1985-09-10")))
       }
 
       "Boolean" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Boolean] }.writes(true) mustEqual(Map("n" -> Seq("true")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Boolean] }.writes(false) mustEqual(Map("n.o" -> Seq("false")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Boolean] }.writes(true) mustEqual(Map("n.o.p" -> Seq("true")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Boolean] }.writes(true) shouldBe(Map("n" -> Seq("true")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Boolean] }.writes(false) shouldBe(Map("n.o" -> Seq("false")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Boolean] }.writes(true) shouldBe(Map("n.o.p" -> Seq("true")))
       }
 
       "String" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[String] }.writes("foo") mustEqual(Map("n" -> Seq("foo")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[String] }.writes("foo") mustEqual(Map("n.o" -> Seq("foo")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[String] }.writes("foo") mustEqual(Map("n.o.p" -> Seq("foo")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[String] }.writes("foo") shouldBe(Map("n" -> Seq("foo")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[String] }.writes("foo") shouldBe(Map("n.o" -> Seq("foo")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[String] }.writes("foo") shouldBe(Map("n.o.p" -> Seq("foo")))
       }
 
       "Option" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Option[String]] }.writes(Some("foo")) mustEqual(Map("n" -> Seq("foo")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Option[String]] }.writes(Some("foo")) mustEqual(Map("n.o" -> Seq("foo")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Option[String]] }.writes(Some("foo")) mustEqual(Map("n.o.p" -> Seq("foo")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Option[String]] }.writes(Some("foo")) shouldBe(Map("n" -> Seq("foo")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Option[String]] }.writes(Some("foo")) shouldBe(Map("n.o" -> Seq("foo")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Option[String]] }.writes(Some("foo")) shouldBe(Map("n.o.p" -> Seq("foo")))
 
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Option[String]] }.writes(None) mustEqual(Map.empty)
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Option[String]] }.writes(None) mustEqual(Map.empty)
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Option[String]] }.writes(None) mustEqual(Map.empty)
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Option[String]] }.writes(None) shouldBe(Map.empty)
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Option[String]] }.writes(None) shouldBe(Map.empty)
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Option[String]] }.writes(None) shouldBe(Map.empty)
       }
 
       "Map[String, Seq[V]]" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Map[String, Seq[String]]] }.writes(Map("foo" -> Seq("bar"))) mustEqual((Map("n.foo" -> Seq("bar"))))
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Map[String, Seq[Int]]] }.writes(Map("foo" -> Seq(4))) mustEqual((Map("n.foo" -> Seq("4"))))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Map[String, Seq[Int]]] }.writes(Map("foo" -> Seq(4))) mustEqual((Map("n.o.foo" -> Seq("4"))))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Map[String, Int]] }.writes(Map("foo" -> 4)) mustEqual((Map("n.o.foo" -> Seq("4"))))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Map[String, Int]] }.writes(Map.empty) mustEqual(Map.empty)
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Map[String, Seq[String]]] }.writes(Map("foo" -> Seq("bar"))) shouldBe((Map("n.foo" -> Seq("bar"))))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Map[String, Seq[Int]]] }.writes(Map("foo" -> Seq(4))) shouldBe((Map("n.foo" -> Seq("4"))))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Map[String, Seq[Int]]] }.writes(Map("foo" -> Seq(4))) shouldBe((Map("n.o.foo" -> Seq("4"))))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Map[String, Int]] }.writes(Map("foo" -> 4)) shouldBe((Map("n.o.foo" -> Seq("4"))))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Map[String, Int]] }.writes(Map.empty) shouldBe(Map.empty)
       }
 
       "Traversable" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Traversable[String]] }.writes(Array("foo", "bar").toTraversable) mustEqual((Map("n[0]" -> Seq("foo"), "n[1]" -> Seq("bar"))))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Traversable[String]] }.writes(Array("foo", "bar").toTraversable) mustEqual((Map("n.o[0]" -> Seq("foo"), "n.o[1]" -> Seq("bar"))))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Traversable[String]] }.writes(Array("foo", "bar").toTraversable) mustEqual((Map("n.o.p[0]" -> Seq("foo"), "n.o.p[1]" -> Seq("bar"))))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Traversable[String]] }.writes(Array("foo", "bar").toTraversable) shouldBe((Map("n[0]" -> Seq("foo"), "n[1]" -> Seq("bar"))))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Traversable[String]] }.writes(Array("foo", "bar").toTraversable) shouldBe((Map("n.o[0]" -> Seq("foo"), "n.o[1]" -> Seq("bar"))))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Traversable[String]] }.writes(Array("foo", "bar").toTraversable) shouldBe((Map("n.o.p[0]" -> Seq("foo"), "n.o.p[1]" -> Seq("bar"))))
 
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Traversable[String]] }.writes(Array().toTraversable) mustEqual(Map.empty)
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Traversable[String]] }.writes(Array().toTraversable) mustEqual(Map.empty)
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Traversable[String]] }.writes(Array().toTraversable) mustEqual(Map.empty)
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Traversable[String]] }.writes(Array().toTraversable) shouldBe(Map.empty)
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Traversable[String]] }.writes(Array().toTraversable) shouldBe(Map.empty)
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Traversable[String]] }.writes(Array().toTraversable) shouldBe(Map.empty)
       }
 
       "Array" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Array[String]] }.writes(Array("foo", "bar")) mustEqual((Map("n[0]" -> Seq("foo"), "n[1]" -> Seq("bar"))))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Array[String]] }.writes(Array("foo", "bar")) mustEqual((Map("n.o[0]" -> Seq("foo"), "n.o[1]" -> Seq("bar"))))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Array[String]] }.writes(Array("foo", "bar")) mustEqual((Map("n.o.p[0]" -> Seq("foo"), "n.o.p[1]" -> Seq("bar"))))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Array[String]] }.writes(Array("foo", "bar")) shouldBe((Map("n[0]" -> Seq("foo"), "n[1]" -> Seq("bar"))))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Array[String]] }.writes(Array("foo", "bar")) shouldBe((Map("n.o[0]" -> Seq("foo"), "n.o[1]" -> Seq("bar"))))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Array[String]] }.writes(Array("foo", "bar")) shouldBe((Map("n.o.p[0]" -> Seq("foo"), "n.o.p[1]" -> Seq("bar"))))
 
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Array[String]] }.writes(Array()) mustEqual(Map.empty)
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Array[String]] }.writes(Array()) mustEqual(Map.empty)
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Array[String]] }.writes(Array()) mustEqual(Map.empty)
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Array[String]] }.writes(Array()) shouldBe(Map.empty)
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Array[String]] }.writes(Array()) shouldBe(Map.empty)
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Array[String]] }.writes(Array()) shouldBe(Map.empty)
       }
 
       "Seq" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Seq[String]] }.writes(Seq("foo", "bar")) mustEqual((Map("n[0]" -> Seq("foo"), "n[1]" -> Seq("bar"))))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Seq[String]] }.writes(Seq("foo", "bar")) mustEqual((Map("n.o[0]" -> Seq("foo"), "n.o[1]" -> Seq("bar"))))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Seq[String]] }.writes(Seq("foo", "bar")) mustEqual((Map("n.o.p[0]" -> Seq("foo"), "n.o.p[1]" -> Seq("bar"))))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Seq[String]] }.writes(Seq("foo", "bar")) shouldBe((Map("n[0]" -> Seq("foo"), "n[1]" -> Seq("bar"))))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Seq[String]] }.writes(Seq("foo", "bar")) shouldBe((Map("n.o[0]" -> Seq("foo"), "n.o[1]" -> Seq("bar"))))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Seq[String]] }.writes(Seq("foo", "bar")) shouldBe((Map("n.o.p[0]" -> Seq("foo"), "n.o.p[1]" -> Seq("bar"))))
 
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Seq[String]] }.writes(Nil) mustEqual(Map.empty)
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Seq[String]] }.writes(Nil) mustEqual(Map.empty)
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Seq[String]] }.writes(Nil) mustEqual(Map.empty)
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Seq[String]] }.writes(Nil) shouldBe(Map.empty)
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Seq[String]] }.writes(Nil) shouldBe(Map.empty)
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Seq[String]] }.writes(Nil) shouldBe(Map.empty)
       }
     }
 
@@ -219,10 +219,10 @@ class WritesSpec extends Specification {
         f.format(money)
       }
       val w = (Path \ "foo").write(formatter)
-      w.writes(500d) mustEqual(Map("foo" -> List("500,00 €")))
+      w.writes(500d) shouldBe(Map("foo" -> List("500,00 €")))
 
       val w2 = To[UrlFormEncoded] { __ => (__ \ "foo").write(formatter) }
-      w2.writes(500d) mustEqual(Map("foo" -> List("500,00 €")))
+      w2.writes(500d) shouldBe(Map("foo" -> List("500,00 €")))
     }
 
     "compose" in {
@@ -233,9 +233,9 @@ class WritesSpec extends Specification {
 
       val v =  Some("jto@foobar.com") -> Seq("01.23.45.67.89", "98.76.54.32.10")
 
-      w.writes(v) mustEqual Map("email" -> Seq("jto@foobar.com"), "phones[0]" -> Seq("01.23.45.67.89"), "phones[1]" -> Seq("98.76.54.32.10"))
-      w.writes(Some("jto@foobar.com") -> Nil) mustEqual Map("email" -> Seq("jto@foobar.com"))
-      w.writes(None -> Nil) mustEqual Map.empty
+      w.writes(v) shouldBe Map("email" -> Seq("jto@foobar.com"), "phones[0]" -> Seq("01.23.45.67.89"), "phones[1]" -> Seq("98.76.54.32.10"))
+      w.writes(Some("jto@foobar.com") -> Nil) shouldBe Map("email" -> Seq("jto@foobar.com"))
+      w.writes(None -> Nil) shouldBe Map.empty
     }
 
     "write Map" in {
@@ -254,7 +254,7 @@ class WritesSpec extends Specification {
         }
       }
 
-      contactWrite.writes(contact) mustEqual contactMap
+      contactWrite.writes(contact) shouldBe contactMap
     }
 
     "write recursive" in {
@@ -278,18 +278,18 @@ class WritesSpec extends Specification {
           ((__ \ "name").write[String] ~
            (__ \ "friends").write(seqW(w)))(RecUser.unapply)
         }
-        w.writes(u) mustEqual m
+        w.writes(u) shouldBe m
 
         lazy val w2: Write[RecUser, UrlFormEncoded] =
           ((Path \ "name").write[String, UrlFormEncoded] ~
            (Path \ "friends").write(seqW(w2)))(RecUser.unapply)
-        w2.writes(u) mustEqual m
+        w2.writes(u) shouldBe m
 
         lazy val w3: Write[User1, UrlFormEncoded] = To[UrlFormEncoded]{ __ =>
           ((__ \ "name").write[String] ~
            (__ \ "friend").write(optionW(w3)))(User1.unapply)
         }
-        w3.writes(u1) mustEqual m1
+        w3.writes(u1) shouldBe m1
       }
 
       "using implicit notation" in {
@@ -297,13 +297,13 @@ class WritesSpec extends Specification {
           ((__ \ "name").write[String] ~
            (__ \ "friends").write[Seq[RecUser]])(RecUser.unapply)
         }
-        w.writes(u) mustEqual m
+        w.writes(u) shouldBe m
 
         implicit lazy val w3: Write[User1, UrlFormEncoded] = To[UrlFormEncoded]{ __ =>
           ((__ \ "name").write[String] ~
            (__ \ "friend").write[Option[User1]])(User1.unapply)
         }
-        w3.writes(u1) mustEqual m1
+        w3.writes(u1) shouldBe m1
       }
     }
 
@@ -314,7 +314,7 @@ class WritesSpec extends Specification {
         (__ \ "id").write[Id]
       }
 
-      w.writes(Id("1")) mustEqual Map("id" -> Seq("1"))
+      w.writes(Id("1")) shouldBe Map("id" -> Seq("1"))
     }
 
   }

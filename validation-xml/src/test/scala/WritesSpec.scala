@@ -28,17 +28,17 @@ class WritesSpec extends Specification {
 
     "write string" in {
       val w = (Path \ "label").write[String, XmlWriter]
-      w.writes("Hello World")(<root></root>) mustEqual <root><label>Hello World</label></root>
+      w.writes("Hello World")(<root></root>) shouldBe <root><label>Hello World</label></root>
     }
 
     "write string as an attribute" in {
       val w = (Path).write(attributeW[String]("attr"))
-      w.writes("Hello World")(<root></root>) mustEqual <root attr="Hello World"></root>
+      w.writes("Hello World")(<root></root>) shouldBe <root attr="Hello World"></root>
     }
 
     "ignore values" in {
-      (Path \ "n").write(ignored("foo")).writes("test")(<a></a>) mustEqual <a><n>foo</n></a>
-      (Path \ "n").write(ignored(42)).writes(0)(<a></a>) mustEqual <a><n>42</n></a>
+      (Path \ "n").write(ignored("foo")).writes("test")(<a></a>) shouldBe <a><n>foo</n></a>
+      (Path \ "n").write(ignored(42)).writes(0)(<a></a>) shouldBe <a><n>42</n></a>
     }
 
     "write an option" in {
@@ -60,51 +60,51 @@ class WritesSpec extends Specification {
           (__ \ "a").write[Int]
         )
       }
-      w.writes(s)(<root></root>) mustEqual <root><a>1</a><a>2</a><a>3</a></root>
+      w.writes(s)(<root></root>) shouldBe <root><a>1</a><a>2</a><a>3</a></root>
     }
 
     "support primitive types" in {
 
       "Int" in {
-        Path.write[Int, XmlWriter].writes(4)(<a></a>) mustEqual(<a>4</a>)
-        (Path \ "n" \ "o").write[Int, XmlWriter].writes(4)(<a></a>) mustEqual(<a><n><o>4</o></n></a>)
-        (Path \ "n" \ "o" \ "p").write[Int, XmlWriter].writes(4)(<a></a>) mustEqual(<a><n><o><p>4</p></o></n></a>)
+        Path.write[Int, XmlWriter].writes(4)(<a></a>) shouldBe(<a>4</a>)
+        (Path \ "n" \ "o").write[Int, XmlWriter].writes(4)(<a></a>) shouldBe(<a><n><o>4</o></n></a>)
+        (Path \ "n" \ "o" \ "p").write[Int, XmlWriter].writes(4)(<a></a>) shouldBe(<a><n><o><p>4</p></o></n></a>)
       }
 
       "Short" in {
-        (Path \ "n").write[Short, XmlWriter].writes(4)(<a></a>) mustEqual(<a><n>4</n></a>)
-        (Path \ "n" \ "o").write[Short, XmlWriter].writes(4)(<a></a>) mustEqual(<a><n><o>4</o></n></a>)
-        (Path \ "n" \ "o" \ "p").write[Short, XmlWriter].writes(4)(<a></a>) mustEqual(<a><n><o><p>4</p></o></n></a>)
+        (Path \ "n").write[Short, XmlWriter].writes(4)(<a></a>) shouldBe(<a><n>4</n></a>)
+        (Path \ "n" \ "o").write[Short, XmlWriter].writes(4)(<a></a>) shouldBe(<a><n><o>4</o></n></a>)
+        (Path \ "n" \ "o" \ "p").write[Short, XmlWriter].writes(4)(<a></a>) shouldBe(<a><n><o><p>4</p></o></n></a>)
       }
 
       "Long" in {
-        (Path \ "n").write[Long, XmlWriter].writes(4)(<a></a>) mustEqual(<a><n>4</n></a>)
-        (Path \ "n" \ "o").write[Long, XmlWriter].writes(4)(<a></a>) mustEqual(<a><n><o>4</o></n></a>)
-        (Path \ "n" \ "o" \ "p").write[Long, XmlWriter].writes(4)(<a></a>) mustEqual(<a><n><o><p>4</p></o></n></a>)
+        (Path \ "n").write[Long, XmlWriter].writes(4)(<a></a>) shouldBe(<a><n>4</n></a>)
+        (Path \ "n" \ "o").write[Long, XmlWriter].writes(4)(<a></a>) shouldBe(<a><n><o>4</o></n></a>)
+        (Path \ "n" \ "o" \ "p").write[Long, XmlWriter].writes(4)(<a></a>) shouldBe(<a><n><o><p>4</p></o></n></a>)
       }
 
       "Float" in {
-        (Path \ "n").write[Float, XmlWriter].writes(4.8f)(<a></a>) mustEqual(<a><n>4.8</n></a>)
-        (Path \ "n" \ "o").write[Float, XmlWriter].writes(4.8f)(<a></a>) mustEqual(<a><n><o>4.8</o></n></a>)
-        (Path \ "n" \ "o" \ "p").write[Float, XmlWriter].writes(4.8f)(<a></a>) mustEqual(<a><n><o><p>4.8</p></o></n></a>)
+        (Path \ "n").write[Float, XmlWriter].writes(4.8f)(<a></a>) shouldBe(<a><n>4.8</n></a>)
+        (Path \ "n" \ "o").write[Float, XmlWriter].writes(4.8f)(<a></a>) shouldBe(<a><n><o>4.8</o></n></a>)
+        (Path \ "n" \ "o" \ "p").write[Float, XmlWriter].writes(4.8f)(<a></a>) shouldBe(<a><n><o><p>4.8</p></o></n></a>)
       }
 
       "Double" in {
-        (Path \ "n").write[Double, XmlWriter].writes(4.8d)(<a></a>) mustEqual(<a><n>4.8</n></a>)
-        (Path \ "n" \ "o").write[Double, XmlWriter].writes(4.8d)(<a></a>) mustEqual(<a><n><o>4.8</o></n></a>)
-        (Path \ "n" \ "o" \ "p").write[Double, XmlWriter].writes(4.8d)(<a></a>) mustEqual(<a><n><o><p>4.8</p></o></n></a>)
+        (Path \ "n").write[Double, XmlWriter].writes(4.8d)(<a></a>) shouldBe(<a><n>4.8</n></a>)
+        (Path \ "n" \ "o").write[Double, XmlWriter].writes(4.8d)(<a></a>) shouldBe(<a><n><o>4.8</o></n></a>)
+        (Path \ "n" \ "o" \ "p").write[Double, XmlWriter].writes(4.8d)(<a></a>) shouldBe(<a><n><o><p>4.8</p></o></n></a>)
       }
 
       "scala Big Decimal" in {
-        (Path \ "n").write[BigDecimal, XmlWriter].writes(BigDecimal("4.0"))(<a></a>) mustEqual(<a><n>4.0</n></a>)
-        (Path \ "n" \ "o").write[BigDecimal, XmlWriter].writes(BigDecimal("4.0"))(<a></a>) mustEqual(<a><n><o>4.0</o></n></a>)
-        (Path \ "n" \ "o" \ "p").write[BigDecimal, XmlWriter].writes(BigDecimal("4.0"))(<a></a>) mustEqual(<a><n><o><p>4.0</p></o></n></a>)
+        (Path \ "n").write[BigDecimal, XmlWriter].writes(BigDecimal("4.0"))(<a></a>) shouldBe(<a><n>4.0</n></a>)
+        (Path \ "n" \ "o").write[BigDecimal, XmlWriter].writes(BigDecimal("4.0"))(<a></a>) shouldBe(<a><n><o>4.0</o></n></a>)
+        (Path \ "n" \ "o" \ "p").write[BigDecimal, XmlWriter].writes(BigDecimal("4.0"))(<a></a>) shouldBe(<a><n><o><p>4.0</p></o></n></a>)
       }
 
       "date" in {
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val d = f.parse("1985-09-10")
-        Path.write(date).writes(d)(<a></a>) mustEqual(<a>1985-09-10</a>)
+        Path.write(date).writes(d)(<a></a>) shouldBe(<a>1985-09-10</a>)
       }
 
       "joda" in {
@@ -113,12 +113,12 @@ class WritesSpec extends Specification {
         val jd = new DateTime(dd)
 
         "date" in {
-          Path.write(jodaDate).writes(jd)(<a></a>) mustEqual(<a>1985-09-10</a>)
+          Path.write(jodaDate).writes(jd)(<a></a>) shouldBe(<a>1985-09-10</a>)
         }
 
         "local date" in {
           val ld = new LocalDate()
-          Path.write(jodaLocalDate).writes(ld)(<a></a>) mustEqual(<a>{ld.toString}</a>)
+          Path.write(jodaLocalDate).writes(ld)(<a></a>) shouldBe(<a>{ld.toString}</a>)
         }
       }
 
@@ -126,13 +126,13 @@ class WritesSpec extends Specification {
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val dd = f.parse("1985-09-10")
         val ds = new java.sql.Date(dd.getTime())
-        Path.write(sqlDate).writes(ds)(<a></a>) mustEqual(<a>1985-09-10</a>)
+        Path.write(sqlDate).writes(ds)(<a></a>) shouldBe(<a>1985-09-10</a>)
       }
 
       "Boolean" in {
-        (Path \ "n").write[Boolean, XmlWriter].writes(true)(<a></a>) mustEqual(<a><n>true</n></a>)
-        (Path \ "n" \ "o").write[Boolean, XmlWriter].writes(false)(<a></a>) mustEqual(<a><n><o>false</o></n></a>)
-        (Path \ "n" \ "o" \ "p").write[Boolean, XmlWriter].writes(true)(<a></a>) mustEqual(<a><n><o><p>true</p></o></n></a>)
+        (Path \ "n").write[Boolean, XmlWriter].writes(true)(<a></a>) shouldBe(<a><n>true</n></a>)
+        (Path \ "n" \ "o").write[Boolean, XmlWriter].writes(false)(<a></a>) shouldBe(<a><n><o>false</o></n></a>)
+        (Path \ "n" \ "o" \ "p").write[Boolean, XmlWriter].writes(true)(<a></a>) shouldBe(<a><n><o><p>true</p></o></n></a>)
       }
 
     }
@@ -143,10 +143,10 @@ class WritesSpec extends Specification {
         f.format(money)
       }
       val w = Path.write(formatter)
-      w.writes(500d)(<a></a>) mustEqual(<a>500,00 €</a>)
+      w.writes(500d)(<a></a>) shouldBe(<a>500,00 €</a>)
 
       val w2 = To[XmlWriter] { __ => __.write(formatter) }
-      w2.writes(500d)(<a></a>) mustEqual(<a>500,00 €</a>)
+      w2.writes(500d)(<a></a>) shouldBe(<a>500,00 €</a>)
     }
 
     "compose with child nodes and/or attributes" in {
@@ -155,21 +155,21 @@ class WritesSpec extends Specification {
         (__ \ "age").write[Int]
       ) tupled
       }
-      w.writes("Julien", 28)(<user></user>) mustEqual <user><firstname>Julien</firstname><age>28</age></user>
+      w.writes("Julien", 28)(<user></user>) shouldBe <user><firstname>Julien</firstname><age>28</age></user>
 
       val w1 = To[XmlWriter] { __ => (
         attributeW[String]("firstname") ~
         attributeW[Int]("age")
       ) tupled
       }
-      w1.writes("Julien", 28)(<user></user>) mustEqual <user firstname="Julien" age="28"></user>
+      w1.writes("Julien", 28)(<user></user>) shouldBe <user firstname="Julien" age="28"></user>
 
       val w2 = To[XmlWriter] { __ => (
         attributeW[String]("firstname") ~
         (__ \ "age").write[Int]
       ) tupled
       }
-      w2.writes("Julien", 28)(<user></user>) mustEqual <user firstname="Julien"><age>28</age></user>
+      w2.writes("Julien", 28)(<user></user>) shouldBe <user firstname="Julien"><age>28</age></user>
     }
 
     "do a deep write" in {
@@ -182,7 +182,7 @@ class WritesSpec extends Specification {
           ) tupled
         )
       }
-      w.writes(("foo", "bar"))(<root></root>) mustEqual <root><a><b><c>foo</c><d><e>bar</e></d></b></a></root>
+      w.writes(("foo", "bar"))(<root></root>) shouldBe <root><a><b><c>foo</c><d><e>bar</e></d></b></a></root>
     }
 
     "do a complex write" in {
@@ -196,9 +196,9 @@ class WritesSpec extends Specification {
 
       val v = Some("jto@foobar.com") -> Seq("01.23.45.67.89", "98.76.54.32.10")
 
-      w.writes(v)(<a></a>) mustEqual <a><email>jto@foobar.com</email><phones><phone>01.23.45.67.89</phone><phone>98.76.54.32.10</phone></phones></a>
-      w.writes(Some("jto@foobar.com") -> Nil)(<a></a>) mustEqual <a><email>jto@foobar.com</email><phones></phones></a>
-      w.writes(None -> Nil)(<a></a>) mustEqual <a><phones></phones></a>
+      w.writes(v)(<a></a>) shouldBe <a><email>jto@foobar.com</email><phones><phone>01.23.45.67.89</phone><phone>98.76.54.32.10</phone></phones></a>
+      w.writes(Some("jto@foobar.com") -> Nil)(<a></a>) shouldBe <a><email>jto@foobar.com</email><phones></phones></a>
+      w.writes(None -> Nil)(<a></a>) shouldBe <a><phones></phones></a>
     }
 
     "write recursive" in {
@@ -219,18 +219,18 @@ class WritesSpec extends Specification {
           ((__ \ "name").write[String] ~
             (__ \ "friends").write(seqW(w)))(RecUser.unapply)
         }
-        w.writes(u)(<user></user>) mustEqual m
+        w.writes(u)(<user></user>) shouldBe m
 
         lazy val w2: Write[RecUser, XmlWriter] =
           ((Path \ "name").write[String, XmlWriter] ~
             (Path \ "friends").write(seqW(w2)))(RecUser.unapply)
-        w2.writes(u)(<user></user>) mustEqual m
+        w2.writes(u)(<user></user>) shouldBe m
 
         lazy val w3: Write[User1, XmlWriter] = To[XmlWriter]{ __ =>
           ((__ \ "name").write[String] ~
             (__ \ "friend").write(optionW(w3)))(User1.unapply)
         }
-        w3.writes(u1)(<user></user>) mustEqual m1
+        w3.writes(u1)(<user></user>) shouldBe m1
       }
 
       "using implicit notation" in {
@@ -238,13 +238,13 @@ class WritesSpec extends Specification {
           ((__ \ "name").write[String] ~
             (__ \ "friends").write[Seq[RecUser]])(RecUser.unapply)
         }
-        w.writes(u)(<user></user>) mustEqual m
+        w.writes(u)(<user></user>) shouldBe m
 
         implicit lazy val w3: Write[User1, XmlWriter] = To[XmlWriter]{ __ =>
           ((__ \ "name").write[String] ~
             (__ \ "friend").write[Option[User1]])(User1.unapply)
         }
-        w3.writes(u1)(<user></user>) mustEqual m1
+        w3.writes(u1)(<user></user>) shouldBe m1
       }
     }
   }

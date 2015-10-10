@@ -75,28 +75,28 @@ class WritesSpec extends Specification {
       }
 
       "Float" in {
-        (Path \ "n").write[Float, JsObject].writes(4.8f) shouldBe(Json.obj("n" -> 4.8))
-        (Path \ "n" \ "o").write[Float, JsObject].writes(4.8f) shouldBe(Json.obj("n" -> Json.obj("o"-> 4.8)))
-        (Path \ "n" \ "o" \ "p").write[Float, JsObject].writes(4.8f) shouldBe(Json.obj("n" -> Json.obj("o"-> Json.obj("p"-> 4.8))))
+        (Path \ "n").write[Float, JsObject].writes(4.5f) shouldBe(Json.obj("n" -> 4.5))
+        (Path \ "n" \ "o").write[Float, JsObject].writes(4.5f) shouldBe(Json.obj("n" -> Json.obj("o"-> 4.5)))
+        (Path \ "n" \ "o" \ "p").write[Float, JsObject].writes(4.5f) shouldBe(Json.obj("n" -> Json.obj("o"-> Json.obj("p"-> 4.5))))
       }
 
       "Double" in {
         (Path \ "n").write[Double, JsObject].writes(4d) shouldBe(Json.obj("n" -> 4.0))
-        (Path \ "n" \ "o").write[Double, JsObject].writes(4.8d) shouldBe(Json.obj("n" -> Json.obj("o"-> 4.8)))
-        (Path \ "n" \ "o" \ "p").write[Double, JsObject].writes(4.8d) shouldBe(Json.obj("n" -> Json.obj("o"-> Json.obj("p"-> 4.8))))
+        (Path \ "n" \ "o").write[Double, JsObject].writes(4.5d) shouldBe(Json.obj("n" -> Json.obj("o"-> 4.5)))
+        (Path \ "n" \ "o" \ "p").write[Double, JsObject].writes(4.5d) shouldBe(Json.obj("n" -> Json.obj("o"-> Json.obj("p"-> 4.5))))
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
         (Path \ "n").write[jBigDecimal, JsObject].writes(new jBigDecimal("4.0")) shouldBe(Json.obj("n" -> 4.0))
-        (Path \ "n" \ "o").write[jBigDecimal, JsObject].writes(new jBigDecimal("4.8")) shouldBe(Json.obj("n" -> Json.obj("o"-> 4.8)))
-        (Path \ "n" \ "o" \ "p").write[jBigDecimal, JsObject].writes(new jBigDecimal("4.8")) shouldBe(Json.obj("n" -> Json.obj("o"-> Json.obj("p"-> 4.8))))
+        (Path \ "n" \ "o").write[jBigDecimal, JsObject].writes(new jBigDecimal("4.5")) shouldBe(Json.obj("n" -> Json.obj("o"-> 4.5)))
+        (Path \ "n" \ "o" \ "p").write[jBigDecimal, JsObject].writes(new jBigDecimal("4.5")) shouldBe(Json.obj("n" -> Json.obj("o"-> Json.obj("p"-> 4.5))))
       }
 
       "scala BigDecimal" in {
         (Path \ "n").write[BigDecimal, JsObject].writes(BigDecimal("4.0")) shouldBe(Json.obj("n" -> 4.0))
-        (Path \ "n" \ "o").write[BigDecimal, JsObject].writes(BigDecimal("4.8")) shouldBe(Json.obj("n" -> Json.obj("o"-> 4.8)))
-        (Path \ "n" \ "o" \ "p").write[BigDecimal, JsObject].writes(BigDecimal("4.8")) shouldBe(Json.obj("n" -> Json.obj("o"-> Json.obj("p"-> 4.8))))
+        (Path \ "n" \ "o").write[BigDecimal, JsObject].writes(BigDecimal("4.5")) shouldBe(Json.obj("n" -> Json.obj("o"-> 4.5)))
+        (Path \ "n" \ "o" \ "p").write[BigDecimal, JsObject].writes(BigDecimal("4.5")) shouldBe(Json.obj("n" -> Json.obj("o"-> Json.obj("p"-> 4.5))))
       }
 
       "date" in {

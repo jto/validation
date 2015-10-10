@@ -79,7 +79,7 @@ object FormatSpec extends Specification {
       "Int" in {
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Int] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Int] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
-        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Int] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
+        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Int] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n" \ "o").format[Int] }.validate(Map("n.o" -> Seq("4"))) shouldBe(Valid(4))
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n" \ "o").format[Int] }.validate(Map("n.o" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
 
@@ -94,38 +94,38 @@ object FormatSpec extends Specification {
       "Short" in {
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Short] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Short] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
-        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Short] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Short] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
       }
 
       "Long" in {
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Long] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Long] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
-        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Long] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
+        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Long] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
       }
 
       "Float" in {
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Float] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Float] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
-        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Float] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(4.8F))
+        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Float] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Valid(4.5F))
       }
 
       "Double" in {
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Double] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Double] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
-        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Double] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(4.8))
+        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Double] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Valid(4.5))
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[jBigDecimal] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(new jBigDecimal("4")))
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[jBigDecimal] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[jBigDecimal] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(new jBigDecimal("4.8")))
+        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[jBigDecimal] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Valid(new jBigDecimal("4.5")))
       }
 
       "scala BigDecimal" in {
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[BigDecimal] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(BigDecimal(4)))
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[BigDecimal] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[BigDecimal] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(BigDecimal(4.8)))
+        Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[BigDecimal] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Valid(BigDecimal(4.5)))
       }
 
       "date" in {

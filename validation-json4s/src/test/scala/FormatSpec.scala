@@ -76,7 +76,7 @@ object FormatSpec extends Specification {
       "Int" in {
         Formatting[JValue, JObject] { __ => (__ \ "n").format[Int] }.validate(JObject("n" -> JInt(4))) shouldBe(Valid(4))
         Formatting[JValue, JObject] { __ => (__ \ "n").format[Int] }.validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
-        Formatting[JValue, JObject] { __ => (__ \ "n").format[Int] }.validate(JObject("n" -> JDecimal(4.8))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
+        Formatting[JValue, JObject] { __ => (__ \ "n").format[Int] }.validate(JObject("n" -> JDecimal(4.5))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
         Formatting[JValue, JObject] { __ => (__ \ "n" \ "o").format[Int] }.validate(JObject("n" -> JObject("o" -> JInt(4)))) shouldBe(Valid(4))
         Formatting[JValue, JObject] { __ => (__ \ "n" \ "o").format[Int] }.validate(JObject("n" -> JObject("o" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
 
@@ -91,38 +91,38 @@ object FormatSpec extends Specification {
       "Short" in {
         Formatting[JValue, JObject] { __ => (__ \ "n").format[Short] }.validate(JObject("n" -> JInt(4))) shouldBe(Valid(4))
         Formatting[JValue, JObject] { __ => (__ \ "n").format[Short] }.validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
-        Formatting[JValue, JObject] { __ => (__ \ "n").format[Short] }.validate(JObject("n" -> JDecimal(4.8))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        Formatting[JValue, JObject] { __ => (__ \ "n").format[Short] }.validate(JObject("n" -> JDecimal(4.5))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
       }
 
       "Long" in {
         Formatting[JValue, JObject] { __ => (__ \ "n").format[Long] }.validate(JObject("n" -> JInt(4))) shouldBe(Valid(4))
         Formatting[JValue, JObject] { __ => (__ \ "n").format[Long] }.validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
-        Formatting[JValue, JObject] { __ => (__ \ "n").format[Long] }.validate(JObject("n" -> JDecimal(4.8))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
+        Formatting[JValue, JObject] { __ => (__ \ "n").format[Long] }.validate(JObject("n" -> JDecimal(4.5))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
       }
 
       "Float" in {
         Formatting[JValue, JObject] { __ => (__ \ "n").format[Float] }.validate(JObject("n" -> JInt(4))) shouldBe(Valid(4))
         Formatting[JValue, JObject] { __ => (__ \ "n").format[Float] }.validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
-        Formatting[JValue, JObject] { __ => (__ \ "n").format[Float] }.validate(JObject("n" -> JDecimal(4.8))) shouldBe(Valid(4.8F))
+        Formatting[JValue, JObject] { __ => (__ \ "n").format[Float] }.validate(JObject("n" -> JDecimal(4.5))) shouldBe(Valid(4.5F))
       }
 
       "Double" in {
         Formatting[JValue, JObject] { __ => (__ \ "n").format[Double] }.validate(JObject("n" -> JInt(4))) shouldBe(Valid(4))
         Formatting[JValue, JObject] { __ => (__ \ "n").format[Double] }.validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
-        Formatting[JValue, JObject] { __ => (__ \ "n").format[Double] }.validate(JObject("n" -> JDecimal(4.8))) shouldBe(Valid(4.8))
+        Formatting[JValue, JObject] { __ => (__ \ "n").format[Double] }.validate(JObject("n" -> JDecimal(4.5))) shouldBe(Valid(4.5))
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
         Formatting[JValue, JObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(JObject("n" -> JInt(4))) shouldBe(Valid(new jBigDecimal("4")))
         Formatting[JValue, JObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        Formatting[JValue, JObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(JObject("n" -> JDecimal(4.8))) shouldBe(Valid(new jBigDecimal("4.8")))
+        Formatting[JValue, JObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(JObject("n" -> JDecimal(4.5))) shouldBe(Valid(new jBigDecimal("4.5")))
       }
 
       "scala BigDecimal" in {
         Formatting[JValue, JObject] { __ => (__ \ "n").format[BigDecimal] }.validate(JObject("n" -> JInt(4))) shouldBe(Valid(BigDecimal(4)))
         Formatting[JValue, JObject] { __ => (__ \ "n").format[BigDecimal] }.validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        Formatting[JValue, JObject] { __ => (__ \ "n").format[BigDecimal] }.validate(JObject("n" -> JDecimal(4.8))) shouldBe(Valid(BigDecimal(4.8)))
+        Formatting[JValue, JObject] { __ => (__ \ "n").format[BigDecimal] }.validate(JObject("n" -> JDecimal(4.5))) shouldBe(Valid(BigDecimal(4.5)))
       }
 
       "date" in {

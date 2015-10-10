@@ -84,15 +84,15 @@ class WritesSpec extends Specification {
       }
 
       "Float" in {
-        (Path \ "n").write[Float, XmlWriter].writes(4.8f)(<a></a>) shouldBe(<a><n>4.8</n></a>)
-        (Path \ "n" \ "o").write[Float, XmlWriter].writes(4.8f)(<a></a>) shouldBe(<a><n><o>4.8</o></n></a>)
-        (Path \ "n" \ "o" \ "p").write[Float, XmlWriter].writes(4.8f)(<a></a>) shouldBe(<a><n><o><p>4.8</p></o></n></a>)
+        (Path \ "n").write[Float, XmlWriter].writes(4.5f)(<a></a>) shouldBe(<a><n>4.5</n></a>)
+        (Path \ "n" \ "o").write[Float, XmlWriter].writes(4.5f)(<a></a>) shouldBe(<a><n><o>4.5</o></n></a>)
+        (Path \ "n" \ "o" \ "p").write[Float, XmlWriter].writes(4.5f)(<a></a>) shouldBe(<a><n><o><p>4.5</p></o></n></a>)
       }
 
       "Double" in {
-        (Path \ "n").write[Double, XmlWriter].writes(4.8d)(<a></a>) shouldBe(<a><n>4.8</n></a>)
-        (Path \ "n" \ "o").write[Double, XmlWriter].writes(4.8d)(<a></a>) shouldBe(<a><n><o>4.8</o></n></a>)
-        (Path \ "n" \ "o" \ "p").write[Double, XmlWriter].writes(4.8d)(<a></a>) shouldBe(<a><n><o><p>4.8</p></o></n></a>)
+        (Path \ "n").write[Double, XmlWriter].writes(4.5d)(<a></a>) shouldBe(<a><n>4.5</n></a>)
+        (Path \ "n" \ "o").write[Double, XmlWriter].writes(4.5d)(<a></a>) shouldBe(<a><n><o>4.5</o></n></a>)
+        (Path \ "n" \ "o" \ "p").write[Double, XmlWriter].writes(4.5d)(<a></a>) shouldBe(<a><n><o><p>4.5</p></o></n></a>)
       }
 
       "scala Big Decimal" in {

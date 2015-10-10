@@ -46,13 +46,13 @@ object RulesSpec extends Specification {
       "null" in {
         (Path \ "n").read[JsValue, JsNull.type].validate(Json.obj("n" -> JsNull)) shouldBe(Valid(JsNull))
         (Path \ "n").read[JsValue, JsNull.type].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
-        (Path \ "n").read[JsValue, JsNull.type].validate(Json.obj("n" -> 4.8)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
+        (Path \ "n").read[JsValue, JsNull.type].validate(Json.obj("n" -> 4.5)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
       }
 
       "Int" in {
         (Path \ "n").read[JsValue, Int].validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         (Path \ "n").read[JsValue, Int].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
-        (Path \ "n").read[JsValue, Int].validate(Json.obj("n" -> 4.8)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
+        (Path \ "n").read[JsValue, Int].validate(Json.obj("n" -> 4.5)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
         (Path \ "n" \ "o").read[JsValue, Int].validate(Json.obj("n" -> Json.obj("o" -> 4))) shouldBe(Valid(4))
         (Path \ "n" \ "o").read[JsValue, Int].validate(Json.obj("n" -> Json.obj("o" -> "foo"))) shouldBe(Invalid(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
 
@@ -67,38 +67,38 @@ object RulesSpec extends Specification {
       "Short" in {
         (Path \ "n").read[JsValue, Short].validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         (Path \ "n").read[JsValue, Short].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
-        (Path \ "n").read[JsValue, Short].validate(Json.obj("n" -> 4.8)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        (Path \ "n").read[JsValue, Short].validate(Json.obj("n" -> 4.5)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
       }
 
       "Long" in {
         (Path \ "n").read[JsValue, Long].validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         (Path \ "n").read[JsValue, Long].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
-        (Path \ "n").read[JsValue, Long].validate(Json.obj("n" -> 4.8)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
+        (Path \ "n").read[JsValue, Long].validate(Json.obj("n" -> 4.5)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
       }
 
       "Float" in {
         (Path \ "n").read[JsValue, Float].validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         (Path \ "n").read[JsValue, Float].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
-        (Path \ "n").read[JsValue, Float].validate(Json.obj("n" -> 4.8)) shouldBe(Valid(4.8F))
+        (Path \ "n").read[JsValue, Float].validate(Json.obj("n" -> 4.5)) shouldBe(Valid(4.5F))
       }
 
       "Double" in {
         (Path \ "n").read[JsValue, Double].validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         (Path \ "n").read[JsValue, Double].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
-        (Path \ "n").read[JsValue, Double].validate(Json.obj("n" -> 4.8)) shouldBe(Valid(4.8))
+        (Path \ "n").read[JsValue, Double].validate(Json.obj("n" -> 4.5)) shouldBe(Valid(4.5))
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
         (Path \ "n").read[JsValue, jBigDecimal].validate(Json.obj("n" -> 4)) shouldBe(Valid(new jBigDecimal("4")))
         (Path \ "n").read[JsValue, jBigDecimal].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        (Path \ "n").read[JsValue, jBigDecimal].validate(Json.obj("n" -> 4.8)) shouldBe(Valid(new jBigDecimal("4.8")))
+        (Path \ "n").read[JsValue, jBigDecimal].validate(Json.obj("n" -> 4.5)) shouldBe(Valid(new jBigDecimal("4.5")))
       }
 
       "scala BigDecimal" in {
         (Path \ "n").read[JsValue, BigDecimal].validate(Json.obj("n" -> 4)) shouldBe(Valid(BigDecimal(4)))
         (Path \ "n").read[JsValue, BigDecimal].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        (Path \ "n").read[JsValue, BigDecimal].validate(Json.obj("n" -> 4.8)) shouldBe(Valid(BigDecimal(4.8)))
+        (Path \ "n").read[JsValue, BigDecimal].validate(Json.obj("n" -> 4.5)) shouldBe(Valid(BigDecimal(4.5)))
       }
 
       "date" in {
@@ -175,7 +175,7 @@ object RulesSpec extends Specification {
       "JsNumber" in {
         (Path \ "n").read[JsValue, JsNumber].validate(Json.obj("n" -> 4)) shouldBe(Valid(JsNumber(4)))
         (Path \ "n").read[JsValue, JsNumber].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Number")))))
-        (Path \ "n").read[JsValue, JsNumber].validate(Json.obj("n" -> 4.8)) shouldBe(Valid(JsNumber(4.8)))
+        (Path \ "n").read[JsValue, JsNumber].validate(Json.obj("n" -> 4.5)) shouldBe(Valid(JsNumber(4.5)))
       }
 
       "JsBoolean" in {

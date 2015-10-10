@@ -72,7 +72,7 @@ object FormatSpec extends Specification {
       "Int" in {
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Int] }.validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Int] }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Int] }.validate(Json.obj("n" -> 4.8)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Int] }.validate(Json.obj("n" -> 4.5)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
         Formatting[JsValue, JsObject] { __ => (__ \ "n" \ "o").format[Int] }.validate(Json.obj("n" -> Json.obj("o" -> 4))) shouldBe(Valid(4))
         Formatting[JsValue, JsObject] { __ => (__ \ "n" \ "o").format[Int] }.validate(Json.obj("n" -> Json.obj("o" -> "foo"))) shouldBe(Invalid(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
 
@@ -87,38 +87,38 @@ object FormatSpec extends Specification {
       "Short" in {
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Short] }.validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Short] }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Short] }.validate(Json.obj("n" -> 4.8)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Short] }.validate(Json.obj("n" -> 4.5)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
       }
 
       "Long" in {
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Long] }.validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Long] }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Long] }.validate(Json.obj("n" -> 4.8)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Long] }.validate(Json.obj("n" -> 4.5)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
       }
 
       "Float" in {
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Float] }.validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Float] }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Float] }.validate(Json.obj("n" -> 4.8)) shouldBe(Valid(4.8F))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Float] }.validate(Json.obj("n" -> 4.5)) shouldBe(Valid(4.5F))
       }
 
       "Double" in {
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Double] }.validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Double] }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Double] }.validate(Json.obj("n" -> 4.8)) shouldBe(Valid(4.8))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Double] }.validate(Json.obj("n" -> 4.5)) shouldBe(Valid(4.5))
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> 4)) shouldBe(Valid(new jBigDecimal("4")))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> 4.8)) shouldBe(Valid(new jBigDecimal("4.8")))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> 4.5)) shouldBe(Valid(new jBigDecimal("4.5")))
       }
 
       "scala BigDecimal" in {
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[BigDecimal] }.validate(Json.obj("n" -> 4)) shouldBe(Valid(BigDecimal(4)))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[BigDecimal] }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[BigDecimal] }.validate(Json.obj("n" -> 4.8)) shouldBe(Valid(BigDecimal(4.8)))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[BigDecimal] }.validate(Json.obj("n" -> 4.5)) shouldBe(Valid(BigDecimal(4.5)))
       }
 
       "date" in {

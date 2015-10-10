@@ -75,28 +75,28 @@ class WritesSpec extends Specification {
       }
 
       "Float" in {
-        (Path \ "n").write[Float, JObject].writes(4.8f) shouldBe(JObject("n" -> JDecimal(4.8)))
-        (Path \ "n" \ "o").write[Float, JObject].writes(4.8f) shouldBe(JObject("n" -> JObject("o"-> JDecimal(4.8))))
-        (Path \ "n" \ "o" \ "p").write[Float, JObject].writes(4.8f) shouldBe(JObject("n" -> JObject("o"-> JObject("p"-> JDecimal(4.8)))))
+        (Path \ "n").write[Float, JObject].writes(4.5f) shouldBe(JObject("n" -> JDecimal(4.5)))
+        (Path \ "n" \ "o").write[Float, JObject].writes(4.5f) shouldBe(JObject("n" -> JObject("o"-> JDecimal(4.5))))
+        (Path \ "n" \ "o" \ "p").write[Float, JObject].writes(4.5f) shouldBe(JObject("n" -> JObject("o"-> JObject("p"-> JDecimal(4.5)))))
       }
 
       "Double" in {
         (Path \ "n").write[Double, JObject].writes(4d) shouldBe(JObject("n" -> JDecimal(4.0)))
-        (Path \ "n" \ "o").write[Double, JObject].writes(4.8d) shouldBe(JObject("n" -> JObject("o"-> JDecimal(4.8))))
-        (Path \ "n" \ "o" \ "p").write[Double, JObject].writes(4.8d) shouldBe(JObject("n" -> JObject("o"-> JObject("p"-> JDecimal(4.8)))))
+        (Path \ "n" \ "o").write[Double, JObject].writes(4.5d) shouldBe(JObject("n" -> JObject("o"-> JDecimal(4.5))))
+        (Path \ "n" \ "o" \ "p").write[Double, JObject].writes(4.5d) shouldBe(JObject("n" -> JObject("o"-> JObject("p"-> JDecimal(4.5)))))
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
         (Path \ "n").write[jBigDecimal, JObject].writes(new jBigDecimal("4.0")) shouldBe(JObject("n" -> JDecimal(4.0)))
-        (Path \ "n" \ "o").write[jBigDecimal, JObject].writes(new jBigDecimal("4.8")) shouldBe(JObject("n" -> JObject("o"-> JDecimal(4.8))))
-        (Path \ "n" \ "o" \ "p").write[jBigDecimal, JObject].writes(new jBigDecimal("4.8")) shouldBe(JObject("n" -> JObject("o"-> JObject("p"-> JDecimal(4.8)))))
+        (Path \ "n" \ "o").write[jBigDecimal, JObject].writes(new jBigDecimal("4.5")) shouldBe(JObject("n" -> JObject("o"-> JDecimal(4.5))))
+        (Path \ "n" \ "o" \ "p").write[jBigDecimal, JObject].writes(new jBigDecimal("4.5")) shouldBe(JObject("n" -> JObject("o"-> JObject("p"-> JDecimal(4.5)))))
       }
 
       "scala BigDecimal" in {
         (Path \ "n").write[BigDecimal, JObject].writes(BigDecimal("4.0")) shouldBe(JObject("n" -> JDecimal(4.0)))
-        (Path \ "n" \ "o").write[BigDecimal, JObject].writes(BigDecimal("4.8")) shouldBe(JObject("n" -> JObject("o"-> JDecimal(4.8))))
-        (Path \ "n" \ "o" \ "p").write[BigDecimal, JObject].writes(BigDecimal("4.8")) shouldBe(JObject("n" -> JObject("o"-> JObject("p"-> JDecimal(4.8)))))
+        (Path \ "n" \ "o").write[BigDecimal, JObject].writes(BigDecimal("4.5")) shouldBe(JObject("n" -> JObject("o"-> JDecimal(4.5))))
+        (Path \ "n" \ "o" \ "p").write[BigDecimal, JObject].writes(BigDecimal("4.5")) shouldBe(JObject("n" -> JObject("o"-> JObject("p"-> JDecimal(4.5)))))
       }
 
       "date" in {

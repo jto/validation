@@ -55,7 +55,7 @@ object RulesSpec extends Specification {
       "Int" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[Int] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
         From[UrlFormEncoded] { __ => (__ \ "n").read[Int] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Int] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Int] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
         From[UrlFormEncoded] { __ => (__ \ "n" \ "o").read[Int] }.validate(Map("n.o" -> Seq("4"))) shouldBe(Valid(4))
         From[UrlFormEncoded] { __ => (__ \ "n" \ "o").read[Int] }.validate(Map("n.o" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
 
@@ -70,38 +70,38 @@ object RulesSpec extends Specification {
       "Short" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[Short] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
         From[UrlFormEncoded] { __ => (__ \ "n").read[Short] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Short] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Short] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
       }
 
       "Long" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[Long] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
         From[UrlFormEncoded] { __ => (__ \ "n").read[Long] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Long] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Long] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
       }
 
       "Float" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[Float] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
         From[UrlFormEncoded] { __ => (__ \ "n").read[Float] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Float] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(4.8F))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Float] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Valid(4.5F))
       }
 
       "Double" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[Double] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
         From[UrlFormEncoded] { __ => (__ \ "n").read[Double] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Double] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(4.8))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Double] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Valid(4.5))
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
         From[UrlFormEncoded] { __ => (__ \ "n").read[jBigDecimal] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(new jBigDecimal("4")))
         From[UrlFormEncoded] { __ => (__ \ "n").read[jBigDecimal] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[jBigDecimal] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(new jBigDecimal("4.8")))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[jBigDecimal] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Valid(new jBigDecimal("4.5")))
       }
 
       "scala BigDecimal" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[BigDecimal] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(BigDecimal(4)))
         From[UrlFormEncoded] { __ => (__ \ "n").read[BigDecimal] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[BigDecimal] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(BigDecimal(4.8)))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[BigDecimal] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Valid(BigDecimal(4.5)))
       }
 
       "date" in {

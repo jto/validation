@@ -47,13 +47,13 @@ object RulesSpec extends Specification {
       "null" in {
         (Path \ "n").read[JValue, JNull.type].validate(JObject("n" -> JNull)) shouldBe(Valid(JNull))
         (Path \ "n").read[JValue, JNull.type].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
-        (Path \ "n").read[JValue, JNull.type].validate(JObject("n" -> JDecimal(4.8))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
+        (Path \ "n").read[JValue, JNull.type].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
       }
 
       "Int" in {
         (Path \ "n").read[JValue, Int].validate(JObject("n" -> JInt(4))) shouldBe(Valid(4))
         (Path \ "n").read[JValue, Int].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
-        (Path \ "n").read[JValue, Int].validate(JObject("n" -> JDecimal(4.8))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
+        (Path \ "n").read[JValue, Int].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
         (Path \ "n" \ "o").read[JValue, Int].validate(JObject("n" -> JObject("o" -> JInt(4)))) shouldBe(Valid(4))
         (Path \ "n" \ "o").read[JValue, Int].validate(JObject("n" -> JObject("o" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
 
@@ -68,38 +68,38 @@ object RulesSpec extends Specification {
       "Short" in {
         (Path \ "n").read[JValue, Short].validate(JObject("n" -> JInt(4))) shouldBe(Valid(4))
         (Path \ "n").read[JValue, Short].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
-        (Path \ "n").read[JValue, Short].validate(JObject("n" -> JDecimal(4.8))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        (Path \ "n").read[JValue, Short].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
       }
 
       "Long" in {
         (Path \ "n").read[JValue, Long].validate(JObject("n" -> JInt(4))) shouldBe(Valid(4))
         (Path \ "n").read[JValue, Long].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
-        (Path \ "n").read[JValue, Long].validate(JObject("n" -> JDecimal(4.8))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
+        (Path \ "n").read[JValue, Long].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
       }
 
       "Float" in {
         (Path \ "n").read[JValue, Float].validate(JObject("n" -> JInt(4))) shouldBe(Valid(4))
         (Path \ "n").read[JValue, Float].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
-        (Path \ "n").read[JValue, Float].validate(JObject("n" -> JDecimal(4.8))) shouldBe(Valid(4.8F))
+        (Path \ "n").read[JValue, Float].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Valid(4.5F))
       }
 
       "Double" in {
         (Path \ "n").read[JValue, Double].validate(JObject("n" -> JInt(4))) shouldBe(Valid(4))
         (Path \ "n").read[JValue, Double].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
-        (Path \ "n").read[JValue, Double].validate(JObject("n" -> JDecimal(4.8))) shouldBe(Valid(4.8))
+        (Path \ "n").read[JValue, Double].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Valid(4.5))
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
         (Path \ "n").read[JValue, jBigDecimal].validate(JObject("n" -> JInt(4))) shouldBe(Valid(new jBigDecimal("4")))
         (Path \ "n").read[JValue, jBigDecimal].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        (Path \ "n").read[JValue, jBigDecimal].validate(JObject("n" -> JDecimal(4.8))) shouldBe(Valid(new jBigDecimal("4.8")))
+        (Path \ "n").read[JValue, jBigDecimal].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Valid(new jBigDecimal("4.5")))
       }
 
       "scala BigDecimal" in {
         (Path \ "n").read[JValue, BigDecimal].validate(JObject("n" -> JInt(4))) shouldBe(Valid(BigDecimal(4)))
         (Path \ "n").read[JValue, BigDecimal].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        (Path \ "n").read[JValue, BigDecimal].validate(JObject("n" -> JDecimal(4.8))) shouldBe(Valid(BigDecimal(4.8)))
+        (Path \ "n").read[JValue, BigDecimal].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Valid(BigDecimal(4.5)))
       }
 
       "date" in {
@@ -176,7 +176,7 @@ object RulesSpec extends Specification {
       "JsNumber" in {
         (Path \ "n").read[JValue, JInt].validate(JObject("n" -> JInt(4))) shouldBe(Valid(JInt(4)))
         (Path \ "n").read[JValue, JInt].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Number")))))
-        (Path \ "n").read[JValue, JDecimal].validate(JObject("n" -> JDecimal(4.8))) shouldBe(Valid(JDecimal(4.8)))
+        (Path \ "n").read[JValue, JDecimal].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Valid(JDecimal(4.5)))
       }
 
       "JBool" in {

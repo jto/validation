@@ -83,27 +83,27 @@ class WritesSpec extends Specification {
 
       "Float" in {
         To[UrlFormEncoded] { __ => (__ \ "n").write[Float] }.writes(4) shouldBe(Map("n" -> Seq("4.0")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Float] }.writes(4.8F) shouldBe(Map("n.o" -> Seq("4.8")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Float] }.writes(4.8F) shouldBe(Map("n.o.p" -> Seq("4.8")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Float] }.writes(4.5F) shouldBe(Map("n.o" -> Seq("4.5")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Float] }.writes(4.5F) shouldBe(Map("n.o.p" -> Seq("4.5")))
       }
 
       "Double" in {
         To[UrlFormEncoded] { __ => (__ \ "n").write[Double] }.writes(4) shouldBe(Map("n" -> Seq("4.0")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Double] }.writes(4.8D) shouldBe(Map("n.o" -> Seq("4.8")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Double] }.writes(4.8D) shouldBe(Map("n.o.p" -> Seq("4.8")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Double] }.writes(4.5D) shouldBe(Map("n.o" -> Seq("4.5")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Double] }.writes(4.5D) shouldBe(Map("n.o.p" -> Seq("4.5")))
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
         To[UrlFormEncoded] { __ => (__ \ "n").write[jBigDecimal] }.writes(new jBigDecimal("4.0")) shouldBe(Map("n" -> Seq("4.0")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[jBigDecimal] }.writes(new jBigDecimal("4.8")) shouldBe(Map("n.o" -> Seq("4.8")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[jBigDecimal] }.writes(new jBigDecimal("4.8")) shouldBe(Map("n.o.p" -> Seq("4.8")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[jBigDecimal] }.writes(new jBigDecimal("4.5")) shouldBe(Map("n.o" -> Seq("4.5")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[jBigDecimal] }.writes(new jBigDecimal("4.5")) shouldBe(Map("n.o.p" -> Seq("4.5")))
       }
 
       "scala BigDecimal" in {
         To[UrlFormEncoded] { __ => (__ \ "n").write[BigDecimal] }.writes(BigDecimal("4.0")) shouldBe(Map("n" -> Seq("4.0")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[BigDecimal] }.writes(BigDecimal("4.8")) shouldBe(Map("n.o" -> Seq("4.8")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[BigDecimal] }.writes(BigDecimal("4.8")) shouldBe(Map("n.o.p" -> Seq("4.8")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[BigDecimal] }.writes(BigDecimal("4.5")) shouldBe(Map("n.o" -> Seq("4.5")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[BigDecimal] }.writes(BigDecimal("4.5")) shouldBe(Map("n.o.p" -> Seq("4.5")))
       }
 
       "date" in {

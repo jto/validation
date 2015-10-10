@@ -11,6 +11,7 @@ val kindProjectorVersion = "0.6.3"
 val parserCombinatorsVersion = "1.0.2"
 val playVersion = "2.4.3"
 val scalacVersion = "2.11.7"
+val scalatestVersion = "3.0.0-M10"
 val scalaXmlVersion = "1.0.5"
 val shapelessVersion = "2.2.5"
 
@@ -106,8 +107,7 @@ val dependencies = Seq(
   libraryDependencies ++= Seq(
     "org.spire-math" %% "cats" % catsVersion,
     "com.chuusai" %% "shapeless" % shapelessVersion,
-    "org.specs2" %% "specs2" % "2.4.9" % "test",
-    "org.specs2" %% "specs2-junit" % "2.4.9" % "test",
+    "org.scalatest" %% "scalatest" % scalatestVersion % "test",
     "joda-time" % "joda-time" % jodaTimeVersion,
     "org.joda" % "joda-convert" % jodaConvertVersion
   ),

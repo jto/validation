@@ -11,8 +11,6 @@ trait Format[IR, +IW, O] extends RuleLike[IR, O] with WriteLike[O, IW]
  * Default formatters.
  */
 object Format {
-  def gen[IR, IW, O]: Format[IR, IW, O] = macro MappingMacros.format[IR, IW, O]
-
   def apply[IR, IW, O](r: RuleLike[IR, O], w: WriteLike[O, IW]): Format[IR, IW, O] =
     new Format[IR, IW, O] {
       def validate(i: IR) = r.validate(i)

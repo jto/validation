@@ -1,6 +1,6 @@
 import jto.validation._
 import jto.validation.forms._
-import org.specs2.mutable._
+import org.scalatest._
 
 case class User(age: Int, name: String)
 case class Dog(name: String, master: User)
@@ -58,20 +58,20 @@ object Person2{
   }
 }
 
-object MacroSpec extends Specification {
+class MacroSpec extends WordSpec with Matchers {
 
   "MappingMacros" should {
 
     "create a Rule[User]" in {
       import Rules._
       implicit val userReads = Rule.gen[UrlFormEncoded, User]
-      userReads.validate(Map("name" -> Seq("toto"), "age" -> Seq("45"))) must beEqualTo(Valid(User(45, "toto")))
+      userReads.validate(Map("name" -> Seq("toto"), "age" -> Seq("45"))) shouldBe(Valid(User(45, "toto")))
     }
 
     "create a Write[User]" in {
       import Writes._
       implicit val userWrites = Write.gen[User, UrlFormEncoded]
-      userWrites.writes(User(45, "toto")) must beEqualTo(Map("name" -> Seq("toto"), "age" -> Seq("45")))
+      userWrites.writes(User(45, "toto")) shouldBe(Map("name" -> Seq("toto"), "age" -> Seq("45")))
     }
 
     "create a Rule[Dog]" in {
@@ -85,7 +85,7 @@ object MacroSpec extends Specification {
           "master.name" -> Seq("toto"),
           "master.age" -> Seq("45")
         )
-      ) must beEqualTo(Valid(Dog("medor", User(45, "toto"))))
+      ) shouldBe(Valid(Dog("medor", User(45, "toto"))))
 
     }
 
@@ -94,7 +94,7 @@ object MacroSpec extends Specification {
       implicit val userWrite = Write.gen[User, UrlFormEncoded]
       implicit val dogWrite = Write.gen[Dog, UrlFormEncoded]
 
-      dogWrite.writes(Dog("medor", User(45, "toto"))) must beEqualTo(
+      dogWrite.writes(Dog("medor", User(45, "toto"))) shouldBe(
         Map(
           "name" -> Seq("medor"),
           "master.name" -> Seq("toto"),
@@ -114,7 +114,7 @@ object MacroSpec extends Specification {
           "master.name" -> Seq("toto"),
           "master.age" -> Seq("45")
         )
-      ) must beEqualTo(Valid(Dog("medor", User(45, "toto"))))
+      ) shouldBe(Valid(Dog("medor", User(45, "toto"))))
 
     }
 
@@ -125,7 +125,7 @@ object MacroSpec extends Specification {
 
       catRule.validate(
         Map("name" -> Seq("minou"))
-      ) must beEqualTo(Valid(Cat("minou")))
+      ) shouldBe(Valid(Cat("minou")))
 
       implicit lazy val recUserRule: Rule[UrlFormEncoded, RecUser] =
         Rule.gen[UrlFormEncoded, RecUser]
@@ -138,7 +138,7 @@ object MacroSpec extends Specification {
           "hobbies[1]" -> Seq("manhunting"),
           "friends[0].name" -> Seq("tom")
         )
-      ) must beEqualTo(
+      ) shouldBe(
         Valid(
           RecUser(
             "bob",
@@ -155,7 +155,7 @@ object MacroSpec extends Specification {
       import Writes._
 
       implicit val catWrite = Write.gen[Cat, UrlFormEncoded]
-      catWrite.writes(Cat("minou")) must beEqualTo(Map("name" -> Seq("minou")))
+      catWrite.writes(Cat("minou")) shouldBe(Map("name" -> Seq("minou")))
 
       implicit lazy val recUserWrite: Write[RecUser, UrlFormEncoded] = Write.gen[RecUser, UrlFormEncoded]
 
@@ -166,7 +166,7 @@ object MacroSpec extends Specification {
           Seq("bobsleig", "manhunting"),
           Seq(RecUser("tom"))
         )
-      ) must beEqualTo(
+      ) shouldBe(
         Map(
           "name" -> Seq("bob"),
           "cat.name" -> Seq("minou"),
@@ -185,8 +185,8 @@ object MacroSpec extends Specification {
       val cat = Cat("minou")
       val catMap = Map("name" -> Seq("minou"))
 
-      catFormat.writes(cat) must beEqualTo(catMap)
-      catFormat.validate(catMap) must beEqualTo(Valid(cat))
+      catFormat.writes(cat) shouldBe(catMap)
+      catFormat.validate(catMap) shouldBe(Valid(cat))
 
       implicit lazy val recUserFormat: Format[UrlFormEncoded, UrlFormEncoded, RecUser] =
         Format.gen[UrlFormEncoded, UrlFormEncoded, RecUser]
@@ -204,8 +204,8 @@ object MacroSpec extends Specification {
         List("bobsleig", "manhunting"),
         List(RecUser("tom")))
 
-      recUserFormat.validate(recMap) must beEqualTo(Valid(u))
-      recUserFormat.writes(u) must beEqualTo(recMap)
+      recUserFormat.validate(recMap) shouldBe(Valid(u))
+      recUserFormat.writes(u) shouldBe(recMap)
 
     }
 
@@ -218,7 +218,7 @@ object MacroSpec extends Specification {
         Map(
           "name" -> Seq("bob"),
           "friend.name" -> Seq("tom"))
-      ) must beEqualTo(
+      ) shouldBe(
         Valid(
           User1(
             "bob",
@@ -237,7 +237,7 @@ object MacroSpec extends Specification {
         User1(
           "bob",
           Some(User1("tom")))
-      ) must beEqualTo(
+      ) shouldBe(
         Map(
           "name" -> Seq("bob"),
           "friend.name" -> Seq("tom" )))
@@ -254,8 +254,8 @@ object MacroSpec extends Specification {
         "friend.name" -> Seq("tom"))
       val user = User1("bob",Some(User1("tom")))
 
-      userFormat.validate(userMap) must beEqualTo(Valid(user))
-      userFormat.writes(user) must beEqualTo(userMap)
+      userFormat.validate(userMap) shouldBe(Valid(user))
+      userFormat.writes(user) shouldBe(userMap)
     }
 
     "manage Boxed class" in {
@@ -274,145 +274,145 @@ object MacroSpec extends Specification {
         "id" -> Seq("123"),
         "name" -> Seq("toto"))
 
-      c1Rule[Long].validate(map) must beEqualTo(Valid(C1[Long](Id[Long](123L), "toto")))
+      c1Rule[Long].validate(map) shouldBe(Valid(C1[Long](Id[Long](123L), "toto")))
     }
 
     /* // test to validate it doesn't compile if missing implicit
     "fail if missing " in {
       import Rules._
       implicit val userReads = Rule.gen[UrlFormEncoded, UserFail]
-      success
+      ()
     }*/
 
-    "test 21 fields" in {
+    "test 21 fields" when {
       "Rule" in {
         import Rules._
         implicit val XRule = Rule.gen[UrlFormEncoded, X]
-        success
+        ()
       }
 
       "Write" in {
         import Writes._
         implicit val XWrites = Write.gen[X, UrlFormEncoded]
-        success
+        ()
       }
 
       "Format" in {
         import Rules._
         import Writes._
         implicit val XWrites = Format.gen[UrlFormEncoded, UrlFormEncoded, X]
-        success
+        ()
       }
     }
 
     "test inception with overriden object" in {
       import Rules._
       implicit val programFormat = Rule.gen[UrlFormEncoded, Program]
-      success
+      ()
     }
 
-    "test case class 1 field" in {
+    "test case class 1 field" when {
       "Rule" in {
         import Rules._
         implicit val totoRule = Rule.gen[UrlFormEncoded, Toto]
-        success
+        ()
       }
 
       "Write" in {
         import Writes._
         implicit val totoWrite = Write.gen[Toto, UrlFormEncoded]
-        success
+        ()
       }
 
       "Format" in {
         import Rules._
         import Writes._
         implicit val totoFormat = Format.gen[UrlFormEncoded, UrlFormEncoded, Toto]
-        success
+        ()
       }
     }
 
-    "test case class 1 field option" in {
+    "test case class 1 field option" when {
       "Rule" in {
         import Rules._
         implicit val toto2Rule = Rule.gen[UrlFormEncoded, Toto2]
-        success
+        ()
       }
 
       "Write" in {
         import Writes._
         implicit val toto2Write = Write.gen[Toto2, UrlFormEncoded]
-        success
+        ()
       }
 
       "Format" in {
         import Rules._
         import Writes._
         implicit val toto2Format = Format.gen[UrlFormEncoded, UrlFormEncoded, Toto2]
-        success
+        ()
       }
     }
 
-    "test case class 1 field list" in {
+    "test case class 1 field list" when {
       "Rule" in {
         import Rules._
         implicit val toto3Rule = Rule.gen[UrlFormEncoded, Toto3]
-        success
+        ()
       }
 
       "Write" in {
         import Writes._
         implicit val toto3Write = Write.gen[Toto3, UrlFormEncoded]
-        success
+        ()
       }
 
       "Format" in {
         import Rules._
         import Writes._
         implicit val toto3Format = Format.gen[UrlFormEncoded, UrlFormEncoded, Toto3]
-        success
+        ()
       }
     }
 
-    "test case class 1 field set" in {
+    "test case class 1 field set" when {
       "Rule" in {
         import Rules._
         implicit val toto4Rule = Rule.gen[UrlFormEncoded, Toto4]
-        success
+        ()
       }
 
       "Write" in {
         import Writes._
         implicit val toto4Write = Write.gen[Toto4, UrlFormEncoded]
-        success
+        ()
       }
 
       "Format" in {
         import Rules._
         import Writes._
         implicit val toto4Format = Format.gen[UrlFormEncoded, UrlFormEncoded, Toto4]
-        success
+        ()
       }
     }
 
-    "test case class 1 field map" in {
+    "test case class 1 field map" when {
       "Rule" in {
         import Rules._
         implicit val toto5Rule = Rule.gen[UrlFormEncoded, Toto5]
-        success
+        ()
       }
 
       "Write" in {
         import Writes._
         implicit val toto5Write = Write.gen[Toto5, UrlFormEncoded]
-        success
+        ()
       }
 
       "Format" in {
         import Rules._
         import Writes._
         implicit val toto5Format = Format.gen[UrlFormEncoded, UrlFormEncoded, Toto5]
-        success
+        ()
       }
     }
 
@@ -431,7 +431,7 @@ object MacroSpec extends Specification {
         "name[1].master.name" -> Seq("tata"),
         "name[1].master.age" -> Seq("23"))
 
-      toto6Rule.validate(map) must beEqualTo(Valid(
+      toto6Rule.validate(map) shouldBe(Valid(
         Toto6(Seq(
           Dog("medor", User(45, "toto")),
           Dog("brutus", User(23, "tata"))
@@ -442,13 +442,13 @@ object MacroSpec extends Specification {
     "test case reads in companion object" in {
       From[UrlFormEncoded, Person](
         To[Person, UrlFormEncoded](Person("bob", 15))
-      ) must beEqualTo(Valid(Person("bob", 15)))
+      ) shouldBe(Valid(Person("bob", 15)))
     }
 
     "test case single-field in companion object" in {
       From[UrlFormEncoded, Person2](
         To[Person2, UrlFormEncoded](Person2(List("bob", "bobby")))
-      ) must beEqualTo(Valid(Person2(List("bob", "bobby"))))
+      ) shouldBe(Valid(Person2(List("bob", "bobby"))))
     }
   }
 }

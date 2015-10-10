@@ -1,8 +1,8 @@
 import jto.validation._
 
-import org.specs2.mutable._
+import org.scalatest._
 
-object ValidatedSpec extends Specification {
+class ValidatedSpec extends WordSpec with Matchers {
 
   "Validated" should {
 
@@ -11,28 +11,28 @@ object ValidatedSpec extends Specification {
 
     "be a Functor" in {
       // identity
-      success.map(identity) must equalTo(success)
-      failure.map(identity) must equalTo(failure)
+      success.map(identity) shouldBe(success)
+      failure.map(identity) shouldBe(failure)
       // composition
       val p = (_: Int) + 2
       val q = (_: Int) * 3
-      success.map(p compose q) must equalTo(success.map(q).map(p))
-      failure.map(p compose q) must equalTo(failure.map(q).map(p))
+      success.map(p compose q) shouldBe(success.map(q).map(p))
+      failure.map(p compose q) shouldBe(failure.map(q).map(p))
 
-      success.map(_ + 2) must equalTo(Valid[Int](7))
-      failure.map(_ + 2) must equalTo(failure)
+      success.map(_ + 2) shouldBe(Valid[Int](7))
+      failure.map(_ + 2) shouldBe(failure)
     }
 
     "be foldable" in {
       success.fold(
         err => "err",
         identity
-      ) must equalTo(5)
+      ) shouldBe(5)
 
       failure.fold(
         err => "err",
         identity
-      ) must equalTo("err")
+      ) shouldBe("err")
     }
 
     "have an Applicative" in {
@@ -42,46 +42,46 @@ object ValidatedSpec extends Specification {
       val v: Validated[Seq[String], Int => Int] = Valid[Int => Int](_ * 3)
       val w: Validated[Seq[String], Int] = Valid[Int](5)
 
-      app.ap(app.pure(5))(app.pure((_: Int) + 2)) must equalTo(app.pure(7))
+      app.ap(app.pure(5))(app.pure((_: Int) + 2)) shouldBe(app.pure(7))
 
       // identity
-      app.ap(success)(app.pure[Int => Int](identity _)) must equalTo(success)
-      app.ap(failure)(app.pure[Int => Int](identity _)) must equalTo(failure)
+      app.ap(success)(app.pure[Int => Int](identity _)) shouldBe(success)
+      app.ap(failure)(app.pure[Int => Int](identity _)) shouldBe(failure)
 
       // composition
       val p = app.pure((f: Int => Int) => f compose (_: Int => Int))
-      app.ap(w)(app.ap(v)(app.ap(u)(p))) must equalTo(
+      app.ap(w)(app.ap(v)(app.ap(u)(p))) shouldBe(
         app.ap(app.ap(w)(v))(u))
 
       // homomorphism
       val f = (_: Int) + 2
       val x = 5
-      app.ap(app.pure(x))(app.pure(f)) must equalTo(app.pure(f(x)))
+      app.ap(app.pure(x))(app.pure(f)) shouldBe(app.pure(f(x)))
 
       // interchange
-      app.ap(app.pure(x))(u) must equalTo(
+      app.ap(app.pure(x))(u) shouldBe(
         app.ap(u)(app.pure((f: Int => Int) => f(x))))
     }
 
     "implement filter" in {
-      success.filter((_: Int) == 5) must equalTo(success)
-      failure.filter((_: Int) == 5) must equalTo(failure)
+      success.filter((_: Int) == 5) shouldBe(success)
+      failure.filter((_: Int) == 5) shouldBe(failure)
     }
 
     "have recovery methods" in {
-      success.getOrElse(42) must equalTo(5)
-      failure.getOrElse(42) must equalTo(42)
+      success.getOrElse(42) shouldBe(5)
+      failure.getOrElse(42) shouldBe(42)
 
-      success.orElse(Valid(42)) must equalTo(success)
-      failure.getOrElse(Valid(42)) must equalTo(Valid(42))
+      success.orElse(Valid(42)) shouldBe(success)
+      failure.getOrElse(Valid(42)) shouldBe(Valid(42))
     }
 
     "be easily convertible to scala standars API types" in {
-      success.toOption must equalTo(Some(5))
-      failure.toOption must equalTo(None)
+      success.toOption shouldBe(Some(5))
+      failure.toOption shouldBe(None)
 
-      success.toEither must equalTo(Right(5))
-      failure.toEither must equalTo(Left("err" :: Nil))
+      success.toEither shouldBe(Right(5))
+      failure.toEither shouldBe(Left("err" :: Nil))
     }
 
     "sequence" in {
@@ -92,8 +92,8 @@ object ValidatedSpec extends Specification {
       
       import cats.std.list._
       import cats.syntax.traverse._
-      List(s1, s2).sequenceU must equalTo(Valid(List("1", "2")))
-      List(f1, f2).sequenceU must equalTo(Invalid(List("err1", "err2")))
+      List(s1, s2).sequenceU shouldBe(Valid(List("1", "2")))
+      List(f1, f2).sequenceU shouldBe(Invalid(List("err1", "err2")))
     }
 
   }

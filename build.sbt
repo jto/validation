@@ -11,6 +11,7 @@ val kindProjectorVersion = "0.7.1"
 val parserCombinatorsVersion = "1.0.4"
 val playVersion = "2.4.6"
 val scalacVersion = "2.11.7"
+val scalatestVersion = "3.0.0-M15"
 val scalaXmlVersion = "1.0.5"
 
 lazy val root = aggregate("validation", `validation-core`, `validation-form`, `validation-delimited`, `validation-json4s`, `validation-json`, `validation-xml`).in(file("."))
@@ -80,6 +81,7 @@ val commonScalacOptions = Seq(
   "-language:higherKinds",
   "-language:implicitConversions",
   "-language:experimental.macros",
+  "-language:postfixOps",
   "-unchecked",
   "-Xfatal-warnings",
   "-Xlint",
@@ -100,8 +102,7 @@ val commonResolvers = Seq(
 val dependencies = Seq(
   libraryDependencies ++= Seq(
     "org.spire-math" %% "cats" % catsVersion,
-    "org.specs2" %% "specs2" % "3.7" % "test",
-    "org.specs2" %% "specs2-junit" % "3.7" % "test",
+    "org.scalatest" %% "scalatest" % scalatestVersion % "test",
     "joda-time" % "joda-time" % jodaTimeVersion,
     "org.joda" % "joda-convert" % jodaConvertVersion
   ),

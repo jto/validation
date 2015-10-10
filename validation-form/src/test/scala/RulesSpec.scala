@@ -1,8 +1,8 @@
 import jto.validation._
 import jto.validation.forms._
-import org.specs2.mutable._
+import org.scalatest._
 
-object RulesSpec extends Specification {
+class RulesSpec extends WordSpec with Matchers {
 
   "Rules" should {
 
@@ -26,20 +26,20 @@ object RulesSpec extends Specification {
     "extract data" in {
       From[UrlFormEncoded] { __ =>
         (__ \ "firstname").read[String]
-      }.validate(valid) mustEqual(Valid("Julien"))
+      }.validate(valid) shouldBe(Valid("Julien"))
 
       val error = Invalid(Seq((Path \ "foo") -> Seq(ValidationError("error.required"))))
       From[UrlFormEncoded] { __ =>
         (__ \ "foo").read[String]
-      }.validate(invalid) mustEqual(error)
+      }.validate(invalid) shouldBe(error)
     }
 
     "support checked" in {
       val js = Map("issmth" -> Seq("true"))
       val p = Path \ "issmth"
-      p.from[UrlFormEncoded](checked).validate(js) mustEqual(Valid(true))
-      p.from[UrlFormEncoded](checked).validate(Map.empty) mustEqual(Invalid(Seq(Path \ "issmth" -> Seq(ValidationError("error.required")))))
-      p.from[UrlFormEncoded](checked).validate(Map("issmth" -> Seq("false"))) mustEqual(Invalid(Seq(Path \ "issmth" -> Seq(ValidationError("error.equals", true)))))
+      p.from[UrlFormEncoded](checked).validate(js) shouldBe(Valid(true))
+      p.from[UrlFormEncoded](checked).validate(Map.empty) shouldBe(Invalid(Seq(Path \ "issmth" -> Seq(ValidationError("error.required")))))
+      p.from[UrlFormEncoded](checked).validate(Map("issmth" -> Seq("false"))) shouldBe(Invalid(Seq(Path \ "issmth" -> Seq(ValidationError("error.equals", true)))))
     }
 
     "ignore values" in {
@@ -47,61 +47,61 @@ object RulesSpec extends Specification {
         ((__ \ "firstname").read(notEmpty) ~
          (__ \ "test").read(ignored[UrlFormEncoded, Int](42))).tupled
       }
-      r.validate(valid) mustEqual(Valid("Julien" -> 42))
+      r.validate(valid) shouldBe(Valid("Julien" -> 42))
     }
 
-    "support primitives types" in {
+    "support primitives types" when {
 
       "Int" in {
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Int] }.validate(Map("n" -> Seq("4"))) mustEqual(Valid(4))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Int] }.validate(Map("n" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Int] }.validate(Map("n" -> Seq("4.8"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
-        From[UrlFormEncoded] { __ => (__ \ "n" \ "o").read[Int] }.validate(Map("n.o" -> Seq("4"))) mustEqual(Valid(4))
-        From[UrlFormEncoded] { __ => (__ \ "n" \ "o").read[Int] }.validate(Map("n.o" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Int] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Int] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Int] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
+        From[UrlFormEncoded] { __ => (__ \ "n" \ "o").read[Int] }.validate(Map("n.o" -> Seq("4"))) shouldBe(Valid(4))
+        From[UrlFormEncoded] { __ => (__ \ "n" \ "o").read[Int] }.validate(Map("n.o" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
 
-        From[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").read[Int] }.validate(Map("n.o.p" -> Seq("4"))) mustEqual(Valid(4))
-        From[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").read[Int] }.validate(Map("n.o.p" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "n" \ "o" \ "p" -> Seq(ValidationError("error.number", "Int")))))
+        From[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").read[Int] }.validate(Map("n.o.p" -> Seq("4"))) shouldBe(Valid(4))
+        From[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").read[Int] }.validate(Map("n.o.p" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" \ "o" \ "p" -> Seq(ValidationError("error.number", "Int")))))
 
         val errPath = Path \ "foo"
         val error = Invalid(Seq(errPath -> Seq(ValidationError("error.required"))))
-        From[UrlFormEncoded] { __ => (__ \ "foo").read[Int] }.validate(Map("n" -> Seq("4"))) mustEqual(error)
+        From[UrlFormEncoded] { __ => (__ \ "foo").read[Int] }.validate(Map("n" -> Seq("4"))) shouldBe(error)
       }
 
       "Short" in {
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Short] }.validate(Map("n" -> Seq("4"))) mustEqual(Valid(4))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Short] }.validate(Map("n" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Short] }.validate(Map("n" -> Seq("4.8"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Short] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Short] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Short] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
       }
 
       "Long" in {
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Long] }.validate(Map("n" -> Seq("4"))) mustEqual(Valid(4))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Long] }.validate(Map("n" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Long] }.validate(Map("n" -> Seq("4.8"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Long] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Long] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Long] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
       }
 
       "Float" in {
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Float] }.validate(Map("n" -> Seq("4"))) mustEqual(Valid(4))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Float] }.validate(Map("n" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Float] }.validate(Map("n" -> Seq("4.8"))) mustEqual(Valid(4.8F))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Float] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Float] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Float] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(4.8F))
       }
 
       "Double" in {
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Double] }.validate(Map("n" -> Seq("4"))) mustEqual(Valid(4))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Double] }.validate(Map("n" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Double] }.validate(Map("n" -> Seq("4.8"))) mustEqual(Valid(4.8))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Double] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Double] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Double] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(4.8))
       }
 
       "java BigDecimal" in {
         import java.math.{ BigDecimal => jBigDecimal }
-        From[UrlFormEncoded] { __ => (__ \ "n").read[jBigDecimal] }.validate(Map("n" -> Seq("4"))) mustEqual(Valid(new jBigDecimal("4")))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[jBigDecimal] }.validate(Map("n" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[jBigDecimal] }.validate(Map("n" -> Seq("4.8"))) mustEqual(Valid(new jBigDecimal("4.8")))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[jBigDecimal] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(new jBigDecimal("4")))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[jBigDecimal] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[jBigDecimal] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(new jBigDecimal("4.8")))
       }
 
       "scala BigDecimal" in {
-        From[UrlFormEncoded] { __ => (__ \ "n").read[BigDecimal] }.validate(Map("n" -> Seq("4"))) mustEqual(Valid(BigDecimal(4)))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[BigDecimal] }.validate(Map("n" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[BigDecimal] }.validate(Map("n" -> Seq("4.8"))) mustEqual(Valid(BigDecimal(4.8)))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[BigDecimal] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(BigDecimal(4)))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[BigDecimal] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[BigDecimal] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(BigDecimal(4.8)))
       }
 
       "date" in {
@@ -109,27 +109,26 @@ object RulesSpec extends Specification {
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         From[UrlFormEncoded] { __ =>
           (__ \ "n").read(date)
-        }.validate(Map("n" -> Seq("1985-09-10"))) mustEqual(Valid(f.parse("1985-09-10")))
+        }.validate(Map("n" -> Seq("1985-09-10"))) shouldBe(Valid(f.parse("1985-09-10")))
 
         From[UrlFormEncoded] { __ =>
           (__ \ "n").read(date)
-        }.validate(Map("n" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
+        }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
       }
 
-      "iso date" in {
-        skipped("Can't test on CI")
+      "iso date (Can't test on CI)" ignore {
         import java.util.Date
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         From[UrlFormEncoded] { __ =>
           (__ \ "n").read(isoDate)
-        }.validate(Map("n" -> Seq("1985-09-10T00:00:00+02:00"))) mustEqual(Valid(f.parse("1985-09-10")))
+        }.validate(Map("n" -> Seq("1985-09-10T00:00:00+02:00"))) shouldBe(Valid(f.parse("1985-09-10")))
 
         From[UrlFormEncoded] { __ =>
           (__ \ "n").read(isoDate)
-        }.validate(Map("n" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date.isoformat")))))
+        }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date.isoformat")))))
       }
 
-      "joda" in {
+      "joda" when {
         import org.joda.time.DateTime
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val dd = f.parse("1985-09-10")
@@ -138,21 +137,21 @@ object RulesSpec extends Specification {
         "date" in {
           From[UrlFormEncoded] { __ =>
             (__ \ "n").read(jodaDate)
-          }.validate(Map("n" -> Seq("1985-09-10"))) mustEqual(Valid(jd))
+          }.validate(Map("n" -> Seq("1985-09-10"))) shouldBe(Valid(jd))
 
           From[UrlFormEncoded] { __ =>
             (__ \ "n").read(jodaDate)
-          }.validate(Map("n" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
+          }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
         }
 
         "time" in {
           From[UrlFormEncoded] { __ =>
             (__ \ "n").read(jodaTime)
-          }.validate(Map("n" -> Seq(dd.getTime.toString))) mustEqual(Valid(jd))
+          }.validate(Map("n" -> Seq(dd.getTime.toString))) shouldBe(Valid(jd))
 
           From[UrlFormEncoded] { __ =>
             (__ \ "n").read(jodaDate)
-          }.validate(Map("n" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
+          }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
         }
 
         "local date" in {
@@ -161,11 +160,11 @@ object RulesSpec extends Specification {
 
           From[UrlFormEncoded] { __ =>
             (__ \ "n").read(jodaLocalDate)
-          }.validate(Map("n" -> Seq(ld.toString()))) mustEqual(Valid(ld))
+          }.validate(Map("n" -> Seq(ld.toString()))) shouldBe(Valid(ld))
 
           From[UrlFormEncoded] { __ =>
             (__ \ "n").read(jodaLocalDate)
-          }.validate(Map("n" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "")))))
+          }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "")))))
         }
       }
 
@@ -177,78 +176,78 @@ object RulesSpec extends Specification {
 
         From[UrlFormEncoded] { __ =>
           (__ \ "n").read(sqlDate)
-        }.validate(Map("n" -> Seq("1985-09-10"))) mustEqual(Valid(ds))
+        }.validate(Map("n" -> Seq("1985-09-10"))) shouldBe(Valid(ds))
       }
 
       "Boolean" in {
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Boolean] }.validate(Map("n" -> Seq("true"))) mustEqual(Valid(true))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Boolean] }.validate(Map("n" -> Seq("TRUE"))) mustEqual(Valid(true))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Boolean] }.validate(Map("n" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Boolean] }.validate(Map("n" -> Seq("true"))) shouldBe(Valid(true))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Boolean] }.validate(Map("n" -> Seq("TRUE"))) shouldBe(Valid(true))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Boolean] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
       }
 
       "String" in {
-        From[UrlFormEncoded] { __ => (__ \ "n").read[String] }.validate(Map("n" -> Seq("foo"))) mustEqual(Valid("foo"))
-        From[UrlFormEncoded] { __ => (__ \ "o").read[String] }.validate(Map("o.n" -> Seq("foo"))) mustEqual(Invalid(Seq(Path \ "o" -> Seq(ValidationError("error.required")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[String] }.validate(Map("n" -> Seq("foo"))) shouldBe(Valid("foo"))
+        From[UrlFormEncoded] { __ => (__ \ "o").read[String] }.validate(Map("o.n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "o" -> Seq(ValidationError("error.required")))))
       }
 
       "Option" in {
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Option[Boolean]] }.validate(Map("n" -> Seq("true"))) mustEqual(Valid(Some(true)))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Option[Boolean]] }.validate(Map("n" -> Seq(""))) mustEqual(Valid(None))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Option[Boolean]] }.validate(Map("foo" -> Seq("bar"))) mustEqual(Valid(None))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Option[Boolean]] }.validate(Map("n" -> Seq("bar"))) mustEqual(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Option[Boolean]] }.validate(Map("n" -> Seq("true"))) shouldBe(Valid(Some(true)))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Option[Boolean]] }.validate(Map("n" -> Seq(""))) shouldBe(Valid(None))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Option[Boolean]] }.validate(Map("foo" -> Seq("bar"))) shouldBe(Valid(None))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Option[Boolean]] }.validate(Map("n" -> Seq("bar"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
       }
 
       "Map[String, Seq[V]]" in {
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Map[String, Seq[String]]] }.validate(Map("n.foo" -> Seq("bar"))) mustEqual(Valid(Map("foo" -> Seq("bar"))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Map[String, Seq[Int]]] }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("5"))) mustEqual(Valid(Map("foo" -> Seq(4), "bar" -> Seq(5))))
-        From[UrlFormEncoded] { __ => (__ \ "x").read[Map[String, Int]] }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("frack"))) mustEqual(Valid(Map.empty))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Map[String, Seq[Int]]] }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("frack"))) mustEqual(Invalid(Seq(Path \ "n" \ "bar" \ 0 -> Seq(ValidationError("error.number", "Int")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Map[String, Seq[String]]] }.validate(Map("n.foo" -> Seq("bar"))) shouldBe(Valid(Map("foo" -> Seq("bar"))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Map[String, Seq[Int]]] }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("5"))) shouldBe(Valid(Map("foo" -> Seq(4), "bar" -> Seq(5))))
+        From[UrlFormEncoded] { __ => (__ \ "x").read[Map[String, Int]] }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("frack"))) shouldBe(Valid(Map.empty))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Map[String, Seq[Int]]] }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("frack"))) shouldBe(Invalid(Seq(Path \ "n" \ "bar" \ 0 -> Seq(ValidationError("error.number", "Int")))))
       }
 
       "Traversable" in {
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Traversable[String]] }.validate(Map("n" -> Seq("foo"))).toOption.get.toSeq must contain(exactly(Seq("foo"): _*))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Traversable[Int]] }.validate(Map("n[]" -> Seq("1", "2", "3"))).toOption.get.toSeq must contain(exactly(Seq(1, 2, 3): _*))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Traversable[Int]] }.validate(Map("n[]" -> Seq("1", "paf"))) mustEqual(Invalid(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.number", "Int")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Traversable[String]] }.validate(Map("n" -> Seq("foo"))).toOption.get.toSeq shouldBe(Seq("foo"))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Traversable[Int]] }.validate(Map("n[]" -> Seq("1", "2", "3"))).toOption.get.toSeq shouldBe(Seq(1, 2, 3))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Traversable[Int]] }.validate(Map("n[]" -> Seq("1", "paf"))) shouldBe(Invalid(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.number", "Int")))))
       }
 
       "Array" in {
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Array[String]] }.validate(Map("n" -> Seq("foo"))).toOption.get.toSeq must contain(exactly(Seq("foo"): _*))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Array[Int]] }.validate(Map("n[]" -> Seq("1", "2", "3"))).toOption.get.toSeq must contain(exactly(Seq(1, 2, 3): _*))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Array[Int]] }.validate(Map("n[]" -> Seq("1", "paf"))) mustEqual(Invalid(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.number", "Int")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Array[String]] }.validate(Map("n" -> Seq("foo"))).toOption.get.toSeq shouldBe(Seq("foo"))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Array[Int]] }.validate(Map("n[]" -> Seq("1", "2", "3"))).toOption.get.toSeq shouldBe(Seq(1, 2, 3))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Array[Int]] }.validate(Map("n[]" -> Seq("1", "paf"))) shouldBe(Invalid(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.number", "Int")))))
       }
 
       "Seq" in {
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Seq[String]] }.validate(Map("n" -> Seq("foo"))).toOption.get must contain(exactly(Seq("foo"): _*))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Seq[Int]] }.validate(Map("n[]" -> Seq("1", "2", "3"))).toOption.get must contain(exactly(Seq(1, 2, 3): _*))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Seq[String]] }.validate(Map("n" -> Seq("foo"))).toOption.get shouldBe(Seq("foo"))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Seq[Int]] }.validate(Map("n[]" -> Seq("1", "2", "3"))).toOption.get shouldBe(Seq(1, 2, 3))
         From[UrlFormEncoded] { __ => (__ \ "n").read[Seq[Int]] }.validate(Map(
           "n[0]" -> Seq("1"),
           "n[1]" -> Seq("2"),
           "n[3]" -> Seq("3")
-        )).toOption.get must contain(exactly(Seq(1, 2, 3): _*))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Seq[Int]] }.validate(Map("n[]" -> Seq("1", "paf"))) mustEqual(Invalid(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.number", "Int")))))
+        )).toOption.get shouldBe(Seq(1, 2, 3))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Seq[Int]] }.validate(Map("n[]" -> Seq("1", "paf"))) shouldBe(Invalid(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.number", "Int")))))
       }
     }
 
     "validate data" in {
-      From[UrlFormEncoded] { __ => (__  \ "firstname").read(notEmpty) }.validate(valid) mustEqual(Valid("Julien"))
+      From[UrlFormEncoded] { __ => (__  \ "firstname").read(notEmpty) }.validate(valid) shouldBe(Valid("Julien"))
 
       val p = (Path \ "informations" \ "label")
-      From[UrlFormEncoded] { __ => (__  \ "informations" \ "label").read(notEmpty) }.validate(valid) mustEqual(Valid("Personal"))
-      From[UrlFormEncoded] { __ => (__  \ "informations" \ "label").read(notEmpty) }.validate(invalid) mustEqual(Invalid(Seq(p -> Seq(ValidationError("error.required")))))
+      From[UrlFormEncoded] { __ => (__  \ "informations" \ "label").read(notEmpty) }.validate(valid) shouldBe(Valid("Personal"))
+      From[UrlFormEncoded] { __ => (__  \ "informations" \ "label").read(notEmpty) }.validate(invalid) shouldBe(Invalid(Seq(p -> Seq(ValidationError("error.required")))))
     }
 
     "validate seq" in {
       def isNotEmpty[T <: Traversable[_]] = validateWith[T]("error.notEmpty"){ !_.isEmpty }
 
-      From[UrlFormEncoded] { __ => (__ \ "firstname").read[Seq[String]] }.validate(valid) mustEqual(Valid(Seq("Julien")))
-      From[UrlFormEncoded] { __ => (__ \ "foobar").read[Seq[String]] }.validate(valid) mustEqual(Valid(Seq()))
-      From[UrlFormEncoded] { __ => (__ \ "foobar").read(isNotEmpty[Seq[Int]]) }.validate(valid) mustEqual(Invalid(Seq(Path \ "foobar" -> Seq(ValidationError("error.notEmpty")))))
+      From[UrlFormEncoded] { __ => (__ \ "firstname").read[Seq[String]] }.validate(valid) shouldBe(Valid(Seq("Julien")))
+      From[UrlFormEncoded] { __ => (__ \ "foobar").read[Seq[String]] }.validate(valid) shouldBe(Valid(Seq()))
+      From[UrlFormEncoded] { __ => (__ \ "foobar").read(isNotEmpty[Seq[Int]]) }.validate(valid) shouldBe(Invalid(Seq(Path \ "foobar" -> Seq(ValidationError("error.notEmpty")))))
     }
 
     "validate optional" in {
-      From[UrlFormEncoded] { __ => (__ \ "firstname").read[Option[String]] }.validate(valid) mustEqual(Valid(Some("Julien")))
-      From[UrlFormEncoded] { __ => (__ \ "firstname").read[Option[Int]] }.validate(valid) mustEqual(Invalid(Seq(Path \ "firstname" -> Seq(ValidationError("error.number", "Int")))))
-      From[UrlFormEncoded] { __ => (__ \ "foobar").read[Option[String]] }.validate(valid) mustEqual(Valid(None))
+      From[UrlFormEncoded] { __ => (__ \ "firstname").read[Option[String]] }.validate(valid) shouldBe(Valid(Some("Julien")))
+      From[UrlFormEncoded] { __ => (__ \ "firstname").read[Option[Int]] }.validate(valid) shouldBe(Invalid(Seq(Path \ "firstname" -> Seq(ValidationError("error.number", "Int")))))
+      From[UrlFormEncoded] { __ => (__ \ "foobar").read[Option[String]] }.validate(valid) shouldBe(Valid(None))
     }
 
     "validate deep" in {
@@ -257,45 +256,45 @@ object RulesSpec extends Specification {
       From[UrlFormEncoded] { __ =>
          (__ \ "informations").read(
           (__ \ "label").read(notEmpty))
-      }.validate(valid) mustEqual(Valid("Personal"))
+      }.validate(valid) shouldBe(Valid("Personal"))
 
        From[UrlFormEncoded] { __ =>
          (__ \ "informations").read(
           (__ \ "label").read(notEmpty))
-      }.validate(invalid) mustEqual(Invalid(Seq(p -> Seq(ValidationError("error.required")))))
+      }.validate(invalid) shouldBe(Invalid(Seq(p -> Seq(ValidationError("error.required")))))
     }
 
     "validate deep optional" in {
       From[UrlFormEncoded]{ __ =>
         (__ \ "first" \ "second").read[Option[String]]
-      }validate(Map.empty) mustEqual Valid(None)
+      }validate(Map.empty) shouldBe Valid(None)
     }
 
     "coerce type" in {
-      From[UrlFormEncoded] { __ => (__ \ "age").read[Int] }.validate(valid) mustEqual(Valid(27))
-      From[UrlFormEncoded] { __ => (__ \ "firstname").read[Int] }.validate(valid) mustEqual(Invalid(Seq((Path \ "firstname") -> Seq(ValidationError("error.number", "Int")))))
+      From[UrlFormEncoded] { __ => (__ \ "age").read[Int] }.validate(valid) shouldBe(Valid(27))
+      From[UrlFormEncoded] { __ => (__ \ "firstname").read[Int] }.validate(valid) shouldBe(Invalid(Seq((Path \ "firstname") -> Seq(ValidationError("error.number", "Int")))))
     }
 
     "compose constraints" in {
       val composed = notEmpty |+| minLength(3)
-      From[UrlFormEncoded] { __ => (__ \ "firstname").read(composed) }.validate(valid) mustEqual(Valid("Julien"))
+      From[UrlFormEncoded] { __ => (__ \ "firstname").read(composed) }.validate(valid) shouldBe(Valid("Julien"))
 
       val p = Path \ "informations" \ "label"
       val err = Invalid(Seq(p -> Seq(ValidationError("error.required"), ValidationError("error.minLength", 3))))
-      From[UrlFormEncoded] { __ => (__ \ "informations" \ "label").read(composed) }.validate(invalid) mustEqual(err)
+      From[UrlFormEncoded] { __ => (__ \ "informations" \ "label").read(composed) }.validate(invalid) shouldBe(err)
     }
 
     "compose validations" in {
       From[UrlFormEncoded] { __ =>
         ((__ \ "firstname").read(notEmpty) ~
          (__ \ "lastname").read(notEmpty)){ _ -> _ }
-      }.validate(valid) mustEqual Valid("Julien" -> "Tournay")
+      }.validate(valid) shouldBe Valid("Julien" -> "Tournay")
 
       From[UrlFormEncoded] { __ =>
         ((__ \ "firstname").read(notEmpty) ~
          (__ \ "lastname").read(notEmpty) ~
          (__ \ "informations" \ "label").read(notEmpty)).tupled
-      }.validate(invalid) mustEqual Invalid(Seq((Path \ "informations" \ "label") -> Seq(ValidationError("error.required"))))
+      }.validate(invalid) shouldBe Invalid(Seq((Path \ "informations" \ "label") -> Seq(ValidationError("error.required"))))
     }
 
     "validate dependent fields" in {
@@ -323,12 +322,12 @@ object RulesSpec extends Specification {
         ((__ \ "login").read(notEmpty) ~ passRule).tupled
       }
 
-      rule.validate(v).mustEqual(Valid("Alice" -> "s3cr3t"))
-      rule.validate(i1).mustEqual(Invalid(Seq(Path \ "verify" -> Seq(ValidationError("error.required")))))
-      rule.validate(i2).mustEqual(Invalid(Seq(Path \ "verify" -> Seq(ValidationError("error.equals", "s3cr3t")))))
+      rule.validate(v).shouldBe(Valid("Alice" -> "s3cr3t"))
+      rule.validate(i1).shouldBe(Invalid(Seq(Path \ "verify" -> Seq(ValidationError("error.required")))))
+      rule.validate(i2).shouldBe(Invalid(Seq(Path \ "verify" -> Seq(ValidationError("error.equals", "s3cr3t")))))
     }
 
-    "validate subclasses (and parse the concrete class)" in {
+    "validate subclasses (and parse the concrete class)" when {
 
       trait A
       case class B(foo: Int) extends A
@@ -351,9 +350,9 @@ object RulesSpec extends Specification {
 
         val rule = rb orElse rc orElse Rule(_ => typeInvalid)
 
-        rule.validate(b) mustEqual(Valid(B(4)))
-        rule.validate(c) mustEqual(Valid(C(6)))
-        rule.validate(e) mustEqual(Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType")))))
+        rule.validate(b) shouldBe(Valid(B(4)))
+        rule.validate(c) shouldBe(Valid(C(6)))
+        rule.validate(e) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType")))))
       }
 
       "by dicriminating on fields" in {
@@ -366,9 +365,9 @@ object RulesSpec extends Specification {
           }
         }
 
-        rule.validate(b) mustEqual(Valid(B(4)))
-        rule.validate(c) mustEqual(Valid(C(6)))
-        rule.validate(e) mustEqual(Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType")))))
+        rule.validate(b) shouldBe(Valid(B(4)))
+        rule.validate(c) shouldBe(Valid(C(6)))
+        rule.validate(e) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType")))))
       }
 
     }
@@ -454,16 +453,16 @@ object RulesSpec extends Specification {
         Contact("Julien", "Tournay", None, Seq(
           ContactInformation("Personal", None, List("01.23.45.67.89", "98.76.54.32.10"))))
 
-      contactValidated.validate(validM) mustEqual(Valid(expected))
-      contactValidated.validate(validWithPhones) mustEqual(Valid(expected))
-      contactValidated.validate(validNoMail1) mustEqual(Valid(expectedNoMail))
-      contactValidated.validate(validNoMail2) mustEqual(Valid(expectedNoMail))
-      contactValidated.validate(validNoMail3) mustEqual(Valid(expectedNoMail))
-      contactValidated.validate(invalidM) mustEqual(Invalid(Seq(
+      contactValidated.validate(validM) shouldBe(Valid(expected))
+      contactValidated.validate(validWithPhones) shouldBe(Valid(expected))
+      contactValidated.validate(validNoMail1) shouldBe(Valid(expectedNoMail))
+      contactValidated.validate(validNoMail2) shouldBe(Valid(expectedNoMail))
+      contactValidated.validate(validNoMail3) shouldBe(Valid(expectedNoMail))
+      contactValidated.validate(invalidM) shouldBe(Invalid(Seq(
         (Path \ "informations" \ 0 \ "label") -> Seq(ValidationError("error.required")))))
     }
 
-    "read recursive" in {
+    "read recursive" when {
       case class RecUser(name: String, friends: Seq[RecUser] = Nil)
       val u = RecUser(
         "bob",
@@ -485,18 +484,18 @@ object RulesSpec extends Specification {
           ((__ \ "name").read[String] ~
            (__ \ "friends").read(seqR(w)))(RecUser.apply)
         }
-        w.validate(m) mustEqual Valid(u)
+        w.validate(m) shouldBe Valid(u)
 
         lazy val w2: Rule[UrlFormEncoded, RecUser] =
           ((Path \ "name").read[UrlFormEncoded, String] ~
            (Path \ "friends").from[UrlFormEncoded](seqR(w2)))(RecUser.apply)
-        w2.validate(m) mustEqual Valid(u)
+        w2.validate(m) shouldBe Valid(u)
 
         lazy val w3: Rule[UrlFormEncoded, User1] = From[UrlFormEncoded]{ __ =>
           ((__ \ "name").read[String] ~
            (__ \ "friend").read(optionR(w3)))(User1.apply)
         }
-        w3.validate(m1) mustEqual Valid(u1)
+        w3.validate(m1) shouldBe Valid(u1)
       }
 
       "using implicit notation" in {
@@ -504,13 +503,13 @@ object RulesSpec extends Specification {
           ((__ \ "name").read[String] ~
            (__ \ "friends").read[Seq[RecUser]])(RecUser.apply)
         }
-        w.validate(m) mustEqual Valid(u)
+        w.validate(m) shouldBe Valid(u)
 
         implicit lazy val w3: Rule[UrlFormEncoded, User1] = From[UrlFormEncoded]{ __ =>
           ((__ \ "name").read[String] ~
            (__ \ "friend").read[Option[User1]])(User1.apply)
         }
-        w3.validate(m1) mustEqual Valid(u1)
+        w3.validate(m1) shouldBe Valid(u1)
       }
 
     }

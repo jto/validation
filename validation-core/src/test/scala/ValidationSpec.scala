@@ -1,8 +1,8 @@
 import jto.validation._
 
-import org.specs2.mutable._
+import org.scalatest._
 
-object ValidatedSpec extends Specification {
+class ValidatedSpec extends WordSpec with Matchers {
 
   "Validated" should {
 

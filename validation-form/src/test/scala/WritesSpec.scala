@@ -1,8 +1,8 @@
 import jto.validation._
 import jto.validation.forms._
-import org.specs2.mutable._
+import org.scalatest._
 
-class WritesSpec extends Specification {
+class WritesSpec extends WordSpec with Matchers {
 
   case class Contact(
     firstname: String,
@@ -61,7 +61,7 @@ class WritesSpec extends Specification {
       w.writes(Nil) shouldBe Map.empty
     }
 
-    "support primitives types" in {
+    "support primitives types" when {
 
       "Int" in {
         To[UrlFormEncoded] { __ => (__ \ "n").write[Int] }.writes(4) shouldBe(Map("n" -> Seq("4")))
@@ -88,7 +88,7 @@ class WritesSpec extends Specification {
       }
 
       "Double" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Double] }.writes(4) shouldBe(Map("n" -> Seq("4.0")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Double] }.writes(4.5D) shouldBe(Map("n" -> Seq("4.5")))
         To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Double] }.writes(4.5D) shouldBe(Map("n.o" -> Seq("4.5")))
         To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Double] }.writes(4.5D) shouldBe(Map("n.o.p" -> Seq("4.5")))
       }
@@ -113,15 +113,14 @@ class WritesSpec extends Specification {
         To[UrlFormEncoded] { __ => (__ \ "n").write(date) }.writes(d) shouldBe(Map("n" -> Seq("1985-09-10")))
       }
 
-      "iso date" in {
-        skipped("Can't test on CI")
+      "iso date (Can't test on CI)" ignore {
         import java.util.Date
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val d = f.parse("1985-09-10")
         To[UrlFormEncoded] { __ => (__ \ "n").write(isoDate) }.writes(d) shouldBe(Map("n" -> Seq("1985-09-10T00:00:00+02:00")))
       }
 
-      "joda" in {
+      "joda" when {
         import org.joda.time.DateTime
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val dd = f.parse("1985-09-10")
@@ -257,7 +256,7 @@ class WritesSpec extends Specification {
       contactWrite.writes(contact) shouldBe contactMap
     }
 
-    "write recursive" in {
+    "write recursive" when {
       case class RecUser(name: String, friends: List[RecUser] = Nil)
       val u = RecUser(
         "bob",
@@ -327,4 +326,3 @@ object TestValueClass {
     implicit val writes: Write[Id, String] = Write(id => id.value)
   }
 }
-

@@ -1,9 +1,9 @@
 import jto.validation._
 import jto.validation.json.Writes._
-import org.specs2.mutable._
+import org.scalatest._
 import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray, JsNull}
 
-class WritesSpec extends Specification {
+class WritesSpec extends WordSpec with Matchers {
 
   case class Contact(
     firstname: String,
@@ -54,7 +54,7 @@ class WritesSpec extends Specification {
       w.writes(Nil) shouldBe Json.obj("phones" -> Seq[String]())
     }
 
-    "support primitives types" in {
+    "support primitives types" when {
 
       "Int" in {
         (Path \ "n").write[Int, JsObject].writes(4) shouldBe(Json.obj("n" -> 4))
@@ -106,15 +106,14 @@ class WritesSpec extends Specification {
         (Path \ "n").write(date).writes(d) shouldBe(Json.obj("n" -> "1985-09-10"))
       }
 
-      "iso date" in {
-        skipped("Can't test on CI")
+      "iso date (Can't test on CI)" ignore {
         import java.util.Date
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val d = f.parse("1985-09-10")
         (Path \ "n").write(isoDate).writes(d) shouldBe(Json.obj("n" -> "1985-09-10T00:00:00+02:00"))
       }
 
-      "joda" in {
+      "joda" when {
         import org.joda.time.DateTime
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val dd = f.parse("1985-09-10")
@@ -231,23 +230,6 @@ class WritesSpec extends Specification {
       w.writes(None -> Nil) shouldBe Json.obj("phones" -> Seq[String]())
     }
 
-    // "write Invalid" in {
-    //   val f = Invalid[(Path, Seq[ValidationError]), String](Seq(Path \ "n" -> Seq(ValidationError("validation.type-mismatch", "Int"))))
-
-    //   implicitly[Write[(Path, Seq[ValidationError]), JsObject]]
-    //   implicitly[Write[Invalid[(Path, Seq[ValidationError]), String], JsObject]]
-
-    //   val error =
-    //     Json.obj("errors" ->
-    //       Json.obj("/n" -> Json.arr(
-    //         Json.obj(
-    //           "msg" -> "validation.type-mismatch",
-    //           "args" -> Seq("Int")))))
-
-    //   (Path \ "errors").write[Invalid[(Path, Seq[ValidationError]), String], JsObject]
-    //     .writes(f) shouldBe(error)
-    // }
-
     "write Map" in {
       implicit val contactInformation = To[JsObject] { __ =>
         ((__ \ "label").write[String] ~
@@ -265,7 +247,7 @@ class WritesSpec extends Specification {
       contactWrite.writes(contact) shouldBe contactJson
     }
 
-    "write recursive" in {
+    "write recursive" when {
       case class RecUser(name: String, friends: List[RecUser] = Nil)
       val u = RecUser(
         "bob",

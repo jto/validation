@@ -1,8 +1,8 @@
 import jto.validation._
 import jto.validation.forms._
-import org.specs2.mutable._
+import org.scalatest._
 
-object RulesSpec extends Specification {
+class RulesSpec extends WordSpec with Matchers {
 
   "Rules" should {
 
@@ -50,7 +50,7 @@ object RulesSpec extends Specification {
       r.validate(valid) shouldBe(Valid("Julien" -> 42))
     }
 
-    "support primitives types" in {
+    "support primitives types" when {
 
       "Int" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[Int] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
@@ -116,8 +116,7 @@ object RulesSpec extends Specification {
         }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
       }
 
-      "iso date" in {
-        skipped("Can't test on CI")
+      "iso date (Can't test on CI)" ignore {
         import java.util.Date
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         From[UrlFormEncoded] { __ =>
@@ -129,7 +128,7 @@ object RulesSpec extends Specification {
         }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date.isoformat")))))
       }
 
-      "joda" in {
+      "joda" when {
         import org.joda.time.DateTime
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val dd = f.parse("1985-09-10")
@@ -328,7 +327,7 @@ object RulesSpec extends Specification {
       rule.validate(i2).shouldBe(Invalid(Seq(Path \ "verify" -> Seq(ValidationError("error.equals", "s3cr3t")))))
     }
 
-    "validate subclasses (and parse the concrete class)" in {
+    "validate subclasses (and parse the concrete class)" when {
 
       trait A
       case class B(foo: Int) extends A
@@ -340,7 +339,7 @@ object RulesSpec extends Specification {
 
       val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 
-      "by trying all possible Rules" in {
+      "trying all possible Rules" in {
         val rb: Rule[UrlFormEncoded, A] = From[UrlFormEncoded]{ __ =>
           (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
         }
@@ -356,7 +355,7 @@ object RulesSpec extends Specification {
         rule.validate(e) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType")))))
       }
 
-      "by dicriminating on fields" in {
+      "dicriminating on fields" in {
 
         val rule = From[UrlFormEncoded] { __ =>
           (__ \ "name").read[String].flatMap[A] {
@@ -463,7 +462,7 @@ object RulesSpec extends Specification {
         (Path \ "informations" \ 0 \ "label") -> Seq(ValidationError("error.required")))))
     }
 
-    "read recursive" in {
+    "read recursive" when {
       case class RecUser(name: String, friends: Seq[RecUser] = Nil)
       val u = RecUser(
         "bob",

@@ -1,9 +1,9 @@
 import jto.validation._
 import jto.validation.json._
-import org.specs2.mutable._
+import org.scalatest._
 import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray, JsNull}
 
-object RulesSpec extends Specification {
+class RulesSpec extends WordSpec with Matchers {
 
   "Json Rules" should {
     import Rules._
@@ -41,7 +41,7 @@ object RulesSpec extends Specification {
       p.from[JsValue](checked).validate(Json.obj("issmth" -> false)) shouldBe(Invalid(Seq(Path \ "issmth" -> Seq(ValidationError("error.equals", true)))))
     }
 
-    "support all types of Json values" in {
+    "support all types of Json values" when {
 
       "null" in {
         (Path \ "n").read[JsValue, JsNull.type].validate(Json.obj("n" -> JsNull)) shouldBe(Valid(JsNull))
@@ -108,15 +108,14 @@ object RulesSpec extends Specification {
         (Path \ "n").from[JsValue](Rules.date).validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
       }
 
-      "iso date" in {
-        skipped("Can't test on CI")
+      "iso date (Can't test on CI)" ignore {
         import java.util.Date
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         (Path \ "n").from[JsValue](Rules.isoDate).validate(Json.obj("n" -> "1985-09-10T00:00:00+02:00")) shouldBe(Valid(f.parse("1985-09-10")))
         (Path \ "n").from[JsValue](Rules.isoDate).validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date.isoformat")))))
       }
 
-      "joda" in {
+      "joda" when {
         import org.joda.time.DateTime
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val dd = f.parse("1985-09-10")
@@ -326,7 +325,7 @@ object RulesSpec extends Specification {
       rule.validate(i2).shouldBe(Invalid(Seq(Path \ "verify" -> Seq(ValidationError("error.equals", "s3cr3t")))))
     }
 
-    "validate subclasses (and parse the concrete class)" in {
+    "validate subclasses (and parse the concrete class)" when {
 
       trait A
       case class B(foo: Int) extends A
@@ -338,7 +337,7 @@ object RulesSpec extends Specification {
 
       val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 
-      "by trying all possible Rules" in {
+      "trying all possible Rules" in {
         val rb: Rule[JsValue, A] = From[JsValue]{ __ =>
           (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
         }
@@ -354,7 +353,7 @@ object RulesSpec extends Specification {
         rule.validate(e) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType")))))
       }
 
-      "by dicriminating on fields" in {
+      "dicriminating on fields" in {
 
         val rule = From[JsValue] { __ =>
           (__ \ "name").read[String].flatMap[A] {
@@ -424,7 +423,7 @@ object RulesSpec extends Specification {
         (Path \ "informations" \ 0 \ "label") -> Seq(ValidationError("error.required")))))
     }
 
-    "read recursive" in {
+    "read recursive" when {
       case class RecUser(name: String, friends: Seq[RecUser] = Nil)
       val u = RecUser(
         "bob",

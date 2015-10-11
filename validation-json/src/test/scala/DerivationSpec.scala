@@ -1,12 +1,10 @@
 import jto.validation._
 import jto.validation.json._
 import play.api.libs.json.{JsValue, JsObject, Json}
-
-import org.specs2.mutable._
-import org.specs2.execute.Result
+import org.scalatest._
 import shapeless.test.illTyped
 
-object DerivationSpec extends Specification {
+class DerivationSpec extends WordSpec with Matchers {
   sealed trait Animal
   case class Dog(name: String, bones: Int) extends Animal
   case class Cat(name: String, fish: Int, friend: Option[Cat]) extends Animal
@@ -76,8 +74,6 @@ object DerivationSpec extends Specification {
 
     illTyped("Write.gen[Animal, JsObject]")
     illTyped("Write.derive: WriteLike[Animal, JsObject]")
-
-    true
   }
 
   "Derivation handles ADTs" in {

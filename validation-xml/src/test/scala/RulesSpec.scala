@@ -2,12 +2,11 @@ import jto.validation._
 import jto.validation.xml._
 import jto.validation.xml.Rules._
 import java.math.{BigDecimal => jBigDecimal}
-import java.util.Date
-import org.joda.time.{LocalDate, DateTime}
-import org.specs2.mutable._
+import org.scalatest._
 import scala.xml.Node
+import scala.language.postfixOps
 
-object RulesSpec extends Specification {
+class RulesSpec extends WordSpec with Matchers {
 
   "Xml rules" should {
 
@@ -52,7 +51,7 @@ object RulesSpec extends Specification {
       attributeR[Boolean]("checked").validate(<empty></empty>) shouldBe Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
     }
 
-    "support primitive types" in {
+    "support primitive types" when {
 
       "Int" in {
         Path.read[Node, Int].validate(<a>4</a>) shouldBe Valid(4)
@@ -115,7 +114,8 @@ object RulesSpec extends Specification {
         Path.from[Node](Rules.date).validate(<a>foo</a>) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
       }
 
-      "joda" in {
+      "joda" when {
+        import org.joda.time.DateTime
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val dd = f.parse("1985-09-10")
         val jd = new DateTime(dd)
@@ -131,6 +131,7 @@ object RulesSpec extends Specification {
         }
 
         "local date" in {
+          import org.joda.time.LocalDate
           val ld = new LocalDate()
           Path.from[Node](Rules.jodaLocalDate).validate(<a>{ld.toString}</a>) shouldBe(Valid(ld))
           Path.from[Node](Rules.jodaLocalDate).validate(<a>foo</a>) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("error.expected.jodadate.format", "")))))
@@ -291,7 +292,7 @@ object RulesSpec extends Specification {
         rule.validate(i2).shouldBe(Invalid(Seq(Path \ "verify" -> Seq(ValidationError("error.equals", "s3cr3t")))))
       }
 
-      "validate subclasses (and parse the concrete class)" in {
+      "validate subclasses (and parse the concrete class)" when {
 
         trait A
         case class B(foo: Int) extends A
@@ -303,7 +304,7 @@ object RulesSpec extends Specification {
 
         val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 
-        "by trying all possible Rules" in {
+        "trying all possible Rules" in {
           val rb: Rule[Node, A] = From[Node]{ __ =>
             (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
           }
@@ -319,7 +320,7 @@ object RulesSpec extends Specification {
           rule.validate(e) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType")))))
         }
 
-        "by dicriminating on fields" in {
+        "dicriminating on fields" in {
 
           val rule = From[Node] { __ =>
             (__ \ "name").read[String].flatMap[A] {
@@ -339,15 +340,15 @@ object RulesSpec extends Specification {
       "perform complex validation" in {
 
         case class Contact(
-                            firstname: String,
-                            lastname: String,
-                            company: Option[String],
-                            informations: ContactInformation)
+          firstname: String,
+          lastname: String,
+          company: Option[String],
+          informations: ContactInformation)
 
         case class ContactInformation(
-                                       label: String,
-                                       email: Option[String],
-                                       phones: Seq[String])
+          label: String,
+          email: Option[String],
+          phones: Seq[String])
 
         val infoValidated = From[Node] { __ =>
           (
@@ -374,7 +375,7 @@ object RulesSpec extends Specification {
           Seq(ValidationError("error.email")))))
       }
 
-      "read recursive" in {
+      "read recursive" when {
         case class RecUser(name: String, friends: Seq[RecUser] = Nil)
         val u = RecUser(
           "bob",

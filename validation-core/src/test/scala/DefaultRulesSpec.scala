@@ -1,8 +1,8 @@
 import jto.validation._
 
-import org.specs2.mutable._
+import org.scalatest._
 
-object DefaultRulesSpec extends Specification {
+class DefaultRulesSpec extends WordSpec with Matchers {
 
   object R extends GenericRules
   import R._

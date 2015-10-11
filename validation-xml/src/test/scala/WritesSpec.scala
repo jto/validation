@@ -1,12 +1,10 @@
 import jto.validation._
 import jto.validation.xml._
 import jto.validation.xml.Writes._
-import java.text.NumberFormat
-import java.util.{Date, Locale}
-import org.joda.time.{DateTime, LocalDate}
-import org.specs2.mutable._
+import org.scalatest._
+import scala.language.postfixOps
 
-class WritesSpec extends Specification {
+class WritesSpec extends WordSpec with Matchers {
 
   case class Contact(
     firstname: String,
@@ -63,7 +61,7 @@ class WritesSpec extends Specification {
       w.writes(s)(<root></root>) shouldBe <root><a>1</a><a>2</a><a>3</a></root>
     }
 
-    "support primitive types" in {
+    "support primitive types" when {
 
       "Int" in {
         Path.write[Int, XmlWriter].writes(4)(<a></a>) shouldBe(<a>4</a>)
@@ -107,7 +105,8 @@ class WritesSpec extends Specification {
         Path.write(date).writes(d)(<a></a>) shouldBe(<a>1985-09-10</a>)
       }
 
-      "joda" in {
+      "joda" when {
+        import org.joda.time.DateTime
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val dd = f.parse("1985-09-10")
         val jd = new DateTime(dd)
@@ -117,6 +116,7 @@ class WritesSpec extends Specification {
         }
 
         "local date" in {
+          import org.joda.time.LocalDate
           val ld = new LocalDate()
           Path.write(jodaLocalDate).writes(ld)(<a></a>) shouldBe(<a>{ld.toString}</a>)
         }
@@ -138,6 +138,8 @@ class WritesSpec extends Specification {
     }
 
     "format data" in {
+      import java.text.NumberFormat
+      import java.util.Locale
       val formatter = Write[Double, String]{ money =>
         val f = NumberFormat.getCurrencyInstance(Locale.FRANCE)
         f.format(money)
@@ -201,7 +203,7 @@ class WritesSpec extends Specification {
       w.writes(None -> Nil)(<a></a>) shouldBe <a><phones></phones></a>
     }
 
-    "write recursive" in {
+    "write recursive" when {
       case class RecUser(name: String, friends: Seq[RecUser] = Nil)
       val u = RecUser(
         "bob",

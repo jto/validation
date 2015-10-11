@@ -1,8 +1,8 @@
 import jto.validation._
 import jto.validation.forms._
-import org.specs2.mutable._
+import org.scalatest._
 
-object FormatSpec extends Specification {
+class FormatSpec extends WordSpec with Matchers {
   case class User(id: Long, name: String)
   val luigi = User(1, "Luigi")
 
@@ -72,7 +72,7 @@ object FormatSpec extends Specification {
       // fin.validate(m2) shouldBe(Valid(luigi))
     }
 
-    "support primitives types" in {
+    "support primitives types" when {
       import Rules._
       import Writes._
 
@@ -140,8 +140,7 @@ object FormatSpec extends Specification {
         }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
       }
 
-      "iso date" in {
-        skipped("Can't test on CI")
+      "iso date (Can't test on CI)" ignore {
         import java.util.Date
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
@@ -153,7 +152,7 @@ object FormatSpec extends Specification {
         }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date.isoformat")))))
       }
 
-      "joda" in {
+      "joda" when {
         import org.joda.time.DateTime
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val dd = f.parse("1985-09-10")
@@ -297,7 +296,7 @@ object FormatSpec extends Specification {
       Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "foobar").format(isNotEmpty[Seq[Int]]) }.validate(valid) shouldBe(Invalid(Seq(Path \ "foobar" -> Seq(ValidationError("error.notEmpty")))))
     }
 
-    "format recursive" in {
+    "format recursive" when {
       case class RecUser(name: String, friends: Seq[RecUser] = Nil)
       val u = RecUser(
         "bob",

@@ -1,8 +1,8 @@
 import jto.validation._
 
-import org.specs2.mutable._
+import org.scalatest._
 
-object PathSpec extends Specification {
+class PathSpec extends WordSpec with Matchers {
   "Path" should {
     "be compareable" in {
       (Path \ "foo" \ "bar") shouldBe (Path \ "foo" \ "bar")

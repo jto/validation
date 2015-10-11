@@ -1,10 +1,10 @@
 import jto.validation._
-import org.specs2.mutable._
-import org.specs2.matcher.MatchResult
+
+import org.scalatest._
 
 /** Helper function to test a Format with Arbitrary inputs */
-object TestRandomly extends Specification {
-  def apply[O, OO <: O, T](format: Format[O, OO, T])(implicit arbitrary: Arbitrary[T]): MatchResult[Any] = {
+object TestRandomly extends WordSpec with Matchers {
+  def apply[O, OO <: O, T](format: Format[O, OO, T])(implicit arbitrary: Arbitrary[T]): Unit = {
     val t = arbitrary.value
     t shouldBe format.validate(format.writes(t)).toOption.get
     ()

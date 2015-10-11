@@ -52,8 +52,8 @@ The Scala compiler is complaining about not finding an implicit function of type
 Fortunately, such method already exists. All you have to do is import it:
 
 ```scala
-scala> import jto.validation.json.Writes._
-import jto.validation.json.Writes._
+scala> import jto.validation.playjson.Writes._
+import jto.validation.playjson.Writes._
 ```
 
 > By convention, all useful serialization methods for a given type are to be found in an object called `Writes`. That object contains a bunch of implicits defining how to serialize primitives Scala types into the expected output types.
@@ -121,7 +121,7 @@ So when you use `(Path \ "user" \ "age").write[Int, JsObject]`, the compiler loo
 
 ```scala
 import jto.validation._
-import jto.validation.json.Writes._
+import jto.validation.playjson.Writes._
 import play.api.libs.json._
 
 val age = (Path \ "user" \ "age").write[Int, JsObject]
@@ -148,14 +148,14 @@ We need to create a `Write[User, JsValue]`. Creating this `Write` is simply a ma
 scala> import jto.validation._
 import jto.validation._
 
-scala> import jto.validation.json.Writes._
-import jto.validation.json.Writes._
+scala> import jto.validation.playjson.Writes._
+import jto.validation.playjson.Writes._
 
 scala> import play.api.libs.json._
 import play.api.libs.json._
 
 scala> val userWrite = To[JsObject] { __ =>
-     |   import jto.validation.json.Writes._
+     |   import jto.validation.playjson.Writes._
      |   ((__ \ "name").write[String] ~
      |    (__ \ "age").write[Int] ~
      |    (__ \ "email").write[Option[String]] ~

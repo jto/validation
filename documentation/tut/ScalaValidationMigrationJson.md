@@ -51,7 +51,7 @@ scala> import play.api.libs.json._
 import play.api.libs.json._
 
 scala> implicit val creatureRule = From[JsValue] { __ =>
-     |   import jto.validation.json.Rules._
+     |   import jto.validation.playjson.Rules._
      |   ((__ \ "name").read[String] ~
      |    (__ \ "isDead").read[Boolean] ~
      |    (__ \ "weight").read[Float]) (Creature.apply)
@@ -76,7 +76,7 @@ The readNullable method does not exists anymore. Just use a `Rule[JsValue, Optio
 
 ```scala
 scala> val nullableStringRule = From[JsValue] { __ =>
-     |   import jto.validation.json.Rules._
+     |   import jto.validation.playjson.Rules._
      |   (__ \ "foo").read[Option[String]]
      | }
 nullableStringRule: jto.validation.Rule[play.api.libs.json.JsValue,Option[String]] = jto.validation.Rule$$anon$3@71f404f
@@ -118,7 +118,7 @@ You can achieve the same think in the Validation API using [Rules composition](S
 
 ```scala
 scala> From[JsValue] { __ =>
-     |   import jto.validation.json.Rules._
+     |   import jto.validation.playjson.Rules._
      |   (__ \ "key1").read(email |+| minLength(5))
      | }
 res6: jto.validation.Rule[play.api.libs.json.JsValue,String] = jto.validation.Rule$$anon$3@7797aa10
@@ -158,7 +158,7 @@ scala> case class User(id: Long, name: String, friend: Option[User] = None)
 defined class User
 
 scala> implicit lazy val userRule: Rule[JsValue, User] = From[JsValue]{ __ =>
-     |   import jto.validation.json.Rules._
+     |   import jto.validation.playjson.Rules._
      |   ((__ \ "id").read[Long] ~
      |    (__ \ "name").read[String] ~
      |    (__ \ "friend").read(optionR(userRule))) (User.apply)
@@ -266,7 +266,7 @@ scala> val js = Json.obj(
 js: play.api.libs.json.JsObject = {"field1":"alpha","field2":123,"field3":{"field31":"beta","field32":345}}
 
 scala> val pick = From[JsValue] { __ =>
-     | 	import jto.validation.json.Rules._
+     | 	import jto.validation.playjson.Rules._
      | 	(__ \ "field3").read[JsValue]
      | }
 pick: jto.validation.Rule[play.api.libs.json.JsValue,play.api.libs.json.JsValue] = jto.validation.Rule$$anon$3@1e033e0b
@@ -318,7 +318,7 @@ scala> case class Creature(
 defined class Creature
 
 scala> implicit val creatureWrite = To[JsObject]{ __ =>
-     |   import jto.validation.json.Writes._
+     |   import jto.validation.playjson.Writes._
      | 	((__ \ "name").write[String] ~
      | 	 (__ \ "isDead").write[Boolean] ~
      | 	 (__ \ "weight").write[Float]) (Creature.unapply)

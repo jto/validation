@@ -46,7 +46,7 @@ import jto.validation._
 import play.api.libs.json._
 
 implicit val creatureRule = From[JsValue] { __ =>
-  import jto.validation.json.Rules._
+  import jto.validation.playjson.Rules._
   ((__ \ "name").read[String] ~
    (__ \ "isDead").read[Boolean] ~
    (__ \ "weight").read[Float]) (Creature.apply)
@@ -67,7 +67,7 @@ The readNullable method does not exists anymore. Just use a `Rule[JsValue, Optio
 
 ```tut
 val nullableStringRule = From[JsValue] { __ =>
-  import jto.validation.json.Rules._
+  import jto.validation.playjson.Rules._
   (__ \ "foo").read[Option[String]]
 }
 
@@ -97,7 +97,7 @@ You can achieve the same think in the Validation API using [Rules composition](S
 
 ```tut
 From[JsValue] { __ =>
-  import jto.validation.json.Rules._
+  import jto.validation.playjson.Rules._
   (__ \ "key1").read(email |+| minLength(5))
 }
 ```
@@ -134,7 +134,7 @@ becomes:
 case class User(id: Long, name: String, friend: Option[User] = None)
 
 implicit lazy val userRule: Rule[JsValue, User] = From[JsValue]{ __ =>
-  import jto.validation.json.Rules._
+  import jto.validation.playjson.Rules._
   ((__ \ "id").read[Long] ~
    (__ \ "name").read[String] ~
    (__ \ "friend").read(optionR(userRule))) (User.apply)
@@ -224,7 +224,7 @@ val js = Json.obj(
 	))
 
 val pick = From[JsValue] { __ =>
-	import jto.validation.json.Rules._
+	import jto.validation.playjson.Rules._
 	(__ \ "field3").read[JsValue]
 }
 
@@ -269,7 +269,7 @@ case class Creature(
   weight: Float)
 
 implicit val creatureWrite = To[JsObject]{ __ =>
-  import jto.validation.json.Writes._
+  import jto.validation.playjson.Writes._
 	((__ \ "name").write[String] ~
 	 (__ \ "isDead").write[Boolean] ~
 	 (__ \ "weight").write[Float]) (Creature.unapply)

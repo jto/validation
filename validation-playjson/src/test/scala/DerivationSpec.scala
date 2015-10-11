@@ -1,5 +1,5 @@
 import jto.validation._
-import jto.validation.json._
+import jto.validation.playjson._
 import play.api.libs.json.{JsValue, JsObject, Json}
 import org.scalatest._
 import shapeless.test.illTyped

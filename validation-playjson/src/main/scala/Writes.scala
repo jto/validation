@@ -1,5 +1,5 @@
 package jto.validation
-package json
+package playjson
 
 import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray, JsNull}
 

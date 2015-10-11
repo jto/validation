@@ -1,5 +1,5 @@
 import jto.validation._
-import jto.validation.json._
+import jto.validation.playjson._
 import org.scalatest._
 import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray, JsNull}
 

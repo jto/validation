@@ -27,7 +27,7 @@ import jto.validation._
 import play.api.libs.json._
 
 implicit val personRule = From[JsValue] { __ =>
-  import jto.validation.json.Rules._
+  import jto.validation.playjson.Rules._
   ((__ \ "name").read[String] ~
    (__ \ "age").read[Int] ~
    (__ \ "lovesChocolate").read[Boolean]) (Person.apply)
@@ -53,7 +53,7 @@ import jto.validation._
 import play.api.libs.json._
 
 implicit val personRule = {
-  import jto.validation.json.Rules._ // let's not leak implicits everywhere
+  import jto.validation.playjson.Rules._ // let's not leak implicits everywhere
   Rule.gen[JsValue, Person]
 }
 ```
@@ -77,7 +77,7 @@ import jto.validation._
 import play.api.libs.json._
 
 implicit val personWrite = {
-  import jto.validation.json.Writes._ // let's no leak implicits everywhere
+  import jto.validation.playjson.Writes._ // let's no leak implicits everywhere
   Write.gen[Person, JsObject]
 }
 

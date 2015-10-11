@@ -55,7 +55,6 @@ class WritesSpec extends WordSpec with Matchers {
     }
 
     "support primitives types" when {
-
       "Int" in {
         (Path \ "n").write[Int, JsObject].writes(4) shouldBe(Json.obj("n" -> 4))
         (Path \ "n" \ "o").write[Int, JsObject].writes(4) shouldBe(Json.obj("n" -> Json.obj("o"-> 4)))
@@ -98,50 +97,7 @@ class WritesSpec extends WordSpec with Matchers {
         (Path \ "n" \ "o").write[BigDecimal, JsObject].writes(BigDecimal("4.5")) shouldBe(Json.obj("n" -> Json.obj("o"-> 4.5)))
         (Path \ "n" \ "o" \ "p").write[BigDecimal, JsObject].writes(BigDecimal("4.5")) shouldBe(Json.obj("n" -> Json.obj("o"-> Json.obj("p"-> 4.5))))
       }
-
-      "date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val d = f.parse("1985-09-10")
-        (Path \ "n").write(date).writes(d) shouldBe(Json.obj("n" -> "1985-09-10"))
-      }
-
-      "iso date (Can't test on CI)" ignore {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val d = f.parse("1985-09-10")
-        (Path \ "n").write(isoDate).writes(d) shouldBe(Json.obj("n" -> "1985-09-10T00:00:00+02:00"))
-      }
-
-      "joda" when {
-        import org.joda.time.DateTime
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val jd = new DateTime(dd)
-
-        "date" in {
-          (Path \ "n").write(jodaDate).writes(jd) shouldBe(Json.obj("n" -> "1985-09-10"))
-        }
-
-        "time" in {
-          (Path \ "n").write(jodaTime).writes(jd) shouldBe(Json.obj("n" -> dd.getTime))
-        }
-
-        "local date" in {
-          import org.joda.time.LocalDate
-          val ld = new LocalDate()
-          (Path \ "n").write(jodaLocalDate).writes(ld) shouldBe(Json.obj("n" -> ld.toString))
-        }
-      }
-
-      "sql date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val ds = new java.sql.Date(dd.getTime())
-        (Path \ "n").write(sqlDate).writes(ds) shouldBe(Json.obj("n" -> "1985-09-10"))
-      }
-
+      
       "Boolean" in {
         (Path \ "n").write[Boolean, JsObject].writes(true) shouldBe(Json.obj("n" -> true))
         (Path \ "n" \ "o").write[Boolean, JsObject].writes(false) shouldBe(Json.obj("n" -> Json.obj("o"-> false)))
@@ -201,20 +157,6 @@ class WritesSpec extends WordSpec with Matchers {
         (Path \ "n" \ "o").write[Seq[String], JsObject].writes(Nil) shouldBe(Json.obj("n" -> Json.obj("o"-> Seq[String]())))
         (Path \ "n" \ "o" \ "p").write[Seq[String], JsObject].writes(Nil) shouldBe(Json.obj("n" -> Json.obj("o"-> Json.obj("p"-> Seq[String]()))))
       }
-    }
-
-    "format data" in {
-      val formatter = Write[Double, String]{ money =>
-        import java.text.NumberFormat
-        import java.util.Locale
-        val f = NumberFormat.getCurrencyInstance(Locale.FRANCE)
-        f.format(money)
-      }
-      val w = (Path \ "foo").write(formatter)
-      w.writes(500d) shouldBe(Json.obj("foo" -> "500,00 €"))
-
-      val w2 = To[JsValue] { __ => (__ \ "foo").write(formatter) }
-      w2.writes(500d) shouldBe(Json.obj("foo" -> "500,00 €"))
     }
 
     "compose" in {

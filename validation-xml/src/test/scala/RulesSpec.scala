@@ -108,43 +108,6 @@ class RulesSpec extends WordSpec with Matchers {
         Path.read[Node, BigDecimal].validate(<a>no</a>) shouldBe Invalid(Seq(Path -> Seq(ValidationError("error.number", "BigDecimal"))))
       }
 
-      "date" in {
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        Path.from[Node](Rules.date).validate(<a>1985-09-10</a>) shouldBe(Valid(f.parse("1985-09-10")))
-        Path.from[Node](Rules.date).validate(<a>foo</a>) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
-      }
-
-      "joda" when {
-        import org.joda.time.DateTime
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val jd = new DateTime(dd)
-
-        "date" in {
-          Path.from[Node](Rules.jodaDate).validate(<a>1985-09-10</a>) shouldBe(Valid(jd))
-          Path.from[Node](Rules.jodaDate).validate(<a>foo</a>) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
-        }
-
-        "time" in {
-          Path.from[Node](Rules.jodaTime).validate(<a>{dd.getTime}</a>) shouldBe(Valid(jd))
-          Path.from[Node](Rules.jodaDate).validate(<a>foo</a>) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
-        }
-
-        "local date" in {
-          import org.joda.time.LocalDate
-          val ld = new LocalDate()
-          Path.from[Node](Rules.jodaLocalDate).validate(<a>{ld.toString}</a>) shouldBe(Valid(ld))
-          Path.from[Node](Rules.jodaLocalDate).validate(<a>foo</a>) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("error.expected.jodadate.format", "")))))
-        }
-      }
-
-      "sql date" in {
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val ds = new java.sql.Date(dd.getTime())
-        Path.from[Node](Rules.sqlDate).validate(<a>1985-09-10</a>) shouldBe(Valid(ds))
-      }
-
       "Boolean" in {
         Path.read[Node, Boolean].validate(<a>true</a>) shouldBe Valid(true)
         attributeR[Boolean]("attr").validate(<a attr="true"></a>) shouldBe Valid(true)

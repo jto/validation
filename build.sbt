@@ -15,7 +15,7 @@ val scalatestVersion = "3.0.0-M10"
 val scalaXmlVersion = "1.0.5"
 val shapelessVersion = "2.2.5"
 
-lazy val root = aggregate("validation", `validation-core`, `validation-form`, `validation-delimited`, `validation-experimental`, `validation-json4s`, `validation-json`, `validation-xml`).in(file("."))
+lazy val root = aggregate("validation", `validation-core`, `validation-form`, `validation-delimited`, `validation-experimental`, `validation-json4s`, `validation-json`, `validation-xml`, `jvm-only-tests`).in(file("."))
 
 lazy val `validation-core` = project
   .settings(validationSettings: _*)
@@ -60,6 +60,11 @@ lazy val `validation-docs` = project
   .settings(tutSettings: _*)
   .settings(scalacOptions -= "-Ywarn-unused-import")
   .dependsOn(root)
+
+lazy val `jvm-only-tests` = project
+  .settings(validationSettings: _*)
+  .settings(dontPublish: _*)
+  .dependsOn(`validation-core`, `validation-form`, `validation-delimited`, `validation-experimental`, `validation-json4s`, `validation-json`, `validation-xml`)
 
 def aggregate(name: String, projects: ProjectReference*): Project =
   Project(name, file("." + name))

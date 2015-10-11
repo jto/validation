@@ -101,52 +101,6 @@ class RulesSpec extends WordSpec with Matchers {
         (Path \ "n").read[JsValue, BigDecimal].validate(Json.obj("n" -> 4.5)) shouldBe(Valid(BigDecimal(4.5)))
       }
 
-      "date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        (Path \ "n").from[JsValue](Rules.date).validate(Json.obj("n" -> "1985-09-10")) shouldBe(Valid(f.parse("1985-09-10")))
-        (Path \ "n").from[JsValue](Rules.date).validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
-      }
-
-      "iso date (Can't test on CI)" ignore {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        (Path \ "n").from[JsValue](Rules.isoDate).validate(Json.obj("n" -> "1985-09-10T00:00:00+02:00")) shouldBe(Valid(f.parse("1985-09-10")))
-        (Path \ "n").from[JsValue](Rules.isoDate).validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date.isoformat")))))
-      }
-
-      "joda" when {
-        import org.joda.time.DateTime
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val jd = new DateTime(dd)
-
-        "date" in {
-          (Path \ "n").from[JsValue](Rules.jodaDate).validate(Json.obj("n" -> "1985-09-10")) shouldBe(Valid(jd))
-          (Path \ "n").from[JsValue](Rules.jodaDate).validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
-        }
-
-        "time" in {
-          (Path \ "n").from[JsValue](Rules.jodaTime).validate(Json.obj("n" -> dd.getTime)) shouldBe(Valid(jd))
-          (Path \ "n").from[JsValue](Rules.jodaDate).validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
-        }
-
-        "local date" in {
-          import org.joda.time.LocalDate
-          val ld = new LocalDate()
-          (Path \ "n").from[JsValue](Rules.jodaLocalDate).validate(Json.obj("n" -> ld.toString())) shouldBe(Valid(ld))
-          (Path \ "n").from[JsValue](Rules.jodaLocalDate).validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "")))))
-        }
-      }
-
-      "sql date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val ds = new java.sql.Date(dd.getTime())
-        (Path \ "n").from[JsValue](Rules.sqlDate).validate(Json.obj("n" -> "1985-09-10")) shouldBe(Valid(ds))
-      }
-
       "Boolean" in {
         (Path \ "n").read[JsValue, Boolean].validate(Json.obj("n" -> true)) shouldBe(Valid(true))
         (Path \ "n").read[JsValue, Boolean].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))

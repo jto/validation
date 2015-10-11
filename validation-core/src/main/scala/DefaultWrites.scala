@@ -1,49 +1,47 @@
 package jto.validation
 
 trait DateWrites {
-  /**
-   * Serializer for java.util.Date
-   * @param pattern the pattern used by SimpleDateFormat
-   */
-  def date(pattern: String = "yyyy-MM-dd") = Write[java.util.Date, String] {
-    (d: java.util.Date) => new java.text.SimpleDateFormat(pattern).format(d)
-  }
-  implicit val date: Write[java.util.Date, String] = date()
+  def dateW(pattern: String): Write[java.util.Date, String] =
+    Write[java.util.Date, String] { d =>
+      new java.text.SimpleDateFormat(pattern).format(d)
+    }
+  
+  implicit def dateW: Write[java.util.Date, String] =
+    dateW("yyyy-MM-dd")
 
-  val isoDate = Write[java.util.Date, String] { d =>
-    import org.joda.time.format.ISODateTimeFormat
-    val fmt = ISODateTimeFormat.dateTimeNoMillis()
-    fmt.print(d.getTime)
-  }
+  def isoDateW: Write[java.util.Date, String] =
+    Write[java.util.Date, String] { d =>
+      import org.joda.time.format.ISODateTimeFormat
+      val fmt = ISODateTimeFormat.dateTimeNoMillis()
+      fmt.print(d.getTime)
+    }
 
-  def jodaDate(pattern: String) = Write[org.joda.time.DateTime, String] { d =>
-    val fmt = org.joda.time.format.DateTimeFormat.forPattern(pattern)
-    fmt.print(d)
-  }
+  def jodaDateW(pattern: String): Write[org.joda.time.DateTime, String] =
+    Write[org.joda.time.DateTime, String] { d =>
+      val fmt = org.joda.time.format.DateTimeFormat.forPattern(pattern)
+      fmt.print(d)
+    }
 
-  implicit def jodaTime = Write[org.joda.time.DateTime, Long] { d =>
-    d.getMillis
-  }
+  implicit def jodaDateW: Write[org.joda.time.DateTime, String] =
+    jodaDateW("yyyy-MM-dd")
 
-  def jodaLocalDate(pattern: String) = Write[org.joda.time.LocalDate, String] { d =>
-    import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
-    val fmt = if (pattern == "") ISODateTimeFormat.date else DateTimeFormat.forPattern(pattern)
-    fmt.print(d)
-  }
-  /**
-   * the default implicit joda.time.LocalDate reads
-   */
-  implicit val jodaLocalDate: Write[org.joda.time.LocalDate, String] = jodaLocalDate("")
+  implicit def jodaTimeW: Write[org.joda.time.DateTime, Long] =
+    Write[org.joda.time.DateTime, Long](_.getMillis)
 
-  /**
-   * the default implicit JodaDate write
-   */
-  implicit val jodaDate: Write[org.joda.time.DateTime, String] = jodaDate("yyyy-MM-dd")
+  def jodaLocalDateW(pattern: String): Write[org.joda.time.LocalDate, String] =
+    Write[org.joda.time.LocalDate, String] { d =>
+      import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
+      val fmt = if (pattern == "") ISODateTimeFormat.date else DateTimeFormat.forPattern(pattern)
+      fmt.print(d)
+    }
+    
+  implicit def jodaLocalDateW: Write[org.joda.time.LocalDate, String] = jodaLocalDateW("")
 
-  def sqlDate(pattern: String): Write[java.sql.Date, String] =
-    date(pattern).contramap((d: java.sql.Date) => new java.util.Date(d.getTime))
+  def sqlDateW(pattern: String): Write[java.sql.Date, String] =
+    dateW(pattern).contramap(d => new java.util.Date(d.getTime))
 
-  val sqlDate: Write[java.sql.Date, String] = sqlDate("yyyy-MM-dd")
+  implicit def sqlDateW: Write[java.sql.Date, String] =
+    sqlDateW("yyyy-MM-dd")
 }
 
 trait DefaultWrites extends DateWrites {

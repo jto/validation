@@ -99,49 +99,6 @@ class WritesSpec extends WordSpec with Matchers {
         (Path \ "n" \ "o" \ "p").write[BigDecimal, JObject].writes(BigDecimal("4.5")) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4.5))))))))
       }
 
-      "date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val d = f.parse("1985-09-10")
-        (Path \ "n").write(date).writes(d) shouldBe(JObject(Map("n" -> JString("1985-09-10"))))
-      }
-
-      "iso date (Can't test on CI)" ignore {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val d = f.parse("1985-09-10")
-        (Path \ "n").write(isoDate).writes(d) shouldBe(JObject(Map("n" -> JString("1985-09-10T00:00:00+02:00"))))
-      }
-
-      "joda" when {
-        import org.joda.time.DateTime
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val jd = new DateTime(dd)
-
-        "date" in {
-          (Path \ "n").write(jodaDate).writes(jd) shouldBe(JObject(Map("n" -> JString("1985-09-10"))))
-        }
-
-        "time" in {
-          (Path \ "n").write(jodaTime).writes(jd) shouldBe(JObject(Map("n" -> JNumber(dd.getTime))))
-        }
-
-        "local date" in {
-          import org.joda.time.LocalDate
-          val ld = new LocalDate()
-          (Path \ "n").write(jodaLocalDate).writes(ld) shouldBe(JObject(Map("n" -> JString(ld.toString))))
-        }
-      }
-
-      "sql date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val ds = new java.sql.Date(dd.getTime())
-        (Path \ "n").write(sqlDate).writes(ds) shouldBe(JObject(Map("n" -> JString("1985-09-10"))))
-      }
-
       "Boolean" in {
         (Path \ "n").write[Boolean, JObject].writes(true) shouldBe(JObject(Map("n" -> JBoolean(true))))
         (Path \ "n" \ "o").write[Boolean, JObject].writes(false) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JBoolean(false))))))
@@ -202,20 +159,6 @@ class WritesSpec extends WordSpec with Matchers {
         (Path \ "n" \ "o" \ "p").write[Seq[String], JObject].writes(Nil) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JArray(Vector()))))))))
       }
       
-    }
-
-    "format data" in {
-      val formatter = Write[Double, String]{ money =>
-        import java.text.NumberFormat
-        import java.util.Locale
-        val f = NumberFormat.getCurrencyInstance(Locale.FRANCE)
-        f.format(money)
-      }
-      val w = (Path \ "foo").write(formatter)
-      w.writes(500d) shouldBe(JObject(Map("foo" -> JString("500,00 €"))))
-
-      val w2 = To[JValue] { __ => (__ \ "foo").write(formatter) }
-      w2.writes(500d) shouldBe(JObject(Map("foo" -> JString("500,00 €"))))
     }
 
     "compose" in {

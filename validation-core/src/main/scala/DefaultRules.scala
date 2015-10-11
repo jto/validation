@@ -315,23 +315,12 @@ trait ParsingRules {
     case s if s.isValidLong => Valid(s.toLong)
   }("Long")
 
-  // BigDecimal.isValidFloat is buggy, see [SI-6699]
-  import java.{ lang => jl }
-  private def isValidFloat(bd: BigDecimal) = {
-    val d = bd.toFloat
-    !d.isInfinity && bd.bigDecimal.compareTo(new java.math.BigDecimal(jl.Float.toString(d), bd.mc)) == 0
-  }
   implicit def floatR = stringAs {
-    case s if isValidFloat(s) => Valid(s.toFloat)
+    case s if s.isDecimalFloat => Valid(s.toFloat)
   }("Float")
 
-  // BigDecimal.isValidDouble is buggy, see [SI-6699]
-  private def isValidDouble(bd: BigDecimal) = {
-    val d = bd.toDouble
-    !d.isInfinity && bd.bigDecimal.compareTo(new java.math.BigDecimal(jl.Double.toString(d), bd.mc)) == 0
-  }
   implicit def doubleR = stringAs {
-    case s if isValidDouble(s) => Valid(s.toDouble)
+    case s if s.isDecimalDouble => Valid(s.toDouble)
   }("Double")
 
   implicit def javaBigDecimalR = stringAs {

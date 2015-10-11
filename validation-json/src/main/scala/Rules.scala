@@ -53,23 +53,12 @@ object Rules extends DefaultRules[JsValue] {
     case v @ JsArray(_) => Valid(v)
   }("error.invalid", "Array")
 
-  // BigDecimal.isValidFloat is buggy, see [SI-6699]
-  import java.{ lang => jl }
-  private def isValidFloat(bd: BigDecimal) = {
-    val d = bd.toFloat
-    !d.isInfinity && bd.bigDecimal.compareTo(new java.math.BigDecimal(jl.Float.toString(d), bd.mc)) == 0
-  }
   implicit def floatR = jsonAs[Float] {
-    case JsNumber(v) if isValidFloat(v) => Valid(v.toFloat)
+    case JsNumber(v) if v.isDecimalFloat => Valid(v.toFloat)
   }("error.number", "Float")
 
-  // BigDecimal.isValidDouble is buggy, see [SI-6699]
-  private def isValidDouble(bd: BigDecimal) = {
-    val d = bd.toDouble
-    !d.isInfinity && bd.bigDecimal.compareTo(new java.math.BigDecimal(jl.Double.toString(d), bd.mc)) == 0
-  }
   implicit def doubleR = jsonAs[Double] {
-    case JsNumber(v) if isValidDouble(v) => Valid(v.toDouble)
+    case JsNumber(v) if v.isDecimalDouble => Valid(v.toDouble)
   }("error.number", "Double")
 
   implicit def bigDecimal = jsonAs[BigDecimal] {
@@ -122,7 +111,6 @@ object Rules extends DefaultRules[JsValue] {
     }.compose(r)
   }
 
-  // // XXX: a bit of boilerplate
   private def pickInS[T](implicit r: RuleLike[Seq[JsValue], T]): Rule[JsValue, T] =
     jsArrayR.map { case JsArray(fs) => fs }.compose(r)
   implicit def pickSeq[O](implicit r: RuleLike[JsValue, O]) = pickInS(seqR[JsValue, O])

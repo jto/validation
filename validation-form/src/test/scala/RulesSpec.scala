@@ -277,7 +277,6 @@ object RulesSpec extends Specification {
     }
 
     "compose constraints" in {
-      // TODO: create MonoidOps
       val composed = notEmpty |+| minLength(3)
       From[UrlFormEncoded] { __ => (__ \ "firstname").read(composed) }.validate(valid) mustEqual(Valid("Julien"))
 

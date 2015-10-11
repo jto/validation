@@ -1,7 +1,7 @@
 import jto.validation._
 import jto.validation.json4s.Writes._
 import org.specs2.mutable._
-import org.json4s._
+import org.json4s.ast.safe._
 
 class WritesSpec extends Specification {
 
@@ -19,91 +19,91 @@ class WritesSpec extends Specification {
   val contact = Contact("Julien", "Tournay", None, Seq(
     ContactInformation("Personal", Some("fakecontact@gmail.com"), Seq("01.23.45.67.89", "98.76.54.32.10"))))
 
-  val contactJson = JObject(
+  val contactJson = JObject(Map(
     "firstname" -> JString("Julien"),
     "lastname" -> JString("Tournay"),
-    "informations" -> JArray(List(JObject(
+    "informations" -> JArray(JObject(Map(
       "label" -> JString("Personal"),
       "email" -> JString("fakecontact@gmail.com"),
-      "phones" -> JArray(List(JString("01.23.45.67.89"), JString("98.76.54.32.10")))))))
+      "phones" -> JArray(JString("01.23.45.67.89"), JString("98.76.54.32.10")))))))
 
   "Writes" should {
 
     "write string" in {
       val w = (Path \ "label").write[String, JObject]
-      w.writes("Hello World") mustEqual JObject("label" -> JString("Hello World"))
+      w.writes("Hello World") mustEqual JObject(Map("label" -> JString("Hello World")))
     }
 
     "ignore values" in {
-      (Path \ "n").write(ignored("foo")).writes("test") mustEqual JObject("n" -> JString("foo"))
-      (Path \ "n").write(ignored(42)).writes(0) mustEqual JObject("n" -> JInt(42))
+      (Path \ "n").write(ignored("foo")).writes("test") mustEqual JObject(Map("n" -> JString("foo")))
+      (Path \ "n").write(ignored(42)).writes(0) mustEqual JObject(Map("n" -> JNumber(42)))
     }
 
     "write option" in {
       val w = (Path \ "email").write[Option[String], JObject]
-      w.writes(Some("Hello World")) mustEqual JObject("email" -> JString("Hello World"))
-      w.writes(None) mustEqual JObject()
+      w.writes(Some("Hello World")) mustEqual JObject(Map("email" -> JString("Hello World")))
+      w.writes(None) mustEqual JObject(Map())
 
-      (Path \ "n").write(optionW(intW)).writes(Some(5)) mustEqual JObject("n" -> JInt(5))
-      (Path \ "n").write(optionW(intW)).writes(None) mustEqual JObject()
+      (Path \ "n").write(optionW(intW)).writes(Some(5)) mustEqual JObject(Map("n" -> JNumber(5)))
+      (Path \ "n").write(optionW(intW)).writes(None) mustEqual JObject(Map())
     }
 
     "write seq" in {
       val w = (Path \ "phones").write[Seq[String], JObject]
-      w.writes(Seq("01.23.45.67.89", "98.76.54.32.10")) mustEqual JObject("phones" -> JArray(List(JString("01.23.45.67.89"), JString("98.76.54.32.10"))))
-      w.writes(Nil) mustEqual JObject("phones" -> JArray(Nil))
+      w.writes(Seq("01.23.45.67.89", "98.76.54.32.10")) mustEqual JObject(Map("phones" -> JArray(JString("01.23.45.67.89"), JString("98.76.54.32.10"))))
+      w.writes(Nil) mustEqual JObject(Map("phones" -> JArray()))
     }
 
     "support primitives types" in {
 
       "Int" in {
-        (Path \ "n").write[Int, JObject].writes(4) mustEqual(JObject("n" -> JInt(4)))
-        (Path \ "n" \ "o").write[Int, JObject].writes(4) mustEqual(JObject("n" -> JObject("o"-> JInt(4))))
-        (Path \ "n" \ "o" \ "p").write[Int, JObject].writes(4) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JInt(4)))))
+        (Path \ "n").write[Int, JObject].writes(4) mustEqual(JObject(Map("n" -> JNumber(4))))
+        (Path \ "n" \ "o").write[Int, JObject].writes(4) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JNumber(4))))))
+        (Path \ "n" \ "o" \ "p").write[Int, JObject].writes(4) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4))))))))
       }
 
       "Short" in {
-        (Path \ "n").write[Short, JObject].writes(4) mustEqual(JObject("n" -> JInt(4)))
-        (Path \ "n" \ "o").write[Short, JObject].writes(4) mustEqual(JObject("n" -> JObject("o"-> JInt(4))))
-        (Path \ "n" \ "o" \ "p").write[Short, JObject].writes(4) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JInt(4)))))
+        (Path \ "n").write[Short, JObject].writes(4) mustEqual(JObject(Map("n" -> JNumber(4))))
+        (Path \ "n" \ "o").write[Short, JObject].writes(4) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JNumber(4))))))
+        (Path \ "n" \ "o" \ "p").write[Short, JObject].writes(4) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4))))))))
       }
 
       "Long" in {
-        (Path \ "n").write[Long, JObject].writes(4) mustEqual(JObject("n" -> JInt(4)))
-        (Path \ "n" \ "o").write[Long, JObject].writes(4) mustEqual(JObject("n" -> JObject("o"-> JInt(4))))
-        (Path \ "n" \ "o" \ "p").write[Long, JObject].writes(4) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JInt(4)))))
+        (Path \ "n").write[Long, JObject].writes(4) mustEqual(JObject(Map("n" -> JNumber(4))))
+        (Path \ "n" \ "o").write[Long, JObject].writes(4) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JNumber(4))))))
+        (Path \ "n" \ "o" \ "p").write[Long, JObject].writes(4) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4))))))))
       }
 
       "Float" in {
-        (Path \ "n").write[Float, JObject].writes(4.8f) mustEqual(JObject("n" -> JDecimal(4.8)))
-        (Path \ "n" \ "o").write[Float, JObject].writes(4.8f) mustEqual(JObject("n" -> JObject("o"-> JDecimal(4.8))))
-        (Path \ "n" \ "o" \ "p").write[Float, JObject].writes(4.8f) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JDecimal(4.8)))))
+        (Path \ "n").write[Float, JObject].writes(4.8f) mustEqual(JObject(Map("n" -> JNumber(4.8))))
+        (Path \ "n" \ "o").write[Float, JObject].writes(4.8f) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JNumber(4.8))))))
+        (Path \ "n" \ "o" \ "p").write[Float, JObject].writes(4.8f) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4.8))))))))
       }
 
       "Double" in {
-        (Path \ "n").write[Double, JObject].writes(4d) mustEqual(JObject("n" -> JDecimal(4.0)))
-        (Path \ "n" \ "o").write[Double, JObject].writes(4.8d) mustEqual(JObject("n" -> JObject("o"-> JDecimal(4.8))))
-        (Path \ "n" \ "o" \ "p").write[Double, JObject].writes(4.8d) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JDecimal(4.8)))))
+        (Path \ "n").write[Double, JObject].writes(4d) mustEqual(JObject(Map("n" -> JNumber(4.0))))
+        (Path \ "n" \ "o").write[Double, JObject].writes(4.8d) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JNumber(4.8))))))
+        (Path \ "n" \ "o" \ "p").write[Double, JObject].writes(4.8d) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4.8))))))))
       }
 
       "java BigDecimal" in {
         import java.math.{ BigDecimal => jBigDecimal }
-        (Path \ "n").write[jBigDecimal, JObject].writes(new jBigDecimal("4.0")) mustEqual(JObject("n" -> JDecimal(4.0)))
-        (Path \ "n" \ "o").write[jBigDecimal, JObject].writes(new jBigDecimal("4.8")) mustEqual(JObject("n" -> JObject("o"-> JDecimal(4.8))))
-        (Path \ "n" \ "o" \ "p").write[jBigDecimal, JObject].writes(new jBigDecimal("4.8")) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JDecimal(4.8)))))
+        (Path \ "n").write[jBigDecimal, JObject].writes(new jBigDecimal("4.0")) mustEqual(JObject(Map("n" -> JNumber(4.0))))
+        (Path \ "n" \ "o").write[jBigDecimal, JObject].writes(new jBigDecimal("4.8")) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JNumber(4.8))))))
+        (Path \ "n" \ "o" \ "p").write[jBigDecimal, JObject].writes(new jBigDecimal("4.8")) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4.8))))))))
       }
 
       "scala BigDecimal" in {
-        (Path \ "n").write[BigDecimal, JObject].writes(BigDecimal("4.0")) mustEqual(JObject("n" -> JDecimal(4.0)))
-        (Path \ "n" \ "o").write[BigDecimal, JObject].writes(BigDecimal("4.8")) mustEqual(JObject("n" -> JObject("o"-> JDecimal(4.8))))
-        (Path \ "n" \ "o" \ "p").write[BigDecimal, JObject].writes(BigDecimal("4.8")) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JDecimal(4.8)))))
+        (Path \ "n").write[BigDecimal, JObject].writes(BigDecimal("4.0")) mustEqual(JObject(Map("n" -> JNumber(4.0))))
+        (Path \ "n" \ "o").write[BigDecimal, JObject].writes(BigDecimal("4.8")) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JNumber(4.8))))))
+        (Path \ "n" \ "o" \ "p").write[BigDecimal, JObject].writes(BigDecimal("4.8")) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4.8))))))))
       }
 
       "date" in {
         import java.util.Date
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val d = f.parse("1985-09-10")
-        (Path \ "n").write(date).writes(d) mustEqual(JObject("n" -> JString("1985-09-10")))
+        (Path \ "n").write(date).writes(d) mustEqual(JObject(Map("n" -> JString("1985-09-10"))))
       }
 
       "iso date" in {
@@ -111,7 +111,7 @@ class WritesSpec extends Specification {
         import java.util.Date
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val d = f.parse("1985-09-10")
-        (Path \ "n").write(isoDate).writes(d) mustEqual(JObject("n" -> JString("1985-09-10T00:00:00+02:00")))
+        (Path \ "n").write(isoDate).writes(d) mustEqual(JObject(Map("n" -> JString("1985-09-10T00:00:00+02:00"))))
       }
 
       "joda" in {
@@ -121,17 +121,17 @@ class WritesSpec extends Specification {
         val jd = new DateTime(dd)
 
         "date" in {
-          (Path \ "n").write(jodaDate).writes(jd) mustEqual(JObject("n" -> JString("1985-09-10")))
+          (Path \ "n").write(jodaDate).writes(jd) mustEqual(JObject(Map("n" -> JString("1985-09-10"))))
         }
 
         "time" in {
-          (Path \ "n").write(jodaTime).writes(jd) mustEqual(JObject("n" -> JInt(dd.getTime)))
+          (Path \ "n").write(jodaTime).writes(jd) mustEqual(JObject(Map("n" -> JNumber(dd.getTime))))
         }
 
         "local date" in {
           import org.joda.time.LocalDate
           val ld = new LocalDate()
-          (Path \ "n").write(jodaLocalDate).writes(ld) mustEqual(JObject("n" -> JString(ld.toString)))
+          (Path \ "n").write(jodaLocalDate).writes(ld) mustEqual(JObject(Map("n" -> JString(ld.toString))))
         }
       }
 
@@ -140,67 +140,67 @@ class WritesSpec extends Specification {
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val dd = f.parse("1985-09-10")
         val ds = new java.sql.Date(dd.getTime())
-        (Path \ "n").write(sqlDate).writes(ds) mustEqual(JObject("n" -> JString("1985-09-10")))
+        (Path \ "n").write(sqlDate).writes(ds) mustEqual(JObject(Map("n" -> JString("1985-09-10"))))
       }
 
       "Boolean" in {
-        (Path \ "n").write[Boolean, JObject].writes(true) mustEqual(JObject("n" -> JBool(true)))
-        (Path \ "n" \ "o").write[Boolean, JObject].writes(false) mustEqual(JObject("n" -> JObject("o"-> JBool(false))))
-        (Path \ "n" \ "o" \ "p").write[Boolean, JObject].writes(true) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JBool(true)))))
+        (Path \ "n").write[Boolean, JObject].writes(true) mustEqual(JObject(Map("n" -> JBoolean(true))))
+        (Path \ "n" \ "o").write[Boolean, JObject].writes(false) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JBoolean(false))))))
+        (Path \ "n" \ "o" \ "p").write[Boolean, JObject].writes(true) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JBoolean(true))))))))
       }
 
       "String" in {
-        (Path \ "n").write[String, JObject].writes("foo") mustEqual(JObject("n" -> JString("foo")))
-        (Path \ "n" \ "o").write[String, JObject].writes("foo") mustEqual(JObject("n" -> JObject("o"-> JString("foo"))))
-        (Path \ "n" \ "o" \ "p").write[String, JObject].writes("foo") mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JString("foo")))))
+        (Path \ "n").write[String, JObject].writes("foo") mustEqual(JObject(Map("n" -> JString("foo"))))
+        (Path \ "n" \ "o").write[String, JObject].writes("foo") mustEqual(JObject(Map("n" -> JObject(Map("o"-> JString("foo"))))))
+        (Path \ "n" \ "o" \ "p").write[String, JObject].writes("foo") mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JString("foo"))))))))
       }
 
       "Option" in {
-        (Path \ "n").write[Option[String], JObject].writes(Some("foo")) mustEqual(JObject("n" -> JString("foo")))
-        (Path \ "n" \ "o").write[Option[String], JObject].writes(Some("foo")) mustEqual(JObject("n" -> JObject("o"-> JString("foo"))))
-        (Path \ "n" \ "o" \ "p").write[Option[String], JObject].writes(Some("foo")) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JString("foo")))))
+        (Path \ "n").write[Option[String], JObject].writes(Some("foo")) mustEqual(JObject(Map("n" -> JString("foo"))))
+        (Path \ "n" \ "o").write[Option[String], JObject].writes(Some("foo")) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JString("foo"))))))
+        (Path \ "n" \ "o" \ "p").write[Option[String], JObject].writes(Some("foo")) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JString("foo"))))))))
 
-        (Path \ "n").write[Option[String], JObject].writes(None) mustEqual(JObject())
-        (Path \ "n" \ "o").write[Option[String], JObject].writes(None) mustEqual(JObject())
-        (Path \ "n" \ "o" \ "p").write[Option[String], JObject].writes(None) mustEqual(JObject())
+        (Path \ "n").write[Option[String], JObject].writes(None) mustEqual(JObject(Map()))
+        (Path \ "n" \ "o").write[Option[String], JObject].writes(None) mustEqual(JObject(Map()))
+        (Path \ "n" \ "o" \ "p").write[Option[String], JObject].writes(None) mustEqual(JObject(Map()))
       }
 
       "Map[String, Seq[V]]" in {
-        (Path \ "n").write[Map[String, Seq[String]], JObject].writes(Map("foo" -> Seq("bar"))) mustEqual(JObject("n" -> JObject("foo" -> JArray(List(JString("bar"))))))
-        (Path \ "n").write[Map[String, Seq[Int]], JObject].writes(Map("foo" -> Seq(4))) mustEqual(JObject("n" -> JObject("foo" -> JArray(List(JInt(4))))))
-        (Path \ "n" \ "o").write[Map[String, Seq[Int]], JObject].writes(Map("foo" -> Seq(4))) mustEqual(JObject("n" -> JObject("o" -> JObject("foo" -> JArray(List(JInt(4)))))))
-        (Path \ "n" \ "o").write[Map[String, Int], JObject].writes(Map("foo" -> 4)) mustEqual(JObject("n" -> JObject("o" -> JObject("foo" -> JInt(4)))))
-        (Path \ "n" \ "o").write[Map[String, Int], JObject].writes(Map.empty) mustEqual(JObject("n" -> JObject("o" -> JObject())))
+        (Path \ "n").write[Map[String, Seq[String]], JObject].writes(Map("foo" -> Seq("bar"))) mustEqual(JObject(Map("n" -> JObject(Map("foo" -> JArray(JString("bar")))))))
+        (Path \ "n").write[Map[String, Seq[Int]], JObject].writes(Map("foo" -> Seq(4))) mustEqual(JObject(Map("n" -> JObject(Map("foo" -> JArray(JNumber(4)))))))
+        (Path \ "n" \ "o").write[Map[String, Seq[Int]], JObject].writes(Map("foo" -> Seq(4))) mustEqual(JObject(Map("n" -> JObject(Map("o" -> JObject(Map("foo" -> JArray(JNumber(4)))))))))
+        (Path \ "n" \ "o").write[Map[String, Int], JObject].writes(Map("foo" -> 4)) mustEqual(JObject(Map("n" -> JObject(Map("o" -> JObject(Map("foo" -> JNumber(4))))))))
+        (Path \ "n" \ "o").write[Map[String, Int], JObject].writes(Map.empty) mustEqual(JObject(Map("n" -> JObject(Map("o" -> JObject(Map()))))))
       }
 
       "Traversable" in {
-        (Path \ "n").write[Traversable[String], JObject].writes(Array("foo", "bar")) mustEqual(JObject("n" -> JArray(List(JString("foo"), JString("bar")))))
-        (Path \ "n" \ "o").write[Traversable[String], JObject].writes(Array("foo", "bar")) mustEqual(JObject("n" -> JObject("o"-> JArray(List(JString("foo"), JString("bar"))))))
-        (Path \ "n" \ "o" \ "p").write[Traversable[String], JObject].writes(Array("foo", "bar")) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JArray(List(JString("foo"), JString("bar")))))))
+        (Path \ "n").write[Traversable[String], JObject].writes(Array("foo", "bar")) mustEqual(JObject(Map("n" -> JArray(JString("foo"), JString("bar")))))
+        (Path \ "n" \ "o").write[Traversable[String], JObject].writes(Array("foo", "bar")) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JArray(JString("foo"), JString("bar")))))))
+        (Path \ "n" \ "o" \ "p").write[Traversable[String], JObject].writes(Array("foo", "bar")) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JArray(JString("foo"), JString("bar")))))))))
 
-        (Path \ "n").write[Traversable[String], JObject].writes(Array[String]()) mustEqual(JObject("n" -> JArray(Nil)))
-        (Path \ "n" \ "o").write[Traversable[String], JObject].writes(Array[String]()) mustEqual(JObject("n" -> JObject("o"-> JArray(Nil))))
-        (Path \ "n" \ "o" \ "p").write[Traversable[String], JObject].writes(Array[String]()) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JArray(Nil)))))
+        (Path \ "n").write[Traversable[String], JObject].writes(Array[String]()) mustEqual(JObject(Map("n" -> JArray())))
+        (Path \ "n" \ "o").write[Traversable[String], JObject].writes(Array[String]()) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JArray())))))
+        (Path \ "n" \ "o" \ "p").write[Traversable[String], JObject].writes(Array[String]()) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JArray())))))))
       }
 
       "Array" in {
-        (Path \ "n").write[Array[String], JObject].writes(Array("foo", "bar")) mustEqual(JObject("n" -> JArray(List(JString("foo"), JString("bar")))))
-        (Path \ "n" \ "o").write[Array[String], JObject].writes(Array("foo", "bar")) mustEqual(JObject("n" -> JObject("o"-> JArray(List(JString("foo"), JString("bar"))))))
-        (Path \ "n" \ "o" \ "p").write[Array[String], JObject].writes(Array("foo", "bar")) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JArray(List(JString("foo"), JString("bar")))))))
+        (Path \ "n").write[Array[String], JObject].writes(Array("foo", "bar")) mustEqual(JObject(Map("n" -> JArray(JString("foo"), JString("bar")))))
+        (Path \ "n" \ "o").write[Array[String], JObject].writes(Array("foo", "bar")) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JArray(JString("foo"), JString("bar")))))))
+        (Path \ "n" \ "o" \ "p").write[Array[String], JObject].writes(Array("foo", "bar")) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JArray(JString("foo"), JString("bar")))))))))
 
-        (Path \ "n").write[Array[String], JObject].writes(Array()) mustEqual(JObject("n" -> JArray(Nil)))
-        (Path \ "n" \ "o").write[Array[String], JObject].writes(Array()) mustEqual(JObject("n" -> JObject("o"-> JArray(Nil))))
-        (Path \ "n" \ "o" \ "p").write[Array[String], JObject].writes(Array()) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JArray(Nil)))))
+        (Path \ "n").write[Array[String], JObject].writes(Array()) mustEqual(JObject(Map("n" -> JArray())))
+        (Path \ "n" \ "o").write[Array[String], JObject].writes(Array()) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JArray())))))
+        (Path \ "n" \ "o" \ "p").write[Array[String], JObject].writes(Array()) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JArray())))))))
       }
 
       "Seq" in {
-        (Path \ "n").write[Seq[String], JObject].writes(Seq("foo", "bar")) mustEqual(JObject("n" -> JArray(List(JString("foo"), JString("bar")))))
-        (Path \ "n" \ "o").write[Seq[String], JObject].writes(Seq("foo", "bar")) mustEqual(JObject("n" -> JObject("o"-> JArray(List(JString("foo"), JString("bar"))))))
-        (Path \ "n" \ "o" \ "p").write[Seq[String], JObject].writes(Seq("foo", "bar")) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JArray(List(JString("foo"), JString("bar")))))))
+        (Path \ "n").write[Seq[String], JObject].writes(Seq("foo", "bar")) mustEqual(JObject(Map("n" -> JArray(JString("foo"), JString("bar")))))
+        (Path \ "n" \ "o").write[Seq[String], JObject].writes(Seq("foo", "bar")) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JArray(JString("foo"), JString("bar")))))))
+        (Path \ "n" \ "o" \ "p").write[Seq[String], JObject].writes(Seq("foo", "bar")) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JArray(JString("foo"), JString("bar")))))))))
 
-        (Path \ "n").write[Seq[String], JObject].writes(Nil) mustEqual(JObject("n" -> JArray(Nil)))
-        (Path \ "n" \ "o").write[Seq[String], JObject].writes(Nil) mustEqual(JObject("n" -> JObject("o"-> JArray(Nil))))
-        (Path \ "n" \ "o" \ "p").write[Seq[String], JObject].writes(Nil) mustEqual(JObject("n" -> JObject("o"-> JObject("p"-> JArray(Nil)))))
+        (Path \ "n").write[Seq[String], JObject].writes(Nil) mustEqual(JObject(Map("n" -> JArray())))
+        (Path \ "n" \ "o").write[Seq[String], JObject].writes(Nil) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JArray())))))
+        (Path \ "n" \ "o" \ "p").write[Seq[String], JObject].writes(Nil) mustEqual(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JArray())))))))
       }
     }
 
@@ -212,10 +212,10 @@ class WritesSpec extends Specification {
         f.format(money)
       }
       val w = (Path \ "foo").write(formatter)
-      w.writes(500d) mustEqual(JObject("foo" -> JString("500,00 €")))
+      w.writes(500d) mustEqual(JObject(Map("foo" -> JString("500,00 €"))))
 
       val w2 = To[JValue] { __ => (__ \ "foo").write(formatter) }
-      w2.writes(500d) mustEqual(JObject("foo" -> JString("500,00 €")))
+      w2.writes(500d) mustEqual(JObject(Map("foo" -> JString("500,00 €"))))
     }
 
     "compose" in {
@@ -226,9 +226,9 @@ class WritesSpec extends Specification {
 
       val v =  Some("jto@foobar.com") -> Seq("01.23.45.67.89", "98.76.54.32.10")
 
-      w.writes(v) mustEqual JObject("email" -> JString("jto@foobar.com"), "phones" -> JArray(List(JString("01.23.45.67.89"), JString("98.76.54.32.10"))))
-      w.writes(Some("jto@foobar.com") -> Nil) mustEqual JObject("email" -> JString("jto@foobar.com"), "phones" -> JArray(Nil))
-      w.writes(None -> Nil) mustEqual JObject("phones" -> JArray(Nil))
+      w.writes(v) mustEqual JObject(Map("email" -> JString("jto@foobar.com"), "phones" -> JArray(JString("01.23.45.67.89"), JString("98.76.54.32.10"))))
+      w.writes(Some("jto@foobar.com") -> Nil) mustEqual JObject(Map("email" -> JString("jto@foobar.com"), "phones" -> JArray()))
+      w.writes(None -> Nil) mustEqual JObject(Map("phones" -> JArray()))
     }
 
     // "write Invalid" in {
@@ -239,10 +239,10 @@ class WritesSpec extends Specification {
 
     //   val error =
     //     JObject("errors" ->
-    //       JObject("/n" -> JArray(List(
+    //       JObject("/n" -> JArray
     //           JObject(
     //             "msg" -> JString("validation.type-mismatch"),
-    //             "args" -> JArray(List(JString("Int"))))))))
+    //             "args" -> JArrayJString("Int"))))))))
 
     //   (Path \ "errors").write[Invalid[(Path, Seq[ValidationError]), String], JObject]
     //     .writes(f) mustEqual(error)
@@ -271,15 +271,15 @@ class WritesSpec extends Specification {
         "bob",
         List(RecUser("tom")))
 
-      val m = JObject(
+      val m = JObject(Map(
         "name" -> JString("bob"),
-        "friends" -> JArray(List(JObject("name" -> JString("tom"), "friends" -> JArray(Nil)))))
+        "friends" -> JArray(JObject(Map("name" -> JString("tom"), "friends" -> JArray())))))
 
       case class User1(name: String, friend: Option[User1] = None)
       val u1 = User1("bob", Some(User1("tom")))
-      val m1 = JObject(
+      val m1 = JObject(Map(
         "name" -> JString("bob"),
-        "friend" -> JObject("name" -> JString("tom")))
+        "friend" -> JObject(Map("name" -> JString("tom")))))
 
       "using explicit notation" in {
         lazy val w: Write[RecUser, JObject] = To[JObject]{ __ =>
@@ -323,7 +323,7 @@ class WritesSpec extends Specification {
         (__ \ "id").write[Id]
       }
 
-      w.writes(Id("1")) mustEqual JObject("id" -> JString("1"))
+      w.writes(Id("1")) mustEqual JObject(Map("id" -> JString("1")))
     }
 
   }

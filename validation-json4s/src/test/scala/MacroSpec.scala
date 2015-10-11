@@ -1,7 +1,7 @@
 import jto.validation._
 import jto.validation.json4s._
 import org.specs2.mutable._
-import org.json4s._
+import org.json4s.ast.safe._
 
 object MacroSpec extends Specification {
 
@@ -79,13 +79,13 @@ object MacroSpec extends Specification {
     "create a Rule[User]" in {
       import Rules._
       implicit val userReads = Rule.gen[JValue, User]
-      userReads.validate(JObject("name" -> JString("toto"), "age" -> JInt(45))) must beEqualTo(Valid(User(45, "toto")))
+      userReads.validate(JObject(Map("name" -> JString("toto"), "age" -> JNumber(45)))) must beEqualTo(Valid(User(45, "toto")))
     }
 
     "create a Write[User]" in {
       import Writes._
       implicit val userWrites = Write.gen[User, JObject]
-      userWrites.writes(User(45, "toto")) must beEqualTo(JObject("name" -> JString("toto"), "age" -> JInt(45)))
+      userWrites.writes(User(45, "toto")) must beEqualTo(JObject(Map("name" -> JString("toto"), "age" -> JNumber(45))))
     }
 
     "create a Rule[Dog]" in {
@@ -94,10 +94,10 @@ object MacroSpec extends Specification {
       implicit val dogRule = Rule.gen[JValue, Dog]
 
       dogRule.validate(
-        JObject(
+        JObject(Map(
           "name" -> JString("medor"),
-          "master" -> JObject("name" -> JString("toto"), "age" -> JInt(45))
-        )
+          "master" -> JObject(Map("name" -> JString("toto"), "age" -> JNumber(45)))
+        ))
       ) must beEqualTo(Valid(Dog("medor", User(45, "toto"))))
 
     }
@@ -108,10 +108,10 @@ object MacroSpec extends Specification {
       implicit val dogWrite = Write.gen[Dog, JObject]
 
       dogWrite.writes(Dog("medor", User(45, "toto"))) must beEqualTo(
-        JObject(
+        JObject(Map(
           "name" -> JString("medor"),
-          "master" -> JObject("name" -> JString("toto"), "age" -> JInt(45))
-        )
+          "master" -> JObject(Map("name" -> JString("toto"), "age" -> JNumber(45)))
+        ))
       )
     }
 
@@ -120,19 +120,19 @@ object MacroSpec extends Specification {
 
       implicit val catRule = Rule.gen[JValue, Cat]
       catRule.validate(
-        JObject("name" -> JString("minou"))
+        JObject(Map("name" -> JString("minou")))
       ) must beEqualTo(Valid(Cat("minou")))
 
       implicit lazy val recUserRule: Rule[JValue, RecUser] =
         Rule.gen[JValue, RecUser]
 
       recUserRule.validate(
-        JObject(
+        JObject(Map(
           "name" -> JString("bob"),
-          "cat" -> JObject("name" -> JString("minou")),
-          "hobbies" -> JArray(List(JString("bobsleig"), JString("manhunting"))),
-          "friends" -> JArray(List(JObject( "name" -> JString("tom"), "hobbies" -> JArray(Nil), "friends" -> JArray(Nil))))
-        )
+          "cat" -> JObject(Map("name" -> JString("minou"))),
+          "hobbies" -> JArray(JString("bobsleig"), JString("manhunting")),
+          "friends" -> JArray(JObject(Map( "name" -> JString("tom"), "hobbies" -> JArray(), "friends" -> JArray())))
+        ))
       ) must beEqualTo(
         Valid(
           RecUser(
@@ -150,7 +150,7 @@ object MacroSpec extends Specification {
       import Writes._
 
       implicit val catWrite = Write.gen[Cat, JObject]
-      catWrite.writes(Cat("minou")) must beEqualTo(JObject("name" -> JString("minou")))
+      catWrite.writes(Cat("minou")) must beEqualTo(JObject(Map("name" -> JString("minou"))))
 
       implicit lazy val recUserWrite: Write[RecUser, JValue] = Write.gen[RecUser, JObject]
 
@@ -162,12 +162,12 @@ object MacroSpec extends Specification {
           Seq(RecUser("tom"))
         )
       ) must beEqualTo(
-        JObject(
+        JObject(Map(
           "name" -> JString("bob"),
-          "cat" -> JObject("name" -> JString("minou")),
-          "hobbies" -> JArray(List(JString("bobsleig"), JString("manhunting"))),
-          "friends" -> JArray(List(JObject( "name" -> JString("tom"), "hobbies" -> JArray(Nil), "friends" -> JArray(Nil))))
-        )
+          "cat" -> JObject(Map("name" -> JString("minou"))),
+          "hobbies" -> JArray(JString("bobsleig"), JString("manhunting")),
+          "friends" -> JArray(JObject(Map( "name" -> JString("tom"), "hobbies" -> JArray(), "friends" -> JArray())))
+        ))
       )
 
     }
@@ -177,10 +177,10 @@ object MacroSpec extends Specification {
 
       implicit lazy val userRule: Rule[JValue, User1] = Rule.gen[JValue, User1]
       userRule.validate(
-        JObject(
+        JObject(Map(
           "name" -> JString("bob"),
-          "friend" -> JObject( "name" -> JString("tom"))
-        )
+          "friend" -> JObject(Map( "name" -> JString("tom")))
+        ))
       ) must beEqualTo(
         Valid(
           User1(
@@ -201,9 +201,10 @@ object MacroSpec extends Specification {
           "bob",
           Some(User1("tom")))
       ) must beEqualTo(
-        JObject(
+        JObject(Map(
           "name" -> JString("bob"),
-          "friend" -> JObject( "name" -> JString("tom"))))
+          "friend" -> JObject(Map( "name" -> JString("tom")))))
+      )
     }
 
     "create Rules for classes with overloaded apply method" in {
@@ -211,9 +212,9 @@ object MacroSpec extends Specification {
       implicit val manyAppliesRule = Rule.gen[JValue, ManyApplies]
 
       manyAppliesRule.validate(
-        JObject(
+        JObject(Map(
           "foo" -> JString("bob"),
-          "bar" -> JInt(3))
+          "bar" -> JNumber(3)))
       ) must beEqualTo(
         Valid(
           ManyApplies(
@@ -229,8 +230,8 @@ object MacroSpec extends Specification {
       implicit val notAClassRule = Rule.gen[JValue, NotAClass]
 
       notAClassRule.validate(
-        JObject(
-          "x" -> JInt(3))
+        JObject(Map(
+          "x" -> JNumber(3)))
       ) must beEqualTo(
         Valid(
           AClass(3)
@@ -250,9 +251,9 @@ object MacroSpec extends Specification {
            (__ \ "name").read[String])( (id, name) => C1[A](id, name) )
         }
 
-      val js = JObject(
-        "id" -> JInt(123L),
-        "name" -> JString("toto"))
+      val js = JObject(Map(
+        "id" -> JNumber(123L),
+        "name" -> JString("toto")))
 
       c1Rule[Long].validate(js) must beEqualTo(Valid(C1[Long](Id[Long](123L), "toto")))
     }
@@ -363,15 +364,15 @@ object MacroSpec extends Specification {
       implicit val dogRule = Rule.gen[JValue, Dog]
       implicit val toto6Rule = Rule.gen[JValue, Toto6]
 
-      val js = JObject("name" -> JArray(List(
-        JObject(
+      val js = JObject(Map("name" -> JArray(
+        JObject(Map(
           "name" -> JString("medor"),
-          "master" -> JObject("name" -> JString("toto"), "age" -> JInt(45))
-        ),
-        JObject(
+          "master" -> JObject(Map("name" -> JString("toto"), "age" -> JNumber(45)))
+        )),
+        JObject(Map(
           "name" -> JString("brutus"),
-          "master" -> JObject("name" -> JString("tata"), "age" -> JInt(23))
-        )
+          "master" -> JObject(Map("name" -> JString("tata"), "age" -> JNumber(23))
+        )))
       )))
 
       toto6Rule.validate(js) must beEqualTo(Valid(

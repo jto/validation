@@ -207,7 +207,7 @@ class DateSpec extends WordSpec with Matchers {
   }
   
   "json" should {
-    import jto.validation.json._
+    import jto.validation.playjson._
     import play.api.libs.json.{JsValue, JsObject, Json}
     import Rules._, Writes._
     

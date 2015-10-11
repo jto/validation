@@ -15,7 +15,7 @@ val scalatestVersion = "3.0.0-M15"
 val scalaXmlVersion = "1.0.5"
 
 lazy val root = aggregate("validation", validationJVM, validationJS).in(file("."))
-lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-json`, `validation-xml`)
+lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-playjson`, `validation-xml`)
 lazy val validationJS = aggregate("validationJS", coreJS, formJS, delimitedJS, json4sJS)
 
 lazy val `validation-core` = crossProject
@@ -56,7 +56,7 @@ lazy val json4sJVM = `validation-json4s`.jvm
 lazy val json4sJS = `validation-json4s`.js
 lazy val json4s = aggregate("validation-json4s", json4sJVM, json4sJS)
 
-lazy val `validation-json` = project
+lazy val `validation-playjson` = project
   .settings(validationSettings: _*)
   .settings(libraryDependencies +=
     "com.typesafe.play" %% "play-json" % playVersion)
@@ -74,12 +74,12 @@ lazy val `validation-docs` = project
   .settings(crossTarget := file(".") / "documentation")
   .settings(tutSettings: _*)
   .settings(scalacOptions -= "-Ywarn-unused-import")
-  .dependsOn(coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-json`, `validation-xml`)
+  .dependsOn(coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-playjson`, `validation-xml`)
 
 lazy val `date-tests` = project
   .settings(validationSettings: _*)
   .settings(dontPublish: _*)
-  .dependsOn(coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-json`, `validation-xml`)
+  .dependsOn(coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-playjson`, `validation-xml`)
 
 def aggregate(name: String, projects: ProjectReference*): Project =
   Project(name, file("." + name))

@@ -145,7 +145,7 @@ Despite the type signature funkiness, this function is actually **really** simpl
 
 ```scala
 scala> val maybeEmail = From[JsValue]{ __ =>
-     |   import jto.validation.json.Rules._
+     |   import jto.validation.playjson.Rules._
      |   (__ \ "email").read(optionR(email))
      | }
 maybeEmail: jto.validation.Rule[play.api.libs.json.JsValue,Option[String]] = jto.validation.Rule$$anon$3@630dac5e
@@ -175,7 +175,7 @@ implicit def option[O](p: Path)(implicit pick: Path => Rule[JsValue, JsValue], c
 
 ```scala
 scala> val maybeAge = From[JsValue]{ __ =>
-     |   import jto.validation.json.Rules._
+     |   import jto.validation.playjson.Rules._
      |   (__ \ "age").read[Option[Int]]
      | }
 maybeAge: jto.validation.Rule[play.api.libs.json.JsValue,Option[Int]] = jto.validation.Rule$$anon$3@11bbedc6
@@ -195,7 +195,7 @@ scala> val u = RecUser(
 u: RecUser = RecUser(bob,List(RecUser(tom,List())))
 
 scala> lazy val w: Rule[JsValue, RecUser] = From[JsValue]{ __ =>
-     |   import jto.validation.json.Rules._
+     |   import jto.validation.playjson.Rules._
      |   ((__ \ "name").read[String] ~
      |    (__ \ "friends").read(seqR(w))) (RecUser.apply _) // !!! recursive rule definition
      | }
@@ -251,7 +251,7 @@ scala> case class User(
 defined class User
 
 scala> val userWrite = To[JsObject] { __ =>
-     |   import jto.validation.json.Writes._
+     |   import jto.validation.playjson.Writes._
      |   ((__ \ "name").write[String] ~
      |    (__ \ "age").write[Int] ~
      |    (__ \ "email").write[Option[String]] ~

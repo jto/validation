@@ -58,7 +58,7 @@ class RulesSpec extends WordSpec with Matchers {
         Path.read[Node, Int].validate(<a>4</a>) shouldBe Valid(4)
         attributeR[Int]("attr").validate(<a attr="4"></a>) shouldBe Valid(4)
         Path.read[Node, Int].validate(<a>no</a>) shouldBe Invalid(Seq(Path -> Seq(ValidationError("error.number", "Int"))))
-        Path.read[Node, Int].validate(<a>4.8</a>) shouldBe Invalid(Seq(Path -> Seq(ValidationError("error.number", "Int"))))
+        Path.read[Node, Int].validate(<a>4.5</a>) shouldBe Invalid(Seq(Path -> Seq(ValidationError("error.number", "Int"))))
         (Path \ "b").read[Node, Int].validate(<a><b>4</b></a>) shouldBe Valid(4)
         (Path \ "b").from[Node](attributeR[Int]("attr")).validate(<a><b attr="4"></b></a>) shouldBe Valid(4)
         (Path \ "b").from[Node](attributeR[Int]("attr")).validate(<a><b attr="a"></b></a>) shouldBe
@@ -72,28 +72,28 @@ class RulesSpec extends WordSpec with Matchers {
       "Short" in {
         Path.read[Node, Short].validate(<a>4</a>) shouldBe Valid(4)
         attributeR[Short]("attr").validate(<a attr="4"></a>) shouldBe Valid(4)
-        Path.read[Node, Short].validate(<a>4.8</a>) shouldBe Invalid(Seq(Path -> Seq(ValidationError("error.number", "Short"))))
+        Path.read[Node, Short].validate(<a>4.5</a>) shouldBe Invalid(Seq(Path -> Seq(ValidationError("error.number", "Short"))))
         Path.read[Node, Short].validate(<a>no</a>) shouldBe Invalid(Seq(Path -> Seq(ValidationError("error.number", "Short"))))
       }
 
       "Long" in {
         Path.read[Node, Long].validate(<a>4</a>) shouldBe Valid(4)
         attributeR[Long]("attr").validate(<a attr="4"></a>) shouldBe Valid(4)
-        Path.read[Node, Long].validate(<a>4.8</a>) shouldBe Invalid(Seq(Path -> Seq(ValidationError("error.number", "Long"))))
+        Path.read[Node, Long].validate(<a>4.5</a>) shouldBe Invalid(Seq(Path -> Seq(ValidationError("error.number", "Long"))))
         Path.read[Node, Long].validate(<a>no</a>) shouldBe Invalid(Seq(Path -> Seq(ValidationError("error.number", "Long"))))
       }
 
       "Float" in {
         Path.read[Node, Float].validate(<a>4</a>) shouldBe Valid(4F)
         attributeR[Float]("attr").validate(<a attr="4"></a>) shouldBe Valid(4F)
-        Path.read[Node, Float].validate(<a>4.8</a>) shouldBe Valid(4.8F)
+        Path.read[Node, Float].validate(<a>4.5</a>) shouldBe Valid(4.5F)
         Path.read[Node, Float].validate(<a>no</a>) shouldBe Invalid(Seq(Path -> Seq(ValidationError("error.number", "Float"))))
       }
 
       "Double" in {
         Path.read[Node, Double].validate(<a>4</a>) shouldBe Valid(4D)
         attributeR[Double]("attr").validate(<a attr="4"></a>) shouldBe Valid(4D)
-        Path.read[Node, Double].validate(<a>4.8</a>) shouldBe Valid(4.8D)
+        Path.read[Node, Double].validate(<a>4.5</a>) shouldBe Valid(4.5D)
         Path.read[Node, Double].validate(<a>no</a>) shouldBe Invalid(Seq(Path -> Seq(ValidationError("error.number", "Double"))))
       }
 
@@ -107,41 +107,6 @@ class RulesSpec extends WordSpec with Matchers {
         Path.read[Node, BigDecimal].validate(<a>4</a>) shouldBe Valid(BigDecimal("4"))
         attributeR[BigDecimal]("attr").validate(<a attr="4"></a>) shouldBe Valid(BigDecimal("4"))
         Path.read[Node, BigDecimal].validate(<a>no</a>) shouldBe Invalid(Seq(Path -> Seq(ValidationError("error.number", "BigDecimal"))))
-      }
-
-      "date" in {
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        Path.from[Node](Rules.date).validate(<a>1985-09-10</a>) shouldBe(Valid(f.parse("1985-09-10")))
-        Path.from[Node](Rules.date).validate(<a>foo</a>) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
-      }
-
-      "joda" when {
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val jd = new DateTime(dd)
-
-        "date" in {
-          Path.from[Node](Rules.jodaDate).validate(<a>1985-09-10</a>) shouldBe(Valid(jd))
-          Path.from[Node](Rules.jodaDate).validate(<a>foo</a>) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
-        }
-
-        "time" in {
-          Path.from[Node](Rules.jodaTime).validate(<a>{dd.getTime}</a>) shouldBe(Valid(jd))
-          Path.from[Node](Rules.jodaDate).validate(<a>foo</a>) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
-        }
-
-        "local date" in {
-          val ld = new LocalDate()
-          Path.from[Node](Rules.jodaLocalDate).validate(<a>{ld.toString}</a>) shouldBe(Valid(ld))
-          Path.from[Node](Rules.jodaLocalDate).validate(<a>foo</a>) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("error.expected.jodadate.format", "")))))
-        }
-      }
-
-      "sql date" in {
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val ds = new java.sql.Date(dd.getTime())
-        Path.from[Node](Rules.sqlDate).validate(<a>1985-09-10</a>) shouldBe(Valid(ds))
       }
 
       "Boolean" in {

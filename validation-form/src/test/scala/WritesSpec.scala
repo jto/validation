@@ -82,71 +82,28 @@ class WritesSpec extends WordSpec with Matchers {
       }
 
       "Float" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Float] }.writes(4) shouldBe(Map("n" -> Seq("4.0")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Float] }.writes(4.8F) shouldBe(Map("n.o" -> Seq("4.8")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Float] }.writes(4.8F) shouldBe(Map("n.o.p" -> Seq("4.8")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Float] }.writes(4.5F) shouldBe(Map("n" -> Seq("4.5")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Float] }.writes(4.5F) shouldBe(Map("n.o" -> Seq("4.5")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Float] }.writes(4.5F) shouldBe(Map("n.o.p" -> Seq("4.5")))
       }
 
       "Double" in {
-        To[UrlFormEncoded] { __ => (__ \ "n").write[Double] }.writes(4) shouldBe(Map("n" -> Seq("4.0")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Double] }.writes(4.8D) shouldBe(Map("n.o" -> Seq("4.8")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Double] }.writes(4.8D) shouldBe(Map("n.o.p" -> Seq("4.8")))
+        To[UrlFormEncoded] { __ => (__ \ "n").write[Double] }.writes(4.5D) shouldBe(Map("n" -> Seq("4.5")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Double] }.writes(4.5D) shouldBe(Map("n.o" -> Seq("4.5")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Double] }.writes(4.5D) shouldBe(Map("n.o.p" -> Seq("4.5")))
       }
 
       "java BigDecimal" in {
         import java.math.{ BigDecimal => jBigDecimal }
         To[UrlFormEncoded] { __ => (__ \ "n").write[jBigDecimal] }.writes(new jBigDecimal("4.0")) shouldBe(Map("n" -> Seq("4.0")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[jBigDecimal] }.writes(new jBigDecimal("4.8")) shouldBe(Map("n.o" -> Seq("4.8")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[jBigDecimal] }.writes(new jBigDecimal("4.8")) shouldBe(Map("n.o.p" -> Seq("4.8")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[jBigDecimal] }.writes(new jBigDecimal("4.5")) shouldBe(Map("n.o" -> Seq("4.5")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[jBigDecimal] }.writes(new jBigDecimal("4.5")) shouldBe(Map("n.o.p" -> Seq("4.5")))
       }
 
       "scala BigDecimal" in {
         To[UrlFormEncoded] { __ => (__ \ "n").write[BigDecimal] }.writes(BigDecimal("4.0")) shouldBe(Map("n" -> Seq("4.0")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[BigDecimal] }.writes(BigDecimal("4.8")) shouldBe(Map("n.o" -> Seq("4.8")))
-        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[BigDecimal] }.writes(BigDecimal("4.8")) shouldBe(Map("n.o.p" -> Seq("4.8")))
-      }
-
-      "date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val d = f.parse("1985-09-10")
-        To[UrlFormEncoded] { __ => (__ \ "n").write(date) }.writes(d) shouldBe(Map("n" -> Seq("1985-09-10")))
-      }
-
-      "iso date (Can't test on CI)" ignore {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val d = f.parse("1985-09-10")
-        To[UrlFormEncoded] { __ => (__ \ "n").write(isoDate) }.writes(d) shouldBe(Map("n" -> Seq("1985-09-10T00:00:00+02:00")))
-      }
-
-      "joda" when {
-        import org.joda.time.DateTime
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val jd = new DateTime(dd)
-
-        "date" in {
-          To[UrlFormEncoded] { __ => (__ \ "n").write(jodaDate) }.writes(jd) shouldBe(Map("n" -> Seq("1985-09-10")))
-        }
-
-        "time" in {
-          To[UrlFormEncoded] { __ => (__ \ "n").write(jodaTime) }.writes(jd) shouldBe(Map("n" -> Seq(dd.getTime.toString)))
-        }
-
-        "local date" in {
-          import org.joda.time.LocalDate
-          val ld = new LocalDate()
-          To[UrlFormEncoded] { __ => (__ \ "n").write(jodaLocalDate) }.writes(ld) shouldBe(Map("n" -> Seq(ld.toString)))
-        }
-      }
-
-      "sql date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val ds = new java.sql.Date(dd.getTime())
-        To[UrlFormEncoded] { __ => (__ \ "n").write(sqlDate) }.writes(ds) shouldBe(Map("n" -> Seq("1985-09-10")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[BigDecimal] }.writes(BigDecimal("4.5")) shouldBe(Map("n.o" -> Seq("4.5")))
+        To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[BigDecimal] }.writes(BigDecimal("4.5")) shouldBe(Map("n.o.p" -> Seq("4.5")))
       }
 
       "Boolean" in {
@@ -208,20 +165,6 @@ class WritesSpec extends WordSpec with Matchers {
         To[UrlFormEncoded] { __ => (__ \ "n" \ "o").write[Seq[String]] }.writes(Nil) shouldBe(Map.empty)
         To[UrlFormEncoded] { __ => (__ \ "n" \ "o" \ "p").write[Seq[String]] }.writes(Nil) shouldBe(Map.empty)
       }
-    }
-
-    "format data" in {
-      val formatter = Write[Double, String]{ money =>
-        import java.text.NumberFormat
-        import java.util.Locale
-        val f = NumberFormat.getCurrencyInstance(Locale.FRANCE)
-        f.format(money)
-      }
-      val w = (Path \ "foo").write(formatter)
-      w.writes(500d) shouldBe(Map("foo" -> List("500,00 €")))
-
-      val w2 = To[UrlFormEncoded] { __ => (__ \ "foo").write(formatter) }
-      w2.writes(500d) shouldBe(Map("foo" -> List("500,00 €")))
     }
 
     "compose" in {

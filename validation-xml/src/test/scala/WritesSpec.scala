@@ -84,15 +84,15 @@ class WritesSpec extends WordSpec with Matchers {
       }
 
       "Float" in {
-        (Path \ "n").write[Float, XmlWriter].writes(4.8f)(<a></a>) shouldBe(<a><n>4.8</n></a>)
-        (Path \ "n" \ "o").write[Float, XmlWriter].writes(4.8f)(<a></a>) shouldBe(<a><n><o>4.8</o></n></a>)
-        (Path \ "n" \ "o" \ "p").write[Float, XmlWriter].writes(4.8f)(<a></a>) shouldBe(<a><n><o><p>4.8</p></o></n></a>)
+        (Path \ "n").write[Float, XmlWriter].writes(4.5f)(<a></a>) shouldBe(<a><n>4.5</n></a>)
+        (Path \ "n" \ "o").write[Float, XmlWriter].writes(4.5f)(<a></a>) shouldBe(<a><n><o>4.5</o></n></a>)
+        (Path \ "n" \ "o" \ "p").write[Float, XmlWriter].writes(4.5f)(<a></a>) shouldBe(<a><n><o><p>4.5</p></o></n></a>)
       }
 
       "Double" in {
-        (Path \ "n").write[Double, XmlWriter].writes(4.8d)(<a></a>) shouldBe(<a><n>4.8</n></a>)
-        (Path \ "n" \ "o").write[Double, XmlWriter].writes(4.8d)(<a></a>) shouldBe(<a><n><o>4.8</o></n></a>)
-        (Path \ "n" \ "o" \ "p").write[Double, XmlWriter].writes(4.8d)(<a></a>) shouldBe(<a><n><o><p>4.8</p></o></n></a>)
+        (Path \ "n").write[Double, XmlWriter].writes(4.5d)(<a></a>) shouldBe(<a><n>4.5</n></a>)
+        (Path \ "n" \ "o").write[Double, XmlWriter].writes(4.5d)(<a></a>) shouldBe(<a><n><o>4.5</o></n></a>)
+        (Path \ "n" \ "o" \ "p").write[Double, XmlWriter].writes(4.5d)(<a></a>) shouldBe(<a><n><o><p>4.5</p></o></n></a>)
       }
 
       "scala Big Decimal" in {
@@ -101,52 +101,12 @@ class WritesSpec extends WordSpec with Matchers {
         (Path \ "n" \ "o" \ "p").write[BigDecimal, XmlWriter].writes(BigDecimal("4.0"))(<a></a>) shouldBe(<a><n><o><p>4.0</p></o></n></a>)
       }
 
-      "date" in {
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val d = f.parse("1985-09-10")
-        Path.write(date).writes(d)(<a></a>) shouldBe(<a>1985-09-10</a>)
-      }
-
-      "joda" when {
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val jd = new DateTime(dd)
-
-        "date" in {
-          Path.write(jodaDate).writes(jd)(<a></a>) shouldBe(<a>1985-09-10</a>)
-        }
-
-        "local date" in {
-          val ld = new LocalDate()
-          Path.write(jodaLocalDate).writes(ld)(<a></a>) shouldBe(<a>{ld.toString}</a>)
-        }
-      }
-
-      "sql date" in {
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val ds = new java.sql.Date(dd.getTime())
-        Path.write(sqlDate).writes(ds)(<a></a>) shouldBe(<a>1985-09-10</a>)
-      }
-
       "Boolean" in {
         (Path \ "n").write[Boolean, XmlWriter].writes(true)(<a></a>) shouldBe(<a><n>true</n></a>)
         (Path \ "n" \ "o").write[Boolean, XmlWriter].writes(false)(<a></a>) shouldBe(<a><n><o>false</o></n></a>)
         (Path \ "n" \ "o" \ "p").write[Boolean, XmlWriter].writes(true)(<a></a>) shouldBe(<a><n><o><p>true</p></o></n></a>)
       }
 
-    }
-
-    "format data" in {
-      val formatter = Write[Double, String]{ money =>
-        val f = NumberFormat.getCurrencyInstance(Locale.FRANCE)
-        f.format(money)
-      }
-      val w = Path.write(formatter)
-      w.writes(500d)(<a></a>) shouldBe(<a>500,00 €</a>)
-
-      val w2 = To[XmlWriter] { __ => __.write(formatter) }
-      w2.writes(500d)(<a></a>) shouldBe(<a>500,00 €</a>)
     }
 
     "compose with child nodes and/or attributes" in {

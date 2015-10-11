@@ -75,71 +75,28 @@ class WritesSpec extends WordSpec with Matchers {
       }
 
       "Float" in {
-        (Path \ "n").write[Float, JObject].writes(4.8f) shouldBe(JObject(Map("n" -> JNumber(4.8))))
-        (Path \ "n" \ "o").write[Float, JObject].writes(4.8f) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JNumber(4.8))))))
-        (Path \ "n" \ "o" \ "p").write[Float, JObject].writes(4.8f) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4.8))))))))
+        (Path \ "n").write[Float, JObject].writes(4.5f) shouldBe(JObject(Map("n" -> JNumber(4.5))))
+        (Path \ "n" \ "o").write[Float, JObject].writes(4.5f) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JNumber(4.5))))))
+        (Path \ "n" \ "o" \ "p").write[Float, JObject].writes(4.5f) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4.5))))))))
       }
 
       "Double" in {
         (Path \ "n").write[Double, JObject].writes(4d) shouldBe(JObject(Map("n" -> JNumber(4.0))))
-        (Path \ "n" \ "o").write[Double, JObject].writes(4.8d) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JNumber(4.8))))))
-        (Path \ "n" \ "o" \ "p").write[Double, JObject].writes(4.8d) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4.8))))))))
+        (Path \ "n" \ "o").write[Double, JObject].writes(4.5d) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JNumber(4.5))))))
+        (Path \ "n" \ "o" \ "p").write[Double, JObject].writes(4.5d) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4.5))))))))
       }
 
       "java BigDecimal" in {
         import java.math.{ BigDecimal => jBigDecimal }
         (Path \ "n").write[jBigDecimal, JObject].writes(new jBigDecimal("4.0")) shouldBe(JObject(Map("n" -> JNumber(4.0))))
-        (Path \ "n" \ "o").write[jBigDecimal, JObject].writes(new jBigDecimal("4.8")) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JNumber(4.8))))))
-        (Path \ "n" \ "o" \ "p").write[jBigDecimal, JObject].writes(new jBigDecimal("4.8")) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4.8))))))))
+        (Path \ "n" \ "o").write[jBigDecimal, JObject].writes(new jBigDecimal("4.5")) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JNumber(4.5))))))
+        (Path \ "n" \ "o" \ "p").write[jBigDecimal, JObject].writes(new jBigDecimal("4.5")) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4.5))))))))
       }
 
       "scala BigDecimal" in {
         (Path \ "n").write[BigDecimal, JObject].writes(BigDecimal("4.0")) shouldBe(JObject(Map("n" -> JNumber(4.0))))
-        (Path \ "n" \ "o").write[BigDecimal, JObject].writes(BigDecimal("4.8")) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JNumber(4.8))))))
-        (Path \ "n" \ "o" \ "p").write[BigDecimal, JObject].writes(BigDecimal("4.8")) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4.8))))))))
-      }
-
-      "date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val d = f.parse("1985-09-10")
-        (Path \ "n").write(date).writes(d) shouldBe(JObject(Map("n" -> JString("1985-09-10"))))
-      }
-
-      "iso date (Can't test on CI)" ignore {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val d = f.parse("1985-09-10")
-        (Path \ "n").write(isoDate).writes(d) shouldBe(JObject(Map("n" -> JString("1985-09-10T00:00:00+02:00"))))
-      }
-
-      "joda" when {
-        import org.joda.time.DateTime
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val jd = new DateTime(dd)
-
-        "date" in {
-          (Path \ "n").write(jodaDate).writes(jd) shouldBe(JObject(Map("n" -> JString("1985-09-10"))))
-        }
-
-        "time" in {
-          (Path \ "n").write(jodaTime).writes(jd) shouldBe(JObject(Map("n" -> JNumber(dd.getTime))))
-        }
-
-        "local date" in {
-          import org.joda.time.LocalDate
-          val ld = new LocalDate()
-          (Path \ "n").write(jodaLocalDate).writes(ld) shouldBe(JObject(Map("n" -> JString(ld.toString))))
-        }
-      }
-
-      "sql date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val ds = new java.sql.Date(dd.getTime())
-        (Path \ "n").write(sqlDate).writes(ds) shouldBe(JObject(Map("n" -> JString("1985-09-10"))))
+        (Path \ "n" \ "o").write[BigDecimal, JObject].writes(BigDecimal("4.5")) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JNumber(4.5))))))
+        (Path \ "n" \ "o" \ "p").write[BigDecimal, JObject].writes(BigDecimal("4.5")) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JNumber(4.5))))))))
       }
 
       "Boolean" in {
@@ -201,20 +158,6 @@ class WritesSpec extends WordSpec with Matchers {
         (Path \ "n" \ "o").write[Seq[String], JObject].writes(Nil) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JArray())))))
         (Path \ "n" \ "o" \ "p").write[Seq[String], JObject].writes(Nil) shouldBe(JObject(Map("n" -> JObject(Map("o"-> JObject(Map("p"-> JArray())))))))
       }
-    }
-
-    "format data" in {
-      val formatter = Write[Double, String]{ money =>
-        import java.text.NumberFormat
-        import java.util.Locale
-        val f = NumberFormat.getCurrencyInstance(Locale.FRANCE)
-        f.format(money)
-      }
-      val w = (Path \ "foo").write(formatter)
-      w.writes(500d) shouldBe(JObject(Map("foo" -> JString("500,00 €"))))
-
-      val w2 = To[JValue] { __ => (__ \ "foo").write(formatter) }
-      w2.writes(500d) shouldBe(JObject(Map("foo" -> JString("500,00 €"))))
     }
 
     "compose" in {

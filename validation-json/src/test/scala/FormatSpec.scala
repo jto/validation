@@ -72,7 +72,7 @@ class FormatSpec extends WordSpec with Matchers {
       "Int" in {
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Int] }.validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Int] }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Int] }.validate(Json.obj("n" -> 4.8)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Int] }.validate(Json.obj("n" -> 4.5)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
         Formatting[JsValue, JsObject] { __ => (__ \ "n" \ "o").format[Int] }.validate(Json.obj("n" -> Json.obj("o" -> 4))) shouldBe(Valid(4))
         Formatting[JsValue, JsObject] { __ => (__ \ "n" \ "o").format[Int] }.validate(Json.obj("n" -> Json.obj("o" -> "foo"))) shouldBe(Invalid(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
 
@@ -87,113 +87,38 @@ class FormatSpec extends WordSpec with Matchers {
       "Short" in {
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Short] }.validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Short] }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Short] }.validate(Json.obj("n" -> 4.8)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Short] }.validate(Json.obj("n" -> 4.5)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
       }
 
       "Long" in {
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Long] }.validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Long] }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Long] }.validate(Json.obj("n" -> 4.8)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Long] }.validate(Json.obj("n" -> 4.5)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
       }
 
       "Float" in {
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Float] }.validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Float] }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Float] }.validate(Json.obj("n" -> 4.8)) shouldBe(Valid(4.8F))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Float] }.validate(Json.obj("n" -> 4.5)) shouldBe(Valid(4.5F))
       }
 
       "Double" in {
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Double] }.validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Double] }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Double] }.validate(Json.obj("n" -> 4.8)) shouldBe(Valid(4.8))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[Double] }.validate(Json.obj("n" -> 4.5)) shouldBe(Valid(4.5))
       }
 
       "java BigDecimal" in {
         import java.math.{ BigDecimal => jBigDecimal }
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> 4)) shouldBe(Valid(new jBigDecimal("4")))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> 4.8)) shouldBe(Valid(new jBigDecimal("4.8")))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[jBigDecimal] }.validate(Json.obj("n" -> 4.5)) shouldBe(Valid(new jBigDecimal("4.5")))
       }
 
       "scala BigDecimal" in {
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[BigDecimal] }.validate(Json.obj("n" -> 4)) shouldBe(Valid(BigDecimal(4)))
         Formatting[JsValue, JsObject] { __ => (__ \ "n").format[BigDecimal] }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[BigDecimal] }.validate(Json.obj("n" -> 4.8)) shouldBe(Valid(BigDecimal(4.8)))
-      }
-
-      "date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        Formatting[JsValue, JsObject] { __ =>
-          (__ \ "n").format(Rules.date, Writes.date)
-        }.validate(Json.obj("n" -> "1985-09-10")) shouldBe(Valid(f.parse("1985-09-10")))
-
-        Formatting[JsValue, JsObject] { __ =>
-          (__ \ "n").format(Rules.date, Writes.date)
-        }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
-      }
-
-      "iso date (Can't test on CI)" ignore {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        Formatting[JsValue, JsObject] { __ =>
-          (__ \ "n").format(Rules.isoDate, Writes.isoDate)
-        }.validate(Json.obj("n" -> "1985-09-10T00:00:00+02:00")) shouldBe(Valid(f.parse("1985-09-10")))
-
-        Formatting[JsValue, JsObject] { __ =>
-          (__ \ "n").format(Rules.isoDate, Writes.isoDate)
-        }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date.isoformat")))))
-      }
-
-      "joda" when {
-        import org.joda.time.DateTime
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val jd = new DateTime(dd)
-
-        "date" in {
-          Formatting[JsValue, JsObject] { __ =>
-            (__ \ "n").format(Rules.jodaDate, Writes.jodaDate)
-          }.validate(Json.obj("n" -> "1985-09-10")) shouldBe(Valid(jd))
-
-          Formatting[JsValue, JsObject] { __ =>
-            (__ \ "n").format(Rules.jodaDate, Writes.jodaDate)
-          }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
-        }
-
-        "time" in {
-          Formatting[JsValue, JsObject] { __ =>
-            (__ \ "n").format(Rules.jodaTime, Writes.jodaTime)
-          }.validate(Json.obj("n" -> dd.getTime)) shouldBe(Valid(jd))
-
-          Formatting[JsValue, JsObject] { __ =>
-            (__ \ "n").format(Rules.jodaDate, Writes.jodaTime)
-          }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
-        }
-
-        "local date" in {
-          import org.joda.time.LocalDate
-          val ld = new LocalDate()
-
-          Formatting[JsValue, JsObject] { __ =>
-            (__ \ "n").format(Rules.jodaLocalDate, Writes.jodaLocalDate)
-          }.validate(Json.obj("n" -> ld.toString())) shouldBe(Valid(ld))
-
-          Formatting[JsValue, JsObject] { __ =>
-            (__ \ "n").format(Rules.jodaLocalDate, Writes.jodaLocalDate)
-          }.validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "")))))
-        }
-      }
-
-      "sql date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val ds = new java.sql.Date(dd.getTime())
-
-        Formatting[JsValue, JsObject] { __ =>
-          (__ \ "n").format(Rules.sqlDate, Writes.sqlDate)
-        }.validate(Json.obj("n" -> "1985-09-10")) shouldBe(Valid(ds))
+        Formatting[JsValue, JsObject] { __ => (__ \ "n").format[BigDecimal] }.validate(Json.obj("n" -> 4.5)) shouldBe(Valid(BigDecimal(4.5)))
       }
 
       "Boolean" in {

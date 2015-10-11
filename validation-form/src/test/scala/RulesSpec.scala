@@ -55,7 +55,7 @@ class RulesSpec extends WordSpec with Matchers {
       "Int" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[Int] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
         From[UrlFormEncoded] { __ => (__ \ "n").read[Int] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Int] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Int] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
         From[UrlFormEncoded] { __ => (__ \ "n" \ "o").read[Int] }.validate(Map("n.o" -> Seq("4"))) shouldBe(Valid(4))
         From[UrlFormEncoded] { __ => (__ \ "n" \ "o").read[Int] }.validate(Map("n.o" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
 
@@ -70,113 +70,38 @@ class RulesSpec extends WordSpec with Matchers {
       "Short" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[Short] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
         From[UrlFormEncoded] { __ => (__ \ "n").read[Short] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Short] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Short] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
       }
 
       "Long" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[Long] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
         From[UrlFormEncoded] { __ => (__ \ "n").read[Long] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Long] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Long] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
       }
 
       "Float" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[Float] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
         From[UrlFormEncoded] { __ => (__ \ "n").read[Float] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Float] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(4.8F))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Float] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Valid(4.5F))
       }
 
       "Double" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[Double] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(4))
         From[UrlFormEncoded] { __ => (__ \ "n").read[Double] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[Double] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(4.8))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[Double] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Valid(4.5))
       }
 
       "java BigDecimal" in {
         import java.math.{ BigDecimal => jBigDecimal }
         From[UrlFormEncoded] { __ => (__ \ "n").read[jBigDecimal] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(new jBigDecimal("4")))
         From[UrlFormEncoded] { __ => (__ \ "n").read[jBigDecimal] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[jBigDecimal] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(new jBigDecimal("4.8")))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[jBigDecimal] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Valid(new jBigDecimal("4.5")))
       }
 
       "scala BigDecimal" in {
         From[UrlFormEncoded] { __ => (__ \ "n").read[BigDecimal] }.validate(Map("n" -> Seq("4"))) shouldBe(Valid(BigDecimal(4)))
         From[UrlFormEncoded] { __ => (__ \ "n").read[BigDecimal] }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        From[UrlFormEncoded] { __ => (__ \ "n").read[BigDecimal] }.validate(Map("n" -> Seq("4.8"))) shouldBe(Valid(BigDecimal(4.8)))
-      }
-
-      "date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        From[UrlFormEncoded] { __ =>
-          (__ \ "n").read(date)
-        }.validate(Map("n" -> Seq("1985-09-10"))) shouldBe(Valid(f.parse("1985-09-10")))
-
-        From[UrlFormEncoded] { __ =>
-          (__ \ "n").read(date)
-        }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
-      }
-
-      "iso date (Can't test on CI)" ignore {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        From[UrlFormEncoded] { __ =>
-          (__ \ "n").read(isoDate)
-        }.validate(Map("n" -> Seq("1985-09-10T00:00:00+02:00"))) shouldBe(Valid(f.parse("1985-09-10")))
-
-        From[UrlFormEncoded] { __ =>
-          (__ \ "n").read(isoDate)
-        }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date.isoformat")))))
-      }
-
-      "joda" when {
-        import org.joda.time.DateTime
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val jd = new DateTime(dd)
-
-        "date" in {
-          From[UrlFormEncoded] { __ =>
-            (__ \ "n").read(jodaDate)
-          }.validate(Map("n" -> Seq("1985-09-10"))) shouldBe(Valid(jd))
-
-          From[UrlFormEncoded] { __ =>
-            (__ \ "n").read(jodaDate)
-          }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
-        }
-
-        "time" in {
-          From[UrlFormEncoded] { __ =>
-            (__ \ "n").read(jodaTime)
-          }.validate(Map("n" -> Seq(dd.getTime.toString))) shouldBe(Valid(jd))
-
-          From[UrlFormEncoded] { __ =>
-            (__ \ "n").read(jodaDate)
-          }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
-        }
-
-        "local date" in {
-          import org.joda.time.LocalDate
-          val ld = new LocalDate()
-
-          From[UrlFormEncoded] { __ =>
-            (__ \ "n").read(jodaLocalDate)
-          }.validate(Map("n" -> Seq(ld.toString()))) shouldBe(Valid(ld))
-
-          From[UrlFormEncoded] { __ =>
-            (__ \ "n").read(jodaLocalDate)
-          }.validate(Map("n" -> Seq("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "")))))
-        }
-      }
-
-      "sql date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val ds = new java.sql.Date(dd.getTime())
-
-        From[UrlFormEncoded] { __ =>
-          (__ \ "n").read(sqlDate)
-        }.validate(Map("n" -> Seq("1985-09-10"))) shouldBe(Valid(ds))
+        From[UrlFormEncoded] { __ => (__ \ "n").read[BigDecimal] }.validate(Map("n" -> Seq("4.5"))) shouldBe(Valid(BigDecimal(4.5)))
       }
 
       "Boolean" in {

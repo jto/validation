@@ -46,13 +46,13 @@ class RulesSpec extends WordSpec with Matchers {
       "null" in {
         (Path \ "n").read[JsValue, JsNull.type].validate(Json.obj("n" -> JsNull)) shouldBe(Valid(JsNull))
         (Path \ "n").read[JsValue, JsNull.type].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
-        (Path \ "n").read[JsValue, JsNull.type].validate(Json.obj("n" -> 4.8)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
+        (Path \ "n").read[JsValue, JsNull.type].validate(Json.obj("n" -> 4.5)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
       }
 
       "Int" in {
         (Path \ "n").read[JsValue, Int].validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         (Path \ "n").read[JsValue, Int].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
-        (Path \ "n").read[JsValue, Int].validate(Json.obj("n" -> 4.8)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
+        (Path \ "n").read[JsValue, Int].validate(Json.obj("n" -> 4.5)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
         (Path \ "n" \ "o").read[JsValue, Int].validate(Json.obj("n" -> Json.obj("o" -> 4))) shouldBe(Valid(4))
         (Path \ "n" \ "o").read[JsValue, Int].validate(Json.obj("n" -> Json.obj("o" -> "foo"))) shouldBe(Invalid(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
 
@@ -67,84 +67,38 @@ class RulesSpec extends WordSpec with Matchers {
       "Short" in {
         (Path \ "n").read[JsValue, Short].validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         (Path \ "n").read[JsValue, Short].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
-        (Path \ "n").read[JsValue, Short].validate(Json.obj("n" -> 4.8)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        (Path \ "n").read[JsValue, Short].validate(Json.obj("n" -> 4.5)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
       }
 
       "Long" in {
         (Path \ "n").read[JsValue, Long].validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         (Path \ "n").read[JsValue, Long].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
-        (Path \ "n").read[JsValue, Long].validate(Json.obj("n" -> 4.8)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
+        (Path \ "n").read[JsValue, Long].validate(Json.obj("n" -> 4.5)) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
       }
 
       "Float" in {
         (Path \ "n").read[JsValue, Float].validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         (Path \ "n").read[JsValue, Float].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
-        (Path \ "n").read[JsValue, Float].validate(Json.obj("n" -> 4.8)) shouldBe(Valid(4.8F))
+        (Path \ "n").read[JsValue, Float].validate(Json.obj("n" -> 4.5)) shouldBe(Valid(4.5F))
       }
 
       "Double" in {
         (Path \ "n").read[JsValue, Double].validate(Json.obj("n" -> 4)) shouldBe(Valid(4))
         (Path \ "n").read[JsValue, Double].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
-        (Path \ "n").read[JsValue, Double].validate(Json.obj("n" -> 4.8)) shouldBe(Valid(4.8))
+        (Path \ "n").read[JsValue, Double].validate(Json.obj("n" -> 4.5)) shouldBe(Valid(4.5))
       }
 
       "java BigDecimal" in {
         import java.math.{ BigDecimal => jBigDecimal }
         (Path \ "n").read[JsValue, jBigDecimal].validate(Json.obj("n" -> 4)) shouldBe(Valid(new jBigDecimal("4")))
         (Path \ "n").read[JsValue, jBigDecimal].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        (Path \ "n").read[JsValue, jBigDecimal].validate(Json.obj("n" -> 4.8)) shouldBe(Valid(new jBigDecimal("4.8")))
+        (Path \ "n").read[JsValue, jBigDecimal].validate(Json.obj("n" -> 4.5)) shouldBe(Valid(new jBigDecimal("4.5")))
       }
 
       "scala BigDecimal" in {
         (Path \ "n").read[JsValue, BigDecimal].validate(Json.obj("n" -> 4)) shouldBe(Valid(BigDecimal(4)))
         (Path \ "n").read[JsValue, BigDecimal].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        (Path \ "n").read[JsValue, BigDecimal].validate(Json.obj("n" -> 4.8)) shouldBe(Valid(BigDecimal(4.8)))
-      }
-
-      "date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        (Path \ "n").from[JsValue](Rules.date).validate(Json.obj("n" -> "1985-09-10")) shouldBe(Valid(f.parse("1985-09-10")))
-        (Path \ "n").from[JsValue](Rules.date).validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
-      }
-
-      "iso date (Can't test on CI)" ignore {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        (Path \ "n").from[JsValue](Rules.isoDate).validate(Json.obj("n" -> "1985-09-10T00:00:00+02:00")) shouldBe(Valid(f.parse("1985-09-10")))
-        (Path \ "n").from[JsValue](Rules.isoDate).validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date.isoformat")))))
-      }
-
-      "joda" when {
-        import org.joda.time.DateTime
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val jd = new DateTime(dd)
-
-        "date" in {
-          (Path \ "n").from[JsValue](Rules.jodaDate).validate(Json.obj("n" -> "1985-09-10")) shouldBe(Valid(jd))
-          (Path \ "n").from[JsValue](Rules.jodaDate).validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
-        }
-
-        "time" in {
-          (Path \ "n").from[JsValue](Rules.jodaTime).validate(Json.obj("n" -> dd.getTime)) shouldBe(Valid(jd))
-          (Path \ "n").from[JsValue](Rules.jodaDate).validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
-        }
-
-        "local date" in {
-          import org.joda.time.LocalDate
-          val ld = new LocalDate()
-          (Path \ "n").from[JsValue](Rules.jodaLocalDate).validate(Json.obj("n" -> ld.toString())) shouldBe(Valid(ld))
-          (Path \ "n").from[JsValue](Rules.jodaLocalDate).validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "")))))
-        }
-      }
-
-      "sql date" in {
-        import java.util.Date
-        val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        val dd = f.parse("1985-09-10")
-        val ds = new java.sql.Date(dd.getTime())
-        (Path \ "n").from[JsValue](Rules.sqlDate).validate(Json.obj("n" -> "1985-09-10")) shouldBe(Valid(ds))
+        (Path \ "n").read[JsValue, BigDecimal].validate(Json.obj("n" -> 4.5)) shouldBe(Valid(BigDecimal(4.5)))
       }
 
       "Boolean" in {
@@ -174,7 +128,7 @@ class RulesSpec extends WordSpec with Matchers {
       "JsNumber" in {
         (Path \ "n").read[JsValue, JsNumber].validate(Json.obj("n" -> 4)) shouldBe(Valid(JsNumber(4)))
         (Path \ "n").read[JsValue, JsNumber].validate(Json.obj("n" -> "foo")) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Number")))))
-        (Path \ "n").read[JsValue, JsNumber].validate(Json.obj("n" -> 4.8)) shouldBe(Valid(JsNumber(4.8)))
+        (Path \ "n").read[JsValue, JsNumber].validate(Json.obj("n" -> 4.5)) shouldBe(Valid(JsNumber(4.5)))
       }
 
       "JsBoolean" in {

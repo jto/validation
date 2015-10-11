@@ -1,31 +1,31 @@
 import jto.validation._
 import jto.validation.json4s._
-import org.specs2.mutable._
+import org.scalatest._
 import org.json4s.ast.safe._
 
-object RulesSpec extends Specification {
+class RulesSpec extends WordSpec with Matchers {
 
   "Json Rules" should {
 
     import Rules._
 
-    val valid = JObject(
+    val valid = JObject(Map(
     "firstname" -> JString("Julien"),
     "lastname" -> JString("Tournay"),
-    "age" -> JInt(27),
-    "informations" -> JObject(
+    "age" -> JNumber(27),
+    "informations" -> JObject(Map(
       "label" -> JString("Personal"),
       "email" -> JString("fakecontact@gmail.com"),
-      "phones" -> JArray(List(JString("01.23.45.67.89"), JString("98.76.54.32.10")))))
+      "phones" -> JArray(Vector(JString("01.23.45.67.89"), JString("98.76.54.32.10")))))))
 
-    val invalid = JObject(
+    val invalid = JObject(Map(
     "firstname" -> JString("Julien"),
     "lastname" -> JString("Tournay"),
-    "age" -> JInt(27),
-    "informations" -> JObject(
+    "age" -> JNumber(27),
+    "informations" -> JObject(Map(
       "label" -> JString(""),
       "email" -> JString("fakecontact@gmail.com"),
-      "phones" -> JArray(List(JString("01.23.45.67.89"), JString("98.76.54.32.10")))))
+      "phones" -> JArray(Vector(JString("01.23.45.67.89"), JString("98.76.54.32.10")))))))
 
     "extract data" in {
       (Path \ "firstname").read[JValue, String].validate(valid) shouldBe(Valid("Julien"))
@@ -35,109 +35,108 @@ object RulesSpec extends Specification {
     }
 
     "support checked" in {
-      val js = JObject("issmth" -> JBool(true))
+      val js = JObject(Map("issmth" -> JBoolean(true)))
       val p = Path \ "issmth"
       p.from[JValue](checked).validate(js) shouldBe(Valid(true))
-      p.from[JValue](checked).validate(JObject()) shouldBe(Invalid(Seq(Path \ "issmth" -> Seq(ValidationError("error.required")))))
-      p.from[JValue](checked).validate(JObject("issmth" -> JBool(false))) shouldBe(Invalid(Seq(Path \ "issmth" -> Seq(ValidationError("error.equals", true)))))
+      p.from[JValue](checked).validate(JObject(Map())) shouldBe(Invalid(Seq(Path \ "issmth" -> Seq(ValidationError("error.required")))))
+      p.from[JValue](checked).validate(JObject(Map("issmth" -> JBoolean(false)))) shouldBe(Invalid(Seq(Path \ "issmth" -> Seq(ValidationError("error.equals", true)))))
     }
 
-    "support all types of Json values" in {
+    "support all types of Json values" when {
 
       "null" in {
-        (Path \ "n").read[JValue, JNull.type].validate(JObject("n" -> JNull)) shouldBe(Valid(JNull))
-        (Path \ "n").read[JValue, JNull.type].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
-        (Path \ "n").read[JValue, JNull.type].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
+        (Path \ "n").read[JValue, JNull.type].validate(JObject(Map("n" -> JNull))) shouldBe(Valid(JNull))
+        (Path \ "n").read[JValue, JNull.type].validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
+        (Path \ "n").read[JValue, JNull.type].validate(JObject(Map("n" -> JNumber(4.5)))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
       }
 
       "Int" in {
-        (Path \ "n").read[JValue, Int].validate(JObject("n" -> JInt(4))) shouldBe(Valid(4))
-        (Path \ "n").read[JValue, Int].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
-        (Path \ "n").read[JValue, Int].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
-        (Path \ "n" \ "o").read[JValue, Int].validate(JObject("n" -> JObject("o" -> JInt(4)))) shouldBe(Valid(4))
-        (Path \ "n" \ "o").read[JValue, Int].validate(JObject("n" -> JObject("o" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
+        (Path \ "n").read[JValue, Int].validate(JObject(Map("n" -> JNumber(4)))) shouldBe(Valid(4))
+        (Path \ "n").read[JValue, Int].validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
+        (Path \ "n").read[JValue, Int].validate(JObject(Map("n" -> JNumber(4.5)))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
+        (Path \ "n" \ "o").read[JValue, Int].validate(JObject(Map("n" -> JObject(Map("o" -> JNumber(4)))))) shouldBe(Valid(4))
+        (Path \ "n" \ "o").read[JValue, Int].validate(JObject(Map("n" -> JObject(Map("o" -> JString("foo")))))) shouldBe(Invalid(Seq(Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
 
-        (Path \ "n" \ "o" \ "p" ).read[JValue, Int].validate(JObject("n" -> JObject("o" -> JObject("p" -> JInt(4))))) shouldBe(Valid(4))
-        (Path \ "n" \ "o" \ "p").read[JValue, Int].validate(JObject("n" -> JObject("o" -> JObject("p" -> JString("foo"))))) shouldBe(Invalid(Seq(Path \ "n" \ "o" \ "p" -> Seq(ValidationError("error.number", "Int")))))
+        (Path \ "n" \ "o" \ "p" ).read[JValue, Int].validate(JObject(Map("n" -> JObject(Map("o" -> JObject(Map("p" -> JNumber(4)))))))) shouldBe(Valid(4))
+        (Path \ "n" \ "o" \ "p").read[JValue, Int].validate(JObject(Map("n" -> JObject(Map("o" -> JObject(Map("p" -> JString("foo")))))))) shouldBe(Invalid(Seq(Path \ "n" \ "o" \ "p" -> Seq(ValidationError("error.number", "Int")))))
 
         val errPath = Path \ "foo"
         val error = Invalid(Seq(errPath -> Seq(ValidationError("error.required"))))
-        errPath.read[JValue, Int].validate(JObject("n" -> JInt(4))) shouldBe(error)
+        errPath.read[JValue, Int].validate(JObject(Map("n" -> JNumber(4)))) shouldBe(error)
       }
 
       "Short" in {
-        (Path \ "n").read[JValue, Short].validate(JObject("n" -> JInt(4))) shouldBe(Valid(4))
-        (Path \ "n").read[JValue, Short].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
-        (Path \ "n").read[JValue, Short].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        (Path \ "n").read[JValue, Short].validate(JObject(Map("n" -> JNumber(4)))) shouldBe(Valid(4))
+        (Path \ "n").read[JValue, Short].validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        (Path \ "n").read[JValue, Short].validate(JObject(Map("n" -> JNumber(4.5)))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
       }
 
       "Long" in {
-        (Path \ "n").read[JValue, Long].validate(JObject("n" -> JInt(4))) shouldBe(Valid(4))
-        (Path \ "n").read[JValue, Long].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
-        (Path \ "n").read[JValue, Long].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
+        (Path \ "n").read[JValue, Long].validate(JObject(Map("n" -> JNumber(4)))) shouldBe(Valid(4))
+        (Path \ "n").read[JValue, Long].validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
+        (Path \ "n").read[JValue, Long].validate(JObject(Map("n" -> JNumber(4.5)))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
       }
 
       "Float" in {
-        (Path \ "n").read[JValue, Float].validate(JObject("n" -> JInt(4))) shouldBe(Valid(4))
-        (Path \ "n").read[JValue, Float].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
-        (Path \ "n").read[JValue, Float].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Valid(4.5F))
+        (Path \ "n").read[JValue, Float].validate(JObject(Map("n" -> JNumber(4)))) shouldBe(Valid(4))
+        (Path \ "n").read[JValue, Float].validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
+        (Path \ "n").read[JValue, Float].validate(JObject(Map("n" -> JNumber(4.5)))) shouldBe(Valid(4.5F))
       }
 
       "Double" in {
-        (Path \ "n").read[JValue, Double].validate(JObject("n" -> JInt(4))) shouldBe(Valid(4))
-        (Path \ "n").read[JValue, Double].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
-        (Path \ "n").read[JValue, Double].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Valid(4.5))
+        (Path \ "n").read[JValue, Double].validate(JObject(Map("n" -> JNumber(4)))) shouldBe(Valid(4))
+        (Path \ "n").read[JValue, Double].validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
+        (Path \ "n").read[JValue, Double].validate(JObject(Map("n" -> JNumber(4.5)))) shouldBe(Valid(4.5))
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
-        (Path \ "n").read[JValue, jBigDecimal].validate(JObject("n" -> JInt(4))) shouldBe(Valid(new jBigDecimal("4")))
-        (Path \ "n").read[JValue, jBigDecimal].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        (Path \ "n").read[JValue, jBigDecimal].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Valid(new jBigDecimal("4.5")))
+        (Path \ "n").read[JValue, jBigDecimal].validate(JObject(Map("n" -> JNumber(4)))) shouldBe(Valid(new jBigDecimal("4")))
+        (Path \ "n").read[JValue, jBigDecimal].validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
+        (Path \ "n").read[JValue, jBigDecimal].validate(JObject(Map("n" -> JNumber(4.5)))) shouldBe(Valid(new jBigDecimal("4.5")))
       }
 
       "scala BigDecimal" in {
-        (Path \ "n").read[JValue, BigDecimal].validate(JObject("n" -> JInt(4))) shouldBe(Valid(BigDecimal(4)))
-        (Path \ "n").read[JValue, BigDecimal].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
-        (Path \ "n").read[JValue, BigDecimal].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Valid(BigDecimal(4.5)))
+        (Path \ "n").read[JValue, BigDecimal].validate(JObject(Map("n" -> JNumber(4)))) shouldBe(Valid(BigDecimal(4)))
+        (Path \ "n").read[JValue, BigDecimal].validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
+        (Path \ "n").read[JValue, BigDecimal].validate(JObject(Map("n" -> JNumber(4.5)))) shouldBe(Valid(BigDecimal(4.5)))
       }
 
       "date" in {
         import java.util.Date
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        (Path \ "n").from[JValue](Rules.date).validate(JObject("n" -> JString("1985-09-10"))) shouldBe(Valid(f.parse("1985-09-10")))
-        (Path \ "n").from[JValue](Rules.date).validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
+        (Path \ "n").from[JValue](Rules.date).validate(JObject(Map("n" -> JString("1985-09-10")))) shouldBe(Valid(f.parse("1985-09-10")))
+        (Path \ "n").from[JValue](Rules.date).validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
       }
 
-      "iso date" in {
-        skipped("Can't test on CI")
+      "iso date (Can't test on CI)" ignore {
         import java.util.Date
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        (Path \ "n").from[JValue](Rules.isoDate).validate(JObject("n" -> JString("1985-09-10T00:00:00+02:00"))) shouldBe(Valid(f.parse("1985-09-10")))
-        (Path \ "n").from[JValue](Rules.isoDate).validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date.isoformat")))))
+        (Path \ "n").from[JValue](Rules.isoDate).validate(JObject(Map("n" -> JString("1985-09-10T00:00:00+02:00")))) shouldBe(Valid(f.parse("1985-09-10")))
+        (Path \ "n").from[JValue](Rules.isoDate).validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date.isoformat")))))
       }
 
-      "joda" in {
+      "joda" when {
         import org.joda.time.DateTime
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val dd = f.parse("1985-09-10")
         val jd = new DateTime(dd)
 
         "date" in {
-          (Path \ "n").from[JValue](Rules.jodaDate).validate(JObject("n" -> JString("1985-09-10"))) shouldBe(Valid(jd))
-          (Path \ "n").from[JValue](Rules.jodaDate).validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
+          (Path \ "n").from[JValue](Rules.jodaDate).validate(JObject(Map("n" -> JString("1985-09-10")))) shouldBe(Valid(jd))
+          (Path \ "n").from[JValue](Rules.jodaDate).validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
         }
 
         "time" in {
-          (Path \ "n").from[JValue](Rules.jodaTime).validate(JObject("n" -> JInt(dd.getTime))) shouldBe(Valid(jd))
-          (Path \ "n").from[JValue](Rules.jodaDate).validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
+          (Path \ "n").from[JValue](Rules.jodaTime).validate(JObject(Map("n" -> JNumber(dd.getTime)))) shouldBe(Valid(jd))
+          (Path \ "n").from[JValue](Rules.jodaDate).validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "yyyy-MM-dd")))))
         }
 
         "local date" in {
           import org.joda.time.LocalDate
           val ld = new LocalDate()
-          (Path \ "n").from[JValue](Rules.jodaLocalDate).validate(JObject("n" -> JString(ld.toString()))) shouldBe(Valid(ld))
-          (Path \ "n").from[JValue](Rules.jodaLocalDate).validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "")))))
+          (Path \ "n").from[JValue](Rules.jodaLocalDate).validate(JObject(Map("n" -> JString(ld.toString())))) shouldBe(Valid(ld))
+          (Path \ "n").from[JValue](Rules.jodaLocalDate).validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.jodadate.format", "")))))
         }
       }
 
@@ -146,75 +145,75 @@ object RulesSpec extends Specification {
         val f = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val dd = f.parse("1985-09-10")
         val ds = new java.sql.Date(dd.getTime())
-        (Path \ "n").from[JValue](Rules.sqlDate).validate(JObject("n" -> JString("1985-09-10"))) shouldBe(Valid(ds))
+        (Path \ "n").from[JValue](Rules.sqlDate).validate(JObject(Map("n" -> JString("1985-09-10")))) shouldBe(Valid(ds))
       }
 
       "Boolean" in {
-        (Path \ "n").read[JValue, Boolean].validate(JObject("n" -> JBool(true))) shouldBe(Valid(true))
-        (Path \ "n").read[JValue, Boolean].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
+        (Path \ "n").read[JValue, Boolean].validate(JObject(Map("n" -> JBoolean(true)))) shouldBe(Valid(true))
+        (Path \ "n").read[JValue, Boolean].validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
       }
 
       "String" in {
-        (Path \ "n").read[JValue, String].validate(JObject("n" -> JString("foo"))) shouldBe(Valid("foo"))
-        (Path \ "n").read[JValue, String].validate(JObject("n" -> JInt(42))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "String")))))
-        (Path \ "n").read[JValue, String].validate(JObject("n" -> JArray(List(JString("foo"))))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "String")))))
-        (Path \ "o").read[JValue, String].validate(JObject("o" -> JObject("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "o" -> Seq(ValidationError("error.invalid", "String")))))
+        (Path \ "n").read[JValue, String].validate(JObject(Map("n" -> JString("foo")))) shouldBe(Valid("foo"))
+        (Path \ "n").read[JValue, String].validate(JObject(Map("n" -> JNumber(42)))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "String")))))
+        (Path \ "n").read[JValue, String].validate(JObject(Map("n" -> JArray(Vector(JString("foo")))))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "String")))))
+        (Path \ "o").read[JValue, String].validate(JObject(Map("o" -> JObject(Map("n" -> JString("foo")))))) shouldBe(Invalid(Seq(Path \ "o" -> Seq(ValidationError("error.invalid", "String")))))
       }
 
       "JObject" in {
-        (Path \ "o").read[JValue, JObject].validate(JObject("o" -> JObject("n" -> JString("foo")))) shouldBe(Valid(JObject("n" -> JString("foo"))))
-        (Path \ "n").read[JValue, JObject].validate(JObject("n" -> JInt(42))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Object")))))
-        (Path \ "n").read[JValue, JObject].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Object")))))
-        (Path \ "n").read[JValue, JObject].validate(JObject("n" -> JArray(List(JString("foo"))))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Object")))))
+        (Path \ "o").read[JValue, JObject].validate(JObject(Map("o" -> JObject(Map("n" -> JString("foo")))))) shouldBe(Valid(JObject(Map("n" -> JString("foo")))))
+        (Path \ "n").read[JValue, JObject].validate(JObject(Map("n" -> JNumber(42)))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Object")))))
+        (Path \ "n").read[JValue, JObject].validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Object")))))
+        (Path \ "n").read[JValue, JObject].validate(JObject(Map("n" -> JArray(Vector(JString("foo")))))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Object")))))
       }
 
       "JString" in {
-        (Path \ "n").read[JValue, JString].validate(JObject("n" -> JString("foo"))) shouldBe(Valid(JString("foo")))
-        (Path \ "n").read[JValue, JString].validate(JObject("n" -> JInt(42))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "String")))))
+        (Path \ "n").read[JValue, JString].validate(JObject(Map("n" -> JString("foo")))) shouldBe(Valid(JString("foo")))
+        (Path \ "n").read[JValue, JString].validate(JObject(Map("n" -> JNumber(42)))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "String")))))
       }
 
       "JsNumber" in {
-        (Path \ "n").read[JValue, JInt].validate(JObject("n" -> JInt(4))) shouldBe(Valid(JInt(4)))
-        (Path \ "n").read[JValue, JInt].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Number")))))
-        (Path \ "n").read[JValue, JDecimal].validate(JObject("n" -> JDecimal(4.5))) shouldBe(Valid(JDecimal(4.5)))
+        (Path \ "n").read[JValue, JNumber].validate(JObject(Map("n" -> JNumber(4)))) shouldBe(Valid(JNumber(4)))
+        (Path \ "n").read[JValue, JNumber].validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.number", "Number")))))
+        (Path \ "n").read[JValue, JNumber].validate(JObject(Map("n" -> JNumber(4.5)))) shouldBe(Valid(JNumber(4.5)))
       }
 
-      "JBool" in {
-        (Path \ "n").read[JValue, JBool].validate(JObject("n" -> JBool(true))) shouldBe(Valid(JBool(true)))
-        (Path \ "n").read[JValue, JBool].validate(JObject("n" -> JString("foo"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
+      "JBoolean" in {
+        (Path \ "n").read[JValue, JBoolean].validate(JObject(Map("n" -> JBoolean(true)))) shouldBe(Valid(JBoolean(true)))
+        (Path \ "n").read[JValue, JBoolean].validate(JObject(Map("n" -> JString("foo")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
       }
 
       "Option" in {
-        (Path \ "n").read[JValue, Option[Boolean]].validate(JObject("n" -> JBool(true))) shouldBe(Valid(Some(true)))
-        (Path \ "n").read[JValue, Option[Boolean]].validate(JObject("n" -> JNull)) shouldBe(Valid(None))
-        (Path \ "n").read[JValue, Option[Boolean]].validate(JObject("foo" -> JString("bar"))) shouldBe(Valid(None))
-        (Path \ "n").read[JValue, Option[Boolean]].validate(JObject("n" -> JString("bar"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
+        (Path \ "n").read[JValue, Option[Boolean]].validate(JObject(Map("n" -> JBoolean(true)))) shouldBe(Valid(Some(true)))
+        (Path \ "n").read[JValue, Option[Boolean]].validate(JObject(Map("n" -> JNull))) shouldBe(Valid(None))
+        (Path \ "n").read[JValue, Option[Boolean]].validate(JObject(Map("foo" -> JString("bar")))) shouldBe(Valid(None))
+        (Path \ "n").read[JValue, Option[Boolean]].validate(JObject(Map("n" -> JString("bar")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
       }
 
       "Map[String, V]" in {
-        (Path \ "n").read[JValue, Map[String, String]].validate(JObject("n" -> JObject("foo" -> JString("bar")))) shouldBe(Valid(Map("foo" -> "bar")))
-        (Path \ "n").read[JValue, Map[String, Int]].validate(JObject("n" -> JObject("foo" -> JInt(4), "bar" -> JInt(5)))) shouldBe(Valid(Map("foo" -> 4, "bar" -> 5)))
-        (Path \ "x").read[JValue, Map[String, Int]].validate(JObject("n" -> JObject("foo" -> JInt(4), "bar" -> JString("frack")))) shouldBe(Invalid(Seq(Path \ "x" -> Seq(ValidationError("error.required")))))
-        (Path \ "n").read[JValue, Map[String, Int]].validate(JObject("n" -> JObject("foo" -> JInt(4), "bar" -> JString("frack")))) shouldBe(Invalid(Seq(Path \ "n" \ "bar" -> Seq(ValidationError("error.number", "Int")))))
+        (Path \ "n").read[JValue, Map[String, String]].validate(JObject(Map("n" -> JObject(Map("foo" -> JString("bar")))))) shouldBe(Valid(Map("foo" -> "bar")))
+        (Path \ "n").read[JValue, Map[String, Int]].validate(JObject(Map("n" -> JObject(Map("foo" -> JNumber(4), "bar" -> JNumber(5)))))) shouldBe(Valid(Map("foo" -> 4, "bar" -> 5)))
+        (Path \ "x").read[JValue, Map[String, Int]].validate(JObject(Map("n" -> JObject(Map("foo" -> JNumber(4), "bar" -> JString("frack")))))) shouldBe(Invalid(Seq(Path \ "x" -> Seq(ValidationError("error.required")))))
+        (Path \ "n").read[JValue, Map[String, Int]].validate(JObject(Map("n" -> JObject(Map("foo" -> JNumber(4), "bar" -> JString("frack")))))) shouldBe(Invalid(Seq(Path \ "n" \ "bar" -> Seq(ValidationError("error.number", "Int")))))
       }
 
       "Traversable" in {
-        (Path \ "n").read[JValue, Traversable[String]].validate(JObject("n" -> JArray(List(JString("foo"))))).toOption.get.toSeq must contain(exactly(Seq("foo"): _*))
-        (Path \ "n").read[JValue, Traversable[Int]].validate(JObject("n" -> JArray(List(JInt(1), JInt(2), JInt(3))))).toOption.get.toSeq must contain(exactly(Seq(1, 2, 3): _*))
-        (Path \ "n").read[JValue, Traversable[String]].validate(JObject("n" -> JString("paf"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Array")))))
+        (Path \ "n").read[JValue, Traversable[String]].validate(JObject(Map("n" -> JArray(Vector(JString("foo")))))).toOption.get.toSeq shouldBe(Seq("foo"))
+        (Path \ "n").read[JValue, Traversable[Int]].validate(JObject(Map("n" -> JArray(Vector(JNumber(1), JNumber(2), JNumber(3)))))).toOption.get.toSeq shouldBe(Seq(1, 2, 3))
+        (Path \ "n").read[JValue, Traversable[String]].validate(JObject(Map("n" -> JString("paf")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Array")))))
       }
 
       "Array" in {
-        (Path \ "n").read[JValue, Array[String]].validate(JObject("n" -> JArray(List(JString("foo"))))).toOption.get.toSeq must contain(exactly(Seq("foo"): _*))
-        (Path \ "n").read[JValue, Array[Int]].validate(JObject("n" -> JArray(List(JInt(1), JInt(2), JInt(3))))).toOption.get.toSeq must contain(exactly(Seq(1, 2, 3): _*))
-        (Path \ "n").read[JValue, Array[String]].validate(JObject("n" -> JString("paf"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Array")))))
+        (Path \ "n").read[JValue, Array[String]].validate(JObject(Map("n" -> JArray(Vector(JString("foo")))))).toOption.get.toSeq shouldBe(Seq("foo"))
+        (Path \ "n").read[JValue, Array[Int]].validate(JObject(Map("n" -> JArray(Vector(JNumber(1), JNumber(2), JNumber(3)))))).toOption.get.toSeq shouldBe(Seq(1, 2, 3))
+        (Path \ "n").read[JValue, Array[String]].validate(JObject(Map("n" -> JString("paf")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Array")))))
       }
 
       "Seq" in {
-        (Path \ "n").read[JValue, Seq[String]].validate(JObject("n" -> JArray(List(JString("foo"))))).toOption.get must contain(exactly(Seq("foo"): _*))
-        (Path \ "n").read[JValue, Seq[Int]].validate(JObject("n" -> JArray(List(JInt(1), JInt(2), JInt(3))))).toOption.get must contain(exactly(Seq(1, 2, 3): _*))
-        (Path \ "n").read[JValue, Seq[String]].validate(JObject("n" -> JString("paf"))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Array")))))
-        (Path \ "n").read[JValue, Seq[String]].validate(JObject("n" -> JArray(List(JString("foo"), JInt(2))))) shouldBe(Invalid(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.invalid", "String")))))
+        (Path \ "n").read[JValue, Seq[String]].validate(JObject(Map("n" -> JArray(Vector(JString("foo")))))).toOption.get shouldBe(Seq("foo"))
+        (Path \ "n").read[JValue, Seq[Int]].validate(JObject(Map("n" -> JArray(Vector(JNumber(1), JNumber(2), JNumber(3)))))).toOption.get shouldBe(Seq(1, 2, 3))
+        (Path \ "n").read[JValue, Seq[String]].validate(JObject(Map("n" -> JString("paf")))) shouldBe(Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Array")))))
+        (Path \ "n").read[JValue, Seq[String]].validate(JObject(Map("n" -> JArray(Vector(JString("foo"), JNumber(2)))))) shouldBe(Invalid(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.invalid", "String")))))
       }
 
     }
@@ -284,34 +283,34 @@ object RulesSpec extends Specification {
     }
 
     "lift validations to seq validations" in {
-      (Path \ "foo").from[JValue](seqR(notEmpty)).validate(JObject("foo" -> JArray(List(JString("bar")))))
-        .toOption.get must contain(exactly(Seq("bar"): _*))
+      (Path \ "foo").from[JValue](seqR(notEmpty)).validate(JObject(Map("foo" -> JArray(Vector(JString("bar"))))))
+        .toOption.get shouldBe(Seq("bar"))
 
       From[JValue]{ __ =>
         (__ \ "foo").read(
           (__ \ "foo").read(seqR(notEmpty)))
-      }.validate(JObject("foo" -> JObject("foo" -> JArray(List(JString("bar"))))))
-        .toOption.get must contain(exactly(Seq("bar"): _*))
+      }.validate(JObject(Map("foo" -> JObject(Map("foo" -> JArray(Vector(JString("bar"))))))))
+        .toOption.get shouldBe(Seq("bar"))
 
       (Path \ "n").from[JValue](seqR(notEmpty))
-        .validate(JObject("n" -> JArray(List(JString("foo"), JString(""))))) shouldBe(Invalid(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.required")))))
+        .validate(JObject(Map("n" -> JArray(Vector(JString("foo"), JString("")))))) shouldBe(Invalid(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.required")))))
     }
 
     "validate dependent fields" in {
-      val v = JObject(
+      val v = JObject(Map(
         "login" -> JString("Alice"),
         "password" -> JString("s3cr3t"),
-        "verify" -> JString("s3cr3t"))
+        "verify" -> JString("s3cr3t")))
 
-      val i1 = JObject(
+      val i1 = JObject(Map(
         "login" -> JString("Alice"),
         "password" -> JString("s3cr3t"),
-        "verify" -> JString(""))
+        "verify" -> JString("")))
 
-      val i2 = JObject(
+      val i2 = JObject(Map(
         "login" -> JString("Alice"),
         "password" -> JString("s3cr3t"),
-        "verify" -> JString("bam"))
+        "verify" -> JString("bam")))
 
       val passRule = From[JValue] { __ =>
         ((__ \ "password").read(notEmpty) ~ (__ \ "verify").read(notEmpty))
@@ -327,19 +326,19 @@ object RulesSpec extends Specification {
       rule.validate(i2).shouldBe(Invalid(Seq(Path \ "verify" -> Seq(ValidationError("error.equals", "s3cr3t")))))
     }
 
-    "validate subclasses (and parse the concrete class)" in {
+    "validate subclasses (and parse the concrete class)" when {
 
       trait A
       case class B(foo: Int) extends A
       case class C(bar: Int) extends A
 
-      val b = JObject("name" -> JString("B"), "foo" -> JInt(4))
-      val c = JObject("name" -> JString("C"), "bar" -> JInt(6))
-      val e = JObject("name" -> JString("E"), "eee" -> JInt(6))
+      val b = JObject(Map("name" -> JString("B"), "foo" -> JNumber(4)))
+      val c = JObject(Map("name" -> JString("C"), "bar" -> JNumber(6)))
+      val e = JObject(Map("name" -> JString("E"), "eee" -> JNumber(6)))
 
       val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 
-      "by trying all possible Rules" in {
+      "trying all possible Rules" in {
         val rb: Rule[JValue, A] = From[JValue]{ __ =>
           (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
         }
@@ -355,7 +354,7 @@ object RulesSpec extends Specification {
         rule.validate(e) shouldBe(Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType")))))
       }
 
-      "by dicriminating on fields" in {
+      "dicriminating on fields" in {
 
         val rule = From[JValue] { __ =>
           (__ \ "name").read[String].flatMap[A] {
@@ -385,23 +384,23 @@ object RulesSpec extends Specification {
         email: Option[String],
         phones: Seq[String])
 
-      val validJson = JObject(
+      val validJson = JObject(Map(
         "firstname" -> JString("Julien"),
         "lastname" -> JString("Tournay"),
-        "age" -> JInt(27),
-        "informations" -> JArray(List(JObject(
+        "age" -> JNumber(27),
+        "informations" -> JArray(Vector(JObject(Map(
           "label" -> JString("Personal"),
           "email" -> JString("fakecontact@gmail.com"),
-          "phones" -> JArray(List(JString("01.23.45.67.89"), JString("98.76.54.32.10")))))))
+          "phones" -> JArray(Vector(JString("01.23.45.67.89"), JString("98.76.54.32.10")))))))))
 
-      val invalidJson = JObject(
+      val invalidJson = JObject(Map(
         "firstname" -> JString("Julien"),
         "lastname" -> JString("Tournay"),
-        "age" -> JInt(27),
-        "informations" -> JArray(List(JObject(
+        "age" -> JNumber(27),
+        "informations" -> JArray(Vector(JObject(Map(
           "label" -> JString(""),
           "email" -> JString("fakecontact@gmail.com"),
-          "phones" -> JArray(List(JString("01.23.45.67.89"), JString("98.76.54.32.10")))))))
+          "phones" -> JArray(Vector(JString("01.23.45.67.89"), JString("98.76.54.32.10")))))))))
 
       val infoValidated = From[JValue] { __ =>
          ((__ \ "label").read(notEmpty) ~
@@ -425,21 +424,21 @@ object RulesSpec extends Specification {
         (Path \ "informations" \ 0 \ "label") -> Seq(ValidationError("error.required")))))
     }
 
-    "read recursive" in {
+    "read recursive" when {
       case class RecUser(name: String, friends: Seq[RecUser] = Nil)
       val u = RecUser(
         "bob",
         Seq(RecUser("tom")))
 
-      val m = JObject(
+      val m = JObject(Map(
         "name" -> JString("bob"),
-        "friends" -> JArray(List(JObject("name" -> JString("tom"), "friends" -> JArray(Nil)))))
+        "friends" -> JArray(Vector(JObject(Map("name" -> JString("tom"), "friends" -> JArray(Vector())))))))
 
       case class User1(name: String, friend: Option[User1] = None)
       val u1 = User1("bob", Some(User1("tom")))
-      val m1 = JObject(
+      val m1 = JObject(Map(
         "name" -> JString("bob"),
-        "friend" -> JObject("name" -> JString("tom")))
+        "friend" -> JObject(Map("name" -> JString("tom")))))
 
       "using explicit notation" in {
         lazy val w: Rule[JValue, RecUser] = From[JValue]{ __ =>
@@ -490,8 +489,8 @@ object RulesSpec extends Specification {
         genR[JValue](optionR(_))
       }
 
-      val json = JObject("name" -> JString("bob"), "color" -> JString("blue"))
-      val invalidJson = JObject("color" -> JString("blue"))
+      val json = JObject(Map("name" -> JString("bob"), "color" -> JString("blue")))
+      val invalidJson = JObject(Map("color" -> JString("blue")))
 
       jsonR.validate(json) shouldBe Valid(("bob", Some("blue")))
       jsonR.validate(invalidJson) shouldBe Invalid(Seq((Path \ "name", Seq(ValidationError("error.required")))))

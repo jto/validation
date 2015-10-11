@@ -15,43 +15,67 @@ val scalatestVersion = "3.0.0-M10"
 val scalaXmlVersion = "1.0.5"
 val shapelessVersion = "2.2.5"
 
-lazy val root = aggregate("validation", `validation-core`, `validation-form`, `validation-delimited`, `validation-experimental`, `validation-json4s`, `validation-json`, `validation-xml`, `jvm-only-tests`).in(file("."))
+lazy val root = aggregate("validation", validationJVM, validationJS).in(file("."))
+lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, json4sJVM, experimentalJVM, `validation-json`, `validation-xml`)
+lazy val validationJS = aggregate("validationJS", coreJS, formJS, delimitedJS, json4sJS, experimentalJS)
 
-lazy val `validation-core` = project
+lazy val `validation-core` = crossProject
+  .crossType(CrossType.Pure)
   .settings(validationSettings: _*)
   .settings(generateBoilerplate: _*)
+lazy val coreJVM = `validation-core`.jvm
+lazy val coreJS = `validation-core`.js
+lazy val core = aggregate("validation-core", coreJVM, coreJS)
 
-lazy val `validation-form` = project
+lazy val `validation-form` = crossProject
+  .crossType(CrossType.Pure)
   .settings(validationSettings: _*)
-  .settings(libraryDependencies +=
+  .jvmSettings(libraryDependencies +=
     "org.scala-lang.modules" %% "scala-parser-combinators" % parserCombinatorsVersion)
+  .jsSettings(libraryDependencies +=
+    "org.scala-js" %%% "scala-parser-combinators" % parserCombinatorsVersion)
   .dependsOn(`validation-core`)
+lazy val formJVM = `validation-form`.jvm
+lazy val formJS = `validation-form`.js
+lazy val form = aggregate("validation-form", formJVM, formJS)
 
-lazy val `validation-delimited` = project
+lazy val `validation-delimited` = crossProject
+  .crossType(CrossType.Pure)
   .settings(validationSettings: _*)
   .dependsOn(`validation-core`)
+lazy val delimitedJVM = `validation-delimited`.jvm
+lazy val delimitedJS = `validation-delimited`.js
+lazy val delimited = aggregate("validation-delimited", delimitedJVM, delimitedJS)
 
-lazy val `validation-experimental` = project
+lazy val `validation-experimental` = crossProject
+  .crossType(CrossType.Pure)
   .settings(validationSettings: _*)
   .dependsOn(`validation-core`)
+lazy val experimentalJVM = `validation-experimental`.jvm
+lazy val experimentalJS = `validation-experimental`.js
+lazy val experimental = aggregate("validation-experimental", experimentalJVM, experimentalJS)
 
-lazy val `validation-json4s` = project
+lazy val `validation-json4s` = crossProject
+  .crossType(CrossType.Pure)
   .settings(validationSettings: _*)
   .settings(libraryDependencies +=
-    "org.json4s" %% "json4s-ast" % json4sAstVersion)
+    "org.json4s" %%% "json4s-ast" % json4sAstVersion)
   .dependsOn(`validation-core`)
+lazy val json4sJVM = `validation-json4s`.jvm
+lazy val json4sJS = `validation-json4s`.js
+lazy val json4s = aggregate("validation-json4s", json4sJVM, json4sJS)
 
 lazy val `validation-json` = project
   .settings(validationSettings: _*)
   .settings(libraryDependencies +=
     "com.typesafe.play" %% "play-json" % playVersion)
-  .dependsOn(`validation-core` % "test->test;compile->compile")
+  .dependsOn(coreJVM % "compile;test->test")
 
 lazy val `validation-xml` = project
   .settings(validationSettings: _*)
   .settings(libraryDependencies +=
     "org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion)
-  .dependsOn(`validation-core`)
+  .dependsOn(coreJVM)
 
 lazy val `validation-docs` = project
   .settings(validationSettings: _*)
@@ -59,12 +83,12 @@ lazy val `validation-docs` = project
   .settings(crossTarget := file(".") / "documentation")
   .settings(tutSettings: _*)
   .settings(scalacOptions -= "-Ywarn-unused-import")
-  .dependsOn(root)
+  .dependsOn(coreJVM, formJVM, delimitedJVM, json4sJVM, experimentalJVM, `validation-json`, `validation-xml`)
 
-lazy val `jvm-only-tests` = project
+lazy val `date-tests` = project
   .settings(validationSettings: _*)
   .settings(dontPublish: _*)
-  .dependsOn(`validation-core`, `validation-form`, `validation-delimited`, `validation-experimental`, `validation-json4s`, `validation-json`, `validation-xml`)
+  .dependsOn(coreJVM, formJVM, delimitedJVM, json4sJVM, experimentalJVM, `validation-json`, `validation-xml`)
 
 def aggregate(name: String, projects: ProjectReference*): Project =
   Project(name, file("." + name))
@@ -80,6 +104,7 @@ lazy val settings = Seq(
   scalacOptions ++= commonScalacOptions,
   resolvers ++= commonResolvers,
   testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
+  scalaJSStage in Global := FastOptStage,
   parallelExecution := false
 )
 
@@ -110,9 +135,9 @@ val commonResolvers = Seq(
 
 val dependencies = Seq(
   libraryDependencies ++= Seq(
-    "org.spire-math" %% "cats" % catsVersion,
-    "com.chuusai" %% "shapeless" % shapelessVersion,
-    "org.scalatest" %% "scalatest" % scalatestVersion % "test",
+    "org.spire-math" %%% "cats" % catsVersion,
+    "com.chuusai" %%% "shapeless" % shapelessVersion,
+    "org.scalatest" %%% "scalatest" % scalatestVersion % "test",
     "joda-time" % "joda-time" % jodaTimeVersion,
     "org.joda" % "joda-convert" % jodaConvertVersion
   ),

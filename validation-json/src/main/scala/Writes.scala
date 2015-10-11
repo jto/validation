@@ -18,7 +18,7 @@ object Writes extends DefaultWrites with DefaultMonoids with GenericWrites[JsVal
     case KeyPathNode(key) => Json.obj(key -> j)
   }
 
-  implicit val validationError = Write[ValidationError, JsValue] { err =>
+  implicit val validationErrorW = Write[ValidationError, JsValue] { err =>
     Json.obj(
       "msg" -> JsString(err.message),
       "args" -> err.args.foldLeft(Json.arr()) { (arr, arg) =>

@@ -1,7 +1,7 @@
 import jto.validation._
 import jto.validation.json4s._
 import org.specs2.mutable._
-import org.json4s._
+import org.json4s.ast.safe._
 
 object RulesSpec extends Specification {
 
@@ -487,7 +487,6 @@ object RulesSpec extends Specification {
         }
 
       val jsonR = {
-
         genR[JValue](optionR(_))
       }
 
@@ -497,9 +496,7 @@ object RulesSpec extends Specification {
       jsonR.validate(json) mustEqual Valid(("bob", Some("blue")))
       jsonR.validate(invalidJson) mustEqual Invalid(Seq((Path \ "name", Seq(ValidationError("error.required")))))
 
-
       // val formR = {
-      //
       //   genR[UrlFormEncoded](optionR(_))
       // }
       // val form = Map("name" -> Seq("bob"), "color" -> Seq("blue"))

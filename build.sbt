@@ -6,6 +6,7 @@ val license = ("Apache License", url("http://www.apache.org/licenses/LICENSE-2.0
 val catsVersion = "0.2.0"
 val jodaConvertVersion = "1.3.1"
 val jodaTimeVersion = "2.2"
+val json4sAstVersion = "4.0.0-SNAPSHOT-2"
 val kindProjectorVersion = "0.6.3"
 val parserCombinatorsVersion = "1.0.2"
 val playVersion = "2.4.3"
@@ -36,7 +37,7 @@ lazy val `validation-experimental` = project
 lazy val `validation-json4s` = project
   .settings(validationSettings: _*)
   .settings(libraryDependencies +=
-    "org.json4s" %% "json4s-native" % "3.2.10")
+    "org.json4s" %% "json4s-ast" % json4sAstVersion)
   .dependsOn(`validation-core`)
 
 lazy val `validation-json` = project
@@ -97,6 +98,7 @@ val commonScalacOptions = Seq(
 )
 
 val commonResolvers = Seq(
+  Resolver.sonatypeRepo("snapshots"),
   Resolver.sonatypeRepo("releases")
 )
 

@@ -1,7 +1,7 @@
 import jto.validation._
 import jto.validation.json4s.Writes._
 import org.specs2.mutable._
-import org.json4s._
+import org.json4s.ast.safe._
 
 class WritesSpec extends Specification {
 

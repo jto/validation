@@ -4,3 +4,4 @@ resolvers += Resolver.url(
         Resolver.ivyStylePatterns)
 
 addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.4.0")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.5")

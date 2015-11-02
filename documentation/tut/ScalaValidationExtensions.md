@@ -13,27 +13,28 @@ The base of all Rules is the capacity to extract a subset of some input data.
 For the type `JsValue`, we need to be able to extract a `JsValue` at a given `Path`:
 
 ```scala
-scala> import play.api.data.mapping._
-import play.api.data.mapping._
+scala> import jto.validation._
+import jto.validation._
 
-scala> import play.api.libs.json.{ KeyPathNode => JSKeyPathNode, IdxPathNode => JIdxPathNode, _ }
+scala> import play.api.libs.json.{KeyPathNode => JSKeyPathNode, IdxPathNode => JIdxPathNode, _}
 import play.api.libs.json.{KeyPathNode=>JSKeyPathNode, IdxPathNode=>JIdxPathNode, _}
 
 scala> object Ex1 {
+     | 
      | 	def pathToJsPath(p: Path) =
      | 	  play.api.libs.json.JsPath(p.path.map{
      | 	    case KeyPathNode(key) => JSKeyPathNode(key)
      | 	    case IdxPathNode(i) => JIdxPathNode(i)
      | 	  })
+     | 
      | 	implicit def pickInJson(p: Path): Rule[JsValue, JsValue] =
      | 		Rule[JsValue, JsValue] { json =>
      | 		  pathToJsPath(p)(json) match {
-     | 		    case Nil => Failure(Seq(Path -> Seq(ValidationError("error.required"))))
-     | 		    case js :: _ => Success(js)
+     | 		    case Nil => Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
+     | 		    case js :: _ => Valid(js)
      | 		  }
      | 		}
      | }
-warning: there were 1 feature warning(s); re-run with -feature for details
 defined object Ex1
 ```
 
@@ -42,18 +43,21 @@ Now we are able to do this:
 ```scala
 scala> {
      | 	import Ex1._
+     | 
      | 	val js = Json.obj(
      |   "field1" -> "alpha",
      |   "field2" -> 123L,
      |   "field3" -> Json.obj(
      |     "field31" -> "beta",
      |     "field32"-> 345))
+     | 
      | 	val pick = From[JsValue]{ __ =>
      | 	  (__ \ "field2").read[JsValue]
      | 	}
+     | 
      | 	pick.validate(js)
      | }
-res0: play.api.data.mapping.VA[play.api.libs.json.JsValue] = Success(123)
+res0: jto.validation.VA[play.api.libs.json.JsValue] = Valid(123)
 ```
 
 Which is nice, but is would be much more convenient if we could extract that value as an `Int`.
@@ -71,8 +75,8 @@ Instead of doing so, we're going to make `pickInJson` a bit smarter by adding an
 implicit def pickInJson[O](p: Path)(implicit r: Rule[JsValue, O]): Rule[JsValue, O] =
     Rule[JsValue, JsValue] { json =>
       pathToJsPath(p)(json) match {
-        case Nil => Failure(Seq(Path -> Seq(ValidationError("error.required"))))
-        case js :: _ => Success(js)
+        case Nil => Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
+        case js :: _ => Valid(js)
       }
     }.compose(r)
 ```
@@ -80,21 +84,21 @@ implicit def pickInJson[O](p: Path)(implicit r: Rule[JsValue, O]): Rule[JsValue,
 The now all we have to do is to write a `Rule[JsValue, O]`, and we automatically get the ` Path => Rule[JsValue, O]` we're interested in. The rest is just a matter of defining all the prmitives rules, for example:
 
 ```scala
-scala> def jsonAs[T](f: PartialFunction[JsValue, Validation[ValidationError, T]])(args: Any*) =
+scala> def jsonAs[T](f: PartialFunction[JsValue, Validated[Seq[ValidationError], T]])(args: Any*) =
      | 	Rule.fromMapping[JsValue, T](
-     | 	  f.orElse{ case j => Failure(Seq(ValidationError("validation.invalid", args: _*)))
+     | 	  f.orElse{ case j => Invalid(Seq(ValidationError("validation.invalid", args: _*)))
      | 	})
-jsonAs: [T](f: PartialFunction[play.api.libs.json.JsValue,play.api.data.mapping.Validation[play.api.data.mapping.ValidationError,T]])(args: Any*)play.api.data.mapping.Rule[play.api.libs.json.JsValue,T]
+jsonAs: [T](f: PartialFunction[play.api.libs.json.JsValue,jto.validation.Validated[Seq[jto.validation.ValidationError],T]])(args: Any*)jto.validation.Rule[play.api.libs.json.JsValue,T]
 
 scala> def stringRule = jsonAs[String] {
-     | 	case JsString(v) => Success(v)
+     | 	case JsString(v) => Valid(v)
      | }("String")
-stringRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,String]
+stringRule: jto.validation.Rule[play.api.libs.json.JsValue,String]
 
 scala> def booleanRule = jsonAs[Boolean]{
-     | 	case JsBoolean(v) => Success(v)
+     | 	case JsBoolean(v) => Valid(v)
      | }("Boolean")
-booleanRule: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Boolean]
+booleanRule: jto.validation.Rule[play.api.libs.json.JsValue,Boolean]
 ```
 
 The types you generally want to support natively are:
@@ -115,7 +119,7 @@ Supporting primitives is nice, but not enough. Users are going to deal with `Seq
 
 ### Option
 
-What we want to do is to implement a function that takes a `Path => Rule[JsValue, O]`, an lift it into a `Path => Rule[JsValue, Option[O]]` for any type `O`. The reason we're working on the fully defined `Path => Rule[JsValue, O]` and not just `Rule[JsValue, O]` is because a non existent `Path` must be validated as a `Success(None)`. If we were to use `pickInJson` on a `Rule[JsValue, Option[O]]`, we would end up with a `Failure` in the case of non-existing `Path`.
+What we want to do is to implement a function that takes a `Path => Rule[JsValue, O]`, an lift it into a `Path => Rule[JsValue, Option[O]]` for any type `O`. The reason we're working on the fully defined `Path => Rule[JsValue, O]` and not just `Rule[JsValue, O]` is because a non existent `Path` must be validated as a `Valid(None)`. If we were to use `pickInJson` on a `Rule[JsValue, Option[O]]`, we would end up with a `Invalid` in the case of non-existing `Path`.
 
 The `play.api.data.mapping.DefaultRules[I]` traits provides a helper for building the desired method. It's signature is:
 
@@ -133,7 +137,7 @@ For example it's defined this way for Json:
 
 ```scala
 def optionR[J, O](r: => Rule[J, O], noneValues: Rule[JsValue, JsValue]*)(implicit pick: Path => Rule[JsValue, JsValue], coerce: Rule[JsValue, J]): Path => Rule[JsValue, Option[O]]
-    = super.opt[J, O](r, (jsNull.fmap(n => n: JsValue) +: noneValues):_*)
+    = super.opt[J, O](r, (jsNull.map(n => n: JsValue) +: noneValues):_*)
 ```
 Basically it's just the same, but we are now only supporting `JsValue`. We are also adding JsNull is the list of None-ish values.
 
@@ -141,22 +145,22 @@ Despite the type signature funkiness, this function is actually **really** simpl
 
 ```scala
 scala> val maybeEmail = From[JsValue]{ __ =>
-     |   import play.api.data.mapping.json.Rules._
+     |   import jto.validation.playjson.Rules._
      |   (__ \ "email").read(optionR(email))
      | }
-maybeEmail: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Option[String]] = play.api.data.mapping.Rule$$anon$2@71303cbe
+maybeEmail: jto.validation.Rule[play.api.libs.json.JsValue,Option[String]] = jto.validation.Rule$$anon$3@3179617b
 
 scala> maybeEmail.validate(Json.obj("email" -> "foo@bar.com"))
-res1: play.api.data.mapping.VA[Option[String]] = Success(Some(foo@bar.com))
+res1: jto.validation.VA[Option[String]] = Valid(Some(foo@bar.com))
 
 scala> maybeEmail.validate(Json.obj("email" -> "baam!"))
-res2: play.api.data.mapping.VA[Option[String]] = Failure(List((/email,List(ValidationError(error.email,WrappedArray())))))
+res2: jto.validation.VA[Option[String]] = Invalid(List((/email,List(ValidationError(List(error.email),WrappedArray())))))
 
 scala> maybeEmail.validate(Json.obj("email" -> JsNull))
-res3: play.api.data.mapping.VA[Option[String]] = Success(None)
+res3: jto.validation.VA[Option[String]] = Valid(None)
 
 scala> maybeEmail.validate(Json.obj())
-res4: play.api.data.mapping.VA[Option[String]] = Success(None)
+res4: jto.validation.VA[Option[String]] = Valid(None)
 ```
 
 Alright, so now we can explicitly define rules for optional data.
@@ -171,10 +175,10 @@ implicit def option[O](p: Path)(implicit pick: Path => Rule[JsValue, JsValue], c
 
 ```scala
 scala> val maybeAge = From[JsValue]{ __ =>
-     |   import play.api.data.mapping.json.Rules._
+     |   import jto.validation.playjson.Rules._
      |   (__ \ "age").read[Option[Int]]
      | }
-maybeAge: play.api.data.mapping.Rule[play.api.libs.json.JsValue,Option[Int]] = play.api.data.mapping.Rule$$anon$2@1bd79be9
+maybeAge: jto.validation.Rule[play.api.libs.json.JsValue,Option[Int]] = jto.validation.Rule$$anon$3@6756d615
 ```
 
 ### Lazyness
@@ -191,11 +195,11 @@ scala> val u = RecUser(
 u: RecUser = RecUser(bob,List(RecUser(tom,List())))
 
 scala> lazy val w: Rule[JsValue, RecUser] = From[JsValue]{ __ =>
-     |   import play.api.data.mapping.json.Rules._
+     |   import jto.validation.playjson.Rules._
      |   ((__ \ "name").read[String] ~
-     |    (__ \ "friends").read(seqR(w)))(RecUser.apply _) // !!! recursive rule definition
+     |    (__ \ "friends").read(seqR(w))) (RecUser.apply) // !!! recursive rule definition
      | }
-w: play.api.data.mapping.Rule[play.api.libs.json.JsValue,RecUser] = <lazy>
+w: jto.validation.Rule[play.api.libs.json.JsValue,RecUser] = <lazy>
 ```
 
 ## Writes
@@ -206,7 +210,6 @@ Writes are implemented in a similar fashion, but a generally easier to implement
 scala> {
      | 	implicit def writeJson[I](path: Path)(implicit w: Write[I, JsValue]): Write[I, JsObject] = ???
      | }
-warning: there were 1 feature warning(s); re-run with -feature for details
 ```
 
 And you then defines all the primitive writes:
@@ -223,10 +226,10 @@ In order to be able to use writes combinators, you also need to create an implem
 
 ```scala
 scala> {
-     | 	import play.api.libs.functional.Monoid
+     | 	import cats.Monoid
      |   implicit def jsonMonoid = new Monoid[JsObject] {
-     |     def append(a1: JsObject, a2: JsObject) = a1 deepMerge a2
-     |     def identity = Json.obj()
+     |     def combine(a1: JsObject, a2: JsObject) = a1 deepMerge a2
+     |     def empty = Json.obj()
      |   }
      | }
 ```
@@ -234,17 +237,11 @@ scala> {
 from there you're able to create complex writes like:
 
 ```scala
+scala> import jto.validation._
+import jto.validation._
+
 scala> import play.api.libs.json._
 import play.api.libs.json._
-
-scala> import play.api.data.mapping._
-import play.api.data.mapping._
-
-scala> import play.api.data.mapping.json.Writes._
-import play.api.data.mapping.json.Writes._
-
-scala> import play.api.libs.functional.syntax.unlift
-import play.api.libs.functional.syntax.unlift
 
 scala> case class User(
      |   name: String,
@@ -254,13 +251,13 @@ scala> case class User(
 defined class User
 
 scala> val userWrite = To[JsObject] { __ =>
-     |   import play.api.data.mapping.json.Writes._
-     |   ((__ \ "name").write[String] and
-     |    (__ \ "age").write[Int] and
-     |    (__ \ "email").write[Option[String]] and
-     |    (__ \ "isAlive").write[Boolean])(unlift(User.unapply _))
+     |   import jto.validation.playjson.Writes._
+     |   ((__ \ "name").write[String] ~
+     |    (__ \ "age").write[Int] ~
+     |    (__ \ "email").write[Option[String]] ~
+     |    (__ \ "isAlive").write[Boolean]) (User.unapply)
      | }
-userWrite: play.api.data.mapping.Write[User,play.api.libs.json.JsObject] = play.api.data.mapping.Write$$anon$2@f8e9703
+userWrite: jto.validation.Write[User,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@70d8a539
 ```
 
 ## Testing

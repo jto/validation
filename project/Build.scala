@@ -13,8 +13,8 @@ object Resolvers {
 object BuildSettings {
   val org = "io.github.jto"
   val buildVersion = "2.0-SNAPSHOT"
-  val playVersion = "2.4.3"
-  val paradiseVersion = "2.1.0-M5"
+  val playVersion = "2.4.6"
+  val paradiseVersion = "2.1.0"
 
   val scalaVersions = Seq(scalaVersion := "2.11.7")
 
@@ -82,23 +82,21 @@ object Dependencies {
   import BuildSettings._
 
   val specsDep = libraryDependencies ++= Seq(
-    "org.specs2" %% "specs2" % "2.4.9" % "test",
-    "org.specs2" %% "specs2-junit" % "2.4.9" % "test") // This is needed to avoid a classpath issue on scalaz
-
-  val shapelessDep = libraryDependencies += "com.chuusai" %% "shapeless" % "2.0.0"
+    "org.specs2" %% "specs2" % "3.7" % "test",
+    "org.specs2" %% "specs2-junit" % "3.7" % "test") // This is needed to avoid a classpath issue on scalaz
 
   val macrosDep = addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full)
 
-  val kindProjector = addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.6.3")
+  val kindProjector = addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.7.1")
 
   val xmlDep = libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.5"
 
   val playDep = libraryDependencies += "com.typesafe.play" %% "play-json" % playVersion
 
   val coreDeps = libraryDependencies ++= Seq(
-    "joda-time" % "joda-time" % "2.2",
-    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2",
-    "org.joda" % "joda-convert" % "1.3.1",
+    "joda-time" % "joda-time" % "2.9.2",
+    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
+    "org.joda" % "joda-convert" % "1.8.1",
     "org.spire-math" %% "cats" % "0.3.0"
   )
 }
@@ -111,7 +109,7 @@ object ValidationBuild extends Build {
   lazy val docs = Project("validation-docs", file("validation-docs"))
     .settings(commonSettings: _*)
     .settings(crossTarget := file(".") / "documentation")
-    .dependsOn(core, json, json4s, form, xml, experimental)
+    .dependsOn(core, json, json4s, form, xml)
 
   lazy val core = Project("validation-core", file("validation-core"))
     .settings(commonSettings: _*)
@@ -130,7 +128,7 @@ object ValidationBuild extends Build {
   lazy val json4s = Project("validation-json4s", file("validation-json4s"))
     .settings(commonSettings: _*)
     .settings(specsDep: _*)
-    .settings(libraryDependencies += "org.json4s" %% "json4s-native" % "3.2.10")
+    .settings(libraryDependencies += "org.json4s" %% "json4s-native" % "3.3.0")
     .dependsOn(core)
 
   lazy val form = Project("validation-form", file("validation-form"))
@@ -149,14 +147,8 @@ object ValidationBuild extends Build {
     .settings(specsDep: _*)
     .dependsOn(core)
 
-  lazy val experimental = Project("validation-experimental", file("validation-experimental"))
-    .settings(commonSettings: _*)
-    .settings(shapelessDep: _*)
-    .settings(specsDep: _*)
-    .dependsOn(core)
-
   lazy val root = project.in(file("."))
-    .aggregate(core, json, form, delimited, xml, json4s, experimental)
+    .aggregate(core, json, form, delimited, xml, json4s)
     .settings(commonSettings: _*)
     .settings(scalaVersions: _*)
     .settings(publishArtifact := false)

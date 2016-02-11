@@ -28,6 +28,11 @@ package object validation {
   type Invalid[+E] = cats.data.Validated.Invalid[E]
   val Invalid = cats.data.Validated.Invalid
 
+  implicit def validatedBackcompat[E, A](va: Validated[Seq[E], A]): VABackCompat[E, A] =
+    new VABackCompat[E, A] {
+      val v = va
+    }
+
   implicit def applySyntaxU[FA](fa: FA)(implicit U: Unapply[Apply, FA]): ApplyOps[U.M, U.A] = {
     object As extends ApplySyntax1
     As.applySyntaxU(fa)

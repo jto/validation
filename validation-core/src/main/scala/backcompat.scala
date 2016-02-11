@@ -5,16 +5,16 @@ package jto.validation
   */
 
 object Success {
-  @deprecated("Success is deprecated, cats.data.Validated.Valid", "2.0")
+  @deprecated("use cats.data.Validated.Valid", "2.0")
   def apply[A](a: A) = cats.data.Validated.valid(a)
-  @deprecated("Success is deprecated, cats.data.Validated.Valid", "2.0")
+  @deprecated("use cats.data.Validated.Valid", "2.0")
   def unapply[A](v: Valid[A]): Option[A] = Option(v.a)
 }
 
 object Failure {
-  @deprecated("Failure is deprecated, cats.data.Validated.Invalid", "2.0")
+  @deprecated("user cats.data.Validated.Invalid", "2.0")
   def apply[E](ves: Seq[E]) = cats.data.Validated.invalid(ves)
-  @deprecated("Failure is deprecated, cats.data.Validated.Invalid", "2.0")
+  @deprecated("use cats.data.Validated.Invalid", "2.0")
   def unapply[E](v: Invalid[E]): Option[E] = Option(v.e)
 }
 
@@ -23,10 +23,10 @@ trait VABackCompat[E, A] {
 
   val v: Validated[Seq[E], A]
 
-  @deprecated("isSuccess is deprecated, use isValid", "2.0")
+  @deprecated("use isValid", "2.0")
   def isSuccess = v.isValid
 
-  @deprecated("isFailure is deprecated, use isInvalid", "2.0")
+  @deprecated("use isInvalid", "2.0")
   def isFailure = v.isInvalid
 
   @deprecated("viaEither is deprecated", "2.0")
@@ -80,27 +80,27 @@ trait VABackCompat[E, A] {
     def withFilter(q: A => Boolean) = new WithFilter(a => p(a) && q(a))
   }
 
-  @deprecated("get is deprecated, use toOption.get", "2.0")
+  @deprecated("use toOption.get", "2.0")
   def get = v.toOption.get
 
-  @deprecated("asOpt is deprecated, use toOption", "2.0")
+  @deprecated("use toOption", "2.0")
   def asOpt = v.toOption
 
-  @deprecated("asEither is deprecated, use toEither", "2.0")
+  @deprecated("use toEither", "2.0")
   def asEither = v.toEither
 
-  @deprecated("recover is deprecated, use toXor.recover(errManager).toValidated", "2.0")
+  @deprecated("use toXor.recover(errManager).toValidated", "2.0")
   def recover[AA >: A](errManager: PartialFunction[Invalid[Seq[E]], AA]): Validated[Seq[E], AA] =
     v.toXor.recover{ case err => errManager(Invalid(err)) }.toValidated
 
-  @deprecated("recoverTotal is deprecated, use fold", "2.0")
+  @deprecated("use fold", "2.0")
   def recoverTotal[AA >: A](errManager: Invalid[Seq[E]] => AA): AA =
     recover{ case err => errManager(err) }.toOption.get
 
-  @deprecated("fail.map is deprecated, use leftMap", "2.0")
+  @deprecated("use leftMap", "2.0")
   def fail = FailProjection(v)
 
-  @deprecated("success.map is deprecated, use map", "2.0")
+  @deprecated("use map", "2.0")
   def success = v
 }
 
@@ -112,7 +112,7 @@ final case class FailProjection[+E, +A](v: Validated[Seq[E], A]) {
 }
 
 object Validation {
-  @deprecated("sequence is deprecated, use .toList.sequenceU", "2.0")
+  @deprecated("use .toList.sequenceU", "2.0")
   def sequence[E, A](vs: Seq[Validated[Seq[E], A]]): Validated[Seq[E], Seq[A]] = {
     import cats.std.list._; import cats.syntax.traverse._;
     vs.toList.sequenceU

@@ -20,7 +20,7 @@ object BuildSettings {
 
   // Used by api docs generation to link back to the correct branch on GitHub, only when version is a SNAPSHOT
   val sourceCodeBranch = "master"
-  
+
   val commonScalacOptions = Seq(
     "-deprecation",
     "-encoding", "UTF-8",
@@ -41,7 +41,7 @@ object BuildSettings {
     "-Ywarn-unused-import",
     "-Xfuture"
   )
-  
+
   val sonatypeSettings = Seq(
     publishMavenStyle := true,
     publishTo := {
@@ -88,18 +88,18 @@ object Dependencies {
   val shapelessDep = libraryDependencies += "com.chuusai" %% "shapeless" % "2.0.0"
 
   val macrosDep = addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full)
-  
+
   val kindProjector = addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.6.3")
 
   val xmlDep = libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.5"
-  
+
   val playDep = libraryDependencies += "com.typesafe.play" %% "play-json" % playVersion
-  
+
   val coreDeps = libraryDependencies ++= Seq(
     "joda-time" % "joda-time" % "2.2",
-    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2", 
+    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2",
     "org.joda" % "joda-convert" % "1.3.1",
-    "org.spire-math" %% "cats" % "0.2.0"
+    "org.spire-math" %% "cats" % "0.3.0"
   )
 }
 
@@ -120,7 +120,7 @@ object ValidationBuild extends Build {
     .settings(macrosDep: _*)
     .settings(specsDep: _*)
     .settings(sourceGenerators in Compile <+= (sourceManaged in Compile).map(Boilerplate.gen))
-  
+
   lazy val json = Project("validation-json", file("validation-json"))
     .settings(commonSettings: _*)
     .settings(playDep: _*)

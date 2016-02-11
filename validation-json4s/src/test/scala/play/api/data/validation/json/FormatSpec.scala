@@ -8,25 +8,25 @@ import play.api.libs.functional.syntax._
 import org.json4s._
 
 object FormatSpec extends Specification {
-	case class User(id: Long, name: String)
-	val luigi = User(1, "Luigi")
+  case class User(id: Long, name: String)
+  val luigi = User(1, "Luigi")
 
-	"Format" should {
+  "Format" should {
 
-		import play.api.data.mapping._
-		import play.api.data.mapping.json4s.Rules
-		import play.api.data.mapping.json4s.Writes
+    import play.api.data.mapping._
+    import play.api.data.mapping.json4s.Rules
+    import play.api.data.mapping.json4s.Writes
     import Writes._
 
-		"serialize and deserialize primitives" in {
-			import Rules._
-			import Writes._
+    "serialize and deserialize primitives" in {
+      import Rules._
+      import Writes._
 
-			val f = Formatting[JValue, JObject] { __ =>
-				(__ \ "id").format[Long]
-			}
+      val f = Formatting[JValue, JObject] { __ =>
+        (__ \ "id").format[Long]
+      }
 
-			val m = JObject("id" -> JInt(1L))
+      val m = JObject("id" -> JInt(1L))
 
       f.writes(1L) mustEqual(m)
       f.validate(m) mustEqual(Success(1L))
@@ -36,14 +36,14 @@ object FormatSpec extends Specification {
 
 
     "serialize and deserialize String" in {
-			import Rules._
-			import Writes._
+      import Rules._
+      import Writes._
 
-			val f = Formatting[JValue, JObject] { __ =>
-				(__ \ "id").format[String]
-			}
+      val f = Formatting[JValue, JObject] { __ =>
+        (__ \ "id").format[String]
+      }
 
-			val m = JObject("id" -> JString("CAFEBABE"))
+      val m = JObject("id" -> JString("CAFEBABE"))
 
       f.writes("CAFEBABE") mustEqual(m)
       f.validate(m) mustEqual(Success("CAFEBABE"))
@@ -52,32 +52,32 @@ object FormatSpec extends Specification {
     }
 
     "serialize and deserialize Seq[String]" in {
-			import Rules._
-			import Writes._
+      import Rules._
+      import Writes._
 
-			val f = Formatting[JValue, JObject] { __ => (__ \ "ids").format[Seq[String]] }
-			val m = JObject("ids" -> JArray(List(JString("CAFEBABE"), JString("FOOBAR"))))
+      val f = Formatting[JValue, JObject] { __ => (__ \ "ids").format[Seq[String]] }
+      val m = JObject("ids" -> JArray(List(JString("CAFEBABE"), JString("FOOBAR"))))
 
-			f.validate(m) mustEqual(Success(Seq("CAFEBABE", "FOOBAR")))
+      f.validate(m) mustEqual(Success(Seq("CAFEBABE", "FOOBAR")))
       f.writes(Seq("CAFEBABE", "FOOBAR")) mustEqual(m)
     }
 
     "serialize and deserialize User case class" in {
-    	import Rules._
-    	import Writes._
+      import Rules._
+      import Writes._
 
-	    implicit val userF = Formatting[JValue, JObject] { __ =>
-				((__ \ "id").format[Long] ~
-			   (__ \ "name").format[String])(User.apply _, unlift(User.unapply _))
-			}
+      implicit val userF = Formatting[JValue, JObject] { __ =>
+        ((__ \ "id").format[Long] ~
+         (__ \ "name").format[String])(User.apply _, unlift(User.unapply _))
+      }
 
-			val m = JObject("id" -> JInt(1L), "name" -> JString("Luigi"))
-			userF.validate(m) mustEqual(Success(luigi))
-		}
+      val m = JObject("id" -> JInt(1L), "name" -> JString("Luigi"))
+      userF.validate(m) mustEqual(Success(luigi))
+    }
 
-		"support primitives types" in {
-			import Rules._
-    	import Writes._
+    "support primitives types" in {
+      import Rules._
+      import Writes._
 
       "Int" in {
         Formatting[JValue, JObject] { __ => (__ \ "n").format[Int] }.validate(JObject("n" -> JInt(4))) mustEqual(Success(4))
@@ -259,22 +259,22 @@ object FormatSpec extends Specification {
       }
     }
 
-		"serialize and deserialize with validation" in {
-			import Rules._
-			import Writes._
+    "serialize and deserialize with validation" in {
+      import Rules._
+      import Writes._
 
-			val f = Formatting[JValue, JObject] { __ =>
+      val f = Formatting[JValue, JObject] { __ =>
         ((__ \ "firstname").format(notEmpty, Write.zero[String]) ~
          (__ \ "lastname").format(notEmpty, Write.zero[String])).tupled
       }
 
-			val valid = JObject(
-				"firstname" -> JString("Julien"),
-				"lastname" -> JString("Tournay"))
+      val valid = JObject(
+        "firstname" -> JString("Julien"),
+        "lastname" -> JString("Tournay"))
 
-			val invalid = JObject("lastname" -> JString("Tournay"))
+      val invalid = JObject("lastname" -> JString("Tournay"))
 
-			val result = ("Julien", "Tournay")
+      val result = ("Julien", "Tournay")
 
       f.writes(result) mustEqual(valid)
       f.validate(valid) mustEqual(Success(result))
@@ -283,18 +283,18 @@ object FormatSpec extends Specification {
     }
 
     "format seq" in {
-    	import Rules._
-    	import Writes._
+      import Rules._
+      import Writes._
 
-    	val valid = JObject(
+      val valid = JObject(
       "firstname" -> JArray(List(JString("Julien"))),
       "foobar" -> JArray(Nil),
       "lastname" -> JString("Tournay"),
       "age" -> JInt(27),
       "information" -> JObject(
-      	"label" -> JString("Personal"),
-      	"email" -> JString("fakecontact@gmail.com"),
-      	"phones" -> JArray(List(JString("01.23.45.67.89"), JString("98.76.54.32.10")))))
+        "label" -> JString("Personal"),
+        "email" -> JString("fakecontact@gmail.com"),
+        "phones" -> JArray(List(JString("01.23.45.67.89"), JString("98.76.54.32.10")))))
 
       def isNotEmpty[T <: Traversable[_]] = validateWith[T]("error.notEmpty"){ !_.isEmpty }
 
@@ -320,8 +320,8 @@ object FormatSpec extends Specification {
         "friend" -> JObject("name" -> JString("tom")))
 
       "using explicit notation" in {
-      	import Rules._
-    		import Writes._
+        import Rules._
+        import Writes._
 
         lazy val w: Format[JValue, JObject, RecUser] = Formatting[JValue, JObject]{ __ =>
           ((__ \ "name").format[String] ~
@@ -339,8 +339,8 @@ object FormatSpec extends Specification {
       }
 
       "using implicit notation" in {
-      	import Rules._
-				import Writes._
+        import Rules._
+        import Writes._
 
         implicit lazy val w: Format[JValue, JObject, RecUser] = Formatting[JValue, JObject]{ __ =>
           ((__ \ "name").format[String] ~
@@ -358,32 +358,32 @@ object FormatSpec extends Specification {
       }
     }
 
-		"work with Rule ans Write seamlessly" in {
-			import Rules._
-    	import Writes._
+    "work with Rule ans Write seamlessly" in {
+      import Rules._
+      import Writes._
 
-	    implicit val userF = Formatting[JValue, JObject] { __ =>
-				((__ \ "id").format[Long] ~
-			   (__ \ "name").format[String])(User.apply _, unlift(User.unapply _))
-			}
+      implicit val userF = Formatting[JValue, JObject] { __ =>
+        ((__ \ "id").format[Long] ~
+         (__ \ "name").format[String])(User.apply _, unlift(User.unapply _))
+      }
 
-			val  userJs = JObject("id" -> JInt(1L), "name" -> JString("Luigi"))
-			userF.validate(userJs) mustEqual(Success(luigi))
-			userF.writes(luigi) mustEqual(userJs)
+      val  userJs = JObject("id" -> JInt(1L), "name" -> JString("Luigi"))
+      userF.validate(userJs) mustEqual(Success(luigi))
+      userF.writes(luigi) mustEqual(userJs)
 
-			val fin = From[JObject] { __ =>
-				(__ \ "user").read[User]
-			}
+      val fin = From[JObject] { __ =>
+        (__ \ "user").read[User]
+      }
 
-			val m2 = JObject("user" -> userJs)
-			fin.validate(m2) mustEqual(Success(luigi))
+      val m2 = JObject("user" -> userJs)
+      fin.validate(m2) mustEqual(Success(luigi))
 
-			val win = To[JValue] { __ =>
-				(__ \ "user").write[User]
-			}
-			win.writes(luigi) mustEqual(m2)
-		}
+      val win = To[JValue] { __ =>
+        (__ \ "user").write[User]
+      }
+      win.writes(luigi) mustEqual(m2)
+    }
 
-	}
+  }
 
 }

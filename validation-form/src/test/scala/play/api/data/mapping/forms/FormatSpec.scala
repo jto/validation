@@ -9,20 +9,20 @@ import play.api.data.mapping._
 
 
 object FormatSpec extends Specification {
-	case class User(id: Long, name: String)
-	val luigi = User(1, "Luigi")
+  case class User(id: Long, name: String)
+  val luigi = User(1, "Luigi")
 
-	"Format" should {
+  "Format" should {
 
-		"serialize and deserialize primitives" in {
-			import Rules._
-			import Writes._
+    "serialize and deserialize primitives" in {
+      import Rules._
+      import Writes._
 
-			val f = Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
-				(__ \ "id").format[Long]
-			}
+      val f = Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
+        (__ \ "id").format[Long]
+      }
 
-			val m = Map("id" -> Seq("1"))
+      val m = Map("id" -> Seq("1"))
 
       f.writes(1L) mustEqual(m)
       f.validate(m) mustEqual(Success(1L))
@@ -32,14 +32,14 @@ object FormatSpec extends Specification {
 
 
     "serialize and deserialize String" in {
-			import Rules._
-			import Writes._
+      import Rules._
+      import Writes._
 
-			val f = Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
-				(__ \ "id").format[String]
-			}
+      val f = Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
+        (__ \ "id").format[String]
+      }
 
-			val m = Map("id" -> Seq("CAFEBABE"))
+      val m = Map("id" -> Seq("CAFEBABE"))
 
       f.writes("CAFEBABE") mustEqual(m)
       f.validate(m) mustEqual(Success("CAFEBABE"))
@@ -48,39 +48,39 @@ object FormatSpec extends Specification {
     }
 
     "serialize and deserialize Seq[String]" in {
-			import Rules._
-			import Writes._
+      import Rules._
+      import Writes._
 
-			val f = Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "ids").format[Seq[String]] }
-			val m = Map("ids[0]" -> Seq("CAFEBABE"), "ids[1]" -> Seq("FOOBAR"))
+      val f = Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "ids").format[Seq[String]] }
+      val m = Map("ids[0]" -> Seq("CAFEBABE"), "ids[1]" -> Seq("FOOBAR"))
 
-			f.validate(m) mustEqual(Success(Seq("CAFEBABE", "FOOBAR")))
+      f.validate(m) mustEqual(Success(Seq("CAFEBABE", "FOOBAR")))
       f.writes(Seq("CAFEBABE", "FOOBAR")) mustEqual(m)
     }
 
     "serialize and deserialize User case class" in {
-    	import Rules._
-    	import Writes._
+      import Rules._
+      import Writes._
 
-	    implicit val userF: Format[UrlFormEncoded, UrlFormEncoded, User] = Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
-				((__ \ "id").format[Long] ~
-			   (__ \ "name").format[String])(User.apply _, unlift(User.unapply _))
-			}
+      implicit val userF: Format[UrlFormEncoded, UrlFormEncoded, User] = Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
+        ((__ \ "id").format[Long] ~
+         (__ \ "name").format[String])(User.apply _, unlift(User.unapply _))
+      }
 
-			val m = Map("id" -> Seq("1"), "name" -> Seq("Luigi"))
-			userF.validate(m) mustEqual(Success(luigi))
+      val m = Map("id" -> Seq("1"), "name" -> Seq("Luigi"))
+      userF.validate(m) mustEqual(Success(luigi))
 
-			// val fin = From[UrlFormEncoded] { __ =>
-			// 	(__ \ "user").read[User]
-			// }
+      // val fin = From[UrlFormEncoded] { __ =>
+      //   (__ \ "user").read[User]
+      // }
 
-			// val m2 = Map("user.id" -> Seq("1"), "user.name" -> Seq("Luigi"))
-			// fin.validate(m2) mustEqual(Success(luigi))
-		}
+      // val m2 = Map("user.id" -> Seq("1"), "user.name" -> Seq("Luigi"))
+      // fin.validate(m2) mustEqual(Success(luigi))
+    }
 
-		"support primitives types" in {
-			import Rules._
-    	import Writes._
+    "support primitives types" in {
+      import Rules._
+      import Writes._
 
       "Int" in {
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ => (__ \ "n").format[Int] }.validate(Map("n" -> Seq("4"))) mustEqual(Success(4))
@@ -259,24 +259,24 @@ object FormatSpec extends Specification {
       }
     }
 
-		"serialize and deserialize with validation" in {
-			import Rules._
-			import Writes._
+    "serialize and deserialize with validation" in {
+      import Rules._
+      import Writes._
 
-			val f = Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
+      val f = Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
         ((__ \ "firstname").format(notEmpty, Write.zero[String]) ~
          (__ \ "lastname").format(notEmpty, Write.zero[String])).tupled
       }
 
-			val valid = Map(
-				"firstname" -> Seq("Julien"),
-				"lastname" -> Seq("Tournay"))
+      val valid = Map(
+        "firstname" -> Seq("Julien"),
+        "lastname" -> Seq("Tournay"))
 
-			val invalid = Map(
-				"firstname" -> Seq(""),
-				"lastname" -> Seq("Tournay"))
+      val invalid = Map(
+        "firstname" -> Seq(""),
+        "lastname" -> Seq("Tournay"))
 
-			val result = ("Julien", "Tournay")
+      val result = ("Julien", "Tournay")
 
       f.writes(result) mustEqual(valid)
       f.validate(valid) mustEqual(Success(result))
@@ -285,10 +285,10 @@ object FormatSpec extends Specification {
     }
 
     "format seq" in {
-    	import Rules._
-    	import Writes._
+      import Rules._
+      import Writes._
 
-    	val valid: UrlFormEncoded = Map(
+      val valid: UrlFormEncoded = Map(
       "firstname" -> Seq("Julien"),
       "lastname" -> Seq("Tournay"),
       "age" -> Seq("27"),
@@ -321,8 +321,8 @@ object FormatSpec extends Specification {
         "friend.name" -> Seq("tom"))
 
       "using explicit notation" in {
-      	import Rules._
-    		import Writes._
+        import Rules._
+        import Writes._
 
         lazy val w: Format[UrlFormEncoded, UrlFormEncoded, RecUser] = Formatting[UrlFormEncoded, UrlFormEncoded]{ __ =>
           ((__ \ "name").format[String] ~
@@ -340,8 +340,8 @@ object FormatSpec extends Specification {
       }
 
       "using implicit notation" in {
-      	import Rules._
-				import Writes._
+        import Rules._
+        import Writes._
 
         implicit lazy val w: Format[UrlFormEncoded, UrlFormEncoded, RecUser] = Formatting[UrlFormEncoded, UrlFormEncoded]{ __ =>
           ((__ \ "name").format[String] ~
@@ -359,6 +359,6 @@ object FormatSpec extends Specification {
       }
     }
 
-	}
+  }
 
 }

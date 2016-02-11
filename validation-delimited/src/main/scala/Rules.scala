@@ -28,9 +28,9 @@ object Rules extends DefaultRules[Delimited] with ParsingRules {
    * Extract the value at a given index, transforming it into a given type.
    *
    * @param p  An index into the array
-   * @param r  A [[Rule]] for converting the value from String to O
+   * @param r  A Rule for converting the value from String to O
    * @tparam O The desired type for the value
-   * @return   Invalid if the index is out of bounds or the [[Path]] was not an [[IdxPathNode]]
+   * @return   Invalid if the index is out of bounds or the Path was not an IdxPathNode
    */
   implicit def pick[O](p: Path)(implicit r: RuleLike[String, O]): Rule[Delimited, O] =
     Rule[Delimited, String] { delimited =>
@@ -80,7 +80,7 @@ object Rules extends DefaultRules[Delimited] with ParsingRules {
       }
 
   /**
-   * An implicit defining a default [[Option]] reader.  Uses "" as the empty value.
+   * An implicit defining a default Option reader.  Uses "" as the empty value.
    *
    * @param p      An index into the array
    * @param pick   Function to extract a value from a given index

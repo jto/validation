@@ -7,11 +7,15 @@ package jto.validation
 object Success {
   @deprecated("Success is deprecated, cats.data.Validated.Valid", "2.0")
   def apply[A](a: A) = cats.data.Validated.valid(a)
+  @deprecated("Success is deprecated, cats.data.Validated.Valid", "2.0")
+  def unapply[A](v: Valid[A]): Option[A] = Option(v.a)
 }
 
 object Failure {
   @deprecated("Failure is deprecated, cats.data.Validated.Invalid", "2.0")
-  def apply[A](ves: Seq[ValidationError]) = cats.data.Validated.invalid(ves)
+  def apply[E](ves: Seq[E]) = cats.data.Validated.invalid(ves)
+  @deprecated("Failure is deprecated, cats.data.Validated.Invalid", "2.0")
+  def unapply[E](v: Invalid[E]): Option[E] = Option(v.e)
 }
 
 trait VABackCompat[E, A] {

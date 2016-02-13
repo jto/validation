@@ -96,7 +96,7 @@ object Rules extends DefaultRules[JValue] {
     case JInt(v) => Valid(BigDecimal(v).bigDecimal)
   }("error.number", "BigDecimal")
 
-  implicit val jsNullR = jsonAs[JNull.type] {
+  implicit val jsNullR: Rule[JValue, JNull.type] = jsonAs[JNull.type] {
     case JNull => Valid(JNull)
   }("error.invalid", "null")
 
@@ -109,7 +109,7 @@ object Rules extends DefaultRules[JValue] {
   implicit def mapR[O](implicit r: RuleLike[JValue, O]): Rule[JValue, Map[String, O]] =
     super.mapR[JValue, O](r, jsObjectR.map { case JObject(fs) => fs })
 
-  implicit def JsValue[O](implicit r: RuleLike[JObject, O]): Rule[JValue, O] =
+  implicit def jsValueR[O](implicit r: RuleLike[JObject, O]): Rule[JValue, O] =
     jsObjectR.compose(r)
 
   implicit def pickInJson[II <: JValue, O](p: Path)(implicit r: RuleLike[JValue, O]): Rule[II, O] = {

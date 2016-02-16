@@ -97,7 +97,7 @@ object Dependencies {
     "joda-time" % "joda-time" % "2.9.2",
     "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
     "org.joda" % "joda-convert" % "1.8.1",
-    "org.spire-math" %% "cats" % "0.3.0"
+    "org.typelevel" %% "cats" % "0.4.1"
   )
 }
 

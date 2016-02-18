@@ -71,6 +71,7 @@ object BuildSettings {
 
   val commonSettings = scalaVersions ++ Seq(
     scalacOptions ++= commonScalacOptions,
+    scalacOptions in (Compile, console) := Seq(),
     organization := org,
     version := buildVersion,
     ivyLoggingLevel := UpdateLogging.DownloadOnly,

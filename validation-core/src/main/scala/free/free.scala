@@ -6,15 +6,13 @@ import cats.functor.{ Contravariant, Invariant }
 
 trait Interpreter[I, G[_]] {
   type T
-  def apply(is: I): G[T]
-
-  type Repr[A] = G[T]
+  type Out = G[T]
+  def apply(is: I): Out
 }
 
 object Interpreter {
   type Aux[I0, G0[_], T0] = Interpreter[I0, G0]{ type T = T0 }
   type Of[G[_]] = { type T[α] = Interpreter[α, G] }
-  type Res[G[_], T] = { type Repr[A] = G[T] }
 
   def apply[I0, G0[_], T0](f: I0 => G0[T0]): Interpreter.Aux[I0, G0, T0] =
     new Interpreter[I0, G0]{
@@ -37,6 +35,7 @@ trait Is {
   type T
   type V
   val v: V
+  override def toString = s"Is($v)"
 }
 
 object Is {
@@ -85,8 +84,13 @@ object FreeVersion {
   type R[T] = Rule[T, T]
 
   def interpret[G[_]] =
-    new NaturalTransformation[λ[α => (Interpreter[α, G], α)], ] {
-      def apply[A](tc: (Interpreter[A, G], A)): G[tc.T] = tc._1(tc._2)
+    new ApplyTC[Interpreter[?, G]] {
+      def apply[A](tc: Interpreter[A, G], a: A): tc.Out = tc(a)
+    }
+
+  val toList =
+    new NaturalTransformation[At, List] {
+      def apply[A](fa: At[A]): List[A] = List(fa.as)
     }
 
   val free =
@@ -94,7 +98,14 @@ object FreeVersion {
       lift(a1) ~
       lift(a2) ~
       lift(a3)
-    ).withImplicits[Interpreter.Of[R]#T](interpret)
+    )
+
+  val interpreted = free.withImplicits[Interpreter.Of[R]#T](interpret[R])
+
+  import cats.std.list._
+  val debug = interpreted.tupled.compile(toList).fold
+
+
 }
 
 

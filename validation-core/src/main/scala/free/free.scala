@@ -4,6 +4,11 @@ package free
 import cats.{ Cartesian, Functor }
 import cats.functor.{ Contravariant, Invariant }
 
+@annotation.implicitNotFound("""
+Cannot find an implicit Interpreter 😓
+  from: ${I}
+  to:   ${G}
+""")
 trait Interpreter[I, G[_]] {
   type T
   type Out = G[T]
@@ -21,9 +26,48 @@ object Interpreter {
     }
 }
 
+trait Inner[F[_], FA] {
+  type A
+}
+
+object Inner {
+  type Aux[F0[_], FA, A0] = Inner[F0, FA] {
+    type A = A0
+  }
+
+  def apply[F[_], FA](implicit is: Inner[F, FA]): Aux[F, FA, is.A] = is
+
+  implicit def inner[F0[_], A0]: Aux[F0, F0[A0], A0] =
+    new Inner[F0, F0[A0]] {
+      type A = A0
+    }
+}
+
+trait Outer[FA[_]] {
+  type F[_]
+}
+
+trait LowPriorityOuter {
+  implicit def outer0[F0[_]]: Outer.Aux[F0, F0] =
+    new Outer[F0] {
+      type F[X] = F0[X]
+    }
+}
+
+object Outer extends LowPriorityOuter {
+  type Aux[FA[_], F0[_]] = Outer[FA] {
+    type F[X] = F0[X]
+  }
+
+  def apply[FA[_]](implicit is: Outer[FA]): Aux[FA, is.F] = is
+
+  implicit def outer2[F1[_], F0[_]]: Aux[λ[α => F0[F1[α]]], F0] =
+    new Outer[λ[α => F0[F1[α]]]] {
+      type F[X] = F0[X]
+    }
+}
+
 object Grammar {
-  sealed trait Just
-  case object Just
   case object NotEmpty
   case class Min[T](value: T)
   case class Max[T](value: T)
@@ -66,6 +110,11 @@ object Interpreters {
     Interpreter{ case Is(Max(v)) => GenericRules.max(v) }
   implicit def notEmptyI: Interpreter.Aux[Is.Aux[String, NotEmpty.type], R, String] =
     Interpreter{ case _ => GenericRules.notEmpty }
+
+  implicit def liftI[I, V, O](implicit pick: Path => Rule[I, O], it: Interpreter.Aux[Is.Aux[O, V], R, O]): Interpreter.Aux[Is.Aux[O, V], λ[α => Path => Rule[I, α]], O] =
+    Interpreter[Is.Aux[O, V], λ[α => (Path => Rule[I, α])], O] { is =>
+      pick(_).compose(it(is))
+    }
 }
 
 object FreeVersion {
@@ -77,11 +126,9 @@ object FreeVersion {
   val a2 = At(Path \ "bar", Is[Int](Min(3)))
   val a3 = At(Path \ "int", Is[Int](Max(10)))
 
-  import Interpreters._
   import cats.arrow.NaturalTransformation
   import cats.Id
 
-  type R[T] = Rule[T, T]
 
   def interpret[G[_]] =
     new ApplyTC[Interpreter[?, G]] {
@@ -100,12 +147,23 @@ object FreeVersion {
       lift(a3)
     )
 
-  val interpreted = free.withImplicits[Interpreter.Of[R]#T](interpret[R])
+  type R[T] = Rule[T, T]
 
-  import cats.std.list._
-  val debug = interpreted.tupled.compile(toList).fold
+  type RuleFrom[I] = {
+    type T[O] = Path => Rule[I, O]
+  }
 
+  type In = Map[String, String]
 
+  // import Interpreters._
+  // val interpreted =
+  //   free.withImplicits[Interpreter.Of[RuleFrom[In]#T]#T](interpret[RuleFrom[In]#T])
+
+  // import cats.std.list._
+  // val debug = interpreted.tupled.compile(toList).fold
+
+  // import jto.validation._, free._, FreeVersion._, Interpreters._, play.api.libs.json._, jto.validation.json.Rules._
+  // free.withImplicits[Interpreter.Of[RuleFrom[JsValue]#T]#T](interpret[RuleFrom[JsValue]#T])
 }
 
 

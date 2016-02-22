@@ -215,7 +215,7 @@ object Boilerplate {
       val tcBody = (synVals zip tcVals).map { case (v, t) => s"functor.map($v)(a => apptc($t, a))" } mkString ", "
 
       val withImplicits =
-        s"def withImplicits[TC[_] <: { type Out }](apptc: ApplyTC[TC])(implicit functor: Functor[F], $tcParams) = new CartesianBuilder${arity}($tcBody)"
+        s"def applyImplicits[TC[_] <: { type Out }](apptc: ApplyTC[TC])(implicit functor: Functor[F], $tcParams) = new CartesianBuilder${arity}($tcBody)"
 
       val map =
         if (arity == 1) s"def map[Z](f: (${`A..N`}) => Z)(implicit functor: Functor[F]): F[Z] = functor.map(${`a..n`})(f)"
@@ -252,7 +252,8 @@ object Boilerplate {
         |    def map[Z](f: (A0) => Z)(implicit functor: Functor[F]): F[Z] = functor.map(a0)(f)
         |    def contramap[Z](f: Z => (A0))(implicit contravariant: Contravariant[F]): F[Z] = contravariant.contramap(a0)(f)
         |    def imap[Z](f: (A0) => Z)(g: Z => (A0))(implicit invariant: Invariant[F]): F[Z] = invariant.imap(a0)(f)(g)
-        |    def withImplicits[TC[_] <: { type Out }](apptc: ApplyTC[TC])(implicit functor: Functor[F], tc0: TC[A0]): CartesianBuilder1[tc0.Out] = new CartesianBuilder1(functor.map(a0)(a => apptc(tc0, a)))
+        |    def applyImplicits[TC[_] <: { type Out }](apptc: ApplyTC[TC])(implicit functor: Functor[F], tc0: TC[A0]) =
+        |      new CartesianBuilder1(functor.map(a0)(a => apptc(tc0, a)))
         | }
         |
         -  private[validation] final class CartesianBuilder$arity[${`A..N`}]($params) {

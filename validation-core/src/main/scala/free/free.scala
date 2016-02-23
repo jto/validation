@@ -26,47 +26,6 @@ object Interpreter {
     }
 }
 
-trait Inner[F[_], FA] {
-  type A
-}
-
-object Inner {
-  type Aux[F0[_], FA, A0] = Inner[F0, FA] {
-    type A = A0
-  }
-
-  def apply[F[_], FA](implicit is: Inner[F, FA]): Aux[F, FA, is.A] = is
-
-  implicit def inner[F0[_], A0]: Aux[F0, F0[A0], A0] =
-    new Inner[F0, F0[A0]] {
-      type A = A0
-    }
-}
-
-trait Outer[FA[_]] {
-  type F[_]
-}
-
-trait LowPriorityOuter {
-  implicit def outer0[F0[_]]: Outer.Aux[F0, F0] =
-    new Outer[F0] {
-      type F[X] = F0[X]
-    }
-}
-
-object Outer extends LowPriorityOuter {
-  type Aux[FA[_], F0[_]] = Outer[FA] {
-    type F[X] = F0[X]
-  }
-
-  def apply[FA[_]](implicit is: Outer[FA]): Aux[FA, is.F] = is
-
-  implicit def outer2[F1[_], F0[_]]: Aux[λ[α => F0[F1[α]]], F0] =
-    new Outer[λ[α => F0[F1[α]]]] {
-      type F[X] = F0[X]
-    }
-}
-
 object Grammar {
   case object NotEmpty
   case class Min[T](value: T)
@@ -130,10 +89,10 @@ object FreeVersion {
   import cats.Id
 
 
-  def interpret[G[_]] =
-    new ApplyTC[Interpreter[?, G]] {
-      def apply[A](tc: Interpreter[A, G], a: A): tc.Out = tc(a)
-    }
+  // def interpret[G[_]] =
+  //   new ApplyTC[Interpreter[?, G]] {
+  //     def apply[A](tc: Interpreter[A, G], a: A): tc.Out = tc(a)
+  //   }
 
   val toList =
     new NaturalTransformation[At, List] {
@@ -155,9 +114,16 @@ object FreeVersion {
 
   type In = Map[String, String]
 
-  // import Interpreters._
-  // val interpreted =
-  //   free.withImplicits[Interpreter.Of[RuleFrom[In]#T]#T](interpret[RuleFrom[In]#T])
+  import Interpreters._
+  val interpreted =
+    free.withImplicits[Interpreter.Of[R]#T]
+
+  Match[List, List[Int]]
+  Match[λ[α => List[Option[α]]], List[Option[Int]]]
+  type LO[X] = List[Option[X]]
+  Match[LO, LO[Int]]
+  // Match[λ[α => List[Option[α]]], LO[Int]]
+  // Match[LO, List[Option[Int]]]
 
   // import cats.std.list._
   // val debug = interpreted.tupled.compile(toList).fold

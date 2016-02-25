@@ -51,10 +51,11 @@ trait LowPriorityMatch {
 }
 
 object Match extends LowPriorityMatch {
-  implicit def match1[Fτ, FA, Out[_], Aτ, AFA]
+  implicit def match1[Fτ, FA, Out[_], Out1[_], Aτ, AFA]
     (implicit
       outτ: Outer.Aux[Fτ, Out],
-      outfa: Outer.Aux[FA, Out],
+      outfa: Outer.Aux[FA, Out1],
+      eq: Out[τ] =:= Out1[τ],
       inτ: Inner.Aux[Fτ, Aτ],
       infa: Inner.Aux[FA, AFA],
       m: Match[Aτ, AFA]
@@ -77,7 +78,7 @@ object test {
   Match[List[Option[τ]], List[Option[List[Int]]]] // compiles
   Match[List[Option[List[τ]]], List[Option[List[Int]]]] // compile
 
-  // Match[Option[τ], List[Option[List[Int]]]] // should not compile
+  Match[Option[τ], List[Option[List[Int]]]] // should not compile
   // Match[List[τ], Option[List[Int]]] // should not compile
   // Match[List[List[τ]], List[Option[List[Int]]]] // should not compile
 }

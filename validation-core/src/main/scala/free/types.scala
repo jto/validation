@@ -35,6 +35,7 @@ object Outer {
     }
 }
 
+/*
 trait Destruct[FA] {
   type F[_]
   type A
@@ -56,36 +57,109 @@ object Destruct {
   def apply[FA](implicit d: Destruct[FA]): Aux[FA, d.F, d.A] = d
 }
 
-trait Match[F[_], FA] {
+
+trait Inner1[FA[_]] {
+  type A[_]
+}
+
+object Inner1 {
+  type Aux[FA[_], A0[_]] = Inner1[FA] {
+    type A[α] = A0[α]
+  }
+
+  def apply[FA[_]](implicit is: Inner1[FA]): Aux[FA, is.A] = is
+
+  implicit def inner1[F0[_], A0[_]]: Aux[λ[α => F0[A0[α]]], A0] =
+    new Inner1[λ[α => F0[A0[α]]]] {
+      type A[α] = A0[α]
+    }
+}
+
+trait Outer1[FA[_]] {
+  type F[_]
+}
+
+object Outer1 {
+  type Aux[FA[_], F0[_]] = Outer1[FA] {
+    type F[α] = F0[α]
+  }
+
+  def apply[FA[_]](implicit is: Outer1[FA]): Aux[FA, is.F] = is
+
+  implicit def outer1[F0[_], A0[_]]: Aux[λ[α => F0[A0[α]]], F0] =
+    new Outer1[λ[α => F0[A0[α]]]] {
+      type F[α] = F0[α]
+    }
+}
+
+
+trait Destruct1[FA[_]] {
+  type F[_]
+  type A[_]
+}
+
+object Destruct1 {
+
+  type Aux[FA0[_], F0[_], A0[_]] =
+    Destruct1[FA0] {
+      type F[α] = F0[α]
+      type A[α] = A0[α]
+    }
+
+  implicit def defaultDestruct1[F0[_], A0[_]](implicit out: Outer1[λ[α => F0[A0[α]]]], in: Inner1[λ[α => F0[A0[α]]]]): Aux[λ[α => F0[A0[α]]], out.F, in.A] =
+    new Destruct1[λ[α => F0[A0[α]]]] {
+      type F[α] = out.F[α]
+      type A[α] = in.A[α]
+    }
+
+  def apply[FA[_]](implicit d: Destruct1[FA]): Aux[FA, d.F, d.A] = d
+}
+*/
+
+trait Match[Fτ, FA] {
   type A
 }
 
 trait LowPriorityMatch {
-  type Aux[F0[_], FA, A0] = Match[F0, FA] { type A = A0 }
+  type Aux[Fτ, FA, A0] = Match[Fτ, FA] { type A = A0 }
 
-  implicit def defaultMatch[F0[_], FA](implicit d: Destruct[FA] { type F[α] = F0[α] }): Aux[F0, FA, d.A] =
-    new Match[F0, FA] {
-      type A = d.A
+  sealed trait τ
+
+  implicit def match0[F[_], A0]: Aux[F[τ], F[A0], A0] =
+    new Match[F[τ], F[A0]] {
+      type A = A0
     }
 }
 
 object Match extends LowPriorityMatch {
+  implicit def match1[Fτ, FA, Out[_], Aτ, AFA]
+    (implicit
+      outτ: Outer.Aux[Fτ, Out],
+      outfa: Outer.Aux[FA, Out],
+      inτ: Inner.Aux[Fτ, Aτ],
+      infa: Inner.Aux[FA, AFA],
+      m: Match[Aτ, AFA]
+    ): Aux[Fτ, FA, m.A] = new Match[Fτ, FA] { type A = m.A }
 
-  implicit def recMatch[Out[_], F[_], FA, A0](implicit
-    dfa: Destruct.Aux[FA, Out, A0],
-    m: Match[F, A0]
-  ): Aux[λ[α => Out[F[α]]], FA, m.A] = new Match[λ[α => Out[F[α]]], FA] { type A = m.A }
-
-  def apply[F[_], FA](implicit m: Match[F, FA]): Aux[F, FA, m.A] = m
+  def apply[Fτ, FA](implicit m: Match[Fτ, FA]): Aux[Fτ, FA, m.A] = m
 }
 
 object test {
-  Match[Option, Option[Int]]
-  Match[List, List[Option[Int]]]
+  import Match.τ
+
+  Match[Option[τ], Option[Int]]      // compiles
+  Match[List[τ], List[Option[Int]]]  // compiles
 
   type Foo[α] = List[Option[α]]
-  Match[Foo, List[Option[Int]]]
+  Match[Foo[τ], Foo[Int]]   // compiles
+  // Match[Foo[τ], List[Option[Int]]]   // should compile ? does not.
 
-  Match[λ[α => List[Option[α]]], List[Option[Int]]]
+  Match[List[Option[τ]], List[Option[Int]]] // compiles
+  Match[List[Option[τ]], List[Option[List[Int]]]] // compiles
+  Match[List[Option[List[τ]]], List[Option[List[Int]]]] // compile
+
+  // Match[Option[τ], List[Option[List[Int]]]] // should not compile
+  // Match[List[τ], Option[List[Int]]] // should not compile
+  // Match[List[List[τ]], List[Option[List[Int]]]] // should not compile
 }
 

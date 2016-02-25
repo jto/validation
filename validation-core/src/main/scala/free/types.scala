@@ -38,7 +38,7 @@ object Outer {
 trait Match[Fτ, FA] {
   type F[_]
   type A
-  def cast[G[_]](fa: FA): G[A] = fa.asInstanceOf[G[A]]
+  def cast(fa: FA): F[A] = fa.asInstanceOf[F[A]]
 }
 
 trait LowPriorityMatch {
@@ -107,10 +107,9 @@ object test {
   Match[Option[List[Either[String, τ]]], Option[List[Either[String, Int]]]] // compile
 
   // Match[Either[Int, τ], Either[String, Int]] // does not compile
-
-  // Match[Option[τ], List[Option[List[Int]]]] // should not compile
-  // Match[List[τ], Option[List[Int]]] // should not compile
-  // Match[List[List[τ]], List[Option[List[Int]]]] // should not compile
-  // Match[List[List[List[τ]]], List[Option[List[Int]]]] // should not compile
+  // Match[Option[τ], List[Option[List[Int]]]] // does not compile
+  // Match[List[τ], Option[List[Int]]] // does not compile
+  // Match[List[List[τ]], List[Option[List[Int]]]] // does not compile
+  // Match[List[List[List[τ]]], List[Option[List[Int]]]] // does not compile
 }
 

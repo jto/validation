@@ -117,14 +117,7 @@ object FreeVersion {
   import Interpreters._
   val interpreted =
     free.withImplicits[Interpreter.Of[R]#T]
-
-  // Match[List, List[Int]]
-  // Match[λ[α => List[Option[α]]], List[Option[Int]]]
-  // type LO[X] = List[Option[X]]
-  // Match[LO, LO[Int]]
-  // Match[Option, List[Int]]
-  // Match[λ[α => List[Option[α]]], LO[Int]]
-  // Match[LO, List[Option[Int]]]
+      // .as[λ[α => (R[α], α)]]
 
   // import cats.std.list._
   // val debug = interpreted.tupled.compile(toList).fold

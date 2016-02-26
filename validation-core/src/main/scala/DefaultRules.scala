@@ -5,14 +5,13 @@ package jto.validation
  * from String to various date types and format
  */
 trait DateRules {
-
   /**
    * Rule for the `java.util.Date` type.
    *
    * @param pattern a date pattern, as specified in `java.text.SimpleDateFormat`.
    * @param corrector a simple string transformation function that can be used to transform input String before parsing. Useful when standards are not exactly respected and require a few tweaks
    */
-  def date(format: String = "yyyy-MM-dd", corrector: String => String = identity) = Rule.fromMapping[String, java.util.Date] { s =>
+  def dateR(format: String, corrector: String => String = identity) = Rule.fromMapping[String, java.util.Date] { s =>
     def parseDate(input: String): Option[java.util.Date] = {
       // REMEMBER THAT SIMPLEDATEFORMAT IS NOT THREADSAFE
       val df = new java.text.SimpleDateFormat(format)
@@ -29,10 +28,11 @@ trait DateRules {
   }
 
   /**
-   * default Rule for the `java.util.Date` type.
+   * Default Rule for the `java.util.Date` type.
    * It uses the default date format: `yyyy-MM-dd`
    */
-  implicit val date: Rule[String, java.util.Date] = date()
+  implicit def dateR: Rule[String, java.util.Date] =
+    dateR("yyyy-MM-dd")
 
   /**
    * Rule for the `org.joda.time.DateTime` type.
@@ -40,55 +40,60 @@ trait DateRules {
    * @param pattern a date pattern, as specified in `java.text.SimpleDateFormat`.
    * @param corrector a simple string transformation function that can be used to transform input String before parsing. Useful when standards are not exactly respected and require a few tweaks
    */
-  def jodaDateRule(pattern: String, corrector: String => String = identity) = Rule.fromMapping[String, org.joda.time.DateTime] { s =>
-    import scala.util.Try
+  def jodaDateR(pattern: String, corrector: String => String = identity): Rule[String, org.joda.time.DateTime] =
+    Rule.fromMapping[String, org.joda.time.DateTime] { s =>
+      import scala.util.Try
 
-    val df = org.joda.time.format.DateTimeFormat.forPattern(pattern)
-    Try(df.parseDateTime(corrector(s)))
-      .map(Valid.apply)
-      .getOrElse(Invalid(Seq(ValidationError("error.expected.jodadate.format", pattern))))
-  }
+      val df = org.joda.time.format.DateTimeFormat.forPattern(pattern)
+      Try(df.parseDateTime(corrector(s)))
+        .map(Valid.apply)
+        .getOrElse(Invalid(Seq(ValidationError("error.expected.jodadate.format", pattern))))
+    }
 
   /**
-   * default Rule for the `java.util.DateTime` type.
+   * Default Rule for the `java.util.DateTime` type.
    */
-  implicit def jodaTime = Rule.fromMapping[Long, org.joda.time.DateTime] { d =>
-    import org.joda.time.DateTime
-    Valid(new DateTime(d.toLong))
-  }
+  implicit def jodaTimeR: Rule[Long, org.joda.time.DateTime] =
+    Rule.fromMapping[Long, org.joda.time.DateTime] { d =>
+      Valid(new org.joda.time.DateTime(d.toLong))
+    }
 
   /**
    * the default implicit JodaDate reads
    * It uses the default date format: `yyyy-MM-dd`
    */
-  implicit val jodaDate = jodaDateRule("yyyy-MM-dd")
+  implicit def jodaDateR: Rule[String, org.joda.time.DateTime] =
+    jodaDateR("yyyy-MM-dd")
 
-  implicit def jodaLocalDateRule(pattern: String, corrector: String => String = identity) = Rule.fromMapping[String, org.joda.time.LocalDate] { s =>
-    import scala.util.Try
-    import org.joda.time.LocalDate
-    import org.joda.time.format.{ DateTimeFormat, ISODateTimeFormat }
+  implicit def jodaLocalDateR(pattern: String, corrector: String => String = identity): Rule[String, org.joda.time.LocalDate] =
+    Rule.fromMapping[String, org.joda.time.LocalDate] { s =>
+      import scala.util.Try
+      import org.joda.time.format.{DateTimeFormat, ISODateTimeFormat}
 
-    val df = if (pattern == "") ISODateTimeFormat.localDateParser else DateTimeFormat.forPattern(pattern)
-    Try(LocalDate.parse(corrector(s), df))
-      .map(Valid.apply)
-      .getOrElse(Invalid(Seq(ValidationError("error.expected.jodadate.format", pattern))))
-  }
+      val df = if (pattern == "") ISODateTimeFormat.localDateParser else DateTimeFormat.forPattern(pattern)
+      Try(org.joda.time.LocalDate.parse(corrector(s), df))
+        .map(Valid.apply)
+        .getOrElse(Invalid(Seq(ValidationError("error.expected.jodadate.format", pattern))))
+    }
+  
   /**
-   * the default implicit Rule for `org.joda.time.LocalDate`
+   * The default implicit Rule for `org.joda.time.LocalDate`
    */
-  implicit val jodaLocalDate = jodaLocalDateRule("")
+  implicit def jodaLocalDateR: Rule[String, org.joda.time.LocalDate] =
+    jodaLocalDateR("")
 
   /**
    * ISO 8601 Reads
    */
-  val isoDate = Rule.fromMapping[String, java.util.Date] { s =>
-    import scala.util.Try
-    import org.joda.time.format.ISODateTimeFormat
-    val parser = ISODateTimeFormat.dateOptionalTimeParser()
-    Try(parser.parseDateTime(s).toDate())
-      .map(Valid.apply)
-      .getOrElse(Invalid(Seq(ValidationError("error.expected.date.isoformat"))))
-  }
+  def isoDateR: Rule[String, java.util.Date] =
+    Rule.fromMapping[String, java.util.Date] { s =>
+      import scala.util.Try
+      import org.joda.time.format.ISODateTimeFormat
+      val parser = ISODateTimeFormat.dateOptionalTimeParser()
+      Try(parser.parseDateTime(s).toDate())
+        .map(Valid.apply)
+        .getOrElse(Invalid(Seq(ValidationError("error.expected.date.isoformat"))))
+    }
 
   /**
    * Rule for the `java.sql.Date` type.
@@ -96,13 +101,14 @@ trait DateRules {
    * @param pattern a date pattern, as specified in `java.text.SimpleDateFormat`.
    * @param corrector a simple string transformation function that can be used to transform input String before parsing. Useful when standards are not exactly respected and require a few tweaks
    */
-  def sqlDateRule(pattern: String, corrector: String => String = identity): Rule[String, java.sql.Date] =
-    date(pattern, corrector).map((d: java.util.Date) => new java.sql.Date(d.getTime))
+  def sqlDateR(pattern: String, corrector: String => String = identity): Rule[String, java.sql.Date] =
+    dateR(pattern, corrector).map((d: java.util.Date) => new java.sql.Date(d.getTime))
 
   /**
-   * the default implicit Rule for `java.sql.Date`
+   * The default implicit Rule for `java.sql.Date`
    */
-  implicit val sqlDate = sqlDateRule("yyyy-MM-dd")
+  implicit def sqlDateR: Rule[String, java.sql.Date] =
+    sqlDateR("yyyy-MM-dd")
 }
 
 /**
@@ -110,7 +116,6 @@ trait DateRules {
  * Extends this trait if your implementing a new set of Rules.
  */
 trait GenericRules {
-
   /**
    * Create a new constraint, verifying that the provided predicate is satisfied.
    * {{{
@@ -236,24 +241,28 @@ trait GenericRules {
    * }}}
    */
   def min[T](m: T)(implicit o: Ordering[T]) = validateWith[T]("error.min", m) { x => o.gteq(x, m) }
+  
   /**
    * {{{
    *   (Path \ "foo").read(max(0)) // validate that there's a negative int at (Path \ "foo")
    * }}}
    */
   def max[T](m: T)(implicit o: Ordering[T]) = validateWith[T]("error.max", m) { x => o.lteq(x, m) }
+  
   /**
    * {{{
    *   (Path \ "foo").read(minLength(5)) // The length of this String must be >= 5
    * }}}
    */
   def minLength(l: Int) = validateWith[String]("error.minLength", l) { _.size >= l }
+  
   /**
    * {{{
    *   (Path \ "foo").read(maxLength(5)) // The length of this String must be <= 5
    * }}}
    */
   def maxLength(l: Int) = validateWith[String]("error.maxLength", l) { _.size <= l }
+  
   /**
    * Validate that a String matches the provided regex
    * {{{
@@ -315,23 +324,12 @@ trait ParsingRules {
     case s if s.isValidLong => Valid(s.toLong)
   }("Long")
 
-  // BigDecimal.isValidFloat is buggy, see [SI-6699]
-  import java.{ lang => jl }
-  private def isValidFloat(bd: BigDecimal) = {
-    val d = bd.toFloat
-    !d.isInfinity && bd.bigDecimal.compareTo(new java.math.BigDecimal(jl.Float.toString(d), bd.mc)) == 0
-  }
   implicit def floatR = stringAs {
-    case s if isValidFloat(s) => Valid(s.toFloat)
+    case s if s.isDecimalFloat => Valid(s.toFloat)
   }("Float")
 
-  // BigDecimal.isValidDouble is buggy, see [SI-6699]
-  private def isValidDouble(bd: BigDecimal) = {
-    val d = bd.toDouble
-    !d.isInfinity && bd.bigDecimal.compareTo(new java.math.BigDecimal(jl.Double.toString(d), bd.mc)) == 0
-  }
   implicit def doubleR = stringAs {
-    case s if isValidDouble(s) => Valid(s.toDouble)
+    case s if s.isDecimalDouble => Valid(s.toDouble)
   }("Double")
 
   implicit def javaBigDecimalR = stringAs {

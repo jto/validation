@@ -134,7 +134,7 @@ object MappingMacros {
     val args = constructorParamss.head.map(_ => TermName(c.freshName("arg")))
     val types = constructorParamss.head.map(p => p.typeSignature)
     val idents = args.map(a => Ident(a))
-    val signature = (args zip types) map { case (a, t) ⇒ q"val $a: $t" }
+    val signature = (args zip types) map { case (a, t) => q"val $a: $t" }
     val applyƒ = if (usingConstructor) {
       q"{ (..$signature) => new $typeO(..$idents) }"
     } else {

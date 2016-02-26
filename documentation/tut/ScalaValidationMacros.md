@@ -31,7 +31,7 @@ scala> import play.api.libs.json._
 import play.api.libs.json._
 
 scala> implicit val personRule = From[JsValue] { __ =>
-     |   import jto.validation.json.Rules._
+     |   import jto.validation.playjson.Rules._
      |   ((__ \ "name").read[String] ~
      |    (__ \ "age").read[Int] ~
      |    (__ \ "lovesChocolate").read[Boolean]) (Person.apply _)
@@ -63,7 +63,7 @@ scala> import play.api.libs.json._
 import play.api.libs.json._
 
 scala> implicit val personRule = {
-     |   import jto.validation.json.Rules._ // let's not leak implicits everywhere
+     |   import jto.validation.playjson.Rules._ // let's not leak implicits everywhere
      |   Rule.gen[JsValue, Person]
      | }
 personRule: jto.validation.Rule[play.api.libs.json.JsValue,Person] = jto.validation.Rule$$anon$3@350c0b65
@@ -93,7 +93,7 @@ scala> import play.api.libs.json._
 import play.api.libs.json._
 
 scala> implicit val personWrite = {
-     |   import jto.validation.json.Writes._ // let's no leak implicits everywhere
+     |   import jto.validation.playjson.Writes._ // let's no leak implicits everywhere
      |   Write.gen[Person, JsObject]
      | }
 personWrite: jto.validation.Write[Person,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@31dc8f2f

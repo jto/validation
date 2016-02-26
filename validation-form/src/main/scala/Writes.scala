@@ -13,7 +13,6 @@ trait DefaultMonoids {
 object Writes extends DefaultWrites with GenericWrites[PM.PM] with DefaultMonoids {
   import PM._
 
-  // TODO: accept a format ?
   implicit val intW: Write[Int, String] = Write(_.toString)
   implicit val shortW: Write[Short, String] = Write(_.toString)
   implicit val booleanW: Write[Boolean, String] = Write(_.toString)

@@ -93,7 +93,7 @@ The Scala compiler is complaining about not finding an implicit function of type
 Fortunately, such method already exists. All you have to do is to import it:
 
 ```tut
-import jto.validation.json.Rules._
+import jto.validation.playjson.Rules._
 ```
 
 > By convention, all useful validation methods for a given type are to be found in an object called `Rules`. That object contains a bunch of implicits defining how to lookup in the data, and how to coerce some of the possible values of those data into Scala types.
@@ -228,7 +228,7 @@ properAge.validate(jsBig)
 
 ```tut
 import jto.validation._
-import jto.validation.json.Rules._
+import jto.validation.playjson.Rules._
 import play.api.libs.json._
 
 val js = Json.parse("""{
@@ -269,7 +269,7 @@ import jto.validation._
 import play.api.libs.json._
 
 val userRule = From[JsValue] { __ =>
-  import jto.validation.json.Rules._
+  import jto.validation.playjson.Rules._
   ((__ \ "name").read[String] ~
    (__ \ "age").read[Int] ~
    (__ \ "email").read[Option[String]] ~

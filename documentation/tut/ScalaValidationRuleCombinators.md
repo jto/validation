@@ -105,8 +105,8 @@ The Scala compiler is complaining about not finding an implicit function of type
 Fortunately, such method already exists. All you have to do is to import it:
 
 ```scala
-scala> import jto.validation.json.Rules._
-import jto.validation.json.Rules._
+scala> import jto.validation.playjson.Rules._
+import jto.validation.playjson.Rules._
 ```
 
 > By convention, all useful validation methods for a given type are to be found in an object called `Rules`. That object contains a bunch of implicits defining how to lookup in the data, and how to coerce some of the possible values of those data into Scala types.
@@ -264,8 +264,8 @@ res11: jto.validation.VA[Int] = Invalid(ArrayBuffer((/user/age,List(ValidationEr
 scala> import jto.validation._
 import jto.validation._
 
-scala> import jto.validation.json.Rules._
-import jto.validation.json.Rules._
+scala> import jto.validation.playjson.Rules._
+import jto.validation.playjson.Rules._
 
 scala> import play.api.libs.json._
 import play.api.libs.json._
@@ -316,7 +316,7 @@ scala> import play.api.libs.json._
 import play.api.libs.json._
 
 scala> val userRule = From[JsValue] { __ =>
-     |   import jto.validation.json.Rules._
+     |   import jto.validation.playjson.Rules._
      |   ((__ \ "name").read[String] ~
      |    (__ \ "age").read[Int] ~
      |    (__ \ "email").read[Option[String]] ~

@@ -57,11 +57,11 @@ class Path(val path: List[PathNode]) {
    * {{{
    *   val contact = Contact("Julien", "Tournay")
    *   implicit def contactWrite = (Path \ "firstname").write[String, UrlFormEncoded]
-   *   contactWrite.writes(contact) mustEqual Map("firstname" -> "Julien")
+   *   contactWrite.writes(contact) shouldBe Map("firstname" -> "Julien")
    * }}}
    */
-  def write[O, I](implicit w: Path => WriteLike[O, I]): Write[O, I] =
-    Writer[I](this).write(w)
+  def write[I, O](implicit w: Path => WriteLike[I, O]): Write[I, O] =
+    Writer[O](this).write(w)
 
   /**
    * Creates a Writes the serialize data to the desired output type using a provided format.
@@ -70,8 +70,8 @@ class Path(val path: List[PathNode]) {
    *   w.writes(new Date()) == Json.obj("date" -> "2013-10-3")
    * }}}
    */
-  def write[O, J, I](format: => WriteLike[O, J])(implicit w: Path => WriteLike[J, I]): Write[O, I] =
-    Writer[I](this).write(format)
+  def write[I, J, O](format: => WriteLike[I, J])(implicit w: Path => WriteLike[J, O]): Write[I, O] =
+    Writer[O](this).write(format)
 
   override def toString = this.path match {
     case Nil => "/"

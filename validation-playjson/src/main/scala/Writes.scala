@@ -1,5 +1,5 @@
 package jto.validation
-package json
+package playjson
 
 import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray, JsNull}
 
@@ -19,7 +19,7 @@ object Writes extends DefaultWrites with DefaultMonoids with GenericWrites[JsVal
     case KeyPathNode(key) => Json.obj(key -> j)
   }
 
-  implicit val validationError = Write[ValidationError, JsValue] { err =>
+  implicit val validationErrorW = Write[ValidationError, JsValue] { err =>
     Json.obj(
       "msg" -> JsString(err.message),
       "args" -> err.args.foldLeft(Json.arr()) { (arr, arg) =>
@@ -37,13 +37,13 @@ object Writes extends DefaultWrites with DefaultMonoids with GenericWrites[JsVal
       })
   }
 
-  implicit def errors(implicit wErrs: WriteLike[Seq[ValidationError], JsValue]) =
+  implicit def errorsW(implicit wErrs: WriteLike[Seq[ValidationError], JsValue]) =
     Write[(Path, Seq[ValidationError]), JsObject] {
       case (p, errs) =>
         Json.obj(p.toString -> wErrs.writes(errs))
     }
 
-  implicit def failure(implicit w: WriteLike[(Path, Seq[ValidationError]), JsObject]) =
+  implicit def failureW(implicit w: WriteLike[(Path, Seq[ValidationError]), JsObject]) =
     Write[Invalid[Seq[(Path, Seq[ValidationError])]], JsObject] {
       case Invalid(errs) =>
         errs.map(w.writes).reduce(_ ++ _)

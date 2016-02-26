@@ -136,7 +136,7 @@ Despite the type signature funkiness, this function is actually **really** simpl
 
 ```tut
 val maybeEmail = From[JsValue]{ __ =>
-  import jto.validation.json.Rules._
+  import jto.validation.playjson.Rules._
   (__ \ "email").read(optionR(email))
 }
 
@@ -158,7 +158,7 @@ implicit def option[O](p: Path)(implicit pick: Path => Rule[JsValue, JsValue], c
 
 ```tut
 val maybeAge = From[JsValue]{ __ =>
-  import jto.validation.json.Rules._
+  import jto.validation.playjson.Rules._
   (__ \ "age").read[Option[Int]]
 }
 ```
@@ -175,7 +175,7 @@ val u = RecUser(
   Seq(RecUser("tom")))
 
 lazy val w: Rule[JsValue, RecUser] = From[JsValue]{ __ =>
-  import jto.validation.json.Rules._
+  import jto.validation.playjson.Rules._
   ((__ \ "name").read[String] ~
    (__ \ "friends").read(seqR(w))) (RecUser.apply _) // !!! recursive rule definition
 }
@@ -226,7 +226,7 @@ case class User(
   isAlive: Boolean)
 
 val userWrite = To[JsObject] { __ =>
-  import jto.validation.json.Writes._
+  import jto.validation.playjson.Writes._
   ((__ \ "name").write[String] ~
    (__ \ "age").write[Int] ~
    (__ \ "email").write[Option[String]] ~

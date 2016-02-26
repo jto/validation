@@ -117,7 +117,7 @@ object FreeVersion {
   import Interpreters._
   val interpreted =
     free.withImplicits[Interpreter.Of[R]#T]
-      // .as[λ[α => (R[α], α)]]
+      .as[λ[α => (Interpreter.Of[R]#T[α], α)]]
 
   // import cats.std.list._
   // val debug = interpreted.tupled.compile(toList).fold

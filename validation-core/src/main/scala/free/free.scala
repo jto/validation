@@ -76,6 +76,25 @@ object Interpreters {
     }
 }
 
+import shapeless.Poly1
+trait Inter[C[_]] extends Poly1 {
+  implicit def inter[T, V](implicit int: Interpreter[Is.Aux[T, V], C]) = at[Is.Aux[T, V]] { is =>
+    int(is)
+  }
+}
+
+trait FromI[I] extends Poly1 {
+  implicit def ruleFrom[O](implicit r0: Rule[I, O]) = at[Rule[O, O]] { r1 =>
+    r0 compose r1
+  }
+}
+
+trait PickIn[I] extends Poly1 {
+  implicit def pick[O](implicit p: Path => Rule[I, I]) = at[Rule[I, O]] { r =>
+    (path: Path) => p(path) compose r
+  }
+}
+
 object FreeVersion {
   import Grammar._
   import cats.free.FreeApplicative
@@ -87,12 +106,6 @@ object FreeVersion {
 
   import cats.arrow.NaturalTransformation
   import cats.Id
-
-
-  // def interpret[G[_]] =
-  //   new ApplyTC[Interpreter[?, G]] {
-  //     def apply[A](tc: Interpreter[A, G], a: A): tc.Out = tc(a)
-  //   }
 
   val toList =
     new NaturalTransformation[At, List] {
@@ -114,10 +127,25 @@ object FreeVersion {
 
   type In = Map[String, String]
 
-  import Interpreters._
+  /*
+  import play.api.libs.json._
+  import jto.validation.Path
+  import jto.validation.free._, FreeVersion._
+  import Interpreters.{ R => _, _ }
+  import jto.validation.playjson.Rules._
+
+  object interpretRule extends Inter[R]
+  object fromJsValue extends FromI[JsValue]
+  object pickInJsValue extends PickIn[JsValue]
+
   val interpreted =
-    free.withImplicits[Interpreter.Of[R]#T]
-      .as[λ[α => (Interpreter.Of[R]#T[α], α)]]
+    free
+      .mapEach(interpretRule)
+      .mapEach(fromJsValue)
+      .mapEach(pickInJsValue)
+
+    interpreted.as[({ type λ[α] = At[Path => α] })#λ]
+  */
 
   // import cats.std.list._
   // val debug = interpreted.tupled.compile(toList).fold

@@ -210,18 +210,19 @@ object Boilerplate {
 
       val n = if (arity == 1) { "" } else { arity.toString }
 
-      val tcVals = (0 until arity) map (n => s"i$n")
-      val tcParams = (tcVals zip synTypes) map { case (v, t) => s"$v: TC[$t]"} mkString ", "
-      val tcBody = (synVals zip tcVals).map { case (v, t) => s"functor.map($v)(a => ($t, a))" } mkString ", "
+      val meVals = (0 until arity) map (n => s"c$n")
+      val meParams = (meVals zip synTypes) map { case (v, t) => s"$v: Case1[f.type, $t]"} mkString ", "
+      val meBody = (synVals zip meVals).map { case (v, m) => s"functor.map($v)(a => $m(a))" } mkString " ~ "
 
-      val asParams = ((0 until arity) zip synTypes).map { case (i, t) => s"match$i: Match[G[τ], $t]{ type F[α] = G[α] }"} mkString ", "
-      val asBody = (0 until arity).map { i => s"a$i.asInstanceOf[F[G[match$i.A]]]"} mkString " ~ "
-
-      val withImplicits =
-        s"def withImplicits[TC[_]](implicit functor: Functor[F], $tcParams) = new CartesianBuilder${arity}($tcBody)"
+      val asVals = (0 until arity) map (n => s"u$n")
+      val asParams = (asVals zip synTypes) map { case (u, t) => s"$u: Unify[G, $t]"} mkString ", "
+      val asBody = (synVals zip asVals).map { case (v, u) => s"functor.map($v)(a => $u(a))" } mkString " ~ "
 
       val as =
-        s"def as[G[_]](implicit $asParams) = new CartesianBuilder[λ[α => F[G[α]]]] ~ $asBody"
+        s"def as[G[_]](implicit functor: Functor[F], $asParams) = new CartesianBuilder[λ[α => F[G[α]]]] ~ $asBody"
+
+      val mapEach =
+        s"def mapEach(f: Poly)(implicit functor: Functor[F], $meParams) = new CartesianBuilder[F] ~ $meBody"
 
       val map =
         if (arity == 1) s"def map[Z](f: (${`A..N`}) => Z)(implicit functor: Functor[F]): F[Z] = functor.map(${`a..n`})(f)"
@@ -246,8 +247,8 @@ object Boilerplate {
         |
         |import cats.functor.{ Contravariant, Invariant }
         |import cats.{ Functor, Cartesian, Apply }
-        |import cats.arrow.NaturalTransformation
-        |import free.Match, Match.τ
+        |import shapeless.Poly
+        |import shapeless.PolyDefns._
         |
         |private[validation] final class CartesianBuilder[F[_]] {
         |  def ~[A](a: F[A]) = new CartesianBuilder1(a)
@@ -258,10 +259,9 @@ object Boilerplate {
         |    def map[Z](f: (A0) => Z)(implicit functor: Functor[F]): F[Z] = functor.map(a0)(f)
         |    def contramap[Z](f: Z => (A0))(implicit contravariant: Contravariant[F]): F[Z] = contravariant.contramap(a0)(f)
         |    def imap[Z](f: (A0) => Z)(g: Z => (A0))(implicit invariant: Invariant[F]): F[Z] = invariant.imap(a0)(f)(g)
-        |    def withImplicits[TC[_]](implicit functor: Functor[F], tc0: TC[A0]) =
-        |      new CartesianBuilder1(functor.map(a0)(a => (tc0, a)))
-        |    def as[G[_]](implicit match0: Match[G[τ], A0]{ type F[α] = G[α] }) =
-        |      new CartesianBuilder[λ[α => F[G[α]]]] ~ a0.asInstanceOf[F[G[match0.A]]]
+        |    def mapEach(f: Poly)(implicit functor: Functor[F], c0: Case1[f.type, A0]) =
+        |     new CartesianBuilder[F] ~ functor.map(a0)(a => c0(a))
+        |    //def as[G[_]](implicit functor: Functor[F], u0: Unify[G, A0]) = new CartesianBuilder[λ[α => F[G[α]]]] ~ functor.map(a0)(a => u0(a))
         | }
         |
         -  private[validation] final class CartesianBuilder$arity[${`A..N`}]($params) {
@@ -271,8 +271,7 @@ object Boilerplate {
         -    $contramap
         -    $imap
         -    $tupled
-        -    $withImplicits
-        -    $as
+        -    $mapEach
         - }
         |}
       """

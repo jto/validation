@@ -13,6 +13,7 @@ val playVersion = "2.4.6"
 val scalacVersion = "2.11.7"
 val scalatestVersion = "3.0.0-M15"
 val scalaXmlVersion = "1.0.5"
+val shapelessVersion = "2.3.0"
 
 lazy val root = aggregate("validation", validationJVM, validationJS).in(file("."))
 lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-playjson`, `validation-xml`)
@@ -93,6 +94,7 @@ lazy val settings = Seq(
   scalaVersion := scalacVersion,
   organization := org,
   scalacOptions ++= commonScalacOptions,
+  scalacOptions in (Compile, console) := Seq(),
   resolvers ++= commonResolvers,
   testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
   scalaJSStage in Global := FastOptStage,
@@ -130,7 +132,8 @@ val dependencies = Seq(
     "org.typelevel" %%% "cats" % catsVersion,
     "org.scalatest" %%% "scalatest" % scalatestVersion % "test",
     "joda-time" % "joda-time" % jodaTimeVersion,
-    "org.joda" % "joda-convert" % jodaConvertVersion
+    "org.joda" % "joda-convert" % jodaConvertVersion,
+    "com.chuusai" %%% "shapeless" % shapelessVersion
   ),
   addCompilerPlugin("org.spire-math" %% "kind-projector" % kindProjectorVersion)
 )

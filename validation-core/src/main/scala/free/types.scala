@@ -1,110 +1,96 @@
 package jto.validation
 package free
 
-trait Inner[FA] {
-  type A
-}
+import shapeless.{ ::, HList, HNil }
+import shapeless.ops.hlist.{ Prepend, IsHCons }
 
-object Inner {
-  type Aux[FA, A0] = Inner[FA] {
-    type A = A0
-  }
-
-  def apply[FA](implicit is: Inner[FA]): Aux[FA, is.A] = is
-
-  implicit def inner[F0[_], A0]: Aux[F0[A0], A0] =
-    new Inner[F0[A0]] {
-      type A = A0
-    }
-}
-
-trait Outer[FA] {
-  type F[_]
-}
-
-object Outer {
-  type Aux[FA, F0[_]] = Outer[FA] {
-    type F[α] = F0[α]
-  }
-
-  def apply[FA](implicit is: Outer[FA]): Aux[FA, is.F] = is
-
-  implicit def outer[F0[_], A0]: Aux[F0[A0], F0] =
-    new Outer[F0[A0]] {
-      type F[α] = F0[α]
-    }
-}
-
-trait Match[Fτ, FA] {
-  type F[_]
-  type A
-  def cast(fa: FA): F[A] = fa.asInstanceOf[F[A]]
-}
+sealed class Match[A, B] { type τs <: HList }
 
 trait LowPriorityMatch {
-  type Aux[Fτ, FA, F0[_], A0] = Match[Fτ, FA] {
-    type F[α] = F0[α]
-    type A = A0
-  }
-
+  type Aux[A0, B0, τ0 <: HList] = Match[A0, B0] { type τs = τ0 }
   sealed trait τ
+  sealed trait τ1[A]
 
-  implicit def match0[F0[_], A0]: Aux[F0[τ], F0[A0], F0, A0] =
-    new Match[F0[τ], F0[A0]] {
-      type F[α] = F0[α]
-      type A = A0
-    }
+  def apply[A, B](implicit m: Match[A, B]): Aux[A, B, m.τs] = m
 
-  implicit def match0HK1[F0[_, _], A0, A1]: Aux[F0[τ, A1], F0[A0, A1], F0[?, A1], A0] =
-    new Match[F0[τ, A1], F0[A0, A1]] {
-      type F[α] = F0[α, A1]
-      type A = A0
-    }
-
-  implicit def match0HK2[F0[_, _], A0, A1]: Aux[F0[A1, τ], F0[A1, A0], F0[A1, ?], A0] =
-    new Match[F0[A1, τ], F0[A1, A0]] {
-      type F[α] = F0[A1, α]
-      type A = A0
-    }
+  implicit def match2[F[_, _], A0, A1, B0, B1, τs0 <: HList, τs1 <: HList](implicit m0: Aux[A0, B0, τs0], m1: Aux[A1, B1, τs1], p: Prepend[τs0, τs1]): Aux[F[A0, A1], F[B0, B1], p.Out] =
+    new Match[F[A0, A1], F[B0, B1]] { type τs = p.Out }
 }
 
 object Match extends LowPriorityMatch {
-  implicit def match1[Fτ, FA, Out[_], Out1[_], Aτ, AFA]
-    (implicit
-      outτ: Outer.Aux[Fτ, Out],
-      outfa: Outer.Aux[FA, Out1],
-      eq: Out[τ] =:= Out1[τ],
-      inτ: Inner.Aux[Fτ, Aτ],
-      infa: Inner.Aux[FA, AFA],
-      m: Match[Aτ, AFA]
-    ): Aux[Fτ, FA, λ[α => Out[m.F[α]]], m.A] = new Match[Fτ, FA] {
-      type F[α] = Out[m.F[α]]
-      type A = m.A
-    }
 
-  def apply[Fτ, FA](implicit m: Match[Fτ, FA]): Aux[Fτ, FA, m.F, m.A] = m
+  implicit def matchEq[A0]: Aux[A0, A0, HNil] =
+    new Match[A0, A0]{ type τs = HNil }
+
+  implicit def match0[A0]: Aux[τ, A0, A0 :: HNil] =
+    new Match[τ, A0] { type τs = A0 :: HNil }
+
+  implicit def matchTC[F[_], TC[_[_]]]: Aux[TC[τ1], TC[F], F[τ] :: HNil] =
+    new Match[TC[τ1], TC[F]] { type τs = F[τ] :: HNil }
+
+  implicit def match1[F[_], A, B](implicit m0: Match[A, B]): Aux[F[A], F[B], m0.τs] =
+      new Match[F[A], F[B]] { type τs = m0.τs }
+
+  implicit def toMatchOps[A](a: A) =
+    new MatchOps[A](a)
+}
+
+trait Match0[A, B] { type τ }
+object Match0 {
+  type Aux[A, B, τ0] = Match0[A, B] { type τ = τ0 }
+
+  def apply[A, B](implicit m0: Match0[A, B]): Aux[A, B, m0.τ] = m0
+
+  implicit def defaultMatch0[A, B, τ0](implicit m: Match.Aux[A, B, τ0 :: HNil]): Aux[A, B, τ0] =
+    new Match0[A, B] { type τ = τ0 }
+}
+
+class MatchOps[A](a: A) {
+  def unify[G[_]](implicit m: Match0[G[Match.τ], A]): G[m.τ] = a.asInstanceOf[G[m.τ]]
 }
 
 object test {
-  import Match.τ
+  import Match._
+  import cats.Functor
 
   Match[Option[τ], Option[Int]]      // compiles
   Match[List[τ], List[Option[Int]]]  // compiles
 
+  type EI[α] = Either[Int, α]
+  Match[EI[τ], EI[Int]]   // compiles
+  Match[EI[τ], Either[Int, String]]   // compiles
+
   type Foo[α] = List[Option[α]]
   Match[Foo[τ], Foo[Int]]   // compiles
-  // Match[Foo[τ], List[Option[Int]]]   // should compile ? does not.
+  // Match[Foo[τ], List[Option[Int]]]   // compiles
 
-  val m1 = Match[List[Option[τ]], List[Option[Int]]] // compiles
-  val m2 = Match[List[Option[τ]], List[Option[Int]]] // compiles
+  Match[List[Option[τ]], List[Option[Int]]] // compiles
 
   Match[List[Option[τ]], List[Option[List[Int]]]] // compiles
   Match[List[Option[List[τ]]], List[Option[List[Int]]]] // compile
 
   Match[Either[τ, Int], Either[String, Int]] // compile
+  Match[Either[τ, τ], Either[String, Int]] // compile
+  Match[Either[τ, τ], Either[List[String], Int]] // compile
   Match[Either[String, τ], Either[String, Int]] // compile
   Match[List[Either[String, τ]], List[Either[String, Int]]] // compile
   Match[Option[List[Either[String, τ]]], Option[List[Either[String, Int]]]] // compile
+
+  Match[Option[Either[List[τ], τ]], Option[Either[List[String], Int]]]
+
+  Match[Option[Either[List[τ], τ]], Option[Either[List[String], Int]]]
+
+  Match[Functor[τ1], Functor[List]]
+
+  List(1).unify[List]
+  val e: Either[String, Int] = Right(4)
+  e.unify[λ[α => Either[α, Int]]]
+  Option(List(1)).unify[λ[α => Option[List[α]]]]
+  List(e).unify[λ[α => List[Either[α, Int]]]]
+
+  val es: Either[List[String], Int] = Right(4)
+  es.unify[λ[α => Either[List[α], Int]]]
+  es.unify[λ[α => Either[α, Int]]]
 
   // Match[Either[Int, τ], Either[String, Int]] // does not compile
   // Match[Option[τ], List[Option[List[Int]]]] // does not compile

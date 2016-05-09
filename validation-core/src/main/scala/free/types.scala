@@ -32,7 +32,7 @@ object Match extends LowPriorityMatch {
       new Match[F[A], F[B]] { type τs = m0.τs }
 
   implicit def toMatchOps[A](a: A) =
-    new MatchOps[A](a)
+    new syntax.MatchOps[A](a)
 }
 
 trait Match0[A, B] { type τ }
@@ -44,58 +44,3 @@ object Match0 {
   implicit def defaultMatch0[A, B, τ0](implicit m: Match.Aux[A, B, τ0 :: HNil]): Aux[A, B, τ0] =
     new Match0[A, B] { type τ = τ0 }
 }
-
-class MatchOps[A](a: A) {
-  def unify[G[_]](implicit m: Match0[G[Match.τ], A]): G[m.τ] = a.asInstanceOf[G[m.τ]]
-}
-
-object test {
-  import Match._
-  import cats.Functor
-
-  Match[Option[τ], Option[Int]]      // compiles
-  Match[List[τ], List[Option[Int]]]  // compiles
-
-  type EI[α] = Either[Int, α]
-  Match[EI[τ], EI[Int]]   // compiles
-  Match[EI[τ], Either[Int, String]]   // compiles
-
-  type Foo[α] = List[Option[α]]
-  Match[Foo[τ], Foo[Int]]   // compiles
-  // Match[Foo[τ], List[Option[Int]]]   // compiles
-
-  Match[List[Option[τ]], List[Option[Int]]] // compiles
-
-  Match[List[Option[τ]], List[Option[List[Int]]]] // compiles
-  Match[List[Option[List[τ]]], List[Option[List[Int]]]] // compile
-
-  Match[Either[τ, Int], Either[String, Int]] // compile
-  Match[Either[τ, τ], Either[String, Int]] // compile
-  Match[Either[τ, τ], Either[List[String], Int]] // compile
-  Match[Either[String, τ], Either[String, Int]] // compile
-  Match[List[Either[String, τ]], List[Either[String, Int]]] // compile
-  Match[Option[List[Either[String, τ]]], Option[List[Either[String, Int]]]] // compile
-
-  Match[Option[Either[List[τ], τ]], Option[Either[List[String], Int]]]
-
-  Match[Option[Either[List[τ], τ]], Option[Either[List[String], Int]]]
-
-  Match[Functor[τ1], Functor[List]]
-
-  List(1).unify[List]
-  val e: Either[String, Int] = Right(4)
-  e.unify[λ[α => Either[α, Int]]]
-  Option(List(1)).unify[λ[α => Option[List[α]]]]
-  List(e).unify[λ[α => List[Either[α, Int]]]]
-
-  val es: Either[List[String], Int] = Right(4)
-  es.unify[λ[α => Either[List[α], Int]]]
-  es.unify[λ[α => Either[α, Int]]]
-
-  // Match[Either[Int, τ], Either[String, Int]] // does not compile
-  // Match[Option[τ], List[Option[List[Int]]]] // does not compile
-  // Match[List[τ], Option[List[Int]]] // does not compile
-  // Match[List[List[τ]], List[Option[List[Int]]]] // does not compile
-  // Match[List[List[List[τ]]], List[Option[List[Int]]]] // does not compile
-}
-

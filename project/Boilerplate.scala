@@ -215,11 +215,11 @@ object Boilerplate {
       val meBody = (synVals zip meVals).map { case (v, m) => s"functor.map($v)(a => $m(a))" } mkString " ~ "
 
       val asVals = (0 until arity) map (n => s"u$n")
-      val asParams = (asVals zip synTypes) map { case (u, t) => s"$u: Unify[G, $t]"} mkString ", "
-      val asBody = (synVals zip asVals).map { case (v, u) => s"functor.map($v)(a => $u(a))" } mkString " ~ "
+      val asParams = (asVals zip synTypes) map { case (u, t) => s"$u: Match0[G[τ], F[$t]]"} mkString ", "
+      val asBody = synVals.map { v => s"$v.unify[G]" } mkString " ~ "
 
       val as =
-        s"def as[G[_]](implicit functor: Functor[F], $asParams) = new CartesianBuilder[λ[α => F[G[α]]]] ~ $asBody"
+        s"def as[G[_]](implicit $asParams) = new CartesianBuilder[G] ~ $asBody"
 
       val mapEach =
         s"def mapEach(f: Poly)(implicit functor: Functor[F], $meParams) = new CartesianBuilder[F] ~ $meBody"
@@ -249,6 +249,7 @@ object Boilerplate {
         |import cats.{ Functor, Cartesian, Apply }
         |import shapeless.Poly
         |import shapeless.PolyDefns._
+        |import free.Match0, free.syntax.unify._, free.Match.τ
         |
         |private[validation] final class CartesianBuilder[F[_]] {
         |  def ~[A](a: F[A]) = new CartesianBuilder1(a)
@@ -261,7 +262,8 @@ object Boilerplate {
         |    def imap[Z](f: (A0) => Z)(g: Z => (A0))(implicit invariant: Invariant[F]): F[Z] = invariant.imap(a0)(f)(g)
         |    def mapEach(f: Poly)(implicit functor: Functor[F], c0: Case1[f.type, A0]) =
         |     new CartesianBuilder[F] ~ functor.map(a0)(a => c0(a))
-        |    //def as[G[_]](implicit functor: Functor[F], u0: Unify[G, A0]) = new CartesianBuilder[λ[α => F[G[α]]]] ~ functor.map(a0)(a => u0(a))
+        |    def as[G[_]](implicit u0: Match0[G[τ], F[A0]]) =
+        |     new CartesianBuilder[G] ~ a0.unify[G]
         | }
         |
         -  private[validation] final class CartesianBuilder$arity[${`A..N`}]($params) {
@@ -272,6 +274,7 @@ object Boilerplate {
         -    $imap
         -    $tupled
         -    $mapEach
+        -    $as
         - }
         |}
       """

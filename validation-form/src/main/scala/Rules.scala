@@ -1,7 +1,7 @@
 package jto.validation
 package forms
 
-import scala.util.parsing.combinator.{ Parsers, RegexParsers }
+import scala.util.parsing.combinator.RegexParsers
 
 /**
  * Play provides you a `Map[String, Seq[String]]` (aliased as `UrlFormEncoded`) in request body for urlFormEncoded requests.

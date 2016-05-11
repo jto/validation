@@ -5,12 +5,12 @@ val license = ("Apache License", url("http://www.apache.org/licenses/LICENSE-2.0
 
 val catsVersion = "0.4.1"
 val jodaConvertVersion = "1.8.1"
-val jodaTimeVersion = "2.9.2"
+val jodaTimeVersion = "2.9.3"
 val json4sAstVersion = "4.0.0-M1"
 val kindProjectorVersion = "0.7.1"
 val parserCombinatorsVersion = "1.0.2"
 val playVersion = "2.4.6"
-val scalacVersion = "2.11.7"
+val scalacVersion = "2.11.8"
 val scalatestVersion = "3.0.0-M15"
 val scalaXmlVersion = "1.0.5"
 

@@ -1,7 +1,6 @@
 package jto
 
-import cats.{Apply, Monoid, Unapply}
-import cats.data.Validated
+import cats.{ Monoid, Unapply }
 import cats.syntax.{ CartesianOps, CartesianSyntax1 }
 import cats.Cartesian
 

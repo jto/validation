@@ -1,7 +1,7 @@
 package jto.validation
 package playjson
 
-import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray, JsNull}
+import play.api.libs.json.{JsValue, JsObject, JsString, JsNumber, JsBoolean, JsArray, JsNull}
 
 object Rules extends DefaultRules[JsValue] {
   private def jsonAs[T](f: PartialFunction[JsValue, Validated[Seq[ValidationError], T]])(msg: String, args: Any*) =

@@ -1,7 +1,7 @@
 import jto.validation._
 import jto.validation.playjson.Writes._
 import org.scalatest._
-import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray, JsNull}
+import play.api.libs.json.{JsObject, Json, JsString}
 
 class WritesSpec extends WordSpec with Matchers {
 
@@ -97,7 +97,7 @@ class WritesSpec extends WordSpec with Matchers {
         (Path \ "n" \ "o").write[BigDecimal, JsObject].writes(BigDecimal("4.5")) shouldBe(Json.obj("n" -> Json.obj("o"-> 4.5)))
         (Path \ "n" \ "o" \ "p").write[BigDecimal, JsObject].writes(BigDecimal("4.5")) shouldBe(Json.obj("n" -> Json.obj("o"-> Json.obj("p"-> 4.5))))
       }
-      
+
       "Boolean" in {
         (Path \ "n").write[Boolean, JsObject].writes(true) shouldBe(Json.obj("n" -> true))
         (Path \ "n" \ "o").write[Boolean, JsObject].writes(false) shouldBe(Json.obj("n" -> Json.obj("o"-> false)))

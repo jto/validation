@@ -2,13 +2,11 @@ import jto.validation._
 import jto.validation.xml._
 import jto.validation.xml.Rules._
 import java.math.{BigDecimal => jBigDecimal}
-import java.util.Date
-import org.joda.time.{LocalDate, DateTime}
 import org.scalatest._
 import scala.xml.Node
 
 class RulesSpec extends WordSpec with Matchers {
-  
+
   "Xml rules" should {
 
     val valid =
@@ -261,7 +259,7 @@ class RulesSpec extends WordSpec with Matchers {
         trait A
         case class B(foo: Int) extends A
         case class C(bar: Int) extends A
-          
+
         val b = <a><name>B</name><foo>4</foo></a>
         val c = <a><name>C</name><bar>6</bar></a>
         val e = <a><name>E</name><eee>6</eee></a>

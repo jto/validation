@@ -1,7 +1,7 @@
 import jto.validation._
 import jto.validation.playjson._
 import org.scalatest._
-import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray, JsNull}
+import play.api.libs.json.{JsValue, JsObject, Json, JsArray}
 
 class FormatSpec extends WordSpec with Matchers {
   case class User(id: Long, name: String)

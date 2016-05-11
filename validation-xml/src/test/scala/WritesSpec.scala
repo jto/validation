@@ -1,9 +1,6 @@
 import jto.validation._
 import jto.validation.xml._
 import jto.validation.xml.Writes._
-import java.text.NumberFormat
-import java.util.{Date, Locale}
-import org.joda.time.{DateTime, LocalDate}
 import org.scalatest._
 
 class WritesSpec extends WordSpec with Matchers {

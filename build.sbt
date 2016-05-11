@@ -3,7 +3,7 @@ val repo = "git@github.com:jto/validation.git"
 val org = "io.github.jto"
 val license = ("Apache License", url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 
-val catsVersion = "0.4.1"
+val catsVersion = "0.5.0"
 val jodaConvertVersion = "1.8.1"
 val jodaTimeVersion = "2.9.3"
 val json4sAstVersion = "4.0.0-M1"

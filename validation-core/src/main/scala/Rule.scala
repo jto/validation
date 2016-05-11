@@ -142,13 +142,7 @@ object Rule {
   implicit def applicativeRule[I]: Applicative[Rule[I, ?]] =
     new Applicative[Rule[I, ?]] {
       def pure[A](a: A): Rule[I, A] = Rule.pure(a)
-      def map[A, B](fa: Rule[I, A])(f: A => B): Rule[I, B] = fa.map(f)
       def ap[A, B](mf: Rule[I, A => B])(ma: Rule[I, A]): Rule[I, B] = ma.ap(mf)
-      def product[A, B](fa: Rule[I, A],fb: Rule[I, B]): Rule[I,(A, B)] =
-        for {
-          a <- fa
-          b <- fb
-        } yield (a, b)
     }
 
   implicit def ruleSyntaxCombine[I]: SyntaxCombine[Rule[I, ?]] =

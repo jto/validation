@@ -6,7 +6,7 @@
 
 ### Typical case class validation
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -21,7 +21,8 @@ implicit val creatureRule = From[JsValue]{ __ =>
    (__ \ "isDead").read[Boolean] ~
    (__ \ "weight").read[Float]) (Creature.apply _)
 }
-
+```
+```tut
 val js = Json.obj( "name" -> "gremlins", "isDead" -> false, "weight" -> 1.0f)
 From[JsValue, Creature](js)
 
@@ -35,7 +36,7 @@ A common example of this use case is the validation of `password` and `password 
 1. First, you need to validate that each field is valid independently
 2. Then, given the two values, you need to validate that they are equals.
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -109,7 +110,7 @@ implicit lazy val userRule: Rule[JsValue, User] = Rule.gen[JsValue, User]
 
 ### Read keys
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -132,7 +133,8 @@ val r = From[JsValue] { __ =>
 
   (__ \ "values").read(seqR(tupleR))
 }
-
+```
+```tut
 r.validate(js)
 ```
 
@@ -152,7 +154,7 @@ val e = Json.obj("name" -> "E", "eee" -> 6)
 
 #### Trying all the possible rules implementations
 
-```tut
+```tut:silent
 val rb: Rule[JsValue, A] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   (__ \ "name").read(equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
@@ -165,7 +167,8 @@ val rc: Rule[JsValue, A] = From[JsValue] { __ =>
 
 val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 val rule = rb orElse rc orElse Rule(_ => typeInvalid)
-
+```
+```tut
 rule.validate(b)
 rule.validate(c)
 rule.validate(e)
@@ -173,7 +176,7 @@ rule.validate(e)
 
 #### Using class discovery based on field discrimination
 
-```tut
+```tut:silent
 val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 
 val rule = From[JsValue] { __ =>
@@ -184,7 +187,8 @@ val rule = From[JsValue] { __ =>
     case _ => Rule(_ => typeInvalid)
   }
 }
-
+```
+```tut
 rule.validate(b)
 rule.validate(c)
 rule.validate(e)
@@ -194,7 +198,7 @@ rule.validate(e)
 
 ### typical case class `Write`
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -209,13 +213,14 @@ implicit val creatureWrite = To[JsObject] { __ =>
    (__ \ "isDead").write[Boolean] ~
    (__ \ "weight").write[Float]).unlifted(Creature.unapply)
 }
-
+```
+```tut
 To[Creature, JsObject](Creature("gremlins", false, 1f))
 ```
 
 ### Adding static values to a `Write`
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -238,7 +243,8 @@ implicit val pointWrite = {
      (__ \ "type").write[String]) ((_: Point).coords -> "point")
   }
 }
-
+```
+```tut
 val p = Point(LatLong(123.3F, 334.5F))
 pointWrite.writes(p)
 ```

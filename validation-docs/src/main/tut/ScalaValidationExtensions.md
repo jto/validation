@@ -134,12 +134,13 @@ Basically it's just the same, but we are now only supporting `JsValue`. We are a
 
 Despite the type signature funkiness, this function is actually **really** simple to use:
 
-```tut
+```tut:silent
 val maybeEmail = From[JsValue]{ __ =>
   import jto.validation.playjson.Rules._
   (__ \ "email").read(optionR(email))
 }
-
+```
+```tut
 maybeEmail.validate(Json.obj("email" -> "foo@bar.com"))
 maybeEmail.validate(Json.obj("email" -> "baam!"))
 maybeEmail.validate(Json.obj("email" -> JsNull))
@@ -156,7 +157,7 @@ implicit def option[O](p: Path)(implicit pick: Path => Rule[JsValue, JsValue], c
     option(Rule.zero[O])(pick, coerce)(p)
 ```
 
-```tut
+```tut:silent
 val maybeAge = From[JsValue]{ __ =>
   import jto.validation.playjson.Rules._
   (__ \ "age").read[Option[Int]]
@@ -215,7 +216,7 @@ In order to be able to use writes combinators, you also need to create an implem
 
 from there you're able to create complex writes like:
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 

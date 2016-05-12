@@ -18,7 +18,7 @@ For now we'll not implement `floatToString`, actually the validation API comes w
 
 All you have to do is import the default Writes.
 
-```tut
+```tut:silent
 object Writes extends NumericTypes2StringWrites
 Writes.floatW
 ```
@@ -35,7 +35,7 @@ Writes.floatW.writes(12F)
 Creating a new `Write` is almost as simple as creating a new function.
 This example creates a new `Write` serializing a Float with a custom format.
 
-```tut
+```tut:silent
 val currency = Write[Double, String]{ money =>
   import java.text.NumberFormat
   import java.util.Locale
@@ -68,13 +68,13 @@ Now we'd like to create a `Write[Product, String]` that serializes a product to 
 We have already defined `currency: Write[Double, String]`, so we'd like to reuse that.
 First, we'll create a `Write[Product, Double]` extracting the price of the product:
 
-```tut
+```tut:silent
 val productPrice = Write[Product, Double]{ _.price }
 ```
 
 Now we just have to compose it with `currency`:
 
-```tut
+```tut:silent
 val productAsPrice: Write[Product,String] = productPrice andThen currency
 ```
 

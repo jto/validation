@@ -321,7 +321,7 @@ scala> implicit val creatureWrite = To[JsObject]{ __ =>
      |   import jto.validation.playjson.Writes._
      |   ((__ \ "name").write[String] ~
      |    (__ \ "isDead").write[Boolean] ~
-     |    (__ \ "weight").write[Float]).unlifted(Creature.unapply _)
+     |    (__ \ "weight").write[Float]).unlifted(Creature.unapply)
      | }
 creatureWrite: jto.validation.Write[Creature,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@6a1f2210
 

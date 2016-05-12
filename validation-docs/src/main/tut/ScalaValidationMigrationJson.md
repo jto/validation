@@ -41,7 +41,7 @@ Using the json API, you would have defined something like:
 
 Using the new API, this code becomes:
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -51,7 +51,8 @@ implicit val creatureRule = From[JsValue] { __ =>
    (__ \ "isDead").read[Boolean] ~
    (__ \ "weight").read[Float]) (Creature.apply _)
 }
-
+```
+```tut
 val js = Json.obj( "name" -> "gremlins", "isDead" -> false, "weight" -> 1.0F)
 From[JsValue, Creature](js)
 ```
@@ -65,7 +66,7 @@ It is recommended to always follow this pattern, as it nicely scopes the implici
 
 The readNullable method does not exists anymore. Just use a `Rule[JsValue, Option[T]]` instead. `null` and non existing Path will be handled correctly and give you a `None`:
 
-```tut
+```tut:silent
 val nullableStringRule = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   (__ \ "foo").read[Option[String]]
@@ -74,7 +75,8 @@ val nullableStringRule = From[JsValue] { __ =>
 val js1 = Json.obj("foo" -> "bar")
 val js2 = Json.obj("foo" -> JsNull)
 val js3 = Json.obj()
-
+```
+```tut
 nullableStringRule.validate(js1)
 nullableStringRule.validate(js2)
 nullableStringRule.validate(js3)
@@ -84,7 +86,7 @@ nullableStringRule.validate(js3)
 
 The general use for `keepAnd` is to apply two validation on the same `JsValue`, for example:
 
-```tut
+```tut:silent
 {
   import play.api.libs.json._
   import Reads._
@@ -95,7 +97,7 @@ The general use for `keepAnd` is to apply two validation on the same `JsValue`, 
 
 You can achieve the same think in the Validation API using [Rules composition](ScalaValidationRule.md)
 
-```tut
+```tut:silent
 From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   (__ \ "key1").read(email |+| minLength(5))
@@ -106,31 +108,30 @@ From[JsValue] { __ =>
 
 Reads are always lazy in the new validation API, therefore you don't need to use any specific function, even for recursive types:
 
+```tut:silent
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
+
+case class User(id: Long, name: String, friend: Option[User] = None)
+
+implicit lazy val UserReads: Reads[User] = (
+  (__ \ 'id).read[Long] and
+  (__ \ 'name).read[String] and
+  (__ \ 'friend).lazyReadNullable(UserReads)
+)(User.apply _)
+
+val js = Json.obj(
+  "id" -> 123L,
+  "name" -> "bob",
+  "friend" -> Json.obj("id" -> 124L, "name" -> "john", "friend" -> JsNull))
+```
 ```tut
-{
-  import play.api.libs.json._
-  import play.api.libs.functional.syntax._
-
-  case class User(id: Long, name: String, friend: Option[User] = None)
-
-  implicit lazy val UserReads: Reads[User] = (
-    (__ \ 'id).read[Long] and
-    (__ \ 'name).read[String] and
-    (__ \ 'friend).lazyReadNullable(UserReads)
-  )(User.apply _)
-
-  val js = Json.obj(
-    "id" -> 123L,
-    "name" -> "bob",
-    "friend" -> Json.obj("id" -> 124L, "name" -> "john", "friend" -> JsNull))
-
-  Json.fromJson[User](js)
-}
+Json.fromJson[User](js)
 ```
 
 becomes:
 
-```tut
+```tut:silent
 case class User(id: Long, name: String, friend: Option[User] = None)
 
 implicit lazy val userRule: Rule[JsValue, User] = From[JsValue]{ __ =>
@@ -144,7 +145,8 @@ val js = Json.obj(
   "id" -> 123L,
   "name" -> "bob",
   "friend" -> Json.obj("id" -> 124L, "name" -> "john", "friend" -> JsNull))
-
+```
+```tut
 From[JsValue, User](js)
 ```
 
@@ -173,7 +175,7 @@ Those methods do not exist in the validation API. Even in the json API, it is ge
 
 The preferred solution is to use `path.read[T]` and to handle failure properly.
 
-```tut
+```tut:silent
 {
   val js = Json.obj("foo" -> "bar")
   (js \ "foo").as[String]
@@ -182,7 +184,7 @@ The preferred solution is to use `path.read[T]` and to handle failure properly.
 
 becomes
 
-```tut
+```tut:silent
 {
   import jto.validation.playjson.Rules._
   (Path \ "foo").read[JsValue, String]
@@ -195,7 +197,7 @@ becomes
 
 For example, given the following json object, we can extract a sub tree:
 
-```tut
+```tut:silent
 {
   import play.api.libs.json._
 
@@ -214,7 +216,7 @@ For example, given the following json object, we can extract a sub tree:
 
 In the validation API, you simply use `read` to create a rule picking a branch:
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -230,8 +232,9 @@ val pick = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   (__ \ "field3").read[JsValue]
 }
-
-pick.validate(js) // Valid({"field31":"beta","field32":345})
+```
+```tut
+pick.validate(js)
 ```
 
 ## `Writes` migration
@@ -253,7 +256,7 @@ For example, you would have defined a `Writes` for the `Creature` case class thi
     (__ \ "name").write[String] and
     (__ \ "isDead").write[Boolean] and
     (__ \ "weight").write[Float]
-  ).unlifted(Creature.unapply _)
+  ).unlifted(Creature.unapply)
 
   Json.toJson(Creature("gremlins", false, 1f))
 }
@@ -261,7 +264,7 @@ For example, you would have defined a `Writes` for the `Creature` case class thi
 
 With the validation API:
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -274,9 +277,10 @@ implicit val creatureWrite = To[JsObject]{ __ =>
   import jto.validation.playjson.Writes._
   ((__ \ "name").write[String] ~
    (__ \ "isDead").write[Boolean] ~
-   (__ \ "weight").write[Float]).unlifted(Creature.unapply _)
+   (__ \ "weight").write[Float]).unlifted(Creature.unapply)
 }
-
+```
+```tut
 val c = To[Creature, JsObject](Creature("gremlins", false, 1f))
 ```
 

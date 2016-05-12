@@ -98,7 +98,7 @@ By convention, all usefull validation methods for a given type are to be found i
 
 With those implicits in scope, we can finally create our `Rule`.
 
-```tut
+```tut:silent
 val findFriend: Rule[JsValue, JsValue] = location.read[JsValue, JsValue]
 ```
 

@@ -70,7 +70,7 @@ val location: Path = Path \ "user" \ "friend"
 
 But let's try something much easier for now:
 
-```tut:silent:nofail
+```tut:nofail
 import jto.validation._
 import play.api.libs.json._
 
@@ -100,7 +100,7 @@ import jto.validation.playjson.Rules._
 
 With those implicits in scope, we can finally create our `Rule`:
 
-```tut
+```tut:silent
 val findFriend: Rule[JsValue, JsValue] = location.read[JsValue, JsValue]
 ```
 
@@ -122,7 +122,7 @@ If we can't find anything, applying a `Rule` leads to a `Invalid`:
 
 We now are capable of extracting data at a given `Path`. Let's do it again on a different sub-tree:
 
-```tut
+```tut:silent
 val age = (Path \ "user" \ "age").read[JsValue, JsValue]
 ```
 
@@ -143,7 +143,7 @@ The `Invalid` informs us that it could not find `/user/age` in that `JsValue`.
 That example is nice, but we'd certainly prefer to extract `age` as an `Int` rather than a `JsValue`.
 All we have to do is to change the output type in our `Rule` definition:
 
-```tut
+```tut:silent
 val age = (Path \ "user" \ "age").read[JsValue, Int]
 ```
 
@@ -176,7 +176,7 @@ So when use `(Path \ "user" \ "age").read[JsValue, Int]`, the compiler looks for
 
 So far we've managed to lookup for a `JsValue` and transform that `JsValue` into an `Int`. Problem is: not every `Int` is a valid age. An age should always be a positive `Int`.
 
-```tut
+```tut:silent
 val js = Json.parse("""{
   "user": {
     "age" : -33
@@ -194,7 +194,7 @@ age.validate(js)
 
 We can fix that very simply using `from`, and a built-in `Rule`:
 
-```tut
+```tut:silent
 val positiveAge = (Path \ "user" \ "age").from[JsValue](min(0))
 ```
 
@@ -213,20 +213,20 @@ positiveAge.validate(js2)
 
 Let's fix our `age` `Rule`:
 
-```tut
+```tut:silent
 val properAge = (Path \ "user" \ "age").from[JsValue](min(0) |+| max(130))
 ```
 
 and test it:
 
-```tut
+```tut:silent
 val jsBig = Json.parse("""{ "user": { "age" : 8765 } }""")
 properAge.validate(jsBig)
 ```
 
 ### Full example
 
-```tut
+```tut:silent
 import jto.validation._
 import jto.validation.playjson.Rules._
 import play.api.libs.json._
@@ -246,6 +246,8 @@ val js = Json.parse("""{
 }""")
 
 val age = (Path \ "user" \ "age").from[JsValue](min(0) |+| max(130))
+```
+```tut
 age.validate(js)
 ```
 
@@ -264,7 +266,7 @@ case class User(
 
 We need to create a `Rule[JsValue, User]`. Creating this Rule is simply a matter of combining together the rules parsing each field of the json.
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 

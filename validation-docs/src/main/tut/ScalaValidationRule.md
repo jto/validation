@@ -29,7 +29,7 @@ Back, to our `Rule`. For now we'll not implement `isFloat`, actually the validat
 
 All you have to do is import the default Rules.
 
-```tut
+```tut:silent
 import jto.validation._
 object Rules extends GenericRules with ParsingRules
 Rules.floatR
@@ -46,7 +46,6 @@ Rules.floatR.validate("abc")
 > `Rule` is typesafe. You can't apply a `Rule` on an unsupported type, the compiler won't let you:
 >
 ```tut:nofail
-Rules.floatR
 Rules.floatR.validate(Seq(32))
 ```
 
@@ -70,7 +69,7 @@ All there is to do is to pass a function `I => Validated[I, O]` to `Rule.fromMap
 This example creates a new `Rule` trying to get the first element of a `List[Int]`.
 In case of an empty `List[Int]`, the rule should return a `Invalid`.
 
-```tut
+```tut:silent
 val headInt: Rule[List[Int], Int] = Rule.fromMapping {
   case Nil => Invalid(Seq(ValidationError("error.emptyList")))
   case head :: _ => Valid(head)
@@ -84,7 +83,7 @@ headInt.validate(Nil)
 
 We can make this rule a bit more generic:
 
-```tut
+```tut:silent
 def head[T]: Rule[List[T], T] = Rule.fromMapping {
   case Nil => Invalid(Seq(ValidationError("error.emptyList")))
   case head :: _ => Valid(head)
@@ -117,8 +116,10 @@ We've done almost all the work already. We just have to create a new `Rule` the 
 
 It would be fairly easy to create such a `Rule` "manually", but we don't have to. A method doing just that is already available:
 
-```tut
+```tut:silent
 val firstFloat: Rule[List[String], Float] = head.andThen(Rules.floatR)
+```
+```tut
 firstFloat.validate(List("1", "2"))
 firstFloat.validate(List("1.2", "foo"))
 ```
@@ -148,8 +149,10 @@ When a parsing error happens, the `Invalid` does not tells us that it happened o
 
 To fix that, we can pass  an additionnal parameter to `andThen`:
 
-```tut
+```tut:silent
 val firstFloat2: Rule[List[String],Float] = head.andThen(Path \ 0)(Rules.floatR)
+```
+```tut
 firstFloat2.validate(List("foo", "2"))
 ```
 
@@ -162,14 +165,14 @@ This form of composition is almost exclusively used for the particular case of r
 Consider the following example: We want to write a `Rule` that given a `Int`, check that this `Int` is positive and even.
 The validation API already provides `Rules.min`, we have to define `even` ourselves:
 
-```tut
+```tut:silent
 val positive: Rule[Int,Int] = Rules.min(0)
 val even: Rule[Int,Int] = Rules.validateWith[Int]("error.even"){ _ % 2 == 0 }
 ```
 
 Now we can compose those rules using `|+|`
 
-```tut
+```tut:silent
 val positiveAndEven: Rule[Int,Int] = positive |+| even
 ```
 

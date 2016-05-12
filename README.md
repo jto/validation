@@ -8,7 +8,7 @@ Basically, assuming you have this:
 
 ```scala
 import play.api.libs.json._
-import play.api.data.mapping._
+import jto.validation._
 
 case class Person(name: String, age: Int, lovesChocolate: Boolean)
 
@@ -19,7 +19,7 @@ val json = Json.parse("""{
 }""")
 
 implicit val personRule = {
-  import play.api.data.mapping.json.Rules._
+  import jto.validation.playjson.Rules._
   Rule.gen[JsValue, Person]
 }
 ```
@@ -28,7 +28,7 @@ It can do this:
 
 ```scala
 scala> personRule.validate(json)
-res0: play.api.data.mapping.VA[Person] = Valid(Person(Julien,28,true))
+res0: jto.validation.VA[Person] = Valid(Person(Julien,28,true))
 ```
 
 > **BUT IT'S NOT LIMITED TO JSON**
@@ -44,6 +44,34 @@ The unified validation API is designed around a core defined in package `play.ap
 To learn more about data validation, please consult [Validation and transformation with Rule](documentation/tut/ScalaValidationRule.md), for data serialization read [Serialization with Write](documentation/tut/ScalaValidationWrite.md). If you just want to figure all this out by yourself, please see the [Cookbook](documentation/tut/ScalaValidationCookbook.md).
 
 ## Using the validation api in your project
+
+### 2.x branch
+
+Add the following lines in your `build.sbt`
+
+```scala
+resolvers += Resolver.sonatypeRepo("releases")
+
+// If you want only the core
+libraryDependencies +="io.github.jto" %% "validation-core" % "2.0.0"
+
+// Json validation based on play-json AST (optional)
+libraryDependencies +="io.github.jto" %% "validation-playjson" % "2.0.0"
+
+// Json validation based on json4s AST (optional)
+libraryDependencies +="io.github.jto" %% "validation-json4s" % "2.0.0"
+
+// Form validation (optional)
+libraryDependencies +="io.github.jto" %% "validation-form" % "2.0.0"
+
+// CSV validation (optional)
+libraryDependencies +="io.github.jto" %% "validation-delimited" % "2.0.0"
+
+// XML validation (optional)
+libraryDependencies +="io.github.jto" %% "validation-xml" % "2.0.0"
+```
+
+### 1.x branch *(deprecated)*
 
 Add the following lines in your `build.sbt`
 
@@ -62,9 +90,95 @@ libraryDependencies +="io.github.jto" %% "validation-form" % "1.1"
 // ...
 ```
 
-## Play dependency
+## Validation 2.0.0
 
-The 1.1.X versions are builded with play 2.4, if you are using play 2.3 you need to use the 1.0.2 version.
+### Release note
+
+- TODO: @olivier
+
+### 1.x -> 2.x Migration guide
+
+Version 2.x breaks back compatibility with the 1.x version. The migration has been tested on production code making heavy use of validation for json (based on play-json) and xml. Even for big project, migrating to 2.x should not take more than 30 min.
+
+The best method is just to update validation in your dependencies, and let the compiler figure out what's broken. The following changes list should cover everything needed.
+
+#### Build file.
+
+The project name for play-json based validation has changed.
+
+```scala
+"io.github.jto" %% "validation-json" % validationVersion
+```
+
+becomes
+
+```scala
+"io.github.jto" %% "validation-playjson" % validationVersion
+```
+
+#### Package name
+
+- Since the library does not depends on Play anymore, and is not planned to be integrated into Play, the package names have changed. Basically `play.api.mapping` now becomes `jto.validation`. A simple search and replace in your project should work.
+- The validation api support both json4s and play-json. Therefore, the package name for play json changes. `play.api.mapping.json` becomes `play.api.mapping.playjson`
+
+#### Rule renaming
+
+The following `Rule` and `Write` were renamed to better match the naming convention in all subprojects.
+
+- `Rules.jodaDate` becomes `Rules.jodaDateR`
+- `Writes.jodaDate`  becomes `Writes.jodaDateW`
+
+If you encounter implicit resolution problem, you probably have a name clash. Make sure none of your `Rule` / `Write` uses those names.
+
+#### unlift
+
+Since validation does not uses play-functional anymore, all the uses of `unlift` calls should disappear. We recommend you use the `unlifted` method directly.
+
+For example the following code:
+
+```scala
+implicit lazy val w3: Write[User1, UrlFormEncoded] = To[UrlFormEncoded]{ __ =>
+    ((__ \ "name").write[String] ~
+     (__ \ "friend").write[Option[User1]])(unlift(User1.unapply _))
+  }
+```
+
+becomes
+
+```scala
+implicit lazy val w3: Write[User1, UrlFormEncoded] = To[UrlFormEncoded]{ __ =>
+    ((__ \ "name").write[String] ~
+     (__ \ "friend").write[Option[User1]]).unlifted(User1.unapply _)
+  }
+```
+
+The same method is also available on `Format` so
+
+```scala
+lazy val w: Format[JsValue, JsObject, RecUser] = Formatting[JsValue, JsObject]{ __ =>
+    ((__ \ "name").format[String] ~
+     (__ \ "friends").format(seqR(w), seqW(w)))(RecUser.apply _, unlift(RecUser.unapply _))
+  }
+```
+becomes
+
+```scala
+lazy val w: Format[JsValue, JsObject, RecUser] = Formatting[JsValue, JsObject]{ __ =>
+    ((__ \ "name").format[String] ~
+     (__ \ "friends").format(seqR(w), seqW(w))).unlifted(RecUser.apply _, RecUser.unapply _)
+  }
+```
+
+
+#### ValidationError
+
+Since we removed all the dependencies on Play, `play.api.mapping.ValidationError` is re-defined in validation. If you're using this class, make sure to replace it by `jto.validation.ValidationError`.
+
+## Play dependencies
+
+- For playjson, the 2.0.0 version depends on play 2.5.3.
+- 1.1.X versions are built with play 2.4
+- if you are using play 2.3 you need to use the 1.0.2 version.
 
 ## Documentation
 

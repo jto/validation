@@ -198,6 +198,7 @@ All the required documentation is directly readable from Github: https://github.
 ## Contributors
 
 - Julien Tournay - http://jto.github.io
+- Olivier Blanvillain - https://github.com/OlivierBlanvillain
 - Nick - https://github.com/stanch
 - Ian Hummel - https://github.com/themodernlife
 - Arthur Gautier - https://github.com/baloo

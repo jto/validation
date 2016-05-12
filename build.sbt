@@ -97,7 +97,7 @@ lazy val settings = Seq(
   testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
   scalaJSStage in Global := FastOptStage,
   parallelExecution := false
-)
+) ++ reformatOnCompileSettings
 
 val commonScalacOptions = Seq(
   "-deprecation",

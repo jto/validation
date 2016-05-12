@@ -178,11 +178,11 @@ val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownTyp
 
 val rule = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
-	(__ \ "name").read[String].flatMap[A] {
-	  case "B" => (__ \ "foo").read[Int].map(B.apply _)
-	  case "C" => (__ \ "bar").read[Int].map(C.apply _)
-	  case _ => Rule(_ => typeInvalid)
-	}
+  (__ \ "name").read[String].flatMap[A] {
+    case "B" => (__ \ "foo").read[Int].map(B.apply _)
+    case "C" => (__ \ "bar").read[Int].map(C.apply _)
+    case _ => Rule(_ => typeInvalid)
+  }
 }
 
 rule.validate(b)

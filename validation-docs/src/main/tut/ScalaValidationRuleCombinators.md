@@ -165,7 +165,7 @@ It's fairly simple. The definition of `read` looks like this:
 
 ```tut:silent
 {
-	def read[I, O](implicit r: Path => Rule[I, O]): Rule[I, O] = ???
+  def read[I, O](implicit r: Path => Rule[I, O]): Rule[I, O] = ???
 }
 ```
 

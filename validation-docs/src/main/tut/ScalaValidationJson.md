@@ -10,9 +10,9 @@ Take this JSON example:
     "email" : "toto@jmail.com",
     "isAlive" : true,
     "friend" : {
-  	  "name" : "tata",
-  	  "age" : 20,
-  	  "email" : "tata@coldmail.com"
+      "name" : "tata",
+      "age" : 20,
+      "email" : "tata@coldmail.com"
     }
   }
 }

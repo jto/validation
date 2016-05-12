@@ -89,7 +89,7 @@ The general use for `keepAnd` is to apply two validation on the same `JsValue`, 
   import play.api.libs.json._
   import Reads._
   import play.api.libs.functional.syntax._
-	(JsPath \ "key1").read[String](email keepAnd minLength[String](5))
+  (JsPath \ "key1").read[String](email keepAnd minLength[String](5))
 }
 ```
 
@@ -161,8 +161,8 @@ js.validate((__ \ "n").read[Int]) // JsSuccess(42, /n)
 
 whereas with the validation API, an `Int` must really be an `Int`:
 
-```tut
-import playjson.Rules._
+```scala
+import json.Rules._
 val js = Json.obj("n" -> 42.5f)
 (Path \ "n").read[JsValue, Int].validate(js)
 ```
@@ -175,8 +175,8 @@ The preferred solution is to use `path.read[T]` and to handle failure properly.
 
 ```tut
 {
-	val js = Json.obj("foo" -> "bar")
-	(js \ "foo").as[String]
+  val js = Json.obj("foo" -> "bar")
+  (js \ "foo").as[String]
 }
 ```
 
@@ -197,18 +197,18 @@ For example, given the following json object, we can extract a sub tree:
 
 ```tut
 {
-	import play.api.libs.json._
+  import play.api.libs.json._
 
-	val js = Json.obj(
-		"field1" -> "alpha",
-		"field2" -> 123L,
-		"field3" -> Json.obj(
-		  "field31" -> "beta",
-		  "field32"-> 345
-		))
+  val js = Json.obj(
+    "field1" -> "alpha",
+    "field2" -> 123L,
+    "field3" -> Json.obj(
+      "field31" -> "beta",
+      "field32"-> 345
+    ))
 
-	val pick = (__ \ "field3").json.pickBranch
-	pick.reads(js) // Valid({"field3":{"field31":"beta","field32":345}})
+  val pick = (__ \ "field3").json.pickBranch
+  pick.reads(js) // Valid({"field3":{"field31":"beta","field32":345}})
 }
 ```
 
@@ -219,16 +219,16 @@ import jto.validation._
 import play.api.libs.json._
 
 val js = Json.obj(
-	"field1" -> "alpha",
-	"field2" -> 123L,
-	"field3" -> Json.obj(
-	  "field31" -> "beta",
-	  "field32"-> 345
-	))
+  "field1" -> "alpha",
+  "field2" -> 123L,
+  "field3" -> Json.obj(
+    "field31" -> "beta",
+    "field32"-> 345
+  ))
 
 val pick = From[JsValue] { __ =>
-	import jto.validation.playjson.Rules._
-	(__ \ "field3").read[JsValue]
+  import jto.validation.playjson.Rules._
+  (__ \ "field3").read[JsValue]
 }
 
 pick.validate(js) // Valid({"field31":"beta","field32":345})
@@ -242,20 +242,20 @@ For example, you would have defined a `Writes` for the `Creature` case class thi
 
 ```scala
 {
-	import play.api.libs.json._
+  import play.api.libs.json._
 
-	case class Creature(
-	  name: String,
-	  isDead: Boolean,
-	  weight: Float)
+  case class Creature(
+    name: String,
+    isDead: Boolean,
+    weight: Float)
 
   implicit val creatureWrite = (
     (__ \ "name").write[String] and
     (__ \ "isDead").write[Boolean] and
     (__ \ "weight").write[Float]
-  ).unlifted(Creature.unapply)
+  ).unlifted(Creature.unapply _)
 
-	Json.toJson(Creature("gremlins", false, 1f))
+  Json.toJson(Creature("gremlins", false, 1f))
 }
 ```
 
@@ -274,7 +274,7 @@ implicit val creatureWrite = To[JsObject]{ __ =>
   import jto.validation.playjson.Writes._
   ((__ \ "name").write[String] ~
    (__ \ "isDead").write[Boolean] ~
-   (__ \ "weight").write[Float]).unlifted(Creature.unapply)
+   (__ \ "weight").write[Float]).unlifted(Creature.unapply _)
 }
 
 val c = To[Creature, JsObject](Creature("gremlins", false, 1f))

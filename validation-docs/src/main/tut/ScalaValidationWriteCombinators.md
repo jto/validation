@@ -98,7 +98,7 @@ It's fairly simple. The definition of `write` looks like this:
 
 ```tut
 {
-	def write[I, O](implicit w: Path => Write[I, O]): Write[I, O] = ???
+  def write[I, O](implicit w: Path => Write[I, O]): Write[I, O] = ???
 }
 ```
 

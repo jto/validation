@@ -17,19 +17,19 @@ import jto.validation._
 import play.api.libs.json.{KeyPathNode => JSKeyPathNode, IdxPathNode => JIdxPathNode, _}
 object Ex1 {
 
-	def pathToJsPath(p: Path) =
-	  play.api.libs.json.JsPath(p.path.map{
-	    case KeyPathNode(key) => JSKeyPathNode(key)
-	    case IdxPathNode(i) => JIdxPathNode(i)
-	  })
+  def pathToJsPath(p: Path) =
+    play.api.libs.json.JsPath(p.path.map{
+      case KeyPathNode(key) => JSKeyPathNode(key)
+      case IdxPathNode(i) => JIdxPathNode(i)
+    })
 
-	implicit def pickInJson(p: Path): Rule[JsValue, JsValue] =
-		Rule[JsValue, JsValue] { json =>
-		  pathToJsPath(p)(json) match {
-		    case Nil => Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
-		    case js :: _ => Valid(js)
-		  }
-		}
+  implicit def pickInJson(p: Path): Rule[JsValue, JsValue] =
+    Rule[JsValue, JsValue] { json =>
+      pathToJsPath(p)(json) match {
+        case Nil => Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
+        case js :: _ => Valid(js)
+      }
+    }
 }
 ```
 
@@ -37,20 +37,20 @@ Now we are able to do this:
 
 ```tut
 {
-	import Ex1._
+  import Ex1._
 
-	val js = Json.obj(
+  val js = Json.obj(
   "field1" -> "alpha",
   "field2" -> 123L,
   "field3" -> Json.obj(
     "field31" -> "beta",
     "field32"-> 345))
 
-	val pick = From[JsValue]{ __ =>
-	  (__ \ "field2").read[JsValue]
-	}
+  val pick = From[JsValue]{ __ =>
+    (__ \ "field2").read[JsValue]
+  }
 
-	pick.validate(js)
+  pick.validate(js)
 }
 ```
 
@@ -79,16 +79,16 @@ The now all we have to do is to write a `Rule[JsValue, O]`, and we automatically
 
 ```tut
 def jsonAs[T](f: PartialFunction[JsValue, Validated[Seq[ValidationError], T]])(args: Any*) =
-	Rule.fromMapping[JsValue, T](
-	  f.orElse{ case j => Invalid(Seq(ValidationError("validation.invalid", args: _*)))
-	})
+  Rule.fromMapping[JsValue, T](
+    f.orElse{ case j => Invalid(Seq(ValidationError("validation.invalid", args: _*)))
+  })
 
 def stringRule = jsonAs[String] {
-	case JsString(v) => Valid(v)
+  case JsString(v) => Valid(v)
 }("String")
 
 def booleanRule = jsonAs[Boolean]{
-	case JsBoolean(v) => Valid(v)
+  case JsBoolean(v) => Valid(v)
 }("Boolean")
 ```
 
@@ -187,7 +187,7 @@ Writes are implemented in a similar fashion, but a generally easier to implement
 
 ```tut
 {
-	implicit def writeJson[I](path: Path)(implicit w: Write[I, JsValue]): Write[I, JsObject] = ???
+  implicit def writeJson[I](path: Path)(implicit w: Write[I, JsValue]): Write[I, JsObject] = ???
 }
 ```
 
@@ -195,7 +195,7 @@ And you then defines all the primitive writes:
 
 ```tut
 {
-	implicit def anyval[T <: AnyVal] = ???
+  implicit def anyval[T <: AnyVal] = ???
 }
 ```
 
@@ -205,7 +205,7 @@ In order to be able to use writes combinators, you also need to create an implem
 
 ```tut
 {
-	import cats.Monoid
+  import cats.Monoid
   implicit def jsonMonoid = new Monoid[JsObject] {
     def combine(a1: JsObject, a2: JsObject) = a1 deepMerge a2
     def empty = Json.obj()

@@ -131,6 +131,8 @@ object Rule {
       def validate(data: I): VA[O] = m(data)
     }
 
+  def of[I, O](implicit r: Rule[I, O]): Rule[I, O] = r
+
   def toRule[I, O](r: RuleLike[I, O]): Rule[I, O] =
     new Rule[I, O] {
       def validate(data: I): VA[O] = r.validate(data)

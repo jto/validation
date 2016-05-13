@@ -32,7 +32,7 @@ trait Write[I, +O] extends WriteLike[I, O] {
    */
   def compose[OO >: O, P](w: WriteLike[OO, P]): Write[I, P] =
     this.map(o => w.writes(o))
-  
+
   def contramap[B](f: B => I): Write[B, O] =
     Write[B, O]((b: B) => writes(f(b)))
 }
@@ -44,6 +44,8 @@ object Write {
     new Write[I, O] {
       def writes(i: I) = w(i)
     }
+
+  def of[I, O](implicit w: Write[I, O]): Write[I, O] = w
 
   def toWrite[I, O](r: WriteLike[I, O]): Write[I, O] =
     new Write[I, O] {

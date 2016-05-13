@@ -33,7 +33,7 @@ class Path(val path: List[PathNode]) {
   /**
    * Aggregate 2 paths
    * {{{
-   *   (Path \ "foo" \ "bar").compose(Path \ "baz") == (Path \ "foo" \ "bar" \ "baz")
+   *   (Path \ "foo" \ "bar") .andThen(Path \ "baz") == (Path \ "foo" \ "bar" \ "baz")
    * }}}
    */
   def compose(p: Path): Path = Path(this.path ++ p.path)

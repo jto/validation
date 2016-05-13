@@ -83,7 +83,7 @@ object Rules extends DefaultRules[JValue] {
     super.mapR[JValue, O](r, jsObjectR.map { case JObject(fs) => fs.toSeq })
 
   implicit def jsValueR[O](implicit r: RuleLike[JObject, O]): Rule[JValue, O] =
-    jsObjectR.compose(r)
+    jsObjectR.andThen(r)
 
   implicit def pickInJson[II <: JValue, O](p: Path)(implicit r: RuleLike[JValue, O]): Rule[II, O] = {
 
@@ -94,13 +94,13 @@ object Rules extends DefaultRules[JValue] {
             js.find(_._1 == k).flatMap(kv => search(Path(t), kv._2))
           case _ => None
         }
-      
+
       case IdxPathNode(i) :: t =>
         json match {
           case JArray(js) => js.lift(i).flatMap(j => search(Path(t), j))
           case _ => None
         }
-      
+
       case Nil => Some(json)
     }
 
@@ -109,12 +109,12 @@ object Rules extends DefaultRules[JValue] {
         case None => Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
         case Some(js) => Valid(js)
       }
-    }.compose(r)
+    }.andThen(r)
   }
 
   // XXX: a bit of boilerplate
   private def pickInS[T](implicit r: RuleLike[Seq[JValue], T]): Rule[JValue, T] =
-    jsArrayR.map { case JArray(fs) => Seq(fs:_*) }.compose(r)
+    jsArrayR.map { case JArray(fs) => Seq(fs:_*) }.andThen(r)
   implicit def pickSeq[O](implicit r: RuleLike[JValue, O]) = pickInS(seqR[JValue, O])
   implicit def pickSet[O](implicit r: RuleLike[JValue, O]) = pickInS(setR[JValue, O])
   implicit def pickList[O](implicit r: RuleLike[JValue, O]) = pickInS(listR[JValue, O])

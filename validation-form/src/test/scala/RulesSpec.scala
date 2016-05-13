@@ -240,7 +240,7 @@ class RulesSpec extends WordSpec with Matchers {
 
       val passRule: Rule[UrlFormEncoded, String] = From[UrlFormEncoded] { __ =>
         ((__ \ "password").read(notEmpty) ~ (__ \ "verify").read(notEmpty))
-          .tupled.compose(Rule.uncurry(Rules.equalTo[String]).repath(_ => (Path \ "verify")))
+          .tupled .andThen(Rule.uncurry(Rules.equalTo[String]).repath(_ => (Path \ "verify")))
       }
 
       val rule = From[UrlFormEncoded] { __ =>

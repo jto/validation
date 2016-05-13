@@ -17,19 +17,23 @@ object RuleLike {
 
 trait Rule[I, O] extends RuleLike[I, O] {
 
+  @deprecated("use andThen instead.", "2.0")
+  def compose[P](path: Path)(sub: => RuleLike[O, P]): Rule[I, P] =
+    andThen(path)(sub)
+
   /**
    * Compose two Rules
    * {{{
    *   val r1: Rule[JsValue, String] = // implementation
    *   val r2: Rule[String, Date] = // implementation
-   *   val r = r1.compose(r2)
+   *   val r = r1 .andThen(r2)
    *
    * }}}
    * @param path a prefix for the errors path if the result is a `Invalid`
    * @param sub the second Rule to apply
    * @return The combination of the two Rules
    */
-  def compose[P](path: Path)(sub: => RuleLike[O, P]): Rule[I, P] =
+  def andThen[P](path: Path)(sub: => RuleLike[O, P]): Rule[I, P] =
     this.flatMap { o => Rule(_ => sub.validate(o)) }.repath(path ++ _)
 
   def flatMap[B](f: O => Rule[I, B]): Rule[I, B] =
@@ -59,9 +63,13 @@ trait Rule[I, O] extends RuleLike[I, O] {
   def orElse[OO >: O](t: => RuleLike[I, OO]): Rule[I, OO] =
     Rule(d => this.validate(d) orElse t.validate(d))
 
-  // would be nice to have Kleisli in play
-  def compose[P](sub: => RuleLike[O, P]): Rule[I, P] = compose(Path)(sub)
-  def compose[P](m: Mapping[ValidationError, O, P]): Rule[I, P] = compose(Rule.fromMapping(m))
+  @deprecated("use andThen instead.", "2.0")
+  def compose[P](sub: => RuleLike[O, P]): Rule[I, P] = andThen(sub)
+  def andThen[P](sub: => RuleLike[O, P]): Rule[I, P] = andThen(Path)(sub)
+
+  @deprecated("use andThen instead.", "2.0")
+  def compose[P](m: Mapping[ValidationError, O, P]): Rule[I, P] = andThen(m)
+  def andThen[P](m: Mapping[ValidationError, O, P]): Rule[I, P] = andThen(Rule.fromMapping(m))
 
   /**
    * Create a new Rule the validate `this` Rule and `r2` simultaneously
@@ -113,7 +121,7 @@ object Rule {
    * {{{
    *   val passRule = From[JsValue] { __ =>
    *      ((__ \ "password").read(notEmpty) ~ (__ \ "verify").read(notEmpty))
-   *        .tupled.compose(Rule.uncurry(Rules.equalTo[String]).repath(_ => (Path \ "verify")))
+   *        .tupled .andThen(Rule.uncurry(Rules.equalTo[String]).repath(_ => (Path \ "verify")))
    *    }
    * }}}
    */

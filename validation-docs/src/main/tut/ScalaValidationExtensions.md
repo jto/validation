@@ -72,7 +72,7 @@ implicit def pickInJson[O](p: Path)(implicit r: Rule[JsValue, O]): Rule[JsValue,
         case Nil => Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
         case js :: _ => Valid(js)
       }
-    }.compose(r)
+    }.andThen(r)
 ```
 
 The now all we have to do is to write a `Rule[JsValue, O]`, and we automatically get the ` Path => Rule[JsValue, O]` we're interested in. The rest is just a matter of defining all the prmitives rules, for example:

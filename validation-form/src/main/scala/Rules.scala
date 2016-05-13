@@ -115,7 +115,7 @@ object Rules extends DefaultRules[PM.PM] with ParsingRules {
     path => {
       val nones = isEmpty +: noneValues
       val o = opt[J, O](r, nones: _*)(pick, coerce)(path)
-      Rule.zero[UrlFormEncoded].map(toPM).compose(o)
+      Rule.zero[UrlFormEncoded].map(toPM) .andThen(o)
     }
 
   implicit def parseString[O](implicit r: RuleLike[String, O]): Rule[PM, O] = {
@@ -124,8 +124,8 @@ object Rules extends DefaultRules[PM.PM] with ParsingRules {
     }
     Rule.zero[PM]
       .map(_.get(Path))
-      .compose(find)
-      .compose(r)
+       .andThen(find)
+       .andThen(r)
   }
 
   implicit def inArray[O: scala.reflect.ClassTag](implicit r: RuleLike[Seq[PM], Array[O]]): Path => Rule[PM, Array[O]] =
@@ -147,19 +147,19 @@ object Rules extends DefaultRules[PM.PM] with ParsingRules {
             }
 
           (root +: arrays).filter(!_.isEmpty)
-        }.compose(r)
+        } .andThen(r)
 
   implicit def pickInPM[O](p: Path)(implicit r: RuleLike[PM, O]): Rule[PM, O] =
     Rule[PM, PM] { pm =>
       Valid(PM.find(p)(pm))
-    }.compose(r)
+    } .andThen(r)
 
   // Convert Rules exploring PM, to Rules exploring UrlFormEncoded
   implicit def convertToInM[O](p: Path)(implicit r: Path => RuleLike[PM, O]): Rule[UrlFormEncoded, O] =
     Rule.zero[UrlFormEncoded]
       .map(toPM)
-      .compose(r(p))
+       .andThen(r(p))
 
   implicit def convertRule[O](implicit r: RuleLike[UrlFormEncoded, O]): Rule[PM, O] =
-    Rule.zero[PM].map(toM).compose(r)
+    Rule.zero[PM].map(toM) .andThen(r)
 }

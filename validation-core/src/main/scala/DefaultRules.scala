@@ -75,7 +75,7 @@ trait DateRules {
         .map(Valid.apply)
         .getOrElse(Invalid(Seq(ValidationError("error.expected.jodadate.format", pattern))))
     }
-  
+
   /**
    * The default implicit Rule for `org.joda.time.LocalDate`
    */
@@ -203,7 +203,7 @@ trait GenericRules {
   implicit def headAs[I, O](implicit c: RuleLike[I, O]) = Rule.fromMapping[Seq[I], I] {
     _.headOption.map(Valid[I](_))
       .getOrElse(Invalid[Seq[ValidationError]](Seq(ValidationError("error.required"))))
-  }.compose(c)
+  }.andThen(c)
 
   def not[I, O](r: RuleLike[I, O]) = Rule[I, I] { d =>
     r.validate(d) match {
@@ -241,28 +241,28 @@ trait GenericRules {
    * }}}
    */
   def min[T](m: T)(implicit o: Ordering[T]) = validateWith[T]("error.min", m) { x => o.gteq(x, m) }
-  
+
   /**
    * {{{
    *   (Path \ "foo").read(max(0)) // validate that there's a negative int at (Path \ "foo")
    * }}}
    */
   def max[T](m: T)(implicit o: Ordering[T]) = validateWith[T]("error.max", m) { x => o.lteq(x, m) }
-  
+
   /**
    * {{{
    *   (Path \ "foo").read(minLength(5)) // The length of this String must be >= 5
    * }}}
    */
   def minLength(l: Int) = validateWith[String]("error.minLength", l) { _.size >= l }
-  
+
   /**
    * {{{
    *   (Path \ "foo").read(maxLength(5)) // The length of this String must be <= 5
    * }}}
    */
   def maxLength(l: Int) = validateWith[String]("error.maxLength", l) { _.size <= l }
-  
+
   /**
    * Validate that a String matches the provided regex
    * {{{
@@ -289,7 +289,7 @@ trait GenericRules {
   /**
    * A Rule for HTML checkboxes
    */
-  def checked[I](implicit b: RuleLike[I, Boolean]) = Rule.toRule(b) compose GenericRules.equalTo(true)
+  def checked[I](implicit b: RuleLike[I, Boolean]) = Rule.toRule(b) andThen GenericRules.equalTo(true)
 }
 
 object GenericRules extends GenericRules
@@ -349,18 +349,18 @@ trait DefaultRules[I] extends GenericRules with DateRules {
   protected def opt[J, O](r: => RuleLike[J, O], noneValues: RuleLike[I, I]*)(implicit pick: Path => RuleLike[I, I], coerce: RuleLike[I, J]) = (path: Path) =>
     Rule[I, Option[O]] {
       (d: I) =>
-        val isNone = not(noneValues.foldLeft(Rule.zero[I])(_ compose not(_))).map(_ => None)
+        val isNone = not(noneValues.foldLeft(Rule.zero[I])(_ andThen not(_))).map(_ => None)
         val v = (pick(path).validate(d).map(Some.apply) orElse Valid(None))
         Validated.fromEither(
           v.toEither.right.flatMap {
             case None => Right(None)
-            case Some(i) => isNone.orElse(Rule.toRule(coerce).compose(r).map[Option[O]](Some.apply)).validate(i).toEither
+            case Some(i) => isNone.orElse(Rule.toRule(coerce).andThen(r).map[Option[O]](Some.apply)).validate(i).toEither
           }
         )
     }
 
   def mapR[K, O](r: RuleLike[K, O], p: RuleLike[I, Seq[(String, K)]]): Rule[I, Map[String, O]] = {
-    Rule.toRule(p).compose(Path)(
+    Rule.toRule(p).andThen(Path)(
       Rule { fs =>
         val validations = fs.map { f =>
           Rule.toRule(r).repath((Path \ f._1) ++ _)

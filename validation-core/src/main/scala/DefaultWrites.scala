@@ -5,7 +5,7 @@ trait DateWrites {
     Write[java.util.Date, String] { d =>
       new java.text.SimpleDateFormat(pattern).format(d)
     }
-  
+
   implicit def dateW: Write[java.util.Date, String] =
     dateW("yyyy-MM-dd")
 
@@ -34,7 +34,7 @@ trait DateWrites {
       val fmt = if (pattern == "") ISODateTimeFormat.date else DateTimeFormat.forPattern(pattern)
       fmt.print(d)
     }
-    
+
   implicit def jodaLocalDateW: Write[org.joda.time.LocalDate, String] = jodaLocalDateW("")
 
   def sqlDateW(pattern: String): Write[java.sql.Date, String] =
@@ -63,16 +63,16 @@ trait DefaultWrites extends DateWrites {
 
 trait GenericWrites[O] {
   implicit def arrayW[I](implicit w: WriteLike[Seq[I], O]) =
-    Write((_: Array[I]).toSeq) compose w
+    Write((_: Array[I]).toSeq) andThen w
 
   implicit def listW[I](implicit w: WriteLike[Seq[I], O]) =
-    Write((_: List[I]).toSeq) compose w
+    Write((_: List[I]).toSeq) andThen w
 
   implicit def traversableW[I](implicit w: WriteLike[Seq[I], O]) =
-    Write((_: Traversable[I]).toSeq) compose w
+    Write((_: Traversable[I]).toSeq) andThen w
 
   implicit def setW[I](implicit w: WriteLike[Seq[I], O]) =
-    Write((_: Set[I]).toSeq) compose w
+    Write((_: Set[I]).toSeq) andThen w
 }
 
 trait NumericTypes2StringWrites {

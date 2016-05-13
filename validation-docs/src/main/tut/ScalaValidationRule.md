@@ -118,7 +118,7 @@ We've done almost all the work already. We just have to create a new `Rule` the 
 It would be fairly easy to create such a `Rule` "manually", but we don't have to. A method doing just that is already available:
 
 ```tut
-val firstFloat: Rule[List[String], Float] = head.compose(Rules.floatR)
+val firstFloat: Rule[List[String], Float] = head.andThen(Rules.floatR)
 firstFloat.validate(List("1", "2"))
 firstFloat.validate(List("1.2", "foo"))
 ```
@@ -146,10 +146,10 @@ firstFloat.validate(List(1, 2, 3))
 All is fine with our new `Rule` but the error reporting when we parse an element is not perfect yet.
 When a parsing error happens, the `Invalid` does not tells us that it happened on the first element of the `List`.
 
-To fix that, we can pass  an additionnal parameter to `compose`:
+To fix that, we can pass  an additionnal parameter to `andThen`:
 
 ```tut
-val firstFloat2: Rule[List[String],Float] = head.compose(Path \ 0)(Rules.floatR)
+val firstFloat2: Rule[List[String],Float] = head.andThen(Path \ 0)(Rules.floatR)
 firstFloat2.validate(List("foo", "2"))
 ```
 

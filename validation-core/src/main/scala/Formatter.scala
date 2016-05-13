@@ -80,7 +80,7 @@ case class Reader[I](path: Path = Path(Nil)) {
    * @return A Rule validating the existence and validity of data at `path`
    */
   def read[J, O](sub: => RuleLike[J, O])(implicit r: Path => RuleLike[I, J]): Rule[I, O] =
-    Rule.toRule(r(path)).compose(path)(sub)
+    Rule.toRule(r(path)).andThen(path)(sub)
 
   /**
    * Try to convert the data at `Path` to type `O`

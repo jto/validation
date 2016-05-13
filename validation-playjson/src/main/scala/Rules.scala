@@ -106,7 +106,7 @@ object Rules extends DefaultRules[JsValue] {
 
   implicit def JsValue[O](
       implicit r: RuleLike[JsObject, O]): Rule[JsValue, O] =
-    jsObjectR.compose(r)
+    jsObjectR.andThen(r)
 
   implicit def pickInJson[II <: JsValue, O](p: Path)(
       implicit r: RuleLike[JsValue, O]): Rule[II, O] = {
@@ -132,12 +132,12 @@ object Rules extends DefaultRules[JsValue] {
           Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
         case Some(js) => Valid(js)
       }
-    }.compose(r)
+    }.andThen(r)
   }
 
   private def pickInS[T](
       implicit r: RuleLike[Seq[JsValue], T]): Rule[JsValue, T] =
-    jsArrayR.map { case JsArray(fs) => fs }.compose(r)
+    jsArrayR.map { case JsArray(fs) => fs }.andThen(r)
   implicit def pickSeq[O](implicit r: RuleLike[JsValue, O]) =
     pickInS(seqR[JsValue, O])
   implicit def pickSet[O](implicit r: RuleLike[JsValue, O]) =

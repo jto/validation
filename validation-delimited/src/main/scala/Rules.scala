@@ -38,7 +38,7 @@ object Rules extends DefaultRules[Delimited] with ParsingRules {
         case IdxPathNode(i) :: t if i < delimited.length => Valid(delimited(i))
         case _ => Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
       }
-    }.compose(r)
+    }.andThen(r)
 
   /**
    * By default, the empty string "" will be considered as None for Option reads
@@ -69,7 +69,7 @@ object Rules extends DefaultRules[Delimited] with ParsingRules {
   private def myOpt[O](coerce: => RuleLike[String, O], noneValues: RuleLike[String, String]*)(implicit pick: Path => RuleLike[Delimited, String]) =
     (path: Path) =>
       Rule[Delimited, Option[O]] { delimited =>
-        val isNone = not(noneValues.foldLeft(Rule.zero[String])(_ compose not(_))).map(_ => None)
+        val isNone = not(noneValues.foldLeft(Rule.zero[String])(_ andThen not(_))).map(_ => None)
         val v = (pick(path).validate(delimited).map(Some.apply) orElse Valid(None))
         Validated.fromEither(
           v.toEither.right.flatMap {

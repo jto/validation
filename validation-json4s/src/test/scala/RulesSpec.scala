@@ -6,7 +6,7 @@ import org.json4s.ast.safe._
 class RulesSpec extends WordSpec with Matchers {
 
   "Json Rules" should {
-    
+
     import Rules._
 
     val valid = JObject(Map(
@@ -268,7 +268,7 @@ class RulesSpec extends WordSpec with Matchers {
 
       val passRule = From[JValue] { __ =>
         ((__ \ "password").read(notEmpty) ~ (__ \ "verify").read(notEmpty))
-          .tupled.compose(Rule.uncurry(Rules.equalTo[String]).repath(_ => (Path \ "verify")))
+          .tupled .andThen(Rule.uncurry(Rules.equalTo[String]).repath(_ => (Path \ "verify")))
       }
 
       val rule = From[JValue] { __ =>

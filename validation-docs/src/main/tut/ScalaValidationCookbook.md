@@ -46,7 +46,7 @@ val passRule = From[JsValue] { __ =>
    (__ \ "verify").read(notEmpty)).tupled
    	// We then create a `Rule[(String, String), String]` validating that given a `(String, String)`,
    	// both strings are equals. Those rules are then composed together.
-    .compose(Rule.uncurry(json.Rules.equalTo[String])
+    .andThen(Rule.uncurry(json.Rules.equalTo[String])
     // In case of `Invalid`, we want to control the field holding the errors.
     // We change the `Path` of errors using `repath`
     .repath(_ => (Path \ "verify")))

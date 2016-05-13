@@ -75,7 +75,7 @@ val productPrice = Write[Product, Double]{ _.price }
 Now we just have to compose it with `currency`:
 
 ```tut
-val productAsPrice: Write[Product,String] = productPrice compose currency
+val productAsPrice: Write[Product,String] = productPrice andThen currency
 ```
 
 Let's test our new `Write`:

@@ -14,7 +14,7 @@ object Rules extends DefaultRules[Node] with ParsingRules {
                       "error.invalid",
                       "a non-leaf node can not be validated to String")))
       }
-      .compose(r)
+      .andThen(r)
 
   def attributeR[O](key: String)(
       implicit r: RuleLike[String, O]): Rule[Node, O] =
@@ -25,7 +25,7 @@ object Rules extends DefaultRules[Node] with ParsingRules {
           case None => Invalid(Seq(ValidationError("error.required")))
         }
       }
-      .compose(r)
+      .andThen(r)
 
   def optAttributeR[O](
       key: String)(implicit r: RuleLike[String, O]): Rule[Node, Option[O]] =
@@ -57,7 +57,7 @@ object Rules extends DefaultRules[Node] with ParsingRules {
           Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
         case Some(resNode) => Valid(resNode)
       }
-    }.compose(r)
+    }.andThen(r)
   }
 
   private def pickInS[T](implicit r: RuleLike[Seq[Node], T]): Rule[Node, T] =
@@ -66,7 +66,7 @@ object Rules extends DefaultRules[Node] with ParsingRules {
         val children = (node \ "_")
         Valid(children)
       }
-      .compose(r)
+      .andThen(r)
 
   implicit def pickSeq[O](implicit r: RuleLike[Node, O]): Rule[Node, Seq[O]] =
     pickInS(seqR[Node, O])
@@ -104,5 +104,5 @@ object Rules extends DefaultRules[Node] with ParsingRules {
                         s"child with attribute $attrKey = $attrValue not found")))
         }
       }
-      .compose(r)
+      .andThen(r)
 }

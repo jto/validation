@@ -36,7 +36,7 @@ scala> implicit val personRule = From[JsValue] { __ =>
      |    (__ \ "age").read[Int] ~
      |    (__ \ "lovesChocolate").read[Boolean]) (Person.apply _)
      | }
-personRule: jto.validation.Rule[play.api.libs.json.JsValue,Person] = jto.validation.Rule$$anon$3@628d7350
+personRule: jto.validation.Rule[play.api.libs.json.JsValue,Person] = jto.validation.Rule$$anon$3@79b31eb9
 ```
 
 Let's test it:
@@ -66,7 +66,7 @@ scala> implicit val personRule = {
      |   import jto.validation.playjson.Rules._ // let's not leak implicits everywhere
      |   Rule.gen[JsValue, Person]
      | }
-personRule: jto.validation.Rule[play.api.libs.json.JsValue,Person] = jto.validation.Rule$$anon$3@350c0b65
+personRule: jto.validation.Rule[play.api.libs.json.JsValue,Person] = jto.validation.Rule$$anon$3@6b0f6168
 ```
 
 The validation result is identical :
@@ -96,7 +96,7 @@ scala> implicit val personWrite = {
      |   import jto.validation.playjson.Writes._ // let's no leak implicits everywhere
      |   Write.gen[Person, JsObject]
      | }
-personWrite: jto.validation.Write[Person,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@31dc8f2f
+personWrite: jto.validation.Write[Person,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@61032093
 
 scala> personWrite.writes(Person("Julien", 28, true))
 res2: play.api.libs.json.JsObject = {"name":"Julien","age":28,"lovesChocolate":true}

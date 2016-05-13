@@ -26,7 +26,7 @@ scala> object Writes extends NumericTypes2StringWrites
 defined object Writes
 
 scala> Writes.floatW
-res0: jto.validation.Write[Float,String] = jto.validation.Write$$anon$2@7ff6507
+res0: jto.validation.Write[Float,String] = jto.validation.Write$$anon$2@679a18b1
 ```
 
 Let's now test it against different `Float` values:
@@ -51,7 +51,7 @@ scala> val currency = Write[Double, String]{ money =>
      |   val f = NumberFormat.getCurrencyInstance(Locale.FRANCE)
      |   f.format(money)
      | }
-currency: jto.validation.Write[Double,String] = jto.validation.Write$$anon$2@1b003646
+currency: jto.validation.Write[Double,String] = jto.validation.Write$$anon$2@1c8e5a48
 ```
 
 Testing it:
@@ -82,14 +82,14 @@ First, we'll create a `Write[Product, Double]` extracting the price of the produ
 
 ```scala
 scala> val productPrice = Write[Product, Double]{ _.price }
-productPrice: jto.validation.Write[Product,Double] = jto.validation.Write$$anon$2@3f542994
+productPrice: jto.validation.Write[Product,Double] = jto.validation.Write$$anon$2@3156e877
 ```
 
 Now we just have to compose it with `currency`:
 
 ```scala
-scala> val productAsPrice: Write[Product,String] = productPrice compose currency
-productAsPrice: jto.validation.Write[Product,String] = jto.validation.Write$$anon$2@5fc64696
+scala> val productAsPrice: Write[Product,String] = productPrice andThen currency
+productAsPrice: jto.validation.Write[Product,String] = jto.validation.Write$$anon$2@32a63e98
 ```
 
 Let's test our new `Write`:

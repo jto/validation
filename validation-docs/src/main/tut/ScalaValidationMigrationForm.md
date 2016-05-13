@@ -97,8 +97,8 @@ implicit val computerValidated = From[UrlFormEncoded] { __ =>
   import jto.validation.forms.Rules._
   ((__ \ "id").read(ignored[UrlFormEncoded, Option[Long]](None)) ~
    (__ \ "name").read(notEmpty) ~
-   (__ \ "introduced").read(optionR(date("yyyy-MM-dd"))) ~
-   (__ \ "discontinued").read(optionR(date("yyyy-MM-dd"))) ~
+   (__ \ "introduced").read(optionR(dateR("yyyy-MM-dd"))) ~
+   (__ \ "discontinued").read(optionR(dateR("yyyy-MM-dd"))) ~
    (__ \ "company").read[Option[Long]]) (Computer.apply _)
 }
 ```
@@ -140,9 +140,9 @@ implicit val computerW = To[UrlFormEncoded] { __ =>
   import jto.validation.forms.Writes._
   ((__ \ "id").write[Option[Long]] ~
    (__ \ "name").write[String] ~
-   (__ \ "introduced").write(optionW(date("yyyy-MM-dd"))) ~
-   (__ \ "discontinued").write(optionW(date("yyyy-MM-dd"))) ~
-   (__ \ "company").write[Option[Long]]) (Computer.unapply _)
+   (__ \ "introduced").write(optionW(dateW("yyyy-MM-dd"))) ~
+   (__ \ "discontinued").write(optionW(dateW("yyyy-MM-dd"))) ~
+   (__ \ "company").write[Option[Long]]).unlifted(Computer.unapply _)
 }
 ```
 

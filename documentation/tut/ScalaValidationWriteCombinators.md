@@ -42,7 +42,7 @@ If you try to run that code, the compiler gives you the following error:
 
 ```scala
 scala> val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
-<console>:21: error: No implicit view available from jto.validation.Path => jto.validation.WriteLike[play.api.libs.json.JsValue,play.api.libs.json.JsObject].
+<console>:22: error: No implicit view available from jto.validation.Path => jto.validation.WriteLike[play.api.libs.json.JsValue,play.api.libs.json.JsObject].
        val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
                                                                      ^
 ```
@@ -62,7 +62,7 @@ With those implicits in scope, we can finally create our `Write`:
 
 ```scala
 scala> val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
-serializeFriend: jto.validation.Write[play.api.libs.json.JsValue,play.api.libs.json.JsObject] = jto.validation.Write$$anon$2@2b0d1dc4
+serializeFriend: jto.validation.Write[play.api.libs.json.JsValue,play.api.libs.json.JsObject] = jto.validation.Write$$anon$2@f87612a
 ```
 
 Alright, so far we've defined a `Write` looking for some data of type `JsValue`, located at `/user/friend` in a `JsObject`.
@@ -80,7 +80,7 @@ We now are capable of serializing data to a given `Path`. Let's do it again on a
 
 ```scala
 scala> val agejs = (Path \ "user" \ "age").write[JsValue, JsObject]
-agejs: jto.validation.Write[play.api.libs.json.JsValue,play.api.libs.json.JsObject] = jto.validation.Write$$anon$2@5c88569d
+agejs: jto.validation.Write[play.api.libs.json.JsValue,play.api.libs.json.JsObject] = jto.validation.Write$$anon$2@1084b002
 ```
 
 And if we apply this new `Write`:
@@ -95,7 +95,7 @@ All we have to do is to change the input type in our `Write` definition:
 
 ```scala
 scala> val age = (Path \ "user" \ "age").write[Int, JsObject]
-age: jto.validation.Write[Int,play.api.libs.json.JsObject] = jto.validation.Write$$anon$2@694e424e
+age: jto.validation.Write[Int,play.api.libs.json.JsObject] = jto.validation.Write$$anon$2@60a88f38
 ```
 
 And apply it:
@@ -159,9 +159,9 @@ scala> val userWrite = To[JsObject] { __ =>
      |   ((__ \ "name").write[String] ~
      |    (__ \ "age").write[Int] ~
      |    (__ \ "email").write[Option[String]] ~
-     |    (__ \ "isAlive").write[Boolean]) (User.unapply _)
+     |    (__ \ "isAlive").write[Boolean]).unlifted(User.unapply _)
      | }
-userWrite: jto.validation.Write[User,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@20c3455e
+userWrite: jto.validation.Write[User,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@6515aaf2
 ```
 
 

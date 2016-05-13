@@ -89,7 +89,7 @@ scala> import jto.validation.Rule
 import jto.validation.Rule
 
 scala> val findFriend: Rule[JsValue, JsValue] = location.read[JsValue, JsValue]
-<console>:17: error: No implicit view available from jto.validation.Path => jto.validation.RuleLike[play.api.libs.json.JsValue,play.api.libs.json.JsValue].
+<console>:18: error: No implicit view available from jto.validation.Path => jto.validation.RuleLike[play.api.libs.json.JsValue,play.api.libs.json.JsValue].
        val findFriend: Rule[JsValue, JsValue] = location.read[JsValue, JsValue]
                                                              ^
 ```
@@ -111,7 +111,7 @@ With those implicits in scope, we can finally create our `Rule`.
 
 ```scala
 scala> val findFriend: Rule[JsValue, JsValue] = location.read[JsValue, JsValue]
-findFriend: jto.validation.Rule[play.api.libs.json.JsValue,play.api.libs.json.JsValue] = jto.validation.Rule$$anon$2@40c59f02
+findFriend: jto.validation.Rule[play.api.libs.json.JsValue,play.api.libs.json.JsValue] = jto.validation.Rule$$anon$2@50aa2c16
 ```
 
 Alright, so far we've defined a `Rule` looking for some data of type JsValue, in an object of type JsValue, at `/user/friend`.

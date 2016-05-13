@@ -40,7 +40,7 @@ scala> object Rules extends GenericRules with ParsingRules
 defined object Rules
 
 scala> Rules.floatR
-res0: jto.validation.Rule[String,Float] = jto.validation.Rule$$anon$2@44d7ddd2
+res0: jto.validation.Rule[String,Float] = jto.validation.Rule$$anon$2@145ee456
 ```
 
 Let's now test it against different String values:
@@ -60,10 +60,10 @@ res3: jto.validation.VA[Float] = Invalid(List((/,List(ValidationError(List(error
 >
 ```scala
 scala> Rules.floatR
-res4: jto.validation.Rule[String,Float] = jto.validation.Rule$$anon$2@538017dc
+res4: jto.validation.Rule[String,Float] = jto.validation.Rule$$anon$2@2a8ffb8
 
 scala> Rules.floatR.validate(Seq(32))
-<console>:19: error: type mismatch;
+<console>:20: error: type mismatch;
  found   : Seq[Int]
  required: String
        Rules.floatR.validate(Seq(32))
@@ -95,7 +95,7 @@ scala> val headInt: Rule[List[Int], Int] = Rule.fromMapping {
      |   case Nil => Invalid(Seq(ValidationError("error.emptyList")))
      |   case head :: _ => Valid(head)
      | }
-headInt: jto.validation.Rule[List[Int],Int] = jto.validation.Rule$$anon$2@35727db3
+headInt: jto.validation.Rule[List[Int],Int] = jto.validation.Rule$$anon$2@752efe99
 ```
 
 ```scala
@@ -146,8 +146,8 @@ We've done almost all the work already. We just have to create a new `Rule` the 
 It would be fairly easy to create such a `Rule` "manually", but we don't have to. A method doing just that is already available:
 
 ```scala
-scala> val firstFloat: Rule[List[String], Float] = head.compose(Rules.floatR)
-firstFloat: jto.validation.Rule[List[String],Float] = jto.validation.Rule$$anon$2@631fb201
+scala> val firstFloat: Rule[List[String], Float] = head.andThen(Rules.floatR)
+firstFloat: jto.validation.Rule[List[String],Float] = jto.validation.Rule$$anon$2@621533f4
 
 scala> firstFloat.validate(List("1", "2"))
 res10: jto.validation.VA[Float] = Valid(1.0)
@@ -174,17 +174,17 @@ Of course everything is still typesafe:
 
 ```scala
 scala> firstFloat.validate(List(1, 2, 3))
-<console>:21: error: type mismatch;
+<console>:22: error: type mismatch;
  found   : Int(1)
  required: String
        firstFloat.validate(List(1, 2, 3))
                                 ^
-<console>:21: error: type mismatch;
+<console>:22: error: type mismatch;
  found   : Int(2)
  required: String
        firstFloat.validate(List(1, 2, 3))
                                    ^
-<console>:21: error: type mismatch;
+<console>:22: error: type mismatch;
  found   : Int(3)
  required: String
        firstFloat.validate(List(1, 2, 3))
@@ -196,11 +196,11 @@ scala> firstFloat.validate(List(1, 2, 3))
 All is fine with our new `Rule` but the error reporting when we parse an element is not perfect yet.
 When a parsing error happens, the `Invalid` does not tells us that it happened on the first element of the `List`.
 
-To fix that, we can pass  an additionnal parameter to `compose`:
+To fix that, we can pass  an additionnal parameter to `andThen`:
 
 ```scala
-scala> val firstFloat2: Rule[List[String],Float] = head.compose(Path \ 0)(Rules.floatR)
-firstFloat2: jto.validation.Rule[List[String],Float] = jto.validation.Rule$$anon$2@522dffef
+scala> val firstFloat2: Rule[List[String],Float] = head.andThen(Path \ 0)(Rules.floatR)
+firstFloat2: jto.validation.Rule[List[String],Float] = jto.validation.Rule$$anon$2@7b59d38a
 
 scala> firstFloat2.validate(List("foo", "2"))
 res15: jto.validation.VA[Float] = Invalid(List(([0],List(ValidationError(List(error.number),WrappedArray(Float))))))
@@ -217,17 +217,17 @@ The validation API already provides `Rules.min`, we have to define `even` oursel
 
 ```scala
 scala> val positive: Rule[Int,Int] = Rules.min(0)
-positive: jto.validation.Rule[Int,Int] = jto.validation.Rule$$anon$2@5a41d2fc
+positive: jto.validation.Rule[Int,Int] = jto.validation.Rule$$anon$2@6e83bdcf
 
 scala> val even: Rule[Int,Int] = Rules.validateWith[Int]("error.even"){ _ % 2 == 0 }
-even: jto.validation.Rule[Int,Int] = jto.validation.Rule$$anon$2@56b273b6
+even: jto.validation.Rule[Int,Int] = jto.validation.Rule$$anon$2@709bb5a9
 ```
 
 Now we can compose those rules using `|+|`
 
 ```scala
 scala> val positiveAndEven: Rule[Int,Int] = positive |+| even
-positiveAndEven: jto.validation.Rule[Int,Int] = jto.validation.Rule$$anon$2@2623bfd3
+positiveAndEven: jto.validation.Rule[Int,Int] = jto.validation.Rule$$anon$2@64982e85
 ```
 
 Let's test our new `Rule`:

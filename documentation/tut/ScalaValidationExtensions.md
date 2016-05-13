@@ -78,7 +78,7 @@ implicit def pickInJson[O](p: Path)(implicit r: Rule[JsValue, O]): Rule[JsValue,
         case Nil => Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
         case js :: _ => Valid(js)
       }
-    }.compose(r)
+    }.andThen(r)
 ```
 
 The now all we have to do is to write a `Rule[JsValue, O]`, and we automatically get the ` Path => Rule[JsValue, O]` we're interested in. The rest is just a matter of defining all the prmitives rules, for example:
@@ -148,7 +148,7 @@ scala> val maybeEmail = From[JsValue]{ __ =>
      |   import jto.validation.playjson.Rules._
      |   (__ \ "email").read(optionR(email))
      | }
-maybeEmail: jto.validation.Rule[play.api.libs.json.JsValue,Option[String]] = jto.validation.Rule$$anon$3@630dac5e
+maybeEmail: jto.validation.Rule[play.api.libs.json.JsValue,Option[String]] = jto.validation.Rule$$anon$3@5bbc0ab4
 
 scala> maybeEmail.validate(Json.obj("email" -> "foo@bar.com"))
 res1: jto.validation.VA[Option[String]] = Valid(Some(foo@bar.com))
@@ -178,7 +178,7 @@ scala> val maybeAge = From[JsValue]{ __ =>
      |   import jto.validation.playjson.Rules._
      |   (__ \ "age").read[Option[Int]]
      | }
-maybeAge: jto.validation.Rule[play.api.libs.json.JsValue,Option[Int]] = jto.validation.Rule$$anon$3@11bbedc6
+maybeAge: jto.validation.Rule[play.api.libs.json.JsValue,Option[Int]] = jto.validation.Rule$$anon$3@484f5c85
 ```
 
 ### Lazyness
@@ -255,9 +255,9 @@ scala> val userWrite = To[JsObject] { __ =>
      |   ((__ \ "name").write[String] ~
      |    (__ \ "age").write[Int] ~
      |    (__ \ "email").write[Option[String]] ~
-     |    (__ \ "isAlive").write[Boolean]) (User.unapply _)
+     |    (__ \ "isAlive").write[Boolean]).unlifted(User.unapply _)
      | }
-userWrite: jto.validation.Write[User,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@4e2f4358
+userWrite: jto.validation.Write[User,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@4c62dd06
 ```
 
 ## Testing

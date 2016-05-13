@@ -46,7 +46,7 @@ val passRule = From[JsValue] { __ =>
    (__ \ "verify").read(notEmpty)).tupled
    	// We then create a `Rule[(String, String), String]` validating that given a `(String, String)`,
    	// both strings are equals. Those rules are then composed together.
-    .andThen(Rule.uncurry(json.Rules.equalTo[String])
+    .andThen(Rule.uncurry(playjson.Rules.equalTo[String])
     // In case of `Invalid`, we want to control the field holding the errors.
     // We change the `Path` of errors using `repath`
     .repath(_ => (Path \ "verify")))
@@ -154,12 +154,12 @@ val e = Json.obj("name" -> "E", "eee" -> 6)
 ```tut
 val rb: Rule[JsValue, A] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
-  (__ \ "name").read(json.Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
+  (__ \ "name").read(playjson.Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
 }
 
 val rc: Rule[JsValue, A] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
-  (__ \ "name").read(json.Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply)
+  (__ \ "name").read(playjson.Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply)
 }
 
 val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
@@ -206,7 +206,7 @@ implicit val creatureWrite = To[JsObject] { __ =>
   import jto.validation.playjson.Writes._
   ((__ \ "name").write[String] ~
    (__ \ "isDead").write[Boolean] ~
-   (__ \ "weight").write[Float]) (Creature.unapply _)
+   (__ \ "weight").write[Float]).unlifted(Creature.unapply _)
 }
 
 To[Creature, JsObject](Creature("gremlins", false, 1f))
@@ -224,7 +224,7 @@ implicit val latLongWrite = {
   import jto.validation.playjson.Writes._
   To[JsObject] { __ =>
     ((__ \ "lat").write[Float] ~
-     (__ \ "long").write[Float]) (LatLong.unapply _)
+     (__ \ "long").write[Float]).unlifted(LatLong.unapply _)
   }
 }
 

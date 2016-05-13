@@ -1,0 +1,12 @@
+build:
+  image: ensime/ensime:v1.x-cache # TODO: create a proper image
+  pull: true
+  environment:
+    - COURSIER_MODE=update-local-changing,missing
+  commands:
+    - git log --oneline | head -n 5
+    - host `curl -s http://httpbin.org/ip | jq -r '.origin'` || true ;;
+    - sbt ++$SCALA_VERSION test it:test
+matrix:
+  SCALA_VERSION:
+    - 2.11.8

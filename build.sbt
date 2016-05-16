@@ -14,7 +14,7 @@ val scalacVersion = "2.11.8"
 val scalatestVersion = "3.0.0-M16-SNAP5"
 val scalaXmlVersion = "1.0.5"
 
-lazy val root = aggregate("validation", validationJVM, validationJS).in(file("."))
+lazy val root = aggregate("validation", validationJVM, validationJS, `validation-docs`).in(file("."))
 lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-playjson`, `validation-xml`)
 lazy val validationJS = aggregate("validationJS", coreJS, formJS, delimitedJS, json4sJS)
 
@@ -166,3 +166,7 @@ val dontPublish = Seq(
   publishLocal := (),
   publishArtifact := false
 )
+
+onLoad in Global := (Command.process("project validationJVM", _: State)) compose (onLoad in Global).value
+
+addCommandAlias("validate", ";validationJVM/test;validationJS/test;validation-docs/tut")

@@ -22,7 +22,8 @@ class WritesSpec extends WordSpec with Matchers {
       "Julien",
       "Tournay",
       None,
-      Seq(ContactInformation("Personal",
+      Seq(
+          ContactInformation("Personal",
                              Some("fakecontact@gmail.com"),
                              Seq("01.23.45.67.89", "98.76.54.32.10"))))
 

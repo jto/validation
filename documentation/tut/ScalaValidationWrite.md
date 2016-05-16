@@ -22,11 +22,8 @@ For now we'll not implement `floatToString`, actually the validation API comes w
 All you have to do is import the default Writes.
 
 ```scala
-scala> object Writes extends NumericTypes2StringWrites
-defined object Writes
-
-scala> Writes.floatW
-res0: jto.validation.Write[Float,String] = jto.validation.Write$$anon$2@679a18b1
+object Writes extends NumericTypes2StringWrites
+Writes.floatW
 ```
 
 Let's now test it against different `Float` values:
@@ -45,13 +42,12 @@ Creating a new `Write` is almost as simple as creating a new function.
 This example creates a new `Write` serializing a Float with a custom format.
 
 ```scala
-scala> val currency = Write[Double, String]{ money =>
-     |   import java.text.NumberFormat
-     |   import java.util.Locale
-     |   val f = NumberFormat.getCurrencyInstance(Locale.FRANCE)
-     |   f.format(money)
-     | }
-currency: jto.validation.Write[Double,String] = jto.validation.Write$$anon$2@1c8e5a48
+val currency = Write[Double, String]{ money =>
+  import java.text.NumberFormat
+  import java.util.Locale
+  val f = NumberFormat.getCurrencyInstance(Locale.FRANCE)
+  f.format(money)
+}
 ```
 
 Testing it:
@@ -81,15 +77,13 @@ We have already defined `currency: Write[Double, String]`, so we'd like to reuse
 First, we'll create a `Write[Product, Double]` extracting the price of the product:
 
 ```scala
-scala> val productPrice = Write[Product, Double]{ _.price }
-productPrice: jto.validation.Write[Product,Double] = jto.validation.Write$$anon$2@3156e877
+val productPrice = Write[Product, Double]{ _.price }
 ```
 
 Now we just have to compose it with `currency`:
 
 ```scala
-scala> val productAsPrice: Write[Product,String] = productPrice andThen currency
-productAsPrice: jto.validation.Write[Product,String] = jto.validation.Write$$anon$2@32a63e98
+val productAsPrice: Write[Product,String] = productPrice andThen currency
 ```
 
 Let's test our new `Write`:

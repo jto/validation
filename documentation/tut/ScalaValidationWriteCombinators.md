@@ -29,11 +29,19 @@ location: jto.validation.Path = /user/friend
 But let's try something much easier for now:
 
 ```scala
+scala> import jto.validation._
 import jto.validation._
+
+scala> import play.api.libs.json._
 import play.api.libs.json._
 
-val location: Path = Path \ "user" \ "friend"
-val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
+scala> val location: Path = Path \ "user" \ "friend"
+location: jto.validation.Path = /user/friend
+
+scala> val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
+<console>:22: error: No implicit view available from jto.validation.Path => jto.validation.WriteLike[play.api.libs.json.JsValue,play.api.libs.json.JsObject].
+       val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
+                                                                     ^
 ```
 
 `location.write[JsValue, JsObject]` means the we're trying to serialize a `JsValue` to `location` in a `JsObject`. Effectively, we're just defining a `Write` that is putting a `JsValue` into a `JsObject` at the given location.
@@ -61,8 +69,7 @@ import jto.validation.playjson.Writes._
 With those implicits in scope, we can finally create our `Write`:
 
 ```scala
-scala> val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
-serializeFriend: jto.validation.Write[play.api.libs.json.JsValue,play.api.libs.json.JsObject] = jto.validation.Write$$anon$2@f87612a
+val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
 ```
 
 Alright, so far we've defined a `Write` looking for some data of type `JsValue`, located at `/user/friend` in a `JsObject`.
@@ -71,7 +78,7 @@ Now we need to apply this `Write` on our data:
 
 ```scala
 scala> serializeFriend.writes(JsString("Julien"))
-res1: play.api.libs.json.JsObject = {"user":{"friend":"Julien"}}
+res0: play.api.libs.json.JsObject = {"user":{"friend":"Julien"}}
 ```
 
 ### Type coercion
@@ -79,30 +86,28 @@ res1: play.api.libs.json.JsObject = {"user":{"friend":"Julien"}}
 We now are capable of serializing data to a given `Path`. Let's do it again on a different sub-tree:
 
 ```scala
-scala> val agejs = (Path \ "user" \ "age").write[JsValue, JsObject]
-agejs: jto.validation.Write[play.api.libs.json.JsValue,play.api.libs.json.JsObject] = jto.validation.Write$$anon$2@1084b002
+val agejs = (Path \ "user" \ "age").write[JsValue, JsObject]
 ```
 
 And if we apply this new `Write`:
 
 ```scala
 scala> agejs.writes(JsNumber(28))
-res2: play.api.libs.json.JsObject = {"user":{"age":28}}
+res1: play.api.libs.json.JsObject = {"user":{"age":28}}
 ```
 
 That example is nice, but chances are `age` in not a `JsNumber`, but an `Int`.
 All we have to do is to change the input type in our `Write` definition:
 
 ```scala
-scala> val age = (Path \ "user" \ "age").write[Int, JsObject]
-age: jto.validation.Write[Int,play.api.libs.json.JsObject] = jto.validation.Write$$anon$2@60a88f38
+val age = (Path \ "user" \ "age").write[Int, JsObject]
 ```
 
 And apply it:
 
 ```scala
 scala> age.writes(28)
-res3: play.api.libs.json.JsObject = {"user":{"age":28}}
+res2: play.api.libs.json.JsObject = {"user":{"age":28}}
 ```
 
 So scala *automagically* figures out how to transform a `Int` into an `JsObject`. How does this happens ?
@@ -110,9 +115,8 @@ So scala *automagically* figures out how to transform a `Int` into an `JsObject`
 It's fairly simple. The definition of `write` looks like this:
 
 ```scala
-scala> {
-     | 	def write[I, O](implicit w: Path => Write[I, O]): Write[I, O] = ???
-     | }
+scala> def write[I, O](implicit w: Path => Write[I, O]): Write[I, O] = ???
+write: [I, O](implicit w: jto.validation.Path => jto.validation.Write[I,O])jto.validation.Write[I,O]
 ```
 
 So when you use `(Path \ "user" \ "age").write[Int, JsObject]`, the compiler looks for an `implicit Path => Write[Int, JsObject]`, which happens to exist in `play.api.data.mapping.json.Writes`.
@@ -145,23 +149,17 @@ defined class User
 We need to create a `Write[User, JsValue]`. Creating this `Write` is simply a matter of combining together the writes serializing each field of the class.
 
 ```scala
-scala> import jto.validation._
 import jto.validation._
-
-scala> import jto.validation.playjson.Writes._
 import jto.validation.playjson.Writes._
-
-scala> import play.api.libs.json._
 import play.api.libs.json._
 
-scala> val userWrite = To[JsObject] { __ =>
-     |   import jto.validation.playjson.Writes._
-     |   ((__ \ "name").write[String] ~
-     |    (__ \ "age").write[Int] ~
-     |    (__ \ "email").write[Option[String]] ~
-     |    (__ \ "isAlive").write[Boolean]).unlifted(User.unapply _)
-     | }
-userWrite: jto.validation.Write[User,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@6515aaf2
+val userWrite = To[JsObject] { __ =>
+  import jto.validation.playjson.Writes._
+  ((__ \ "name").write[String] ~
+   (__ \ "age").write[Int] ~
+   (__ \ "email").write[Option[String]] ~
+   (__ \ "isAlive").write[Boolean]).unlifted(User.unapply)
+}
 ```
 
 
@@ -182,7 +180,7 @@ Let's test it now:
 
 ```scala
 scala> userWrite.writes(User("Julien", 28, None, true))
-res7: play.api.libs.json.JsObject = {"name":"Julien","age":28,"isAlive":true}
+res6: play.api.libs.json.JsObject = {"name":"Julien","age":28,"isAlive":true}
 ```
 
 > **Next:** - [Macro Inception](ScalaValidationMacros.md)

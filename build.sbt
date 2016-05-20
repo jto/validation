@@ -16,7 +16,7 @@ val scalaXmlVersion = "1.0.5"
 
 lazy val root = aggregate("validation", validationJVM, validationJS).in(file("."))
 lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-playjson`, `validation-xml`)
-lazy val validationJS = aggregate("validationJS", coreJS, formJS, delimitedJS, json4sJS)
+lazy val validationJS = aggregate("validationJS", coreJS, formJS, delimitedJS, json4sJS, `validation-jsjson`)
 
 lazy val `validation-core` = crossProject
   .crossType(CrossType.Pure)
@@ -67,6 +67,11 @@ lazy val `validation-xml` = project
   .settings(libraryDependencies +=
     "org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion)
   .dependsOn(coreJVM)
+
+lazy val `validation-jsjson` = project
+  .enablePlugins(ScalaJSPlugin)
+  .settings(validationSettings: _*)
+  .dependsOn(coreJS)
 
 lazy val `validation-docs` = project
   .settings(validationSettings: _*)

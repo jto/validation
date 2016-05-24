@@ -161,6 +161,3 @@ Let's test it now:
 ```tut
 userWrite.writes(User("Julien", 28, None, true))
 ```
-
-> **Next:** - [Macro Inception](ScalaValidationMacros.md)
-> **For more examples and snippets:** - [Cookbook](ScalaValidationCookbook.md)

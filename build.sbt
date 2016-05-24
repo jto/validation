@@ -14,7 +14,7 @@ val scalacVersion = "2.11.8"
 val scalatestVersion = "3.0.0-M16-SNAP5"
 val scalaXmlVersion = "1.0.5"
 
-lazy val root = aggregate("validation", validationJVM, validationJS).in(file("."))
+lazy val root = aggregate("validation", validationJVM, validationJS, docs).in(file("."))
 lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-playjson`, `validation-xml`)
 lazy val validationJS = aggregate("validationJS", coreJS, formJS, delimitedJS, json4sJS, `validation-jsjson`)
 
@@ -73,10 +73,10 @@ lazy val `validation-jsjson` = project
   .settings(validationSettings: _*)
   .dependsOn(coreJS)
 
-lazy val `validation-docs` = project
+lazy val docs = project
   .settings(validationSettings: _*)
   .settings(dontPublish: _*)
-  .settings(crossTarget := file(".") / "documentation")
+  .settings(crossTarget := file(".") / "docs")
   .settings(tutSettings: _*)
   .settings(scalacOptions -= "-Ywarn-unused-import")
   .dependsOn(coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-playjson`, `validation-xml`)

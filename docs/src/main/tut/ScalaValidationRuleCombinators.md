@@ -291,6 +291,3 @@ It is recommended to always follow this pattern, as it nicely scopes the implici
 ```
 
 but repeating `JsValue` all over the place is just not very DRY.
-
-> **Next:** - [Serialization with Write](ScalaValidationWrite.md)
-> **For more examples and snippets:** - [Cookbook](ScalaValidationCookbook.md)

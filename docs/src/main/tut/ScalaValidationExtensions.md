@@ -238,5 +238,3 @@ val userWrite = To[JsObject] { __ =>
 ## Testing
 
 We highly recommend you to test your rules as much as possible. There's a few tricky cases you need to handle properly. You should port the tests in `RulesSpec.scala` and use them on your rules.
-
-> **Next:** - [Cookbook](ScalaValidationCookbook.md)

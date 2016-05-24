@@ -9,31 +9,25 @@ To serialize data, the validation API provides the `Write` type. A `Write[I, O]`
 Let's say you want to serialize a `Float` to `String`.
 All you need to do is to define a `Write` from `Float` to `String`:
 
-```scala
-scala> import jto.validation._
+```tut
 import jto.validation._
-
-scala> def floatToString: Write[Float, String] = ???
-floatToString: jto.validation.Write[Float,String]
+def floatToString: Write[Float, String] = ???
 ```
 
 For now we'll not implement `floatToString`, actually the validation API comes with a number of built-in Writes, including `Writes.floatW[T]`.
 
 All you have to do is import the default Writes.
 
-```scala
+```tut:silent
 object Writes extends NumericTypes2StringWrites
 Writes.floatW
 ```
 
 Let's now test it against different `Float` values:
 
-```scala
-scala> Writes.floatW.writes(12.8F)
-res1: String = 12.8
-
-scala> Writes.floatW.writes(12F)
-res2: String = 12.0
+```tut
+Writes.floatW.writes(12.8F)
+Writes.floatW.writes(12F)
 ```
 
 ## Defining your own `Write`
@@ -41,7 +35,7 @@ res2: String = 12.0
 Creating a new `Write` is almost as simple as creating a new function.
 This example creates a new `Write` serializing a Float with a custom format.
 
-```scala
+```tut:silent
 val currency = Write[Double, String]{ money =>
   import java.text.NumberFormat
   import java.util.Locale
@@ -52,9 +46,8 @@ val currency = Write[Double, String]{ money =>
 
 Testing it:
 
-```scala
-scala> currency.writes(9.99)
-res3: String = 9,99 €
+```tut
+currency.writes(9.99)
 ```
 
 ## Composing Writes
@@ -66,9 +59,8 @@ Writes composition is very important in this API. `Write` composition means that
 Let's see we're working working on a e-commerce website. We have defined a `Product` class.
 Each product has a name and a price:
 
-```scala
-scala> case class Product(name: String, price: Double)
-defined class Product
+```tut
+case class Product(name: String, price: Double)
 ```
 
 Now we'd like to create a `Write[Product, String]` that serializes a product to a `String` of it price: `Product("demo", 123)` becomes `123,00 €`
@@ -76,21 +68,18 @@ Now we'd like to create a `Write[Product, String]` that serializes a product to 
 We have already defined `currency: Write[Double, String]`, so we'd like to reuse that.
 First, we'll create a `Write[Product, Double]` extracting the price of the product:
 
-```scala
+```tut:silent
 val productPrice = Write[Product, Double]{ _.price }
 ```
 
 Now we just have to compose it with `currency`:
 
-```scala
+```tut:silent
 val productAsPrice: Write[Product,String] = productPrice andThen currency
 ```
 
 Let's test our new `Write`:
 
-```scala
-scala> productAsPrice.writes(Product("Awesome product", 9.99))
-res4: String = 9,99 €
+```tut
+productAsPrice.writes(Product("Awesome product", 9.99))
 ```
-
-> **Next:** [Complex serialization with Writes combinators](ScalaValidationWriteCombinators.md)

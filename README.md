@@ -53,22 +53,22 @@ Add the following lines in your `build.sbt`
 resolvers += Resolver.sonatypeRepo("releases")
 
 // If you want only the core
-libraryDependencies +="io.github.jto" %% "validation-core" % "2.0.0"
+libraryDependencies += "io.github.jto" %% "validation-core" % "2.0.0"
 
 // Json validation based on play-json AST (optional)
-libraryDependencies +="io.github.jto" %% "validation-playjson" % "2.0.0"
+libraryDependencies += "io.github.jto" %% "validation-playjson" % "2.0.0"
 
 // Json validation based on json4s AST (optional)
-libraryDependencies +="io.github.jto" %% "validation-json4s" % "2.0.0"
+libraryDependencies += "io.github.jto" %% "validation-json4s" % "2.0.0"
 
 // Form validation (optional)
-libraryDependencies +="io.github.jto" %% "validation-form" % "2.0.0"
+libraryDependencies += "io.github.jto" %% "validation-form" % "2.0.0"
 
 // CSV validation (optional)
-libraryDependencies +="io.github.jto" %% "validation-delimited" % "2.0.0"
+libraryDependencies += "io.github.jto" %% "validation-delimited" % "2.0.0"
 
 // XML validation (optional)
-libraryDependencies +="io.github.jto" %% "validation-xml" % "2.0.0"
+libraryDependencies += "io.github.jto" %% "validation-xml" % "2.0.0"
 ```
 
 ### 1.x branch *(deprecated)*
@@ -79,13 +79,13 @@ Add the following lines in your `build.sbt`
 resolvers += Resolver.sonatypeRepo("releases")
 
 // If you want only the core
-libraryDependencies +="io.github.jto" %% "validation-core" % "1.1"
+libraryDependencies += "io.github.jto" %% "validation-core" % "1.1"
 
 // Json validation
-libraryDependencies +="io.github.jto" %% "validation-json" % "1.1"
+libraryDependencies += "io.github.jto" %% "validation-json" % "1.1"
 
 // Form validation
-libraryDependencies +="io.github.jto" %% "validation-form" % "1.1"
+libraryDependencies += "io.github.jto" %% "validation-form" % "1.1"
 
 // ...
 ```
@@ -182,18 +182,18 @@ Since we removed all the dependencies on Play, `play.api.mapping.ValidationError
 
 ## Documentation
 
-All the required documentation is directly readable from Github: https://github.com/jto/validation/tree/master/documentation/tut
+[Documentation is here](http://jto.github.io/validation/docs/book/)
 
-- [Validating and transforming data](documentation/tut/ScalaValidationRule.md)
-- [Combining Rules](documentation/tut/ScalaValidationRuleCombinators.md)
-- [Validation Inception](documentation/tut/ScalaValidationMacros.md)
-- [Validating Json](documentation/tut/ScalaValidationJson.md)
-- [Serializing data with Write](documentation/tut/ScalaValidationWrite.md)
-- [Combining Writes](documentation/tut/ScalaValidationWriteCombinators.md)
-- [Play's Form API migration](documentation/tut/ScalaValidationMigrationForm.md)
-- [Play's Json API migration](documentation/tut/ScalaValidationMigrationJson.md)
-- [Extensions: Supporting new types](documentation/tut/ScalaValidationExtensions.md)
-- [Cookbook](documentation/tut/ScalaValidationCookbook.md)
+- [Validating and transforming data](http://jto.github.io/validation/docs/book/ScalaValidationRule.html)
+- [Combining Rules](http://jto.github.io/validation/docs/book/ScalaValidationRuleCombinators.html)
+- [Validation Inception](http://jto.github.io/validation/docs/book/ScalaValidationMacros.html)
+- [Validating Json](http://jto.github.io/validation/docs/book/ScalaValidationJson.html)
+- [Serializing data with Write](http://jto.github.io/validation/docs/book/ScalaValidationWrite.html)
+- [Combining Writes](http://jto.github.io/validation/docs/book/ScalaValidationWriteCombinators.html)
+- [Play's Form API migration](http://jto.github.io/validation/docs/book/ScalaValidationMigrationForm.html)
+- [Play's Json API migration](http://jto.github.io/validation/docs/book/ScalaValidationMigrationJson.html)
+- [Extensions: Supporting new types](http://jto.github.io/validation/docs/book/ScalaValidationExtensions.html)
+- [Cookbook](http://jto.github.io/validation/docs/book/ScalaValidationCookbook.html)
 
 ## Contributors
 

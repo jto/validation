@@ -85,7 +85,7 @@ Instead of using `play.api.data.Form`, we must define a `Rule[UrlFormEncoded, Co
 
 Even though the syntax looks different, the logic is basically the same.
 
-```scala
+```tut:silent
 import java.util.Date
 
 case class Computer(id: Option[Long] = None, name: String, introduced: Option[Date], discontinued: Option[Date], companyId: Option[Long])
@@ -135,7 +135,7 @@ You can use the `Form.fill` method to create a `Form` from a class.
 
 `Form.fill` needs an instance of `Write[T, UrlFormEncoded]`, where `T` is your class type.
 
-```scala
+```tut:silent
 implicit val computerW = To[UrlFormEncoded] { __ =>
   import jto.validation.forms.Writes._
   ((__ \ "id").write[Option[Long]] ~
@@ -164,5 +164,3 @@ def save = Action(parse.urlFormEncoded) { implicit request =>
   )
 }
 ```
-
-> **Next:** - [Cookbook](ScalaValidationCookbook.md)

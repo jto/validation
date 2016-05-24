@@ -22,3 +22,6 @@ RUNNING_PID
 documentation/*.pdf
 framework/test/integrationtest-java/conf/evolutions/
 generated.keystore
+node_modules
+npm-debug.log
+docs/tut*

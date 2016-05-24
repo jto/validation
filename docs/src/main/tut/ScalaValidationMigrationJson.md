@@ -291,5 +291,3 @@ The validation API does not have an equivalent for `Format`. We find that genera
 ## Json Inception (macro)
 
 Macros are also available for the validation API. See [Validation Inception](ScalaValidationMacros.md).
-
-> **Next:** - [Migration from 2.1.x Form API](ScalaValidationMigrationForm.md)

@@ -53,13 +53,17 @@ resolvers += Resolver.sonatypeRepo("releases")
 // If you want only the core
 libraryDependencies +="io.github.jto" %% "validation-core" % "1.1"
 
-// Json validation
+// Json validation for play-json
 libraryDependencies +="io.github.jto" %% "validation-json" % "1.1"
+
+// Json validation for json4s
+libraryDependencies += "io.github.jto" %% "validation-json4s" % "1.1"
 
 // Form validation
 libraryDependencies +="io.github.jto" %% "validation-form" % "1.1"
 
-// ...
+// XML validation
+libraryDependencies +="io.github.jto" %% "validation-xml % "1.1"
 ```
 
 ## Play dependency

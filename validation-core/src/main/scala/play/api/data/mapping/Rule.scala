@@ -154,7 +154,7 @@ object Rule {
 
   // XXX: Helps the compiler a bit
   import play.api.libs.functional.syntax._
-  implicit def cba[I] = functionalCanBuildApplicative[({ type λ[O] = Rule[I, O] })#λ]
+  implicit def cba[I] = FunctionalCanBuild.functionalCanBuildApplicative[({ type λ[O] = Rule[I, O] })#λ]
   implicit def fbo[I, O] = toFunctionalBuilderOps[({ type λ[O] = Rule[I, O] })#λ, O] _
   implicit def ao[I, O] = toApplicativeOps[({ type λ[O] = Rule[I, O] })#λ, O] _
   implicit def f[I, O] = toFunctorOps[({ type λ[O] = Rule[I, O] })#λ, O] _

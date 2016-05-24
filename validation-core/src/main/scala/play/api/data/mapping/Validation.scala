@@ -235,7 +235,7 @@ object Validation {
 
   // XXX: Helps the compiler a bit
   import play.api.libs.functional.syntax._
-  implicit def cba[E] = functionalCanBuildApplicative[({ type λ[A] = Validation[E, A] })#λ]
+  implicit def cba[E] = FunctionalCanBuild.functionalCanBuildApplicative[({ type λ[A] = Validation[E, A] })#λ]
   implicit def validationFbo[I, O] = toFunctionalBuilderOps[({ type λ[O] = Validation[I, O] })#λ, O] _
 }
 

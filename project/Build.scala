@@ -12,8 +12,8 @@ object Resolvers {
 
 object BuildSettings {
   val org = "io.github.jto"
-  val buildVersion = "1.1"
-  val playVersion = "2.4.1"
+  val buildVersion = "1.2.1"
+  val playVersion = "2.5.1"
   val paradiseVersion = "2.0.1"
 
   val scalaVersions = Seq(

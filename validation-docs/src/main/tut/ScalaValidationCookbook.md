@@ -6,7 +6,7 @@
 
 ### Typical case class validation
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -21,7 +21,8 @@ implicit val creatureRule = From[JsValue]{ __ =>
    (__ \ "isDead").read[Boolean] ~
    (__ \ "weight").read[Float]) (Creature.apply _)
 }
-
+```
+```tut
 val js = Json.obj( "name" -> "gremlins", "isDead" -> false, "weight" -> 1.0f)
 From[JsValue, Creature](js)
 
@@ -35,7 +36,7 @@ A common example of this use case is the validation of `password` and `password 
 1. First, you need to validate that each field is valid independently
 2. Then, given the two values, you need to validate that they are equals.
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -46,10 +47,11 @@ val passRule = From[JsValue] { __ =>
    (__ \ "verify").read(notEmpty)).tupled
    	// We then create a `Rule[(String, String), String]` validating that given a `(String, String)`,
    	// both strings are equals. Those rules are then composed together.
-    .andThen(Rule.uncurry(playjson.Rules.equalTo[String])
-    // In case of `Invalid`, we want to control the field holding the errors.
-    // We change the `Path` of errors using `repath`
-    .repath(_ => (Path \ "verify")))
+    .andThen(Rule.uncurry(equalTo[String])
+      // In case of `Invalid`, we want to control the field holding the errors.
+      // We change the `Path` of errors using `repath`
+      .repath(_ => (Path \ "verify"))
+    )
 }
 ```
 
@@ -108,7 +110,7 @@ implicit lazy val userRule: Rule[JsValue, User] = Rule.gen[JsValue, User]
 
 ### Read keys
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -131,7 +133,8 @@ val r = From[JsValue] { __ =>
 
   (__ \ "values").read(seqR(tupleR))
 }
-
+```
+```tut
 r.validate(js)
 ```
 
@@ -151,20 +154,21 @@ val e = Json.obj("name" -> "E", "eee" -> 6)
 
 #### Trying all the possible rules implementations
 
-```tut
+```tut:silent
 val rb: Rule[JsValue, A] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
-  (__ \ "name").read(playjson.Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
+  (__ \ "name").read(equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
 }
 
 val rc: Rule[JsValue, A] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
-  (__ \ "name").read(playjson.Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply)
+  (__ \ "name").read(equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply)
 }
 
 val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 val rule = rb orElse rc orElse Rule(_ => typeInvalid)
-
+```
+```tut
 rule.validate(b)
 rule.validate(c)
 rule.validate(e)
@@ -172,18 +176,19 @@ rule.validate(e)
 
 #### Using class discovery based on field discrimination
 
-```tut
+```tut:silent
 val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 
 val rule = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
-	(__ \ "name").read[String].flatMap[A] {
-	  case "B" => (__ \ "foo").read[Int].map(B.apply _)
-	  case "C" => (__ \ "bar").read[Int].map(C.apply _)
-	  case _ => Rule(_ => typeInvalid)
-	}
+  (__ \ "name").read[String].flatMap[A] {
+    case "B" => (__ \ "foo").read[Int].map(B.apply _)
+    case "C" => (__ \ "bar").read[Int].map(C.apply _)
+    case _ => Rule(_ => typeInvalid)
+  }
 }
-
+```
+```tut
 rule.validate(b)
 rule.validate(c)
 rule.validate(e)
@@ -193,7 +198,7 @@ rule.validate(e)
 
 ### typical case class `Write`
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -206,15 +211,16 @@ implicit val creatureWrite = To[JsObject] { __ =>
   import jto.validation.playjson.Writes._
   ((__ \ "name").write[String] ~
    (__ \ "isDead").write[Boolean] ~
-   (__ \ "weight").write[Float]).unlifted(Creature.unapply _)
+   (__ \ "weight").write[Float]).unlifted(Creature.unapply)
 }
-
+```
+```tut
 To[Creature, JsObject](Creature("gremlins", false, 1f))
 ```
 
 ### Adding static values to a `Write`
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -224,7 +230,7 @@ implicit val latLongWrite = {
   import jto.validation.playjson.Writes._
   To[JsObject] { __ =>
     ((__ \ "lat").write[Float] ~
-     (__ \ "long").write[Float]).unlifted(LatLong.unapply _)
+     (__ \ "long").write[Float]).unlifted(LatLong.unapply)
   }
 }
 
@@ -237,7 +243,8 @@ implicit val pointWrite = {
      (__ \ "type").write[String]) ((_: Point).coords -> "point")
   }
 }
-
+```
+```tut
 val p = Point(LatLong(123.3F, 334.5F))
 pointWrite.writes(p)
 ```

@@ -86,27 +86,21 @@ Instead of using `play.api.data.Form`, we must define a `Rule[UrlFormEncoded, Co
 Even though the syntax looks different, the logic is basically the same.
 
 ```scala
-scala> import java.util.Date
 import java.util.Date
 
-scala> case class Computer(id: Option[Long] = None, name: String, introduced: Option[Date], discontinued: Option[Date], companyId: Option[Long])
-defined class Computer
+case class Computer(id: Option[Long] = None, name: String, introduced: Option[Date], discontinued: Option[Date], companyId: Option[Long])
 
-scala> import jto.validation._
 import jto.validation._
-
-scala> import jto.validation.forms.UrlFormEncoded
 import jto.validation.forms.UrlFormEncoded
 
-scala> implicit val computerValidated = From[UrlFormEncoded] { __ =>
-     |   import jto.validation.forms.Rules._
-     |   ((__ \ "id").read(ignored[UrlFormEncoded, Option[Long]](None)) ~
-     |    (__ \ "name").read(notEmpty) ~
-     |    (__ \ "introduced").read(optionR(dateR("yyyy-MM-dd"))) ~
-     |    (__ \ "discontinued").read(optionR(dateR("yyyy-MM-dd"))) ~
-     |    (__ \ "company").read[Option[Long]]) (Computer.apply _)
-     | }
-computerValidated: jto.validation.Rule[jto.validation.forms.UrlFormEncoded,Computer] = jto.validation.Rule$$anon$3@1436de78
+implicit val computerValidated = From[UrlFormEncoded] { __ =>
+  import jto.validation.forms.Rules._
+  ((__ \ "id").read(ignored[UrlFormEncoded, Option[Long]](None)) ~
+   (__ \ "name").read(notEmpty) ~
+   (__ \ "introduced").read(optionR(dateR("yyyy-MM-dd"))) ~
+   (__ \ "discontinued").read(optionR(dateR("yyyy-MM-dd"))) ~
+   (__ \ "company").read[Option[Long]]) (Computer.apply _)
+}
 ```
 
 You start by defining a simple validation for each field.
@@ -126,7 +120,7 @@ now becomes
 
 ```scala
 (__ \ "name").read(notEmpty) ~
-(__ \ "introduced").read(optionR(date("yyyy-MM-dd")))
+(__ \ "introduced").read(optionR(dateR("yyyy-MM-dd")))
 ```
 
 A few built-in validations have a slightly different name than in the Form api, like `optional` that became `option`. You can find all the built-in rules in the scaladoc.
@@ -142,15 +136,14 @@ You can use the `Form.fill` method to create a `Form` from a class.
 `Form.fill` needs an instance of `Write[T, UrlFormEncoded]`, where `T` is your class type.
 
 ```scala
-scala> implicit val computerW = To[UrlFormEncoded] { __ =>
-     |   import jto.validation.forms.Writes._
-     |   ((__ \ "id").write[Option[Long]] ~
-     |    (__ \ "name").write[String] ~
-     |    (__ \ "introduced").write(optionW(dateW("yyyy-MM-dd"))) ~
-     |    (__ \ "discontinued").write(optionW(dateW("yyyy-MM-dd"))) ~
-     |    (__ \ "company").write[Option[Long]]).unlifted(Computer.unapply _)
-     | }
-computerW: jto.validation.Write[Computer,jto.validation.forms.UrlFormEncoded] = jto.validation.Write$$anon$3@12869f8b
+implicit val computerW = To[UrlFormEncoded] { __ =>
+  import jto.validation.forms.Writes._
+  ((__ \ "id").write[Option[Long]] ~
+   (__ \ "name").write[String] ~
+   (__ \ "introduced").write(optionW(dateW("yyyy-MM-dd"))) ~
+   (__ \ "discontinued").write(optionW(dateW("yyyy-MM-dd"))) ~
+   (__ \ "company").write[Option[Long]]).unlifted(Computer.unapply)
+}
 ```
 
 > Note that this `Write` takes care of formatting.

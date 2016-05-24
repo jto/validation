@@ -25,7 +25,7 @@ val location: Path = Path \ "user" \ "friend"
 
 But let's try something much easier for now:
 
-```tut:silent:nofail
+```tut:nofail
 import jto.validation._
 import play.api.libs.json._
 
@@ -53,7 +53,7 @@ import jto.validation.playjson.Writes._
 
 With those implicits in scope, we can finally create our `Write`:
 
-```tut
+```tut:silent
 val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
 ```
 
@@ -69,7 +69,7 @@ serializeFriend.writes(JsString("Julien"))
 
 We now are capable of serializing data to a given `Path`. Let's do it again on a different sub-tree:
 
-```tut
+```tut:silent
 val agejs = (Path \ "user" \ "age").write[JsValue, JsObject]
 ```
 
@@ -82,7 +82,7 @@ agejs.writes(JsNumber(28))
 That example is nice, but chances are `age` in not a `JsNumber`, but an `Int`.
 All we have to do is to change the input type in our `Write` definition:
 
-```tut
+```tut:silent
 val age = (Path \ "user" \ "age").write[Int, JsObject]
 ```
 
@@ -97,9 +97,7 @@ So scala *automagically* figures out how to transform a `Int` into an `JsObject`
 It's fairly simple. The definition of `write` looks like this:
 
 ```tut
-{
-	def write[I, O](implicit w: Path => Write[I, O]): Write[I, O] = ???
-}
+def write[I, O](implicit w: Path => Write[I, O]): Write[I, O] = ???
 ```
 
 So when you use `(Path \ "user" \ "age").write[Int, JsObject]`, the compiler looks for an `implicit Path => Write[Int, JsObject]`, which happens to exist in `play.api.data.mapping.json.Writes`.
@@ -130,7 +128,7 @@ case class User(
 
 We need to create a `Write[User, JsValue]`. Creating this `Write` is simply a matter of combining together the writes serializing each field of the class.
 
-```tut
+```tut:silent
 import jto.validation._
 import jto.validation.playjson.Writes._
 import play.api.libs.json._
@@ -140,7 +138,7 @@ val userWrite = To[JsObject] { __ =>
   ((__ \ "name").write[String] ~
    (__ \ "age").write[Int] ~
    (__ \ "email").write[Option[String]] ~
-   (__ \ "isAlive").write[Boolean]).unlifted(User.unapply _)
+   (__ \ "isAlive").write[Boolean]).unlifted(User.unapply)
 }
 ```
 

@@ -10,9 +10,9 @@ Take this JSON example:
     "email" : "toto@jmail.com",
     "isAlive" : true,
     "friend" : {
-  	  "name" : "tata",
-  	  "age" : 20,
-  	  "email" : "tata@coldmail.com"
+      "name" : "tata",
+      "age" : 20,
+      "email" : "tata@coldmail.com"
     }
   }
 }
@@ -110,8 +110,7 @@ By convention, all usefull validation methods for a given type are to be found i
 With those implicits in scope, we can finally create our `Rule`.
 
 ```scala
-scala> val findFriend: Rule[JsValue, JsValue] = location.read[JsValue, JsValue]
-findFriend: jto.validation.Rule[play.api.libs.json.JsValue,play.api.libs.json.JsValue] = jto.validation.Rule$$anon$2@50aa2c16
+val findFriend: Rule[JsValue, JsValue] = location.read[JsValue, JsValue]
 ```
 
 Alright, so far we've defined a `Rule` looking for some data of type JsValue, in an object of type JsValue, at `/user/friend`.

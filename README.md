@@ -148,7 +148,7 @@ becomes
 ```scala
 implicit lazy val w3: Write[User1, UrlFormEncoded] = To[UrlFormEncoded]{ __ =>
     ((__ \ "name").write[String] ~
-     (__ \ "friend").write[Option[User1]]).unlifted(User1.unapply _)
+     (__ \ "friend").write[Option[User1]]).unlifted(User1.unapply)
   }
 ```
 
@@ -165,7 +165,7 @@ becomes
 ```scala
 lazy val w: Format[JsValue, JsObject, RecUser] = Formatting[JsValue, JsObject]{ __ =>
     ((__ \ "name").format[String] ~
-     (__ \ "friends").format(seqR(w), seqW(w))).unlifted(RecUser.apply _, RecUser.unapply _)
+     (__ \ "friends").format(seqR(w), seqW(w))).unlifted(RecUser.apply _, RecUser.unapply)
   }
 ```
 

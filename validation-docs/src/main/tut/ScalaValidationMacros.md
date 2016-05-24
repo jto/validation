@@ -22,7 +22,7 @@ Traditionally, for a given case class `Person` we would define a `Rule` like thi
 case class Person(name: String, age: Int, lovesChocolate: Boolean)
 ```
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -48,7 +48,7 @@ personRule.validate(json)
 
 The exact same `Rule` can be generated using `Rule.gen`:
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -72,7 +72,7 @@ personRule.validate(json)
 
 Similarly we can generate a `Write`:
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
@@ -80,7 +80,8 @@ implicit val personWrite = {
   import jto.validation.playjson.Writes._ // let's no leak implicits everywhere
   Write.gen[Person, JsObject]
 }
-
+```
+```tut
 personWrite.writes(Person("Julien", 28, true))
 ```
 

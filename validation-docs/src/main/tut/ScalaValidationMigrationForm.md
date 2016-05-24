@@ -85,7 +85,7 @@ Instead of using `play.api.data.Form`, we must define a `Rule[UrlFormEncoded, Co
 
 Even though the syntax looks different, the logic is basically the same.
 
-```tut
+```tut:silent
 import java.util.Date
 
 case class Computer(id: Option[Long] = None, name: String, introduced: Option[Date], discontinued: Option[Date], companyId: Option[Long])
@@ -120,7 +120,7 @@ now becomes
 
 ```scala
 (__ \ "name").read(notEmpty) ~
-(__ \ "introduced").read(optionR(date("yyyy-MM-dd")))
+(__ \ "introduced").read(optionR(dateR("yyyy-MM-dd")))
 ```
 
 A few built-in validations have a slightly different name than in the Form api, like `optional` that became `option`. You can find all the built-in rules in the scaladoc.
@@ -135,14 +135,14 @@ You can use the `Form.fill` method to create a `Form` from a class.
 
 `Form.fill` needs an instance of `Write[T, UrlFormEncoded]`, where `T` is your class type.
 
-```tut
+```tut:silent
 implicit val computerW = To[UrlFormEncoded] { __ =>
   import jto.validation.forms.Writes._
   ((__ \ "id").write[Option[Long]] ~
    (__ \ "name").write[String] ~
    (__ \ "introduced").write(optionW(dateW("yyyy-MM-dd"))) ~
    (__ \ "discontinued").write(optionW(dateW("yyyy-MM-dd"))) ~
-   (__ \ "company").write[Option[Long]]).unlifted(Computer.unapply _)
+   (__ \ "company").write[Option[Long]]).unlifted(Computer.unapply)
 }
 ```
 

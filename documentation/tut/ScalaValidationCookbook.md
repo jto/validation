@@ -7,34 +7,30 @@
 ### Typical case class validation
 
 ```scala
-scala> import jto.validation._
 import jto.validation._
-
-scala> import play.api.libs.json._
 import play.api.libs.json._
 
-scala> case class Creature(
-     |   name: String,
-     |   isDead: Boolean,
-     |   weight: Float)
-defined class Creature
+case class Creature(
+  name: String,
+  isDead: Boolean,
+  weight: Float)
 
-scala> implicit val creatureRule = From[JsValue]{ __ =>
-     |   import jto.validation.playjson.Rules._
-     |   ((__ \ "name").read[String] ~
-     |    (__ \ "isDead").read[Boolean] ~
-     |    (__ \ "weight").read[Float]) (Creature.apply _)
-     | }
-creatureRule: jto.validation.Rule[play.api.libs.json.JsValue,Creature] = jto.validation.Rule$$anon$3@75126a1e
-
+implicit val creatureRule = From[JsValue]{ __ =>
+  import jto.validation.playjson.Rules._
+  ((__ \ "name").read[String] ~
+   (__ \ "isDead").read[Boolean] ~
+   (__ \ "weight").read[Float]) (Creature.apply _)
+}
+```
+```scala
 scala> val js = Json.obj( "name" -> "gremlins", "isDead" -> false, "weight" -> 1.0f)
 js: play.api.libs.json.JsObject = {"name":"gremlins","isDead":false,"weight":1}
 
 scala> From[JsValue, Creature](js)
-res0: jto.validation.VA[Creature] = Valid(Creature(gremlins,false,1.0))
+res2: jto.validation.VA[Creature] = Valid(Creature(gremlins,false,1.0))
 
 scala> From[JsValue, Creature](Json.obj())
-res1: jto.validation.VA[Creature] = Invalid(List((/name,List(ValidationError(List(error.required),WrappedArray()))), (/isDead,List(ValidationError(List(error.required),WrappedArray()))), (/weight,List(ValidationError(List(error.required),WrappedArray())))))
+res3: jto.validation.VA[Creature] = Invalid(List((/name,List(ValidationError(List(error.required),WrappedArray()))), (/isDead,List(ValidationError(List(error.required),WrappedArray()))), (/weight,List(ValidationError(List(error.required),WrappedArray())))))
 ```
 
 ### Dependent values
@@ -45,44 +41,41 @@ A common example of this use case is the validation of `password` and `password 
 2. Then, given the two values, you need to validate that they are equals.
 
 ```scala
-scala> import jto.validation._
 import jto.validation._
-
-scala> import play.api.libs.json._
 import play.api.libs.json._
 
-scala> val passRule = From[JsValue] { __ =>
-     |   import jto.validation.playjson.Rules._
-     |   // This code creates a `Rule[JsValue, (String, String)]` each of of the String must be non-empty
-     |   ((__ \ "password").read(notEmpty) ~
-     |    (__ \ "verify").read(notEmpty)).tupled
-     |    	// We then create a `Rule[(String, String), String]` validating that given a `(String, String)`,
-     |    	// both strings are equals. Those rules are then composed together.
-     |     .andThen(Rule.uncurry(playjson.Rules.equalTo[String])
-     |     // In case of `Invalid`, we want to control the field holding the errors.
-     |     // We change the `Path` of errors using `repath`
-     |     .repath(_ => (Path \ "verify")))
-     | }
-passRule: jto.validation.Rule[play.api.libs.json.JsValue,String] = jto.validation.Rule$$anon$3@7023b2ab
+val passRule = From[JsValue] { __ =>
+  import jto.validation.playjson.Rules._
+  // This code creates a `Rule[JsValue, (String, String)]` each of of the String must be non-empty
+  ((__ \ "password").read(notEmpty) ~
+   (__ \ "verify").read(notEmpty)).tupled
+   	// We then create a `Rule[(String, String), String]` validating that given a `(String, String)`,
+   	// both strings are equals. Those rules are then composed together.
+    .andThen(Rule.uncurry(equalTo[String])
+      // In case of `Invalid`, we want to control the field holding the errors.
+      // We change the `Path` of errors using `repath`
+      .repath(_ => (Path \ "verify"))
+    )
+}
 ```
 
 Let's test it:
 
 ```scala
 scala> passRule.validate(Json.obj("password" -> "foo", "verify" -> "foo"))
-res2: jto.validation.VA[String] = Valid(foo)
+res5: jto.validation.VA[String] = Valid(foo)
 
 scala> passRule.validate(Json.obj("password" -> "", "verify" -> "foo"))
-res3: jto.validation.VA[String] = Invalid(List((/password,List(ValidationError(List(error.required),WrappedArray())))))
+res6: jto.validation.VA[String] = Invalid(List((/password,List(ValidationError(List(error.required),WrappedArray())))))
 
 scala> passRule.validate(Json.obj("password" -> "foo", "verify" -> ""))
-res4: jto.validation.VA[String] = Invalid(List((/verify,List(ValidationError(List(error.required),WrappedArray())))))
+res7: jto.validation.VA[String] = Invalid(List((/verify,List(ValidationError(List(error.required),WrappedArray())))))
 
 scala> passRule.validate(Json.obj("password" -> "", "verify" -> ""))
-res5: jto.validation.VA[String] = Invalid(List((/password,List(ValidationError(List(error.required),WrappedArray()))), (/verify,List(ValidationError(List(error.required),WrappedArray())))))
+res8: jto.validation.VA[String] = Invalid(List((/password,List(ValidationError(List(error.required),WrappedArray()))), (/verify,List(ValidationError(List(error.required),WrappedArray())))))
 
 scala> passRule.validate(Json.obj("password" -> "foo", "verify" -> "bar"))
-res6: jto.validation.VA[String] = Invalid(List((/verify,List(ValidationError(List(error.equals),WrappedArray(foo))))))
+res9: jto.validation.VA[String] = Invalid(List((/verify,List(ValidationError(List(error.equals),WrappedArray(foo))))))
 ```
 
 ### Recursive types
@@ -142,36 +135,32 @@ userRule: jto.validation.Rule[play.api.libs.json.JsValue,User] = <lazy>
 ### Read keys
 
 ```scala
-scala> import jto.validation._
 import jto.validation._
-
-scala> import play.api.libs.json._
 import play.api.libs.json._
 
-scala> val js = Json.parse("""
-     | {
-     |   "values": [
-     |     { "foo": "bar" },
-     |     { "bar": "baz" }
-     |   ]
-     | }
-     | """)
-js: play.api.libs.json.JsValue = {"values":[{"foo":"bar"},{"bar":"baz"}]}
+val js = Json.parse("""
+{
+  "values": [
+    { "foo": "bar" },
+    { "bar": "baz" }
+  ]
+}
+""")
 
-scala> val r = From[JsValue] { __ =>
-     |   import jto.validation.playjson.Rules._
-     | 
-     |   val tupleR = Rule.fromMapping[JsValue, (String, String)] {
-     |     case JsObject(Seq((key, JsString(value)))) => Valid(key.toString -> value)
-     |     case _ => Invalid(Seq(ValidationError("BAAAM")))
-     |   }
-     | 
-     |   (__ \ "values").read(seqR(tupleR))
-     | }
-r: jto.validation.Rule[play.api.libs.json.JsValue,Seq[(String, String)]] = jto.validation.Rule$$anon$3@60f53bdf
+val r = From[JsValue] { __ =>
+  import jto.validation.playjson.Rules._
 
+  val tupleR = Rule.fromMapping[JsValue, (String, String)] {
+    case JsObject(Seq((key, JsString(value)))) => Valid(key.toString -> value)
+    case _ => Invalid(Seq(ValidationError("BAAAM")))
+  }
+
+  (__ \ "values").read(seqR(tupleR))
+}
+```
+```scala
 scala> r.validate(js)
-res9: jto.validation.VA[Seq[(String, String)]] = Invalid(List((/values[0],List(ValidationError(List(BAAAM),WrappedArray()))), (/values[1],List(ValidationError(List(BAAAM),WrappedArray())))))
+res14: jto.validation.VA[Seq[(String, String)]] = Invalid(List((/values[0],List(ValidationError(List(BAAAM),WrappedArray()))), (/values[1],List(ValidationError(List(BAAAM),WrappedArray())))))
 ```
 
 ### Validate subclasses (and parse the concrete class)
@@ -201,58 +190,53 @@ e: play.api.libs.json.JsObject = {"name":"E","eee":6}
 #### Trying all the possible rules implementations
 
 ```scala
-scala> val rb: Rule[JsValue, A] = From[JsValue] { __ =>
-     |   import jto.validation.playjson.Rules._
-     |   (__ \ "name").read(playjson.Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
-     | }
-rb: jto.validation.Rule[play.api.libs.json.JsValue,A] = jto.validation.Rule$$anon$3@37f3e6b5
+val rb: Rule[JsValue, A] = From[JsValue] { __ =>
+  import jto.validation.playjson.Rules._
+  (__ \ "name").read(equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
+}
 
-scala> val rc: Rule[JsValue, A] = From[JsValue] { __ =>
-     |   import jto.validation.playjson.Rules._
-     |   (__ \ "name").read(playjson.Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply)
-     | }
-rc: jto.validation.Rule[play.api.libs.json.JsValue,A] = jto.validation.Rule$$anon$3@5e0be45f
+val rc: Rule[JsValue, A] = From[JsValue] { __ =>
+  import jto.validation.playjson.Rules._
+  (__ \ "name").read(equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply)
+}
 
-scala> val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
-typeInvalid: cats.data.Validated.Invalid[Seq[(jto.validation.Path.type, Seq[jto.validation.ValidationError])]] = Invalid(List((/,List(ValidationError(List(validation.unknownType),WrappedArray())))))
-
-scala> val rule = rb orElse rc orElse Rule(_ => typeInvalid)
-rule: jto.validation.Rule[play.api.libs.json.JsValue,A] = jto.validation.Rule$$anon$2@564ce218
-
+val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
+val rule = rb orElse rc orElse Rule(_ => typeInvalid)
+```
+```scala
 scala> rule.validate(b)
-res10: jto.validation.VA[A] = Valid(B(4))
+res17: jto.validation.VA[A] = Valid(B(4))
 
 scala> rule.validate(c)
-res11: jto.validation.VA[A] = Valid(C(6))
+res18: jto.validation.VA[A] = Valid(C(6))
 
 scala> rule.validate(e)
-res12: jto.validation.VA[A] = Invalid(List((/,List(ValidationError(List(validation.unknownType),WrappedArray())))))
+res19: jto.validation.VA[A] = Invalid(List((/,List(ValidationError(List(validation.unknownType),WrappedArray())))))
 ```
 
 #### Using class discovery based on field discrimination
 
 ```scala
-scala> val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
-typeInvalid: cats.data.Validated.Invalid[Seq[(jto.validation.Path.type, Seq[jto.validation.ValidationError])]] = Invalid(List((/,List(ValidationError(List(validation.unknownType),WrappedArray())))))
+val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 
-scala> val rule = From[JsValue] { __ =>
-     |   import jto.validation.playjson.Rules._
-     | 	(__ \ "name").read[String].flatMap[A] {
-     | 	  case "B" => (__ \ "foo").read[Int].map(B.apply _)
-     | 	  case "C" => (__ \ "bar").read[Int].map(C.apply _)
-     | 	  case _ => Rule(_ => typeInvalid)
-     | 	}
-     | }
-rule: jto.validation.Rule[play.api.libs.json.JsValue,A] = jto.validation.Rule$$anon$3@794b011e
-
+val rule = From[JsValue] { __ =>
+  import jto.validation.playjson.Rules._
+  (__ \ "name").read[String].flatMap[A] {
+    case "B" => (__ \ "foo").read[Int].map(B.apply _)
+    case "C" => (__ \ "bar").read[Int].map(C.apply _)
+    case _ => Rule(_ => typeInvalid)
+  }
+}
+```
+```scala
 scala> rule.validate(b)
-res13: jto.validation.VA[A] = Valid(B(4))
+res21: jto.validation.VA[A] = Valid(B(4))
 
 scala> rule.validate(c)
-res14: jto.validation.VA[A] = Valid(C(6))
+res22: jto.validation.VA[A] = Valid(C(6))
 
 scala> rule.validate(e)
-res15: jto.validation.VA[A] = Invalid(List((/,List(ValidationError(List(validation.unknownType),WrappedArray())))))
+res23: jto.validation.VA[A] = Invalid(List((/,List(ValidationError(List(validation.unknownType),WrappedArray())))))
 ```
 
 ## `Write`
@@ -260,66 +244,56 @@ res15: jto.validation.VA[A] = Invalid(List((/,List(ValidationError(List(validati
 ### typical case class `Write`
 
 ```scala
-scala> import jto.validation._
 import jto.validation._
-
-scala> import play.api.libs.json._
 import play.api.libs.json._
 
-scala> case class Creature(
-     |   name: String,
-     |   isDead: Boolean,
-     |   weight: Float)
-defined class Creature
+case class Creature(
+  name: String,
+  isDead: Boolean,
+  weight: Float)
 
-scala> implicit val creatureWrite = To[JsObject] { __ =>
-     |   import jto.validation.playjson.Writes._
-     |   ((__ \ "name").write[String] ~
-     |    (__ \ "isDead").write[Boolean] ~
-     |    (__ \ "weight").write[Float]).unlifted(Creature.unapply _)
-     | }
-creatureWrite: jto.validation.Write[Creature,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@528cd5b5
-
+implicit val creatureWrite = To[JsObject] { __ =>
+  import jto.validation.playjson.Writes._
+  ((__ \ "name").write[String] ~
+   (__ \ "isDead").write[Boolean] ~
+   (__ \ "weight").write[Float]).unlifted(Creature.unapply)
+}
+```
+```scala
 scala> To[Creature, JsObject](Creature("gremlins", false, 1f))
-res16: play.api.libs.json.JsObject = {"name":"gremlins","isDead":false,"weight":1}
+res26: play.api.libs.json.JsObject = {"name":"gremlins","isDead":false,"weight":1}
 ```
 
 ### Adding static values to a `Write`
 
 ```scala
-scala> import jto.validation._
 import jto.validation._
-
-scala> import play.api.libs.json._
 import play.api.libs.json._
 
-scala> case class LatLong(lat: Float, long: Float)
-defined class LatLong
+case class LatLong(lat: Float, long: Float)
 
-scala> implicit val latLongWrite = {
-     |   import jto.validation.playjson.Writes._
-     |   To[JsObject] { __ =>
-     |     ((__ \ "lat").write[Float] ~
-     |      (__ \ "long").write[Float]).unlifted(LatLong.unapply _)
-     |   }
-     | }
-latLongWrite: jto.validation.Write[LatLong,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@276a8362
+implicit val latLongWrite = {
+  import jto.validation.playjson.Writes._
+  To[JsObject] { __ =>
+    ((__ \ "lat").write[Float] ~
+     (__ \ "long").write[Float]).unlifted(LatLong.unapply)
+  }
+}
 
-scala> case class Point(coords: LatLong)
-defined class Point
+case class Point(coords: LatLong)
 
-scala> implicit val pointWrite = {
-     |   import jto.validation.playjson.Writes._
-     |   To[JsObject] { __ =>
-     |     ((__ \ "coords").write[LatLong] ~
-     |      (__ \ "type").write[String]) ((_: Point).coords -> "point")
-     |   }
-     | }
-pointWrite: jto.validation.Write[Point,play.api.libs.json.JsObject] = jto.validation.Write$$anon$3@7f92b27c
-
+implicit val pointWrite = {
+  import jto.validation.playjson.Writes._
+  To[JsObject] { __ =>
+    ((__ \ "coords").write[LatLong] ~
+     (__ \ "type").write[String]) ((_: Point).coords -> "point")
+  }
+}
+```
+```scala
 scala> val p = Point(LatLong(123.3F, 334.5F))
 p: Point = Point(LatLong(123.3,334.5))
 
 scala> pointWrite.writes(p)
-res17: play.api.libs.json.JsObject = {"coords":{"lat":123.3,"long":334.5},"type":"point"}
+res31: play.api.libs.json.JsObject = {"coords":{"lat":123.3,"long":334.5},"type":"point"}
 ```

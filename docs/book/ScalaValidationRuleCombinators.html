@@ -1,0 +1,581 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <title>Combining Rules · GitBook</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.0.0">
+        
+        
+        
+    
+    <link rel="stylesheet" href="gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="ScalaValidationMacros.html" />
+    
+    
+    <link rel="prev" href="ScalaValidationRule.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="ScalaValidationRule.html">
+            
+                <a href="ScalaValidationRule.html">
+            
+                    
+                    Validating and transforming data
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.3" data-path="ScalaValidationRuleCombinators.html">
+            
+                <a href="ScalaValidationRuleCombinators.html">
+            
+                    
+                    Combining Rules
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="ScalaValidationMacros.html">
+            
+                <a href="ScalaValidationMacros.html">
+            
+                    
+                    Validation Inception
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="ScalaValidationJson.html">
+            
+                <a href="ScalaValidationJson.html">
+            
+                    
+                    Validating Json
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="ScalaValidationWrite.html">
+            
+                <a href="ScalaValidationWrite.html">
+            
+                    
+                    Serializing data with Write
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="ScalaValidationWriteCombinators.html">
+            
+                <a href="ScalaValidationWriteCombinators.html">
+            
+                    
+                    Combining Writes
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="ScalaValidationMigrationForm.html">
+            
+                <a href="ScalaValidationMigrationForm.html">
+            
+                    
+                    Play's Form API migration
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9" data-path="ScalaValidationMigrationJson.html">
+            
+                <a href="ScalaValidationMigrationJson.html">
+            
+                    
+                    Play's Json API migration
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.10" data-path="ScalaValidationExtensions.html">
+            
+                <a href="ScalaValidationExtensions.html">
+            
+                    
+                    Extensions: Supporting new types
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.11" data-path="ScalaValidationCookbook.html">
+            
+                <a href="ScalaValidationCookbook.html">
+            
+                    
+                    Cookbook
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="." >Combining Rules</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="combining-rules">Combining Rules</h1>
+<h2 id="introduction">Introduction</h2>
+<p>We&apos;ve already explained what a <code>Rule</code> is in <a href="ScalaValidationRule.html">the previous chapter</a>.
+Those examples were only covering simple rules. However most of the time, rules are used to validate and transform complex hierarchical objects, like <a href="ScalaValidationJson.html">Json</a>, or <a href="ScalaValidationMigrationForm.html">Forms</a>.</p>
+<p>The validation API allows complex object rules creation by combining simple rules together. This chapter explains how to create complex rules.</p>
+<blockquote>
+<p>Despite examples below are validating Json objects, the API is not dedicated only to Json and can be used on any type.
+Please refer to <a href="ScalaValidationJson.html">Validating Json</a>, <a href="ScalaValidationMigrationForm.html">Validating Forms</a>, and <a href="ScalaValidationExtensions.html">Supporting new types</a> for more information.</p>
+</blockquote>
+<h2 id="path">Path</h2>
+<p>The validation API defines a class named <code>Path</code>. A <code>Path</code> represents the location of a data among a complex object.
+Unlike <code>JsPath</code> it is not related to any specific type. It&apos;s just a location in some data.
+Most of the time, a <code>Path</code> is our entry point into the Validation API.</p>
+<p>A <code>Path</code> is declared using this syntax:</p>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-keyword">import</span> jto.validation.<span class="hljs-type">Path</span>
+<span class="hljs-keyword">import</span> jto.validation.<span class="hljs-type">Path</span>
+
+scala&gt; <span class="hljs-keyword">val</span> path = <span class="hljs-type">Path</span> \ <span class="hljs-string">&quot;foo&quot;</span> \ <span class="hljs-string">&quot;bar&quot;</span>
+path: jto.validation.<span class="hljs-type">Path</span> = /foo/bar
+</code></pre>
+<p><code>Path</code> here is the empty <code>Path</code> object. One may call it the root path.</p>
+<p>A path can also reference indexed data, such as a <code>Seq</code></p>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-keyword">val</span> pi = <span class="hljs-type">Path</span> \ <span class="hljs-string">&quot;foo&quot;</span> \ <span class="hljs-number">0</span>
+pi: jto.validation.<span class="hljs-type">Path</span> = /foo[<span class="hljs-number">0</span>]
+</code></pre>
+<h3 id="extracting-data-using-path">Extracting data using <code>Path</code></h3>
+<p>Consider the following json:</p>
+<pre><code class="lang-scala">scala&gt; import play.api.libs.json._
+import play.api.libs.json._
+
+scala&gt; val js: JsValue = Json.parse(&quot;&quot;&quot;{
+     |   &quot;user&quot;: {
+     |     &quot;name&quot; : &quot;toto&quot;,
+     |     &quot;age&quot; : 25,
+     |     &quot;email&quot; : &quot;toto@jmail.com&quot;,
+     |     &quot;isAlive&quot; : true,
+     |     &quot;friend&quot; : {
+     |       &quot;name&quot; : &quot;tata&quot;,
+     |       &quot;age&quot; : 20,
+     |       &quot;email&quot; : &quot;tata@coldmail.com&quot;
+     |     }
+     |   }
+     | }&quot;&quot;&quot;)
+js: play.api.libs.json.JsValue = {&quot;user&quot;:{&quot;name&quot;:&quot;toto&quot;,&quot;age&quot;:25,&quot;email&quot;:&quot;toto@jmail.com&quot;,&quot;isAlive&quot;:true,&quot;friend&quot;:{&quot;name&quot;:&quot;tata&quot;,&quot;age&quot;:20,&quot;email&quot;:&quot;tata@coldmail.com&quot;}}}
+</code></pre>
+<p>The first step before validating anything is to be able to access a fragment of the complex object.</p>
+<p>Assuming you&apos;d like to validate that <code>friend</code> exists and is valid in this json, you first need to access the object located at <code>user.friend</code> (Javascript notation).</p>
+<h4 id="the-read-method">The <code>read</code> method</h4>
+<p>We start by creating a <code>Path</code> representing the location of the data we&apos;re interested in:</p>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-keyword">import</span> jto.validation._
+<span class="hljs-keyword">import</span> jto.validation._
+
+scala&gt; <span class="hljs-keyword">val</span> location: <span class="hljs-type">Path</span> = <span class="hljs-type">Path</span> \ <span class="hljs-string">&quot;user&quot;</span> \ <span class="hljs-string">&quot;friend&quot;</span>
+location: jto.validation.<span class="hljs-type">Path</span> = /user/friend
+</code></pre>
+<p><code>Path</code> has a <code>read[I, O]</code> method, where <code>I</code> represents the input we&apos;re trying to parse, and <code>O</code> the output type. For example, <code>(Path \ &quot;foo&quot;).read[JsValue, Int]</code>, will try to read a value located at path <code>/foo</code> in a <code>JsValue</code> as an <code>Int</code>.</p>
+<p>But let&apos;s try something much easier for now:</p>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-keyword">import</span> jto.validation._
+<span class="hljs-keyword">import</span> jto.validation._
+
+scala&gt; <span class="hljs-keyword">import</span> play.api.libs.json._
+<span class="hljs-keyword">import</span> play.api.libs.json._
+
+scala&gt; <span class="hljs-keyword">val</span> location: <span class="hljs-type">Path</span> = <span class="hljs-type">Path</span> \ <span class="hljs-string">&quot;user&quot;</span> \ <span class="hljs-string">&quot;friend&quot;</span>
+location: jto.validation.<span class="hljs-type">Path</span> = /user/friend
+
+scala&gt; <span class="hljs-keyword">val</span> findFriend: <span class="hljs-type">Rule</span>[<span class="hljs-type">JsValue</span>, <span class="hljs-type">JsValue</span>] = location.read[<span class="hljs-type">JsValue</span>, <span class="hljs-type">JsValue</span>]
+&lt;console&gt;:<span class="hljs-number">26</span>: error: <span class="hljs-type">No</span> <span class="hljs-keyword">implicit</span> view available from jto.validation.<span class="hljs-type">Path</span> =&gt; jto.validation.<span class="hljs-type">RuleLike</span>[play.api.libs.json.<span class="hljs-type">JsValue</span>,play.api.libs.json.<span class="hljs-type">JsValue</span>].
+       <span class="hljs-keyword">val</span> findFriend: <span class="hljs-type">Rule</span>[<span class="hljs-type">JsValue</span>, <span class="hljs-type">JsValue</span>] = location.read[<span class="hljs-type">JsValue</span>, <span class="hljs-type">JsValue</span>]
+                                                             ^
+</code></pre>
+<p><code>location.read[JsValue, JsValue]</code> means we&apos;re trying to lookup at <code>location</code> in a <code>JsValue</code>, and we expect to find a <code>JsValue</code> there.
+In fact we&apos;re defining a <code>Rule</code> that is picking a subtree in a <code>JsValue</code>.</p>
+<p>If you try to run that code, the compiler gives you the following error:</p>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-keyword">val</span> findFriend: <span class="hljs-type">Rule</span>[<span class="hljs-type">JsValue</span>, <span class="hljs-type">JsValue</span>] = location.read[<span class="hljs-type">JsValue</span>, <span class="hljs-type">JsValue</span>]
+&lt;console&gt;:<span class="hljs-number">26</span>: error: <span class="hljs-type">No</span> <span class="hljs-keyword">implicit</span> view available from jto.validation.<span class="hljs-type">Path</span> =&gt; jto.validation.<span class="hljs-type">RuleLike</span>[play.api.libs.json.<span class="hljs-type">JsValue</span>,play.api.libs.json.<span class="hljs-type">JsValue</span>].
+       <span class="hljs-keyword">val</span> findFriend: <span class="hljs-type">Rule</span>[<span class="hljs-type">JsValue</span>, <span class="hljs-type">JsValue</span>] = location.read[<span class="hljs-type">JsValue</span>, <span class="hljs-type">JsValue</span>]
+                                                             ^
+</code></pre>
+<p>The Scala compiler is complaining about not finding an implicit function of type <code>Path =&gt; Rule[JsValue, JsValue]</code>. Indeed, unlike the Json API, you have to provide a method to <strong>lookup</strong> into the data you expect to validate.</p>
+<p>Fortunately, such method already exists. All you have to do is to import it:</p>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-keyword">import</span> jto.validation.playjson.<span class="hljs-type">Rules</span>._
+<span class="hljs-keyword">import</span> jto.validation.playjson.<span class="hljs-type">Rules</span>._
+</code></pre>
+<blockquote>
+<p>By convention, all useful validation methods for a given type are to be found in an object called <code>Rules</code>. That object contains a bunch of implicits defining how to lookup in the data, and how to coerce some of the possible values of those data into Scala types.</p>
+</blockquote>
+<p>With those implicits in scope, we can finally create our <code>Rule</code>:</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> findFriend: <span class="hljs-type">Rule</span>[<span class="hljs-type">JsValue</span>, <span class="hljs-type">JsValue</span>] = location.read[<span class="hljs-type">JsValue</span>, <span class="hljs-type">JsValue</span>]
+</code></pre>
+<p>Alright, so far we&apos;ve defined a <code>Rule</code> looking for some data of type <code>JsValue</code>, located at <code>/user/friend</code> in an object of type <code>JsValue</code>.</p>
+<p>Now we need to apply this <code>Rule</code> to our data:</p>
+<pre><code class="lang-scala">scala&gt; findFriend.validate(js)
+res0: jto.validation.<span class="hljs-type">VA</span>[play.api.libs.json.<span class="hljs-type">JsValue</span>] = <span class="hljs-type">Valid</span>({<span class="hljs-string">&quot;name&quot;</span>:<span class="hljs-string">&quot;tata&quot;</span>,<span class="hljs-string">&quot;age&quot;</span>:<span class="hljs-number">20</span>,<span class="hljs-string">&quot;email&quot;</span>:<span class="hljs-string">&quot;tata@coldmail.com&quot;</span>})
+</code></pre>
+<p>If we can&apos;t find anything, applying a <code>Rule</code> leads to a <code>Invalid</code>:</p>
+<pre><code class="lang-scala">scala&gt; (<span class="hljs-type">Path</span> \ <span class="hljs-string">&quot;foobar&quot;</span>).read[<span class="hljs-type">JsValue</span>, <span class="hljs-type">JsValue</span>].validate(js)
+res1: jto.validation.<span class="hljs-type">VA</span>[play.api.libs.json.<span class="hljs-type">JsValue</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/foobar,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.required),<span class="hljs-type">WrappedArray</span>())))))
+</code></pre>
+<h3 id="type-coercion">Type coercion</h3>
+<p>We now are capable of extracting data at a given <code>Path</code>. Let&apos;s do it again on a different sub-tree:</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> age = (<span class="hljs-type">Path</span> \ <span class="hljs-string">&quot;user&quot;</span> \ <span class="hljs-string">&quot;age&quot;</span>).read[<span class="hljs-type">JsValue</span>, <span class="hljs-type">JsValue</span>]
+</code></pre>
+<p>Let&apos;s apply this new <code>Rule</code>:</p>
+<pre><code class="lang-scala">scala&gt; age.validate(js)
+res2: jto.validation.<span class="hljs-type">VA</span>[play.api.libs.json.<span class="hljs-type">JsValue</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-number">25</span>)
+</code></pre>
+<p>Again, if the json is invalid:</p>
+<pre><code class="lang-scala">scala&gt; age.validate(<span class="hljs-type">Json</span>.obj())
+res3: jto.validation.<span class="hljs-type">VA</span>[play.api.libs.json.<span class="hljs-type">JsValue</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/user/age,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.required),<span class="hljs-type">WrappedArray</span>())))))
+</code></pre>
+<p>The <code>Invalid</code> informs us that it could not find <code>/user/age</code> in that <code>JsValue</code>.</p>
+<p>That example is nice, but we&apos;d certainly prefer to extract <code>age</code> as an <code>Int</code> rather than a <code>JsValue</code>.
+All we have to do is to change the output type in our <code>Rule</code> definition:</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> age = (<span class="hljs-type">Path</span> \ <span class="hljs-string">&quot;user&quot;</span> \ <span class="hljs-string">&quot;age&quot;</span>).read[<span class="hljs-type">JsValue</span>, <span class="hljs-type">Int</span>]
+</code></pre>
+<p>And apply it:</p>
+<pre><code class="lang-scala">scala&gt; age.validate(js)
+res4: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Int</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-number">25</span>)
+</code></pre>
+<p>If we try to parse something that is not an <code>Int</code>, we get a <code>Invalid</code> with the appropriate Path and error:</p>
+<pre><code class="lang-scala">scala&gt; (<span class="hljs-type">Path</span> \ <span class="hljs-string">&quot;user&quot;</span> \ <span class="hljs-string">&quot;name&quot;</span>).read[<span class="hljs-type">JsValue</span>, <span class="hljs-type">Int</span>].validate(js)
+res5: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Int</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/user/name,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.number),<span class="hljs-type">WrappedArray</span>(<span class="hljs-type">Int</span>))))))
+</code></pre>
+<p>So scala <em>automagically</em> figures out how to transform a <code>JsValue</code> into an <code>Int</code>. How does this happens ?</p>
+<p>It&apos;s fairly simple. The definition of <code>read</code> looks like this:</p>
+<pre><code class="lang-scala">{
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">read</span></span>[<span class="hljs-type">I</span>, <span class="hljs-type">O</span>](<span class="hljs-keyword">implicit</span> r: <span class="hljs-type">Path</span> =&gt; <span class="hljs-type">Rule</span>[<span class="hljs-type">I</span>, <span class="hljs-type">O</span>]): <span class="hljs-type">Rule</span>[<span class="hljs-type">I</span>, <span class="hljs-type">O</span>] = ???
+}
+</code></pre>
+<p>So when use <code>(Path \ &quot;user&quot; \ &quot;age&quot;).read[JsValue, Int]</code>, the compiler looks for an <code>implicit Path =&gt; Rule[JsValue, Int]</code>, which happens to exist in <code>play.api.data.mapping.json.Rules</code>.</p>
+<h3 id="validated">Validated</h3>
+<p>So far we&apos;ve managed to lookup for a <code>JsValue</code> and transform that <code>JsValue</code> into an <code>Int</code>. Problem is: not every <code>Int</code> is a valid age. An age should always be a positive <code>Int</code>.</p>
+<pre><code class="lang-scala">val js = Json.parse(&quot;&quot;&quot;{
+  &quot;user&quot;: {
+    &quot;age&quot; : -33
+  }
+}&quot;&quot;&quot;)
+
+val age = (Path \ &quot;user&quot; \ &quot;age&quot;).read[JsValue, Int]
+</code></pre>
+<p>Our current implementation of <code>age</code> is rather unsatisfying...</p>
+<pre><code class="lang-scala">scala&gt; age.validate(js)
+res8: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Int</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-number">-33</span>)
+</code></pre>
+<p>We can fix that very simply using <code>from</code>, and a built-in <code>Rule</code>:</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> positiveAge = (<span class="hljs-type">Path</span> \ <span class="hljs-string">&quot;user&quot;</span> \ <span class="hljs-string">&quot;age&quot;</span>).from[<span class="hljs-type">JsValue</span>](min(<span class="hljs-number">0</span>))
+</code></pre>
+<p>Let&apos;s try that again:</p>
+<pre><code class="lang-scala">scala&gt; positiveAge.validate(js)
+res9: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Int</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/user/age,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.min),<span class="hljs-type">WrappedArray</span>(<span class="hljs-number">0</span>))))))
+</code></pre>
+<p>That&apos;s better, but still not perfect: 8765 is considered valid:</p>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-keyword">val</span> js2 = <span class="hljs-type">Json</span>.parse(<span class="hljs-string">&quot;&quot;</span><span class="hljs-string">&quot;{ &quot;</span><span class="hljs-string">user&quot;: { &quot;</span><span class="hljs-string">age&quot; : 8765 } }&quot;</span><span class="hljs-string">&quot;&quot;</span>)
+js2: play.api.libs.json.<span class="hljs-type">JsValue</span> = {<span class="hljs-string">&quot;user&quot;</span>:{<span class="hljs-string">&quot;age&quot;</span>:<span class="hljs-number">8765</span>}}
+
+scala&gt; positiveAge.validate(js2)
+res10: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Int</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-number">8765</span>)
+</code></pre>
+<p>Let&apos;s fix our <code>age</code> <code>Rule</code>:</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> properAge = (<span class="hljs-type">Path</span> \ <span class="hljs-string">&quot;user&quot;</span> \ <span class="hljs-string">&quot;age&quot;</span>).from[<span class="hljs-type">JsValue</span>](min(<span class="hljs-number">0</span>) |+| max(<span class="hljs-number">130</span>))
+</code></pre>
+<p>and test it:</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> jsBig = <span class="hljs-type">Json</span>.parse(<span class="hljs-string">&quot;&quot;</span><span class="hljs-string">&quot;{ &quot;</span><span class="hljs-string">user&quot;: { &quot;</span><span class="hljs-string">age&quot; : 8765 } }&quot;</span><span class="hljs-string">&quot;&quot;</span>)
+properAge.validate(jsBig)
+</code></pre>
+<h3 id="full-example">Full example</h3>
+<pre><code class="lang-scala">import jto.validation._
+import jto.validation.playjson.Rules._
+import play.api.libs.json._
+
+val js = Json.parse(&quot;&quot;&quot;{
+  &quot;user&quot;: {
+    &quot;name&quot; : &quot;toto&quot;,
+    &quot;age&quot; : 25,
+    &quot;email&quot; : &quot;toto@jmail.com&quot;,
+    &quot;isAlive&quot; : true,
+    &quot;friend&quot; : {
+      &quot;name&quot; : &quot;tata&quot;,
+      &quot;age&quot; : 20,
+      &quot;email&quot; : &quot;tata@coldmail.com&quot;
+    }
+  }
+}&quot;&quot;&quot;)
+
+val age = (Path \ &quot;user&quot; \ &quot;age&quot;).from[JsValue](min(0) |+| max(130))
+</code></pre>
+<pre><code class="lang-scala">scala&gt; age.validate(js)
+res14: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Int</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-number">25</span>)
+</code></pre>
+<h2 id="combining-rules">Combining Rules</h2>
+<p>So far we&apos;ve validated only fragments of our json object.
+Now we&apos;d like to validate the entire object, and turn it into a instance of the <code>User</code> class defined below:</p>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span>(<span class="hljs-params">
+     |   name: <span class="hljs-type">String</span>,
+     |   age: <span class="hljs-type">Int</span>,
+     |   email: <span class="hljs-type">Option</span>[<span class="hljs-type">String</span>],
+     |   isAlive: <span class="hljs-type">Boolean</span></span>)</span>
+defined <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span></span>
+</code></pre>
+<p>We need to create a <code>Rule[JsValue, User]</code>. Creating this Rule is simply a matter of combining together the rules parsing each field of the json.</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">import</span> jto.validation._
+<span class="hljs-keyword">import</span> play.api.libs.json._
+
+<span class="hljs-keyword">val</span> userRule = <span class="hljs-type">From</span>[<span class="hljs-type">JsValue</span>] { __ =&gt;
+  <span class="hljs-keyword">import</span> jto.validation.playjson.<span class="hljs-type">Rules</span>._
+  ((__ \ <span class="hljs-string">&quot;name&quot;</span>).read[<span class="hljs-type">String</span>] ~
+   (__ \ <span class="hljs-string">&quot;age&quot;</span>).read[<span class="hljs-type">Int</span>] ~
+   (__ \ <span class="hljs-string">&quot;email&quot;</span>).read[<span class="hljs-type">Option</span>[<span class="hljs-type">String</span>]] ~
+   (__ \ <span class="hljs-string">&quot;isAlive&quot;</span>).read[<span class="hljs-type">Boolean</span>]) (<span class="hljs-type">User</span>.apply _)
+}
+</code></pre>
+<blockquote>
+<p><strong>Important:</strong> Note that we&apos;re importing <code>Rules._</code> <strong>inside</strong> the <code>From[I]{...}</code> block.
+It is recommended to always follow this pattern, as it nicely scopes the implicits, avoiding conflicts and accidental shadowing.</p>
+</blockquote>
+<p><code>From[JsValue]</code> defines the <code>I</code> type of the rules we&apos;re combining. We could have written:</p>
+<pre><code class="lang-scala">(<span class="hljs-type">Path</span> \ <span class="hljs-string">&quot;name&quot;</span>).read[<span class="hljs-type">JsValue</span>, <span class="hljs-type">String</span>] ~
+(<span class="hljs-type">Path</span> \ <span class="hljs-string">&quot;age&quot;</span>).read[<span class="hljs-type">JsValue</span>, <span class="hljs-type">Int</span>] ~
+<span class="hljs-comment">//...</span>
+</code></pre>
+<p>but repeating <code>JsValue</code> all over the place is just not very DRY.</p>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="ScalaValidationRule.html" class="navigation navigation-prev " aria-label="Previous page: Validating and transforming data">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="ScalaValidationMacros.html" class="navigation navigation-next " aria-label="Next page: Validation Inception">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Combining Rules","level":"1.3","depth":1,"next":{"title":"Validation Inception","level":"1.4","depth":1,"path":"ScalaValidationMacros.md","ref":"ScalaValidationMacros.md","articles":[]},"previous":{"title":"Validating and transforming data","level":"1.2","depth":1,"path":"ScalaValidationRule.md","ref":"ScalaValidationRule.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"ScalaValidationRuleCombinators.md","mtime":"2016-05-24T10:12:20.119Z","type":"markdown"},"gitbook":{"version":"3.0.0","time":"2016-05-24T10:13:29.637Z"},"basePath":".","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="gitbook/gitbook.js"></script>
+    <script src="gitbook/theme.js"></script>
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fontsettings/buttons.js"></script>
+        
+    
+
+    </body>
+</html>
+

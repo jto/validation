@@ -1,0 +1,609 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <title>Cookbook · GitBook</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.0.0">
+        
+        
+        
+    
+    <link rel="stylesheet" href="gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    
+    <link rel="prev" href="ScalaValidationExtensions.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="ScalaValidationRule.html">
+            
+                <a href="ScalaValidationRule.html">
+            
+                    
+                    Validating and transforming data
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="ScalaValidationRuleCombinators.html">
+            
+                <a href="ScalaValidationRuleCombinators.html">
+            
+                    
+                    Combining Rules
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="ScalaValidationMacros.html">
+            
+                <a href="ScalaValidationMacros.html">
+            
+                    
+                    Validation Inception
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="ScalaValidationJson.html">
+            
+                <a href="ScalaValidationJson.html">
+            
+                    
+                    Validating Json
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="ScalaValidationWrite.html">
+            
+                <a href="ScalaValidationWrite.html">
+            
+                    
+                    Serializing data with Write
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="ScalaValidationWriteCombinators.html">
+            
+                <a href="ScalaValidationWriteCombinators.html">
+            
+                    
+                    Combining Writes
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="ScalaValidationMigrationForm.html">
+            
+                <a href="ScalaValidationMigrationForm.html">
+            
+                    
+                    Play's Form API migration
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9" data-path="ScalaValidationMigrationJson.html">
+            
+                <a href="ScalaValidationMigrationJson.html">
+            
+                    
+                    Play's Json API migration
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.10" data-path="ScalaValidationExtensions.html">
+            
+                <a href="ScalaValidationExtensions.html">
+            
+                    
+                    Extensions: Supporting new types
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.11" data-path="ScalaValidationCookbook.html">
+            
+                <a href="ScalaValidationCookbook.html">
+            
+                    
+                    Cookbook
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="." >Cookbook</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="cookbook">Cookbook</h1>
+<blockquote>
+<p>All the examples below are validating Json objects. The API is not dedicated only to Json, it can be used on any type. Please refer to <a href="ScalaValidationJson.html">Validating Json</a>, <a href="ScalaValidationMigrationForm.html">Validating Forms</a>, and <a href="ScalaValidationExtensions.html">Supporting new types</a> for more information.</p>
+</blockquote>
+<h2 id="rule"><code>Rule</code></h2>
+<h3 id="typical-case-class-validation">Typical case class validation</h3>
+<pre><code class="lang-scala"><span class="hljs-keyword">import</span> jto.validation._
+<span class="hljs-keyword">import</span> play.api.libs.json._
+
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Creature</span>(<span class="hljs-params">
+  name: <span class="hljs-type">String</span>,
+  isDead: <span class="hljs-type">Boolean</span>,
+  weight: <span class="hljs-type">Float</span></span>)</span>
+
+<span class="hljs-keyword">implicit</span> <span class="hljs-keyword">val</span> creatureRule = <span class="hljs-type">From</span>[<span class="hljs-type">JsValue</span>]{ __ =&gt;
+  <span class="hljs-keyword">import</span> jto.validation.playjson.<span class="hljs-type">Rules</span>._
+  ((__ \ <span class="hljs-string">&quot;name&quot;</span>).read[<span class="hljs-type">String</span>] ~
+   (__ \ <span class="hljs-string">&quot;isDead&quot;</span>).read[<span class="hljs-type">Boolean</span>] ~
+   (__ \ <span class="hljs-string">&quot;weight&quot;</span>).read[<span class="hljs-type">Float</span>]) (<span class="hljs-type">Creature</span>.apply _)
+}
+</code></pre>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-keyword">val</span> js = <span class="hljs-type">Json</span>.obj( <span class="hljs-string">&quot;name&quot;</span> -&gt; <span class="hljs-string">&quot;gremlins&quot;</span>, <span class="hljs-string">&quot;isDead&quot;</span> -&gt; <span class="hljs-literal">false</span>, <span class="hljs-string">&quot;weight&quot;</span> -&gt; <span class="hljs-number">1.0</span>f)
+js: play.api.libs.json.<span class="hljs-type">JsObject</span> = {<span class="hljs-string">&quot;name&quot;</span>:<span class="hljs-string">&quot;gremlins&quot;</span>,<span class="hljs-string">&quot;isDead&quot;</span>:<span class="hljs-literal">false</span>,<span class="hljs-string">&quot;weight&quot;</span>:<span class="hljs-number">1</span>}
+
+scala&gt; <span class="hljs-type">From</span>[<span class="hljs-type">JsValue</span>, <span class="hljs-type">Creature</span>](js)
+res2: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Creature</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-type">Creature</span>(gremlins,<span class="hljs-literal">false</span>,<span class="hljs-number">1.0</span>))
+
+scala&gt; <span class="hljs-type">From</span>[<span class="hljs-type">JsValue</span>, <span class="hljs-type">Creature</span>](<span class="hljs-type">Json</span>.obj())
+res3: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Creature</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/name,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.required),<span class="hljs-type">WrappedArray</span>()))), (/isDead,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.required),<span class="hljs-type">WrappedArray</span>()))), (/weight,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.required),<span class="hljs-type">WrappedArray</span>())))))
+</code></pre>
+<h3 id="dependent-values">Dependent values</h3>
+<p>A common example of this use case is the validation of <code>password</code> and <code>password confirmation</code> fields in a signup form.</p>
+<ol>
+<li>First, you need to validate that each field is valid independently</li>
+<li>Then, given the two values, you need to validate that they are equals.</li>
+</ol>
+<pre><code class="lang-scala"><span class="hljs-keyword">import</span> jto.validation._
+<span class="hljs-keyword">import</span> play.api.libs.json._
+
+<span class="hljs-keyword">val</span> passRule = <span class="hljs-type">From</span>[<span class="hljs-type">JsValue</span>] { __ =&gt;
+  <span class="hljs-keyword">import</span> jto.validation.playjson.<span class="hljs-type">Rules</span>._
+  <span class="hljs-comment">// This code creates a `Rule[JsValue, (String, String)]` each of of the String must be non-empty</span>
+  ((__ \ <span class="hljs-string">&quot;password&quot;</span>).read(notEmpty) ~
+   (__ \ <span class="hljs-string">&quot;verify&quot;</span>).read(notEmpty)).tupled
+       <span class="hljs-comment">// We then create a `Rule[(String, String), String]` validating that given a `(String, String)`,</span>
+       <span class="hljs-comment">// both strings are equals. Those rules are then composed together.</span>
+    .andThen(<span class="hljs-type">Rule</span>.uncurry(equalTo[<span class="hljs-type">String</span>])
+      <span class="hljs-comment">// In case of `Invalid`, we want to control the field holding the errors.</span>
+      <span class="hljs-comment">// We change the `Path` of errors using `repath`</span>
+      .repath(_ =&gt; (<span class="hljs-type">Path</span> \ <span class="hljs-string">&quot;verify&quot;</span>))
+    )
+}
+</code></pre>
+<p>Let&apos;s test it:</p>
+<pre><code class="lang-scala">scala&gt; passRule.validate(<span class="hljs-type">Json</span>.obj(<span class="hljs-string">&quot;password&quot;</span> -&gt; <span class="hljs-string">&quot;foo&quot;</span>, <span class="hljs-string">&quot;verify&quot;</span> -&gt; <span class="hljs-string">&quot;foo&quot;</span>))
+res5: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">String</span>] = <span class="hljs-type">Valid</span>(foo)
+
+scala&gt; passRule.validate(<span class="hljs-type">Json</span>.obj(<span class="hljs-string">&quot;password&quot;</span> -&gt; <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;verify&quot;</span> -&gt; <span class="hljs-string">&quot;foo&quot;</span>))
+res6: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">String</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/password,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.required),<span class="hljs-type">WrappedArray</span>())))))
+
+scala&gt; passRule.validate(<span class="hljs-type">Json</span>.obj(<span class="hljs-string">&quot;password&quot;</span> -&gt; <span class="hljs-string">&quot;foo&quot;</span>, <span class="hljs-string">&quot;verify&quot;</span> -&gt; <span class="hljs-string">&quot;&quot;</span>))
+res7: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">String</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/verify,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.required),<span class="hljs-type">WrappedArray</span>())))))
+
+scala&gt; passRule.validate(<span class="hljs-type">Json</span>.obj(<span class="hljs-string">&quot;password&quot;</span> -&gt; <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;verify&quot;</span> -&gt; <span class="hljs-string">&quot;&quot;</span>))
+res8: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">String</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/password,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.required),<span class="hljs-type">WrappedArray</span>()))), (/verify,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.required),<span class="hljs-type">WrappedArray</span>())))))
+
+scala&gt; passRule.validate(<span class="hljs-type">Json</span>.obj(<span class="hljs-string">&quot;password&quot;</span> -&gt; <span class="hljs-string">&quot;foo&quot;</span>, <span class="hljs-string">&quot;verify&quot;</span> -&gt; <span class="hljs-string">&quot;bar&quot;</span>))
+res9: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">String</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/verify,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.equals),<span class="hljs-type">WrappedArray</span>(foo))))))
+</code></pre>
+<h3 id="recursive-types">Recursive types</h3>
+<p>When validating recursive types:</p>
+<ul>
+<li>Use the <code>lazy</code> keyword to allow forward reference.</li>
+<li>As with any recursive definition, the type of the <code>Rule</code> <strong>must</strong> be explicitly given.</li>
+</ul>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span>(<span class="hljs-params">
+     |   name: <span class="hljs-type">String</span>,
+     |   age: <span class="hljs-type">Int</span>,
+     |   email: <span class="hljs-type">Option</span>[<span class="hljs-type">String</span>],
+     |   isAlive: <span class="hljs-type">Boolean</span>,
+     |   friend: <span class="hljs-type">Option</span>[<span class="hljs-type">User</span>]</span>)</span>
+defined <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span></span>
+</code></pre>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-keyword">import</span> jto.validation._
+<span class="hljs-keyword">import</span> jto.validation._
+
+scala&gt; <span class="hljs-keyword">import</span> play.api.libs.json._
+<span class="hljs-keyword">import</span> play.api.libs.json._
+
+scala&gt; <span class="hljs-comment">// Note the lazy keyword, and the explicit typing</span>
+     | <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">lazy</span> <span class="hljs-keyword">val</span> userRule: <span class="hljs-type">Rule</span>[<span class="hljs-type">JsValue</span>, <span class="hljs-type">User</span>] = <span class="hljs-type">From</span>[<span class="hljs-type">JsValue</span>] { __ =&gt;
+     |   <span class="hljs-keyword">import</span> jto.validation.playjson.<span class="hljs-type">Rules</span>._
+     | 
+     |   ((__ \ <span class="hljs-string">&quot;name&quot;</span>).read[<span class="hljs-type">String</span>] ~
+     |    (__ \ <span class="hljs-string">&quot;age&quot;</span>).read[<span class="hljs-type">Int</span>] ~
+     |    (__ \ <span class="hljs-string">&quot;email&quot;</span>).read[<span class="hljs-type">Option</span>[<span class="hljs-type">String</span>]] ~
+     |    (__ \ <span class="hljs-string">&quot;isAlive&quot;</span>).read[<span class="hljs-type">Boolean</span>] ~
+     |    (__ \ <span class="hljs-string">&quot;friend&quot;</span>).read[<span class="hljs-type">Option</span>[<span class="hljs-type">User</span>]]) (<span class="hljs-type">User</span>.apply _)
+     | }
+userRule: jto.validation.<span class="hljs-type">Rule</span>[play.api.libs.json.<span class="hljs-type">JsValue</span>,<span class="hljs-type">User</span>] = &lt;<span class="hljs-keyword">lazy</span>&gt;
+</code></pre>
+<p>or using macros:</p>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-keyword">import</span> jto.validation._
+<span class="hljs-keyword">import</span> jto.validation._
+
+scala&gt; <span class="hljs-keyword">import</span> play.api.libs.json._
+<span class="hljs-keyword">import</span> play.api.libs.json._
+
+scala&gt; <span class="hljs-keyword">import</span> jto.validation.playjson.<span class="hljs-type">Rules</span>._
+<span class="hljs-keyword">import</span> jto.validation.playjson.<span class="hljs-type">Rules</span>._
+
+scala&gt; <span class="hljs-comment">// Note the lazy keyword, and the explicit typing</span>
+     | <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">lazy</span> <span class="hljs-keyword">val</span> userRule: <span class="hljs-type">Rule</span>[<span class="hljs-type">JsValue</span>, <span class="hljs-type">User</span>] = <span class="hljs-type">Rule</span>.gen[<span class="hljs-type">JsValue</span>, <span class="hljs-type">User</span>]
+userRule: jto.validation.<span class="hljs-type">Rule</span>[play.api.libs.json.<span class="hljs-type">JsValue</span>,<span class="hljs-type">User</span>] = &lt;<span class="hljs-keyword">lazy</span>&gt;
+</code></pre>
+<h3 id="read-keys">Read keys</h3>
+<pre><code class="lang-scala">import jto.validation._
+import play.api.libs.json._
+
+val js = Json.parse(&quot;&quot;&quot;
+{
+  &quot;values&quot;: [
+    { &quot;foo&quot;: &quot;bar&quot; },
+    { &quot;bar&quot;: &quot;baz&quot; }
+  ]
+}
+&quot;&quot;&quot;)
+
+val r = From[JsValue] { __ =&gt;
+  import jto.validation.playjson.Rules._
+
+  val tupleR = Rule.fromMapping[JsValue, (String, String)] {
+    case JsObject(Seq((key, JsString(value)))) =&gt; Valid(key.toString -&gt; value)
+    case _ =&gt; Invalid(Seq(ValidationError(&quot;BAAAM&quot;)))
+  }
+
+  (__ \ &quot;values&quot;).read(seqR(tupleR))
+}
+</code></pre>
+<pre><code class="lang-scala">scala&gt; r.validate(js)
+res14: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Seq</span>[(<span class="hljs-type">String</span>, <span class="hljs-type">String</span>)]] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/values[<span class="hljs-number">0</span>],<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(<span class="hljs-type">BAAAM</span>),<span class="hljs-type">WrappedArray</span>()))), (/values[<span class="hljs-number">1</span>],<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(<span class="hljs-type">BAAAM</span>),<span class="hljs-type">WrappedArray</span>())))))
+</code></pre>
+<h3 id="validate-subclasses-and-parse-the-concrete-class">Validate subclasses (and parse the concrete class)</h3>
+<p>Consider the following class definitions:</p>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">A</span></span>
+defined <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">A</span></span>
+
+scala&gt; <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">B</span>(<span class="hljs-params">foo: <span class="hljs-type">Int</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">A</span></span>
+defined <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">B</span></span>
+
+scala&gt; <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">C</span>(<span class="hljs-params">bar: <span class="hljs-type">Int</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">A</span></span>
+defined <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">C</span></span>
+
+scala&gt; <span class="hljs-keyword">val</span> b = <span class="hljs-type">Json</span>.obj(<span class="hljs-string">&quot;name&quot;</span> -&gt; <span class="hljs-string">&quot;B&quot;</span>, <span class="hljs-string">&quot;foo&quot;</span> -&gt; <span class="hljs-number">4</span>)
+b: play.api.libs.json.<span class="hljs-type">JsObject</span> = {<span class="hljs-string">&quot;name&quot;</span>:<span class="hljs-string">&quot;B&quot;</span>,<span class="hljs-string">&quot;foo&quot;</span>:<span class="hljs-number">4</span>}
+
+scala&gt; <span class="hljs-keyword">val</span> c = <span class="hljs-type">Json</span>.obj(<span class="hljs-string">&quot;name&quot;</span> -&gt; <span class="hljs-string">&quot;C&quot;</span>, <span class="hljs-string">&quot;bar&quot;</span> -&gt; <span class="hljs-number">6</span>)
+c: play.api.libs.json.<span class="hljs-type">JsObject</span> = {<span class="hljs-string">&quot;name&quot;</span>:<span class="hljs-string">&quot;C&quot;</span>,<span class="hljs-string">&quot;bar&quot;</span>:<span class="hljs-number">6</span>}
+
+scala&gt; <span class="hljs-keyword">val</span> e = <span class="hljs-type">Json</span>.obj(<span class="hljs-string">&quot;name&quot;</span> -&gt; <span class="hljs-string">&quot;E&quot;</span>, <span class="hljs-string">&quot;eee&quot;</span> -&gt; <span class="hljs-number">6</span>)
+e: play.api.libs.json.<span class="hljs-type">JsObject</span> = {<span class="hljs-string">&quot;name&quot;</span>:<span class="hljs-string">&quot;E&quot;</span>,<span class="hljs-string">&quot;eee&quot;</span>:<span class="hljs-number">6</span>}
+</code></pre>
+<h4 id="trying-all-the-possible-rules-implementations">Trying all the possible rules implementations</h4>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> rb: <span class="hljs-type">Rule</span>[<span class="hljs-type">JsValue</span>, <span class="hljs-type">A</span>] = <span class="hljs-type">From</span>[<span class="hljs-type">JsValue</span>] { __ =&gt;
+  <span class="hljs-keyword">import</span> jto.validation.playjson.<span class="hljs-type">Rules</span>._
+  (__ \ <span class="hljs-string">&quot;name&quot;</span>).read(equalTo(<span class="hljs-string">&quot;B&quot;</span>)) *&gt; (__ \ <span class="hljs-string">&quot;foo&quot;</span>).read[<span class="hljs-type">Int</span>].map(<span class="hljs-type">B</span>.apply)
+}
+
+<span class="hljs-keyword">val</span> rc: <span class="hljs-type">Rule</span>[<span class="hljs-type">JsValue</span>, <span class="hljs-type">A</span>] = <span class="hljs-type">From</span>[<span class="hljs-type">JsValue</span>] { __ =&gt;
+  <span class="hljs-keyword">import</span> jto.validation.playjson.<span class="hljs-type">Rules</span>._
+  (__ \ <span class="hljs-string">&quot;name&quot;</span>).read(equalTo(<span class="hljs-string">&quot;C&quot;</span>)) *&gt; (__ \ <span class="hljs-string">&quot;bar&quot;</span>).read[<span class="hljs-type">Int</span>].map(<span class="hljs-type">C</span>.apply)
+}
+
+<span class="hljs-keyword">val</span> typeInvalid = <span class="hljs-type">Invalid</span>(<span class="hljs-type">Seq</span>(<span class="hljs-type">Path</span> -&gt; <span class="hljs-type">Seq</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-string">&quot;validation.unknownType&quot;</span>))))
+<span class="hljs-keyword">val</span> rule = rb orElse rc orElse <span class="hljs-type">Rule</span>(_ =&gt; typeInvalid)
+</code></pre>
+<pre><code class="lang-scala">scala&gt; rule.validate(b)
+res17: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">A</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-type">B</span>(<span class="hljs-number">4</span>))
+
+scala&gt; rule.validate(c)
+res18: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">A</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-type">C</span>(<span class="hljs-number">6</span>))
+
+scala&gt; rule.validate(e)
+res19: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">A</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(validation.unknownType),<span class="hljs-type">WrappedArray</span>())))))
+</code></pre>
+<h4 id="using-class-discovery-based-on-field-discrimination">Using class discovery based on field discrimination</h4>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> typeInvalid = <span class="hljs-type">Invalid</span>(<span class="hljs-type">Seq</span>(<span class="hljs-type">Path</span> -&gt; <span class="hljs-type">Seq</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-string">&quot;validation.unknownType&quot;</span>))))
+
+<span class="hljs-keyword">val</span> rule = <span class="hljs-type">From</span>[<span class="hljs-type">JsValue</span>] { __ =&gt;
+  <span class="hljs-keyword">import</span> jto.validation.playjson.<span class="hljs-type">Rules</span>._
+  (__ \ <span class="hljs-string">&quot;name&quot;</span>).read[<span class="hljs-type">String</span>].flatMap[<span class="hljs-type">A</span>] {
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;B&quot;</span> =&gt; (__ \ <span class="hljs-string">&quot;foo&quot;</span>).read[<span class="hljs-type">Int</span>].map(<span class="hljs-type">B</span>.apply _)
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;C&quot;</span> =&gt; (__ \ <span class="hljs-string">&quot;bar&quot;</span>).read[<span class="hljs-type">Int</span>].map(<span class="hljs-type">C</span>.apply _)
+    <span class="hljs-keyword">case</span> _ =&gt; <span class="hljs-type">Rule</span>(_ =&gt; typeInvalid)
+  }
+}
+</code></pre>
+<pre><code class="lang-scala">scala&gt; rule.validate(b)
+res21: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">A</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-type">B</span>(<span class="hljs-number">4</span>))
+
+scala&gt; rule.validate(c)
+res22: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">A</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-type">C</span>(<span class="hljs-number">6</span>))
+
+scala&gt; rule.validate(e)
+res23: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">A</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(validation.unknownType),<span class="hljs-type">WrappedArray</span>())))))
+</code></pre>
+<h2 id="write"><code>Write</code></h2>
+<h3 id="typical-case-class-write">typical case class <code>Write</code></h3>
+<pre><code class="lang-scala"><span class="hljs-keyword">import</span> jto.validation._
+<span class="hljs-keyword">import</span> play.api.libs.json._
+
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Creature</span>(<span class="hljs-params">
+  name: <span class="hljs-type">String</span>,
+  isDead: <span class="hljs-type">Boolean</span>,
+  weight: <span class="hljs-type">Float</span></span>)</span>
+
+<span class="hljs-keyword">implicit</span> <span class="hljs-keyword">val</span> creatureWrite = <span class="hljs-type">To</span>[<span class="hljs-type">JsObject</span>] { __ =&gt;
+  <span class="hljs-keyword">import</span> jto.validation.playjson.<span class="hljs-type">Writes</span>._
+  ((__ \ <span class="hljs-string">&quot;name&quot;</span>).write[<span class="hljs-type">String</span>] ~
+   (__ \ <span class="hljs-string">&quot;isDead&quot;</span>).write[<span class="hljs-type">Boolean</span>] ~
+   (__ \ <span class="hljs-string">&quot;weight&quot;</span>).write[<span class="hljs-type">Float</span>]).unlifted(<span class="hljs-type">Creature</span>.unapply)
+}
+</code></pre>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-type">To</span>[<span class="hljs-type">Creature</span>, <span class="hljs-type">JsObject</span>](<span class="hljs-type">Creature</span>(<span class="hljs-string">&quot;gremlins&quot;</span>, <span class="hljs-literal">false</span>, <span class="hljs-number">1</span>f))
+res26: play.api.libs.json.<span class="hljs-type">JsObject</span> = {<span class="hljs-string">&quot;name&quot;</span>:<span class="hljs-string">&quot;gremlins&quot;</span>,<span class="hljs-string">&quot;isDead&quot;</span>:<span class="hljs-literal">false</span>,<span class="hljs-string">&quot;weight&quot;</span>:<span class="hljs-number">1</span>}
+</code></pre>
+<h3 id="adding-static-values-to-a-write">Adding static values to a <code>Write</code></h3>
+<pre><code class="lang-scala"><span class="hljs-keyword">import</span> jto.validation._
+<span class="hljs-keyword">import</span> play.api.libs.json._
+
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LatLong</span>(<span class="hljs-params">lat: <span class="hljs-type">Float</span>, long: <span class="hljs-type">Float</span></span>)</span>
+
+<span class="hljs-keyword">implicit</span> <span class="hljs-keyword">val</span> latLongWrite = {
+  <span class="hljs-keyword">import</span> jto.validation.playjson.<span class="hljs-type">Writes</span>._
+  <span class="hljs-type">To</span>[<span class="hljs-type">JsObject</span>] { __ =&gt;
+    ((__ \ <span class="hljs-string">&quot;lat&quot;</span>).write[<span class="hljs-type">Float</span>] ~
+     (__ \ <span class="hljs-string">&quot;long&quot;</span>).write[<span class="hljs-type">Float</span>]).unlifted(<span class="hljs-type">LatLong</span>.unapply)
+  }
+}
+
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Point</span>(<span class="hljs-params">coords: <span class="hljs-type">LatLong</span></span>)</span>
+
+<span class="hljs-keyword">implicit</span> <span class="hljs-keyword">val</span> pointWrite = {
+  <span class="hljs-keyword">import</span> jto.validation.playjson.<span class="hljs-type">Writes</span>._
+  <span class="hljs-type">To</span>[<span class="hljs-type">JsObject</span>] { __ =&gt;
+    ((__ \ <span class="hljs-string">&quot;coords&quot;</span>).write[<span class="hljs-type">LatLong</span>] ~
+     (__ \ <span class="hljs-string">&quot;type&quot;</span>).write[<span class="hljs-type">String</span>]) ((_: <span class="hljs-type">Point</span>).coords -&gt; <span class="hljs-string">&quot;point&quot;</span>)
+  }
+}
+</code></pre>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-keyword">val</span> p = <span class="hljs-type">Point</span>(<span class="hljs-type">LatLong</span>(<span class="hljs-number">123.3</span>F, <span class="hljs-number">334.5</span>F))
+p: <span class="hljs-type">Point</span> = <span class="hljs-type">Point</span>(<span class="hljs-type">LatLong</span>(<span class="hljs-number">123.3</span>,<span class="hljs-number">334.5</span>))
+
+scala&gt; pointWrite.writes(p)
+res31: play.api.libs.json.<span class="hljs-type">JsObject</span> = {<span class="hljs-string">&quot;coords&quot;</span>:{<span class="hljs-string">&quot;lat&quot;</span>:<span class="hljs-number">123.3</span>,<span class="hljs-string">&quot;long&quot;</span>:<span class="hljs-number">334.5</span>},<span class="hljs-string">&quot;type&quot;</span>:<span class="hljs-string">&quot;point&quot;</span>}
+</code></pre>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="ScalaValidationExtensions.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page: Extensions: Supporting new types">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Cookbook","level":"1.11","depth":1,"previous":{"title":"Extensions: Supporting new types","level":"1.10","depth":1,"path":"ScalaValidationExtensions.md","ref":"ScalaValidationExtensions.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"ScalaValidationCookbook.md","mtime":"2016-05-24T10:12:38.751Z","type":"markdown"},"gitbook":{"version":"3.0.0","time":"2016-05-24T10:13:29.637Z"},"basePath":".","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="gitbook/gitbook.js"></script>
+    <script src="gitbook/theme.js"></script>
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fontsettings/buttons.js"></script>
+        
+    
+
+    </body>
+</html>
+

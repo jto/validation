@@ -1,0 +1,526 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <title>Validating and transforming data · GitBook</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.0.0">
+        
+        
+        
+    
+    <link rel="stylesheet" href="gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="ScalaValidationRuleCombinators.html" />
+    
+    
+    <link rel="prev" href="./" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.2" data-path="ScalaValidationRule.html">
+            
+                <a href="ScalaValidationRule.html">
+            
+                    
+                    Validating and transforming data
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="ScalaValidationRuleCombinators.html">
+            
+                <a href="ScalaValidationRuleCombinators.html">
+            
+                    
+                    Combining Rules
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="ScalaValidationMacros.html">
+            
+                <a href="ScalaValidationMacros.html">
+            
+                    
+                    Validation Inception
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="ScalaValidationJson.html">
+            
+                <a href="ScalaValidationJson.html">
+            
+                    
+                    Validating Json
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="ScalaValidationWrite.html">
+            
+                <a href="ScalaValidationWrite.html">
+            
+                    
+                    Serializing data with Write
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="ScalaValidationWriteCombinators.html">
+            
+                <a href="ScalaValidationWriteCombinators.html">
+            
+                    
+                    Combining Writes
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="ScalaValidationMigrationForm.html">
+            
+                <a href="ScalaValidationMigrationForm.html">
+            
+                    
+                    Play's Form API migration
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9" data-path="ScalaValidationMigrationJson.html">
+            
+                <a href="ScalaValidationMigrationJson.html">
+            
+                    
+                    Play's Json API migration
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.10" data-path="ScalaValidationExtensions.html">
+            
+                <a href="ScalaValidationExtensions.html">
+            
+                    
+                    Extensions: Supporting new types
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.11" data-path="ScalaValidationCookbook.html">
+            
+                <a href="ScalaValidationCookbook.html">
+            
+                    
+                    Cookbook
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="." >Validating and transforming data</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="validating-and-transforming-data">Validating and transforming data</h1>
+<h2 id="introduction">Introduction</h2>
+<p>The API is designed around the concept of <code>Rule</code>. A <code>Rule[I, O]</code> defines a way to validate and coerce data, from type <code>I</code> to type <code>O</code>. It&apos;s basically a function <code>I =&gt; Validated[O]</code>, where <code>I</code> is the type of the input to validate, and <code>O</code> is the expected output type.</p>
+<h2 id="a-simple-example">A simple example</h2>
+<p>Let&apos;s say you want to coerce a <code>String</code> into an <code>Float</code>.
+All you need to do is to define a <code>Rule</code> from String to Float:</p>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-keyword">import</span> jto.validation._
+<span class="hljs-keyword">import</span> jto.validation._
+
+scala&gt; <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">isFloat</span></span>: <span class="hljs-type">Rule</span>[<span class="hljs-type">String</span>, <span class="hljs-type">Float</span>] = ???
+isFloat: jto.validation.<span class="hljs-type">Rule</span>[<span class="hljs-type">String</span>,<span class="hljs-type">Float</span>]
+</code></pre>
+<p>When a <code>String</code> is parsed into an <code>Float</code>, two scenario are possible, either:</p>
+<ul>
+<li>The <code>String</code> can be parsed as a <code>Float</code>.</li>
+<li>The <code>String</code> can NOT be parsed as a <code>Float</code></li>
+</ul>
+<p>In a typical Scala application, you would use <code>Float.parseFloat</code> to parse a <code>String</code>. On an &quot;invalid&quot; value, this method throws a <code>NumberFormatException</code>.</p>
+<p>When validating data, we&apos;d certainly prefer to avoid exceptions, as the failure case is expected to happen quite often.</p>
+<p>Furthermore, your application should handle it properly, for example by sending a nice error message to the end user. The execution flow of the application should not be altered by a parsing failure, but rather be part of the process. Exceptions are definitely not the appropriate tool for the job.</p>
+<p>Back, to our <code>Rule</code>. For now we&apos;ll not implement <code>isFloat</code>, actually the validation API comes with a number of built-in Rules, including the <code>Float</code> parsing <code>Rule[String, Float]</code>.</p>
+<p>All you have to do is import the default Rules.</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">import</span> jto.validation._
+<span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">Rules</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">GenericRules</span> <span class="hljs-keyword">with</span> <span class="hljs-title">ParsingRules</span></span>
+<span class="hljs-type">Rules</span>.floatR
+</code></pre>
+<p>Let&apos;s now test it against different String values:</p>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-type">Rules</span>.floatR.validate(<span class="hljs-string">&quot;1&quot;</span>)
+res1: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Float</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-number">1.0</span>)
+
+scala&gt; <span class="hljs-type">Rules</span>.floatR.validate(<span class="hljs-string">&quot;-13.7&quot;</span>)
+res2: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Float</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-number">-13.7</span>)
+
+scala&gt; <span class="hljs-type">Rules</span>.floatR.validate(<span class="hljs-string">&quot;abc&quot;</span>)
+res3: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Float</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.number),<span class="hljs-type">WrappedArray</span>(<span class="hljs-type">Float</span>))))))
+</code></pre>
+<blockquote>
+<p><code>Rule</code> is typesafe. You can&apos;t apply a <code>Rule</code> on an unsupported type, the compiler won&apos;t let you:</p>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-type">Rules</span>.floatR.validate(<span class="hljs-type">Seq</span>(<span class="hljs-number">32</span>))
+&lt;console&gt;:<span class="hljs-number">20</span>: error: <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">mismatch</span></span>;
+ found   : <span class="hljs-type">Seq</span>[<span class="hljs-type">Int</span>]
+ required: <span class="hljs-type">String</span>
+       <span class="hljs-type">Rules</span>.floatR.validate(<span class="hljs-type">Seq</span>(<span class="hljs-number">32</span>))
+                                ^
+</code></pre>
+</blockquote>
+<p>&quot;abc&quot; is not a valid <code>Float</code> but no exception was thrown. Instead of relying on exceptions, <code>validate</code> is returning an object of type <code>Validated</code> (here <code>VA</code> is just a fancy alias for a special kind of validation).</p>
+<p><code>Validated</code> represents possible outcomes of Rule application, it can be either :</p>
+<ul>
+<li>A <code>Valid</code>, holding the value being validated
+When we use <code>Rule.float</code> on &quot;1&quot;, since &quot;1&quot; is a valid representation of a <code>Float</code>, it returns <code>Valid(1.0)</code></li>
+<li>A <code>Invalid</code>, containing all the errors.
+When we use <code>Rule.float</code> on &quot;abc&quot;, since &quot;abc&quot; is <em>not</em> a valid representation of a <code>Float</code>, it returns <code>Invalid(List((/,List(ValidationError(validation.type-mismatch,WrappedArray(Float))))))</code>. That <code>Invalid</code> tells us all there is to know: it give us a nice message explaining what has failed, and even gives us a parameter <code>&quot;Float&quot;</code>, indicating which type the <code>Rule</code> expected to find.</li>
+</ul>
+<blockquote>
+<p>Note that <code>Validated</code> is a parameterized type. Just like <code>Rule</code>, it keeps track of the input and output types.
+The method <code>validate</code> of a <code>Rule[I, O]</code> always return a <code>VA[I, O]</code></p>
+</blockquote>
+<h2 id="defining-your-own-rules">Defining your own Rules</h2>
+<p>Creating a new <code>Rule</code> is almost as simple as creating a new function.
+All there is to do is to pass a function <code>I =&gt; Validated[I, O]</code> to <code>Rule.fromMapping</code>.</p>
+<p>This example creates a new <code>Rule</code> trying to get the first element of a <code>List[Int]</code>.
+In case of an empty <code>List[Int]</code>, the rule should return a <code>Invalid</code>.</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> headInt: <span class="hljs-type">Rule</span>[<span class="hljs-type">List</span>[<span class="hljs-type">Int</span>], <span class="hljs-type">Int</span>] = <span class="hljs-type">Rule</span>.fromMapping {
+  <span class="hljs-keyword">case</span> <span class="hljs-type">Nil</span> =&gt; <span class="hljs-type">Invalid</span>(<span class="hljs-type">Seq</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-string">&quot;error.emptyList&quot;</span>)))
+  <span class="hljs-keyword">case</span> head :: _ =&gt; <span class="hljs-type">Valid</span>(head)
+}
+</code></pre>
+<pre><code class="lang-scala">scala&gt; headInt.validate(<span class="hljs-type">List</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>))
+res5: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Int</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-number">1</span>)
+
+scala&gt; headInt.validate(<span class="hljs-type">Nil</span>)
+res6: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Int</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.emptyList),<span class="hljs-type">WrappedArray</span>())))))
+</code></pre>
+<p>We can make this rule a bit more generic:</p>
+<pre><code class="lang-scala"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">head</span></span>[<span class="hljs-type">T</span>]: <span class="hljs-type">Rule</span>[<span class="hljs-type">List</span>[<span class="hljs-type">T</span>], <span class="hljs-type">T</span>] = <span class="hljs-type">Rule</span>.fromMapping {
+  <span class="hljs-keyword">case</span> <span class="hljs-type">Nil</span> =&gt; <span class="hljs-type">Invalid</span>(<span class="hljs-type">Seq</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-string">&quot;error.emptyList&quot;</span>)))
+  <span class="hljs-keyword">case</span> head :: _ =&gt; <span class="hljs-type">Valid</span>(head)
+}
+</code></pre>
+<pre><code class="lang-scala">scala&gt; head.validate(<span class="hljs-type">List</span>(&apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;))
+res7: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Char</span>] = <span class="hljs-type">Valid</span>(a)
+
+scala&gt; head.validate(<span class="hljs-type">List</span>[<span class="hljs-type">Char</span>]())
+res8: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Char</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.emptyList),<span class="hljs-type">WrappedArray</span>())))))
+</code></pre>
+<h2 id="composing-rules">Composing Rules</h2>
+<p>Rules composition is very important in this API. <code>Rule</code> composition means that, given two <code>Rule</code> <code>a</code> and <code>b</code>, we can easily create a new Rule <code>c</code>.</p>
+<p>There two different types of composition</p>
+<h3 id="sequential-composition">&quot;Sequential&quot; composition</h3>
+<p>Sequential composition means that given two rules <code>a: Rule[I, J]</code> and <code>b: Rule[J, O]</code>, we can create a new rule <code>c: Rule[I, O]</code>.</p>
+<p>Consider the following example: We want to write a <code>Rule</code> that given a <code>List[String]</code>, takes the first <code>String</code> in that <code>List</code>, and try to parse it as a <code>Float</code>.</p>
+<p>We already have defined:</p>
+<ol>
+<li><code>head: Rule[List[T], T]</code> returns the first element of a <code>List</code></li>
+<li><code>float: Rule[String, Float]</code> parses a <code>String</code> into a <code>Float</code></li>
+</ol>
+<p>We&apos;ve done almost all the work already. We just have to create a new <code>Rule</code> the applies the first <code>Rule</code> and if it return a <code>Valid</code>, apply the second <code>Rule</code>.</p>
+<p>It would be fairly easy to create such a <code>Rule</code> &quot;manually&quot;, but we don&apos;t have to. A method doing just that is already available:</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> firstFloat: <span class="hljs-type">Rule</span>[<span class="hljs-type">List</span>[<span class="hljs-type">String</span>], <span class="hljs-type">Float</span>] = head.andThen(<span class="hljs-type">Rules</span>.floatR)
+</code></pre>
+<pre><code class="lang-scala">scala&gt; firstFloat.validate(<span class="hljs-type">List</span>(<span class="hljs-string">&quot;1&quot;</span>, <span class="hljs-string">&quot;2&quot;</span>))
+res9: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Float</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-number">1.0</span>)
+
+scala&gt; firstFloat.validate(<span class="hljs-type">List</span>(<span class="hljs-string">&quot;1.2&quot;</span>, <span class="hljs-string">&quot;foo&quot;</span>))
+res10: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Float</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-number">1.2</span>)
+</code></pre>
+<p>If the list is empty, we get the error from <code>head</code></p>
+<pre><code class="lang-scala">scala&gt; firstFloat.validate(<span class="hljs-type">List</span>())
+res11: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Float</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.emptyList),<span class="hljs-type">WrappedArray</span>())))))
+</code></pre>
+<p>If the first element is not parseable, we get the error from <code>Rules.float</code>.</p>
+<pre><code class="lang-scala">scala&gt; firstFloat.validate(<span class="hljs-type">List</span>(<span class="hljs-string">&quot;foo&quot;</span>, <span class="hljs-string">&quot;2&quot;</span>))
+res12: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Float</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>((/,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.number),<span class="hljs-type">WrappedArray</span>(<span class="hljs-type">Float</span>))))))
+</code></pre>
+<p>Of course everything is still typesafe:</p>
+<pre><code class="lang-scala">scala&gt; firstFloat.validate(<span class="hljs-type">List</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>))
+&lt;console&gt;:<span class="hljs-number">22</span>: error: <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">mismatch</span></span>;
+ found   : <span class="hljs-type">Int</span>(<span class="hljs-number">1</span>)
+ required: <span class="hljs-type">String</span>
+       firstFloat.validate(<span class="hljs-type">List</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>))
+                                ^
+&lt;console&gt;:<span class="hljs-number">22</span>: error: <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">mismatch</span></span>;
+ found   : <span class="hljs-type">Int</span>(<span class="hljs-number">2</span>)
+ required: <span class="hljs-type">String</span>
+       firstFloat.validate(<span class="hljs-type">List</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>))
+                                   ^
+&lt;console&gt;:<span class="hljs-number">22</span>: error: <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">mismatch</span></span>;
+ found   : <span class="hljs-type">Int</span>(<span class="hljs-number">3</span>)
+ required: <span class="hljs-type">String</span>
+       firstFloat.validate(<span class="hljs-type">List</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>))
+                                      ^
+</code></pre>
+<h4 id="improving-reporting">Improving reporting.</h4>
+<p>All is fine with our new <code>Rule</code> but the error reporting when we parse an element is not perfect yet.
+When a parsing error happens, the <code>Invalid</code> does not tells us that it happened on the first element of the <code>List</code>.</p>
+<p>To fix that, we can pass  an additionnal parameter to <code>andThen</code>:</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> firstFloat2: <span class="hljs-type">Rule</span>[<span class="hljs-type">List</span>[<span class="hljs-type">String</span>],<span class="hljs-type">Float</span>] = head.andThen(<span class="hljs-type">Path</span> \ <span class="hljs-number">0</span>)(<span class="hljs-type">Rules</span>.floatR)
+</code></pre>
+<pre><code class="lang-scala">scala&gt; firstFloat2.validate(<span class="hljs-type">List</span>(<span class="hljs-string">&quot;foo&quot;</span>, <span class="hljs-string">&quot;2&quot;</span>))
+res14: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Float</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">List</span>(([<span class="hljs-number">0</span>],<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.number),<span class="hljs-type">WrappedArray</span>(<span class="hljs-type">Float</span>))))))
+</code></pre>
+<h3 id="parallel-composition">&quot;Parallel&quot; composition</h3>
+<p>Parallel composition means that given two rules <code>a: Rule[I, O]</code> and <code>b: Rule[I, O]</code>, we can create a new rule <code>c: Rule[I, O]</code>.</p>
+<p>This form of composition is almost exclusively used for the particular case of rules that are purely constraints, that is, a <code>Rule[I, I]</code> checking a value of type <code>I</code> satisfies a predicate, but does not transform that value.</p>
+<p>Consider the following example: We want to write a <code>Rule</code> that given a <code>Int</code>, check that this <code>Int</code> is positive and even.
+The validation API already provides <code>Rules.min</code>, we have to define <code>even</code> ourselves:</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> positive: <span class="hljs-type">Rule</span>[<span class="hljs-type">Int</span>,<span class="hljs-type">Int</span>] = <span class="hljs-type">Rules</span>.min(<span class="hljs-number">0</span>)
+<span class="hljs-keyword">val</span> even: <span class="hljs-type">Rule</span>[<span class="hljs-type">Int</span>,<span class="hljs-type">Int</span>] = <span class="hljs-type">Rules</span>.validateWith[<span class="hljs-type">Int</span>](<span class="hljs-string">&quot;error.even&quot;</span>){ _ % <span class="hljs-number">2</span> == <span class="hljs-number">0</span> }
+</code></pre>
+<p>Now we can compose those rules using <code>|+|</code></p>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> positiveAndEven: <span class="hljs-type">Rule</span>[<span class="hljs-type">Int</span>,<span class="hljs-type">Int</span>] = positive |+| even
+</code></pre>
+<p>Let&apos;s test our new <code>Rule</code>:</p>
+<pre><code class="lang-scala">scala&gt; positiveAndEven.validate(<span class="hljs-number">12</span>)
+res15: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Int</span>] = <span class="hljs-type">Valid</span>(<span class="hljs-number">12</span>)
+
+scala&gt; positiveAndEven.validate(<span class="hljs-number">-12</span>)
+res16: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Int</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">ArrayBuffer</span>((/,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.min),<span class="hljs-type">WrappedArray</span>(<span class="hljs-number">0</span>))))))
+
+scala&gt; positiveAndEven.validate(<span class="hljs-number">13</span>)
+res17: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Int</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">ArrayBuffer</span>((/,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.even),<span class="hljs-type">WrappedArray</span>())))))
+
+scala&gt; positiveAndEven.validate(<span class="hljs-number">-13</span>)
+res18: jto.validation.<span class="hljs-type">VA</span>[<span class="hljs-type">Int</span>] = <span class="hljs-type">Invalid</span>(<span class="hljs-type">ArrayBuffer</span>((/,<span class="hljs-type">List</span>(<span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.min),<span class="hljs-type">WrappedArray</span>(<span class="hljs-number">0</span>)), <span class="hljs-type">ValidationError</span>(<span class="hljs-type">List</span>(error.even),<span class="hljs-type">WrappedArray</span>())))))
+</code></pre>
+<p>Note that both rules are applied. If both fail, we get two <code>ValidationError</code>.</p>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="./" class="navigation navigation-prev " aria-label="Previous page: Introduction">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="ScalaValidationRuleCombinators.html" class="navigation navigation-next " aria-label="Next page: Combining Rules">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Validating and transforming data","level":"1.2","depth":1,"next":{"title":"Combining Rules","level":"1.3","depth":1,"path":"ScalaValidationRuleCombinators.md","ref":"ScalaValidationRuleCombinators.md","articles":[]},"previous":{"title":"Introduction","level":"1.1","depth":1,"path":"README.md","ref":"README.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"ScalaValidationRule.md","mtime":"2016-05-24T10:12:25.959Z","type":"markdown"},"gitbook":{"version":"3.0.0","time":"2016-05-24T10:13:29.637Z"},"basePath":".","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="gitbook/gitbook.js"></script>
+    <script src="gitbook/theme.js"></script>
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fontsettings/buttons.js"></script>
+        
+    
+
+    </body>
+</html>
+

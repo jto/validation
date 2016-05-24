@@ -12,8 +12,11 @@ case class Person(
   age: Int,
   lovesChocolate: Boolean
 )
+```
 
+```scala
 import play.api.libs.json._
+import jto.validation.Rule
 
 val json = Json.parse("""{
   "name": "Julien",
@@ -22,7 +25,6 @@ val json = Json.parse("""{
 }""")
 
 implicit val personRule = {
-  import jto.validation.Rule
   import jto.validation.playjson.Rules._
   Rule.gen[JsValue, Person]
 }
@@ -32,7 +34,7 @@ It can do this:
 
 ```scala
 scala> personRule.validate(json)
-res3: jto.validation.VA[Person] = Valid(Person(Julien,28,true))
+res2: jto.validation.VA[Person] = Valid(Person(Julien,28,true))
 ```
 
 It's also a unification of the [Form Validation API](https://www.playframework.com/documentation/2.3.x/ScalaForms), and the [Json validation API](https://www.playframework.com/documentation/2.3.x/ScalaJsonCombinators).

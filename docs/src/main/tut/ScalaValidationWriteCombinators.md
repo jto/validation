@@ -16,51 +16,36 @@ In the validation API, we create complex object writes by combining simple write
 
 We start by creating a Path representing the location at which we'd like to serialize our data:
 
-```scala
-scala> import jto.validation._
+```tut
 import jto.validation._
-
-scala> val location: Path = Path \ "user" \ "friend"
-location: jto.validation.Path = /user/friend
+val location: Path = Path \ "user" \ "friend"
 ```
 
 `Path` has a `write[I, O]` method, where `I` represents the input we’re trying to serialize, and `O` is the output type. For example, `(Path \ "foo").write[Int, JsObject]`, means we want to try to serialize a value of type `Int` into a `JsObject` at `/foo`.
 
 But let's try something much easier for now:
 
-```scala
-scala> import jto.validation._
+```tut:nofail
 import jto.validation._
-
-scala> import play.api.libs.json._
 import play.api.libs.json._
 
-scala> val location: Path = Path \ "user" \ "friend"
-location: jto.validation.Path = /user/friend
-
-scala> val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
-<console>:22: error: No implicit view available from jto.validation.Path => jto.validation.WriteLike[play.api.libs.json.JsValue,play.api.libs.json.JsObject].
-       val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
-                                                                     ^
+val location: Path = Path \ "user" \ "friend"
+val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
 ```
 
 `location.write[JsValue, JsObject]` means the we're trying to serialize a `JsValue` to `location` in a `JsObject`. Effectively, we're just defining a `Write` that is putting a `JsValue` into a `JsObject` at the given location.
 
 If you try to run that code, the compiler gives you the following error:
 
-```scala
-scala> val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
-<console>:22: error: No implicit view available from jto.validation.Path => jto.validation.WriteLike[play.api.libs.json.JsValue,play.api.libs.json.JsObject].
-       val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
-                                                                     ^
+```tut:nofail
+val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
 ```
 
 The Scala compiler is complaining about not finding an implicit function of type `Path => Write[JsValue, JsObject]`. Indeed, unlike the Json API, you have to provide a method to **transform** the input type into the output type.
 
 Fortunately, such method already exists. All you have to do is import it:
 
-```scala
-scala> import jto.validation.playjson.Writes._
+```tut
 import jto.validation.playjson.Writes._
 ```
 
@@ -68,7 +53,7 @@ import jto.validation.playjson.Writes._
 
 With those implicits in scope, we can finally create our `Write`:
 
-```scala
+```tut:silent
 val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
 ```
 
@@ -76,54 +61,50 @@ Alright, so far we've defined a `Write` looking for some data of type `JsValue`,
 
 Now we need to apply this `Write` on our data:
 
-```scala
-scala> serializeFriend.writes(JsString("Julien"))
-res0: play.api.libs.json.JsObject = {"user":{"friend":"Julien"}}
+```tut
+serializeFriend.writes(JsString("Julien"))
 ```
 
 ### Type coercion
 
 We now are capable of serializing data to a given `Path`. Let's do it again on a different sub-tree:
 
-```scala
+```tut:silent
 val agejs = (Path \ "user" \ "age").write[JsValue, JsObject]
 ```
 
 And if we apply this new `Write`:
 
-```scala
-scala> agejs.writes(JsNumber(28))
-res1: play.api.libs.json.JsObject = {"user":{"age":28}}
+```tut
+agejs.writes(JsNumber(28))
 ```
 
 That example is nice, but chances are `age` in not a `JsNumber`, but an `Int`.
 All we have to do is to change the input type in our `Write` definition:
 
-```scala
+```tut:silent
 val age = (Path \ "user" \ "age").write[Int, JsObject]
 ```
 
 And apply it:
 
-```scala
-scala> age.writes(28)
-res2: play.api.libs.json.JsObject = {"user":{"age":28}}
+```tut
+age.writes(28)
 ```
 
 So scala *automagically* figures out how to transform a `Int` into an `JsObject`. How does this happens ?
 
 It's fairly simple. The definition of `write` looks like this:
 
-```scala
-scala> def write[I, O](implicit w: Path => Write[I, O]): Write[I, O] = ???
-write: [I, O](implicit w: jto.validation.Path => jto.validation.Write[I,O])jto.validation.Write[I,O]
+```tut
+def write[I, O](implicit w: Path => Write[I, O]): Write[I, O] = ???
 ```
 
 So when you use `(Path \ "user" \ "age").write[Int, JsObject]`, the compiler looks for an `implicit Path => Write[Int, JsObject]`, which happens to exist in `play.api.data.mapping.json.Writes`.
 
 ### Full example
 
-```scala
+```tut:silent
 import jto.validation._
 import jto.validation.playjson.Writes._
 import play.api.libs.json._
@@ -137,18 +118,17 @@ age.writes(28)
 So far we've serialized only primitives types.
 Now we'd like to serialize an entire `User` object defined below, and transform it into a `JsObject`:
 
-```scala
-scala> case class User(
-     |   name: String,
-     |   age: Int,
-     |   email: Option[String],
-     |   isAlive: Boolean)
-defined class User
+```tut
+case class User(
+  name: String,
+  age: Int,
+  email: Option[String],
+  isAlive: Boolean)
 ```
 
 We need to create a `Write[User, JsValue]`. Creating this `Write` is simply a matter of combining together the writes serializing each field of the class.
 
-```scala
+```tut:silent
 import jto.validation._
 import jto.validation.playjson.Writes._
 import play.api.libs.json._
@@ -178,10 +158,6 @@ but repeating `JsObject` all over the place is just not very DRY.
 
 Let's test it now:
 
-```scala
-scala> userWrite.writes(User("Julien", 28, None, true))
-res6: play.api.libs.json.JsObject = {"name":"Julien","age":28,"isAlive":true}
+```tut
+userWrite.writes(User("Julien", 28, None, true))
 ```
-
-> **Next:** - [Macro Inception](ScalaValidationMacros.md)
-> **For more examples and snippets:** - [Cookbook](ScalaValidationCookbook.md)

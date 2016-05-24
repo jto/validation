@@ -7,15 +7,23 @@ The Play validation API aims to provide a comprehensive toolkit to validate data
 Basically, assuming you have this:
 
 ```scala
-case class Person(name: String, age: Int, lovesChocolate: Boolean)
+case class Person(
+  name: String,
+  age: Int,
+  lovesChocolate: Boolean
+)
+
+import play.api.libs.json._
 
 val json = Json.parse("""{
   "name": "Julien",
   "age": 28,
   "lovesChocolate": true
 }""")
+
 implicit val personRule = {
-  import play.api.data.mapping.json.Rules._
+  import jto.validation.Rule
+  import jto.validation.playjson.Rules._
   Rule.gen[JsValue, Person]
 }
 ```
@@ -23,7 +31,8 @@ implicit val personRule = {
 It can do this:
 
 ```scala
-     | personRule.validate(json)
+scala> personRule.validate(json)
+res3: jto.validation.VA[Person] = Valid(Person(Julien,28,true))
 ```
 
 It's also a unification of the [Form Validation API](https://www.playframework.com/documentation/2.3.x/ScalaForms), and the [Json validation API](https://www.playframework.com/documentation/2.3.x/ScalaJsonCombinators).

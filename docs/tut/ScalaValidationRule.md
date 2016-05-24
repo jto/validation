@@ -233,5 +233,3 @@ res18: jto.validation.VA[Int] = Invalid(ArrayBuffer((/,List(ValidationError(List
 ```
 
 Note that both rules are applied. If both fail, we get two `ValidationError`.
-
-> **Next:** - [Complex validation with Rule combinators](ScalaValidationRuleCombinators.md)

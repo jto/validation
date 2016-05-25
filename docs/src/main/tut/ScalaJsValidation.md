@@ -6,32 +6,77 @@ def cat(path: String): Unit = {
 ```
 Validation 2.0 supports Scala.js, which allows compiling validation logic for JavaScript to run it directly in the browser:
 
-<textarea id="json-form" rows="10" cols="40">{
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/mode/javascript/javascript.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/addon/edit/matchbrackets.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/addon/selection/active-line.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/theme/material.min.css">
+<style type="text/css">
+  .CodeMirror {
+    width: 400px;
+    height: 300px;
+    font-size:13px;
+    margin: 10px;
+  }
+</style>
+<form>
+  <textarea id="json-form" rows="10" cols="50">{
   "name" : "supercat",
   "age" : 20,
   "email" : "e@mail.com",
   "isAlive" : true
-}</textarea><pre id="validation-output"></pre>
+  }</textarea>
+  <textarea name="" id="validation-output" cols="40" rows="50"></textarea>
+</form>
+
 <script src="https://olivierblanvillain.github.io/play-scalajs-validation-example/assets/js-jsdeps.min.js" type="text/javascript"></script>
 <script src="https://olivierblanvillain.github.io/play-scalajs-validation-example/assets/js-opt.js" type="text/javascript"></script>
 <script src="https://olivierblanvillain.github.io/play-scalajs-validation-example/assets/js-launcher.js" type="text/javascript"></script>
 
 <script type="text/javascript">
-  var validationOutputPre = document.getElementById("validation-output")
-  var jsonFormTextarea = document.getElementById("json-form")
 
-  var demo = function() {
+  var jsonFormTextarea = document.getElementById("json-form")
+  var editor = CodeMirror.fromTextArea(jsonFormTextarea, {
+    lineNumbers: true,
+    styleActiveLine: true,
+    matchBrackets: true,
+    theme: "material",
+    mode: {
+      name: "javascript",
+      json: true
+    }
+  });
+
+  var output = document.getElementById("validation-output")
+  var editorOutput = CodeMirror.fromTextArea(output, {
+    lineNumbers: true,
+    styleActiveLine: true,
+    matchBrackets: true,
+    theme: "material",
+    readonly: true,
+    mode: {
+      name: "javascript",
+      json: true
+    }
+  });
+
+  var demo = function(jsString) {
     try {
-      var json = JSON.parse(jsonFormTextarea.value);
-      validationOutputPre.innerHTML =
-        JSON.stringify(client.Validate().user(json), null, 2);
+      var json = JSON.parse(jsString);
+      var out = JSON.stringify(client.Validate().user(json), null, 2);
+      editorOutput.setValue(out);
     } catch(err) {
-      validationOutputPre.innerHTML = err.message;
+      editorOutput.setValue(err);
     }
   };
 
-  jsonFormTextarea.addEventListener('input', demo, false);
-  demo();
+  demo(jsonFormTextarea.value);
+
+  CodeMirror.on(editor, 'change', function(ins, obj) {
+    var js = ins.getValue();
+    demo(js);
+  });
 </script>
 
 Using validation from Scala.js is no different than any other scala library. There is however some friction to intergration Scala.js into an existing Play + JavaScript, which we try to adress in this document. Assuming no prior knowledge on Scala.js, we explain how to cross compiled and integrate validation logic into an existing Play/JavaScript application.

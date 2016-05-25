@@ -1,0 +1,27 @@
+<textarea style="display: inline-block; width: 50%" id="json-form" rows="10" cols="40">{
+  "name" : "supercat",
+  "age" : 20,
+  "email" : "e@mail.com",
+  "isAlive" : true
+}</textarea><pre style="display: inline-block; width: 50%" id="validation-output"></pre>
+<script src="https://olivierblanvillain.github.io/play-scalajs-validation-example/assets/js-jsdeps.min.js" type="text/javascript"></script>
+<script src="https://olivierblanvillain.github.io/play-scalajs-validation-example/assets/js-opt.js" type="text/javascript"></script>
+<script src="https://olivierblanvillain.github.io/play-scalajs-validation-example/assets/js-launcher.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+  var validationOutputPre = document.getElementById("validation-output")
+  var jsonFormTextarea = document.getElementById("json-form")
+
+  var demo = function() {
+    try {
+      var json = JSON.parse(jsonFormTextarea.value);
+      validationOutputPre.innerHTML =
+        JSON.stringify(client.Validate().user(json), null, 2);
+    } catch(err) {
+      validationOutputPre.innerHTML = err.message;
+    }
+  };
+
+  jsonFormTextarea.addEventListener('input', demo, false);
+  demo();
+</script>

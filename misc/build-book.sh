@@ -1,14 +1,13 @@
 #!/bin/sh
 set -eu
 
-sbt tut
+gitbook="node_modules/gitbook-cli/bin/gitbook.js"
 
-npm install gitbook
-npm install gitbook-cli
+if ! test -e $gitbook; then
+  npm install gitbook
+  npm install gitbook-cli
+fi
 
-node_modules/gitbook-cli/bin/gitbook.js \
-  build \
-  docs/tut \
-  docs/book
+$gitbook build docs/tut docs/book
 
 exit 0

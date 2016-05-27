@@ -14,8 +14,10 @@ val scalacVersion = "2.11.8"
 val scalatestVersion = "3.0.0-M16-SNAP5"
 val scalaXmlVersion = "1.0.5"
 
+val json4sAST = libraryDependencies += "org.json4s" %%% "json4s-ast" % json4sAstVersion
+
 lazy val root = aggregate("validation", validationJVM, validationJS, docs).in(file("."))
-lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-playjson`, `validation-xml`)
+lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-playjson`, `validation-xml`, `date-tests`)
 lazy val validationJS = aggregate("validationJS", coreJS, formJS, delimitedJS, json4sJS, `validation-jsjson`)
 
 lazy val `validation-core` = crossProject
@@ -49,8 +51,7 @@ lazy val delimited = aggregate("validation-delimited", delimitedJVM, delimitedJS
 lazy val `validation-json4s` = crossProject
   .crossType(CrossType.Pure)
   .settings(validationSettings: _*)
-  .settings(libraryDependencies +=
-    "org.json4s" %%% "json4s-ast" % json4sAstVersion)
+  .settings(json4sAST)
   .dependsOn(`validation-core`)
 lazy val json4sJVM = `validation-json4s`.jvm
 lazy val json4sJS = `validation-json4s`.js
@@ -84,7 +85,8 @@ lazy val docs = project
 lazy val `date-tests` = project
   .settings(validationSettings: _*)
   .settings(dontPublish: _*)
-  .dependsOn(coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-playjson`, `validation-xml`)
+  .settings(json4sAST)
+  .dependsOn(coreJVM, formJVM, json4sJVM, `validation-playjson`, `validation-xml`)
 
 def aggregate(name: String, projects: ProjectReference*): Project =
   Project(name, file("." + name))

@@ -417,8 +417,7 @@ class FormatSpec extends WordSpec with Matchers with JsAnyEquality {
     "work with Rule ans Write seamlessly" in {
       implicit val userF = Formatting[js.Dynamic, js.Dynamic] { __ =>
         ((__ \ "id").format[Long] ~ (__ \ "name").format[String])(
-            User.apply,
-            unlift(User.unapply))
+            User.apply, unlift(User.unapply))
       }
 
       val userJs = js.Dynamic.literal("id" -> 1L, "name" -> "Luigi")

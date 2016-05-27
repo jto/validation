@@ -4,6 +4,8 @@
 
 - Update `libraryDependencies` in [README.md](README.md)
 
+- Update comment in `play-scalajs-example/build.sbt`
+
 - Publish book:
 
     ```sh

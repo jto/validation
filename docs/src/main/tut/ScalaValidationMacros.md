@@ -1,8 +1,5 @@
 # Validation Inception
 
-> This feature is experimental such as Scala Macros which are flagged experimental in Scala 2.10.0.
-> If you would rather not use Scala experimental features, just stick to hand-written `Rule` / `Write` which are strictly equivalent.
-
 ## Introduction
 
 The validation API provides macro-based helpers to generate `Rule` and `Write` for case classes (or any class with a companion object providing `apply` / and `unapply` methods).

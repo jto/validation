@@ -1,6 +1,7 @@
 # The unified data validation library
 
 [![Travis](https://api.travis-ci.org/jto/validation.png?branch=master)](https://travis-ci.org/jto/validation) [![Maven](https://img.shields.io/maven-central/v/io.github.jto/validation-core_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.jto/validation-core_2.11) [![Scala.js](https://www.scala-js.org/assets/badges/scalajs-0.6.8.svg)](https://www.scala-js.org) [![Gitter](https://badges.gitter.im/jto/validation.svg)](https://gitter.im/jto/validation?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Coverage Status](https://coveralls.io/repos/github/jto/validation/badge.svg?branch=v2.0)](https://coveralls.io/github/jto/validation?branch=v2.0)
 
 ## Overview
 

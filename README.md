@@ -1,5 +1,7 @@
 # The unified data validation library
 
+[![Join the chat at https://gitter.im/jto/validation](https://badges.gitter.im/jto/validation.svg)](https://gitter.im/jto/validation?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Overview
 
 The unified validation API aims to provide a comprehensive toolkit to validate data from any format against user defined rules, and transform them to other types.

@@ -6,7 +6,10 @@ import org.json4s.ast.safe._
 case class User(age: Int, name: String)
 case class Dog(name: String, master: User)
 case class Cat(name: String)
-case class RecUser(name: String, cat: Option[Cat] = None, hobbies: Seq[String] = Seq(), friends: Seq[RecUser] = Seq())
+case class RecUser(name: String,
+                   cat: Option[Cat] = None,
+                   hobbies: Seq[String] = Seq(),
+                   friends: Seq[RecUser] = Seq())
 case class User1(name: String, friend: Option[User1] = None)
 case class UserMap(name: String, friends: Map[String, UserMap] = Map())
 
@@ -22,14 +25,33 @@ case class Id[A](id: A)
 case class C1[A](id: Id[A], name: String)
 
 case class X(
-  _1: String, _2: String, _3: String, _4: String, _5: String,
-  _6: String, _7: String, _8: String, _9: String, _10: String,
-  _11: String, _12: String, _13: String, _14: String, _15: String,
-  _16: String, _17: String, _18: String, _19: String, _20: String,
-  _21: String
+    _1: String,
+    _2: String,
+    _3: String,
+    _4: String,
+    _5: String,
+    _6: String,
+    _7: String,
+    _8: String,
+    _9: String,
+    _10: String,
+    _11: String,
+    _12: String,
+    _13: String,
+    _14: String,
+    _15: String,
+    _16: String,
+    _17: String,
+    _18: String,
+    _19: String,
+    _20: String,
+    _21: String
 )
 
-case class Program(id: Long, name: String, logoPath: Option[String], logoThumb: Option[String])
+case class Program(id: Long,
+                   name: String,
+                   logoPath: Option[String],
+                   logoThumb: Option[String])
 object Program {
   def programs = List.empty[Program]
 }
@@ -48,7 +70,7 @@ object Person {
 
 case class Person2(names: List[String])
 
-object Person2{
+object Person2 {
   implicit val personRule = {
     import Rules._
     Rule.gen[JValue, Person2]
@@ -78,13 +100,16 @@ class MacroSpec extends WordSpec with Matchers {
     "create a Rule[User]" in {
       import Rules._
       implicit val userReads = Rule.gen[JValue, User]
-      userReads.validate(JObject(Map("name" -> JString("toto"), "age" -> JNumber(45)))) shouldBe(Valid(User(45, "toto")))
+      userReads.validate(JObject(Map("name" -> JString("toto"),
+                                     "age" -> JNumber(45)))) shouldBe (Valid(
+              User(45, "toto")))
     }
 
     "create a Write[User]" in {
       import Writes._
       implicit val userWrites = Write.gen[User, JObject]
-      userWrites.writes(User(45, "toto")) shouldBe(JObject(Map("name" -> JString("toto"), "age" -> JNumber(45))))
+      userWrites.writes(User(45, "toto")) shouldBe (JObject(
+              Map("name" -> JString("toto"), "age" -> JNumber(45))))
     }
 
     "create a Rule[Dog]" in {
@@ -93,12 +118,12 @@ class MacroSpec extends WordSpec with Matchers {
       implicit val dogRule = Rule.gen[JValue, Dog]
 
       dogRule.validate(
-        JObject(Map(
-          "name" -> JString("medor"),
-          "master" -> JObject(Map("name" -> JString("toto"), "age" -> JNumber(45)))
-        ))
-      ) shouldBe(Valid(Dog("medor", User(45, "toto"))))
-
+          JObject(Map(
+                  "name" -> JString("medor"),
+                  "master" -> JObject(
+                      Map("name" -> JString("toto"), "age" -> JNumber(45)))
+              ))
+      ) shouldBe (Valid(Dog("medor", User(45, "toto"))))
     }
 
     "create a Write[Dog]" in {
@@ -106,11 +131,13 @@ class MacroSpec extends WordSpec with Matchers {
       implicit val userWrite = Write.gen[User, JObject]
       implicit val dogWrite = Write.gen[Dog, JObject]
 
-      dogWrite.writes(Dog("medor", User(45, "toto"))) shouldBe(
-        JObject(Map(
-          "name" -> JString("medor"),
-          "master" -> JObject(Map("name" -> JString("toto"), "age" -> JNumber(45)))
-        ))
+      dogWrite.writes(Dog("medor", User(45, "toto"))) shouldBe (
+          JObject(
+              Map(
+                  "name" -> JString("medor"),
+                  "master" -> JObject(
+                      Map("name" -> JString("toto"), "age" -> JNumber(45)))
+              ))
       )
     }
 
@@ -119,56 +146,64 @@ class MacroSpec extends WordSpec with Matchers {
 
       implicit val catRule = Rule.gen[JValue, Cat]
       catRule.validate(
-        JObject(Map("name" -> JString("minou")))
-      ) shouldBe(Valid(Cat("minou")))
+          JObject(Map("name" -> JString("minou")))
+      ) shouldBe (Valid(Cat("minou")))
 
       implicit lazy val recUserRule: Rule[JValue, RecUser] =
         Rule.gen[JValue, RecUser]
 
       recUserRule.validate(
-        JObject(Map(
-          "name" -> JString("bob"),
-          "cat" -> JObject(Map("name" -> JString("minou"))),
-          "hobbies" -> JArray(JString("bobsleig"), JString("manhunting")),
-          "friends" -> JArray(JObject(Map( "name" -> JString("tom"), "hobbies" -> JArray(), "friends" -> JArray())))
-        ))
-      ) shouldBe(
-        Valid(
-          RecUser(
-            "bob",
-            Some(Cat("minou")),
-            List("bobsleig", "manhunting"),
-            List(RecUser("tom"))
+          JObject(
+              Map(
+                  "name" -> JString("bob"),
+                  "cat" -> JObject(Map("name" -> JString("minou"))),
+                  "hobbies" -> JArray(JString("bobsleig"),
+                                      JString("manhunting")),
+                  "friends" -> JArray(JObject(Map("name" -> JString("tom"),
+                                                  "hobbies" -> JArray(),
+                                                  "friends" -> JArray())))
+              ))
+      ) shouldBe (
+          Valid(
+              RecUser(
+                  "bob",
+                  Some(Cat("minou")),
+                  List("bobsleig", "manhunting"),
+                  List(RecUser("tom"))
+              )
           )
-        )
       )
-
     }
 
     "create a Write[RecUser]" in {
       import Writes._
 
       implicit val catWrite = Write.gen[Cat, JObject]
-      catWrite.writes(Cat("minou")) shouldBe(JObject(Map("name" -> JString("minou"))))
+      catWrite.writes(Cat("minou")) shouldBe (JObject(
+              Map("name" -> JString("minou"))))
 
-      implicit lazy val recUserWrite: Write[RecUser, JValue] = Write.gen[RecUser, JObject]
+      implicit lazy val recUserWrite: Write[RecUser, JValue] =
+        Write.gen[RecUser, JObject]
 
       recUserWrite.writes(
-        RecUser(
-          "bob",
-          Some(Cat("minou")),
-          Seq("bobsleig", "manhunting"),
-          Seq(RecUser("tom"))
-        )
-      ) shouldBe(
-        JObject(Map(
-          "name" -> JString("bob"),
-          "cat" -> JObject(Map("name" -> JString("minou"))),
-          "hobbies" -> JArray(JString("bobsleig"), JString("manhunting")),
-          "friends" -> JArray(JObject(Map( "name" -> JString("tom"), "hobbies" -> JArray(), "friends" -> JArray())))
-        ))
+          RecUser(
+              "bob",
+              Some(Cat("minou")),
+              Seq("bobsleig", "manhunting"),
+              Seq(RecUser("tom"))
+          )
+      ) shouldBe (
+          JObject(
+              Map(
+                  "name" -> JString("bob"),
+                  "cat" -> JObject(Map("name" -> JString("minou"))),
+                  "hobbies" -> JArray(JString("bobsleig"),
+                                      JString("manhunting")),
+                  "friends" -> JArray(JObject(Map("name" -> JString("tom"),
+                                                  "hobbies" -> JArray(),
+                                                  "friends" -> JArray())))
+              ))
       )
-
     }
 
     "create a Rule[User1]" in {
@@ -176,33 +211,30 @@ class MacroSpec extends WordSpec with Matchers {
 
       implicit lazy val userRule: Rule[JValue, User1] = Rule.gen[JValue, User1]
       userRule.validate(
-        JObject(Map(
-          "name" -> JString("bob"),
-          "friend" -> JObject(Map( "name" -> JString("tom")))
-        ))
-      ) shouldBe(
-        Valid(
-          User1(
-            "bob",
-            Some(User1("tom"))
+          JObject(Map(
+                  "name" -> JString("bob"),
+                  "friend" -> JObject(Map("name" -> JString("tom")))
+              ))
+      ) shouldBe (
+          Valid(
+              User1(
+                  "bob",
+                  Some(User1("tom"))
+              )
           )
-        )
       )
     }
 
-
     "create a writes[User1]" in {
       import Writes._
-      implicit lazy val userWrites: Write[User1, JValue] = Write.gen[User1, JObject]
+      implicit lazy val userWrites: Write[User1, JValue] =
+        Write.gen[User1, JObject]
 
       userWrites.writes(
-        User1(
-          "bob",
-          Some(User1("tom")))
-      ) shouldBe(
-        JObject(Map(
-          "name" -> JString("bob"),
-          "friend" -> JObject(Map( "name" -> JString("tom")))))
+          User1("bob", Some(User1("tom")))
+      ) shouldBe (
+          JObject(Map("name" -> JString("bob"),
+                      "friend" -> JObject(Map("name" -> JString("tom")))))
       )
     }
 
@@ -211,16 +243,14 @@ class MacroSpec extends WordSpec with Matchers {
       implicit val manyAppliesRule = Rule.gen[JValue, ManyApplies]
 
       manyAppliesRule.validate(
-        JObject(Map(
-          "foo" -> JString("bob"),
-          "bar" -> JNumber(3)))
-      ) shouldBe(
-        Valid(
-          ManyApplies(
-            "bob",
-            3
+          JObject(Map("foo" -> JString("bob"), "bar" -> JNumber(3)))
+      ) shouldBe (
+          Valid(
+              ManyApplies(
+                  "bob",
+                  3
+              )
           )
-        )
       )
     }
 
@@ -229,12 +259,11 @@ class MacroSpec extends WordSpec with Matchers {
       implicit val notAClassRule = Rule.gen[JValue, NotAClass]
 
       notAClassRule.validate(
-        JObject(Map(
-          "x" -> JNumber(3)))
-      ) shouldBe(
-        Valid(
-          AClass(3)
-        )
+          JObject(Map("x" -> JNumber(3)))
+      ) shouldBe (
+          Valid(
+              AClass(3)
+          )
       )
     }
 
@@ -242,19 +271,19 @@ class MacroSpec extends WordSpec with Matchers {
       import Rules._
 
       implicit def idRule[A]: Rule[A, Id[A]] =
-        Rule.zero[A].map{ Id[A](_) }
+        Rule.zero[A].map { Id[A](_) }
 
-      implicit def c1Rule[A](implicit rds: Rule[A, Id[A]], e: Path => Rule[JValue, A]) =
-        From[JValue]{ __ =>
+      implicit def c1Rule[A](implicit rds: Rule[A, Id[A]],
+                             e: Path => Rule[JValue, A]) =
+        From[JValue] { __ =>
           ((__ \ "id").read(rds) ~
-           (__ \ "name").read[String])( (id, name) => C1[A](id, name) )
+              (__ \ "name").read[String])((id, name) => C1[A](id, name))
         }
 
-      val js = JObject(Map(
-        "id" -> JNumber(123L),
-        "name" -> JString("toto")))
+      val js = JObject(Map("id" -> JNumber(123L), "name" -> JString("toto")))
 
-      c1Rule[Long].validate(js) shouldBe(Valid(C1[Long](Id[Long](123L), "toto")))
+      c1Rule[Long].validate(js) shouldBe (Valid(
+              C1[Long](Id[Long](123L), "toto")))
     }
 
     // test to validate it doesn't compile if missing implicit
@@ -264,7 +293,7 @@ class MacroSpec extends WordSpec with Matchers {
       implicit val userReads = Rule.gen[JValue, UserFail]
       ()
     }
-    */
+     */
 
     "test 21 fields" when {
       "Rule" in {
@@ -363,35 +392,37 @@ class MacroSpec extends WordSpec with Matchers {
       implicit val dogRule = Rule.gen[JValue, Dog]
       implicit val toto6Rule = Rule.gen[JValue, Toto6]
 
-      val js = JObject(Map("name" -> JArray(
-        JObject(Map(
-          "name" -> JString("medor"),
-          "master" -> JObject(Map("name" -> JString("toto"), "age" -> JNumber(45)))
-        )),
-        JObject(Map(
-          "name" -> JString("brutus"),
-          "master" -> JObject(Map("name" -> JString("tata"), "age" -> JNumber(23))
-        )))
-      )))
+      val js = JObject(
+          Map("name" -> JArray(
+                  JObject(Map(
+                          "name" -> JString("medor"),
+                          "master" -> JObject(Map("name" -> JString("toto"),
+                                                  "age" -> JNumber(45)))
+                      )),
+                  JObject(
+                      Map("name" -> JString("brutus"),
+                          "master" -> JObject(Map("name" -> JString("tata"),
+                                                  "age" -> JNumber(23)))))
+              )))
 
-      toto6Rule.validate(js) shouldBe(Valid(
-        Toto6(Seq(
-          Dog("medor", User(45, "toto")),
-          Dog("brutus", User(23, "tata"))
-        ))
-      ))
+      toto6Rule.validate(js) shouldBe (Valid(
+              Toto6(Seq(
+                      Dog("medor", User(45, "toto")),
+                      Dog("brutus", User(23, "tata"))
+                  ))
+          ))
     }
 
     "test case reads in companion object" in {
       From[JValue, Person](
-        To[Person, JValue](Person("bob", 15))
-      ) shouldBe(Valid(Person("bob", 15)))
+          To[Person, JValue](Person("bob", 15))
+      ) shouldBe (Valid(Person("bob", 15)))
     }
 
     "test case single-field in companion object" in {
       From[JValue, Person2](
-        To[Person2, JValue](Person2(List("bob", "bobby")))
-      ) shouldBe(Valid(Person2(List("bob", "bobby"))))
+          To[Person2, JValue](Person2(List("bob", "bobby")))
+      ) shouldBe (Valid(Person2(List("bob", "bobby"))))
     }
   }
 }

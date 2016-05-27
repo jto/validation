@@ -327,8 +327,8 @@ class RulesSpec extends WordSpec with Matchers {
                         ValidationError("error.invalid", "Array")))))
         (Path \ "n")
           .read[JsValue, Seq[String]]
-          .validate(JsObject(Seq("n" -> JsArray(
-                          Seq(JsString("foo"), JsNumber(2)))))) shouldBe
+          .validate(JsObject(Seq("n" -> JsArray(Seq(JsString("foo"),
+                                                    JsNumber(2)))))) shouldBe
         (Invalid(Seq(Path \ "n" \ 1 -> Seq(
                         ValidationError("error.invalid", "String")))))
       }
@@ -613,8 +613,8 @@ class RulesSpec extends WordSpec with Matchers {
     }
 
     "completely generic" in {
-      type OptString[In] = Rule[String, String] => Path => Rule[In,
-                                                                Option[String]]
+      type OptString[In] =
+        Rule[String, String] => Path => Rule[In, Option[String]]
 
       def genR[In](opt: OptString[In])(
           implicit exs: Path => Rule[In, String]) =

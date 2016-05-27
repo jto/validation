@@ -136,7 +136,7 @@ object Rules extends DefaultRules[js.Dynamic] {
     pickInS(setR[js.Dynamic, O])
   implicit def pickList[O](implicit r: RuleLike[js.Dynamic, O]) =
     pickInS(listR[js.Dynamic, O])
-  implicit def pickArray[O : scala.reflect.ClassTag](
+  implicit def pickArray[O: scala.reflect.ClassTag](
       implicit r: RuleLike[js.Dynamic, O]) = pickInS(arrayR[js.Dynamic, O])
   implicit def pickTraversable[O](implicit r: RuleLike[js.Dynamic, O]) =
     pickInS(traversableR[js.Dynamic, O])

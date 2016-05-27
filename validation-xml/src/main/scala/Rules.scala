@@ -27,8 +27,8 @@ object Rules extends DefaultRules[Node] with ParsingRules {
       }
       .andThen(r)
 
-  def optAttributeR[O](
-      key: String)(implicit r: RuleLike[String, O]): Rule[Node, Option[O]] =
+  def optAttributeR[O](key: String)(
+      implicit r: RuleLike[String, O]): Rule[Node, Option[O]] =
     Rule[Node, Option[O]] { node =>
       node.attribute(key).flatMap(_.headOption).map(_.text) match {
         case Some(str) => r.validate(str).map(Some(_))
@@ -40,8 +40,8 @@ object Rules extends DefaultRules[Node] with ParsingRules {
       implicit r: RuleLike[Node, O]): Rule[II, O] = {
     def search(path: Path, node: Node): Option[Node] = path.path match {
       case KeyPathNode(key) :: tail =>
-        (node \ key).headOption
-          .flatMap(childNode => search(Path(tail), childNode))
+        (node \ key).headOption.flatMap(childNode =>
+              search(Path(tail), childNode))
 
       case IdxPathNode(idx) :: tail =>
         (node \ "_")
@@ -79,9 +79,9 @@ object Rules extends DefaultRules[Node] with ParsingRules {
       implicit r: RuleLike[Node, O]): Rule[Node, Traversable[O]] =
     pickInS(traversableR[Node, O])
 
-  implicit def ooo[O](p: Path)(
-      implicit pick: Path => RuleLike[Node, Node],
-      coerce: RuleLike[Node, O]): Rule[Node, Option[O]] =
+  implicit def ooo[O](
+      p: Path)(implicit pick: Path => RuleLike[Node, Node],
+               coerce: RuleLike[Node, O]): Rule[Node, Option[O]] =
     optionR(Rule.zero[O])(pick, coerce)(p)
 
   def optionR[J, O](r: => RuleLike[J, O], noneValues: RuleLike[Node, Node]*)(

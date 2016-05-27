@@ -649,8 +649,8 @@ class RulesSpec extends WordSpec with Matchers {
     }
 
     "completely generic" in {
-      type OptString[In] = Rule[String, String] => Path => Rule[In,
-                                                                Option[String]]
+      type OptString[In] =
+        Rule[String, String] => Path => Rule[In, Option[String]]
 
       def genR[In](opt: OptString[In])(
           implicit exs: Path => Rule[In, String]) =

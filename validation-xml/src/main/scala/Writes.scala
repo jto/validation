@@ -14,7 +14,9 @@ trait DefaultMonoids {
 }
 
 object Writes
-    extends DefaultWrites with NumericTypes2StringWrites with DefaultMonoids
+    extends DefaultWrites
+    with NumericTypes2StringWrites
+    with DefaultMonoids
     with GenericWrites[XmlWriter] {
 
   implicit def nodeW[I](
@@ -27,7 +29,7 @@ object Writes
       implicit w: WriteLike[I, String]): Write[I, XmlWriter] = Write {
     i => node =>
       node.copy(attributes = node.attributes.append(
-                new UnprefixedAttribute(name, w.writes(i), Null)))
+              new UnprefixedAttribute(name, w.writes(i), Null)))
   }
 
   def optAttributeW[I](name: String)(
@@ -65,8 +67,8 @@ object Writes
       is.map(w.writes).foldLeft(xmlMonoid.empty)(xmlMonoid.combine)
   }
 
-  def optionW[I, J](
-      r: => WriteLike[I, J])(implicit w: Path => WriteLike[J, XmlWriter])
+  def optionW[I, J](r: => WriteLike[I, J])(
+      implicit w: Path => WriteLike[J, XmlWriter])
     : Path => Write[Option[I], XmlWriter] =
     super.optionW[I, J, XmlWriter](r, xmlMonoid.empty)
 

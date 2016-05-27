@@ -192,7 +192,7 @@ class RulesSpec extends WordSpec with Matchers {
 
       "validate optional fields and attributes" in {
         val reads = From[Node] { __ =>
-          ( (__ \ "firstname").read[Option[String]] ~ (__ \ "age")
+          ((__ \ "firstname").read[Option[String]] ~ (__ \ "age")
             .read[Option[Int]] ~ (__ \ "foo").read[Option[String]] ~
           (__ \ "firstname").read(optAttributeR[String]("foo")) tupled)
         }
@@ -460,8 +460,8 @@ class RulesSpec extends WordSpec with Matchers {
       }
 
       "completely generic" in {
-        type OptString[In] = Rule[String, String] => Path => Rule[
-            In, Option[String]]
+        type OptString[In] =
+          Rule[String, String] => Path => Rule[In, Option[String]]
 
         def genR[In](opt: OptString[In])(
             implicit exs: Path => Rule[In, String]) =

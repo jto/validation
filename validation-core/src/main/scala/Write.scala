@@ -4,9 +4,10 @@ import cats.Monoid
 import cats.functor.Contravariant
 
 trait WriteLike[I, +O] {
+
   /**
-   * "Serialize" `i` to the output type
-   */
+    * "Serialize" `i` to the output type
+    */
   def writes(i: I): O
 }
 
@@ -15,13 +16,14 @@ object WriteLike {
 }
 
 trait Write[I, +O] extends WriteLike[I, O] {
+
   /**
-   * returns a new Write that applies function `f` to the result of this write.
-   * {{{
-   *  val w = Writes.int.map("Number: " + _)
-   *  w.writes(42) == "Number: 42"
-   * }}}
-   */
+    * returns a new Write that applies function `f` to the result of this write.
+    * {{{
+    *  val w = Writes.int.map("Number: " + _)
+    *  w.writes(42) == "Number: 42"
+    * }}}
+    */
   def map[B](f: O => B): Write[I, B] =
     Write[I, B] {
       f.compose(x => this.writes(x))
@@ -31,8 +33,8 @@ trait Write[I, +O] extends WriteLike[I, O] {
   def compose[OO >: O, P](w: WriteLike[OO, P]): Write[I, P] = andThen(w)
 
   /**
-   * Returns a new Write that applies `this` Write, and then applies `w` to its result
-   */
+    * Returns a new Write that applies `this` Write, and then applies `w` to its result
+    */
   def andThen[OO >: O, P](w: WriteLike[OO, P]): Write[I, P] =
     this.map(o => w.writes(o))
 
@@ -64,13 +66,17 @@ object Write {
         wa.contramap(f)
     }
 
-  implicit def writeSyntaxCombine[O](implicit m: Monoid[O]): SyntaxCombine[Write[?, O]] =
+  implicit def writeSyntaxCombine[O](
+      implicit m: Monoid[O]): SyntaxCombine[Write[?, O]] =
     new SyntaxCombine[Write[?, O]] {
-      def apply[A, B](wa: Write[A, O], wb: Write[B, O]): Write[A ~ B, O] = Write[A ~ B, O] {
-        case a ~ b => m.combine(wa.writes(a), wb.writes(b))
-      }
+      def apply[A, B](wa: Write[A, O], wb: Write[B, O]): Write[A ~ B, O] =
+        Write[A ~ B, O] {
+          case a ~ b => m.combine(wa.writes(a), wb.writes(b))
+        }
     }
 
-  implicit def writeContravariantSyntaxObs[I, O : Monoid](w: Write[I, O])(implicit fcb: SyntaxCombine[Write[?, O]]): ContravariantSyntaxObs[Write[?, O], I] =
+  implicit def writeContravariantSyntaxObs[I, O: Monoid](
+      w: Write[I, O])(implicit fcb: SyntaxCombine[Write[?, O]])
+    : ContravariantSyntaxObs[Write[?, O], I] =
     new ContravariantSyntaxObs[Write[?, O], I](w)(fcb)
 }

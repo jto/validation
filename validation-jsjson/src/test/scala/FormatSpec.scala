@@ -91,8 +91,8 @@ class FormatSpec extends WordSpec with Matchers with JsAnyEquality {
                     "o" -> js.Dynamic.literal("p" -> 4)))) shouldBe (Valid(4))
         Formatting[js.Dynamic, js.Dynamic] { __ =>
           (__ \ "n" \ "o" \ "p").format[Int]
-        }.validate(js.Dynamic.literal("n" -> js.Dynamic
-                  .literal("o" -> js.Dynamic.literal("p" -> "foo")))) shouldBe
+        }.validate(js.Dynamic.literal("n" -> js.Dynamic.literal(
+                    "o" -> js.Dynamic.literal("p" -> "foo")))) shouldBe
         (Invalid(Seq(Path \ "n" \ "o" \ "p" -> Seq(
                         ValidationError("error.number", "Int")))))
 

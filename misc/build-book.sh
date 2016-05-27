@@ -8,6 +8,6 @@ if ! test -e $gitbook; then
   npm install gitbook-cli
 fi
 
-$gitbook build docs/tut docs/book
+sbt 'project docs' tut && $gitbook build docs/target/tut docs/book
 
 exit 0

@@ -77,7 +77,7 @@ lazy val `validation-jsjson` = project
 lazy val docs = project
   .settings(validationSettings: _*)
   .settings(dontPublish: _*)
-  .settings(crossTarget := file(".") / "docs")
+  .settings(crossTarget := file(".") / "docs" / "target")
   .settings(tutSettings: _*)
   .settings(scalacOptions -= "-Ywarn-unused-import")
   .dependsOn(coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-playjson`, `validation-xml`)

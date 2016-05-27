@@ -1,8 +1,10 @@
 package jto.validation
 
 /**
-  * Backcompat with 1.x. All the methods are deprecated
-  */
+* Backcompat with 1.x. All the methods are deprecated
+*/
+
+// $COVERAGE-OFF$Disabling highlighting by default.
 
 object Success {
   @deprecated("use cats.data.Validated.Valid", "2.0")

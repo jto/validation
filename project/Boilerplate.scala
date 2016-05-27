@@ -21,7 +21,10 @@ object Boilerplate {
     }
   }
 
-  val header = "// Auto-generated boilerplate"
+  val header = """
+    // Auto-generated boilerplate
+    // $COVERAGE-OFF$Disabling coverage for generated code
+  """
 
   val minArity = 2
   val maxArity = 22

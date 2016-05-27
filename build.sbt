@@ -92,7 +92,7 @@ def aggregate(name: String, projects: ProjectReference*): Project =
     .settings(validationSettings: _*)
     .settings(dontPublish: _*)
 
-lazy val validationSettings = settings ++ dependencies ++ doPublish
+lazy val validationSettings = settings ++ dependencies ++ doPublish ++ scoverageSettings
 
 lazy val settings = Seq(
   scalaVersion := scalacVersion,
@@ -170,4 +170,8 @@ val dontPublish = Seq(
   publish := (),
   publishLocal := (),
   publishArtifact := false
+)
+
+lazy val scoverageSettings = Seq(
+  scoverage.ScoverageKeys.coverageExcludedPackages := """jto\.validation\.jsjson\..*""""
 )

@@ -1,8 +1,6 @@
 ```tut:invisible
-def cat(path: String): Unit = {
-  val url = s"https://raw.githubusercontent.com/OlivierBlanvillain/play-scalajs-validation-example/master/$path"
-  println(scala.io.Source.fromURL(url).mkString.trim)
-}
+def cat(path: String): Unit =
+  println(scala.io.Source.fromFile(s"play-scalajs-example/$path").mkString.trim)
 ```
 Validation 2.0 supports Scala.js, which allows compiling validation logic for JavaScript to run it directly in the browser. Let's begin by playing with it. Try to change the `tryMe` variable in the following editor. The result is automatically output.
 
@@ -41,9 +39,8 @@ client.Validate().user(tryMe);
 <textarea name="" id="validation-output" cols="40" rows="50"></textarea>
 </form>
 
-<script src="https://olivierblanvillain.github.io/play-scalajs-validation-example/assets/js-jsdeps.min.js" type="text/javascript"></script>
-<script src="https://olivierblanvillain.github.io/play-scalajs-validation-example/assets/js-opt.js" type="text/javascript"></script>
-<script src="https://olivierblanvillain.github.io/play-scalajs-validation-example/assets/js-launcher.js" type="text/javascript"></script>
+<script src="js-opt.js" type="text/javascript"></script>
+<script src="js-launcher.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 (function() {

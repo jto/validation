@@ -2,20 +2,14 @@ package jto.validation
 
 import cats.Monoid
 import cats.functor.Contravariant
+import scala.language.implicitConversions
 
-trait WriteLike[I, +O] {
+trait Write[I, +O] {
 
   /**
     * "Serialize" `i` to the output type
     */
   def writes(i: I): O
-}
-
-object WriteLike {
-  implicit def zero[I]: WriteLike[I, I] = Write(identity[I] _)
-}
-
-trait Write[I, +O] extends WriteLike[I, O] {
 
   /**
     * returns a new Write that applies function `f` to the result of this write.
@@ -29,13 +23,10 @@ trait Write[I, +O] extends WriteLike[I, O] {
       f.compose(x => this.writes(x))
     }
 
-  @deprecated("use andThen instead.", "2.0")
-  def compose[OO >: O, P](w: WriteLike[OO, P]): Write[I, P] = andThen(w)
-
   /**
     * Returns a new Write that applies `this` Write, and then applies `w` to its result
     */
-  def andThen[OO >: O, P](w: WriteLike[OO, P]): Write[I, P] =
+  def andThen[OO >: O, P](w: Write[OO, P]): Write[I, P] =
     this.map(o => w.writes(o))
 
   def contramap[B](f: B => I): Write[B, O] =
@@ -52,13 +43,13 @@ object Write {
 
   def of[I, O](implicit w: Write[I, O]): Write[I, O] = w
 
-  def toWrite[I, O](r: WriteLike[I, O]): Write[I, O] =
+  def toWrite[I, O](r: Write[I, O]): Write[I, O] =
     new Write[I, O] {
       def writes(data: I): O = r.writes(data)
     }
 
   implicit def zero[I]: Write[I, I] =
-    toWrite(WriteLike.zero[I])
+    Write(identity[I] _)
 
   implicit def contravariantWrite[O]: Contravariant[Write[?, O]] =
     new Contravariant[Write[?, O]] {

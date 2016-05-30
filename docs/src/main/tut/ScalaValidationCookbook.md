@@ -127,7 +127,7 @@ val r = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
 
   val tupleR = Rule.fromMapping[JsValue, (String, String)] {
-    case JsObject(Seq((key, JsString(value)))) => Valid(key.toString -> value)
+    case JsValue(Seq((key, JsString(value)))) => Valid(key.toString -> value)
     case _ => Invalid(Seq(ValidationError("BAAAM")))
   }
 
@@ -207,7 +207,7 @@ case class Creature(
   isDead: Boolean,
   weight: Float)
 
-implicit val creatureWrite = To[JsObject] { __ =>
+implicit val creatureWrite = To[JsValue] { __ =>
   import jto.validation.playjson.Writes._
   ((__ \ "name").write[String] ~
    (__ \ "isDead").write[Boolean] ~
@@ -215,7 +215,7 @@ implicit val creatureWrite = To[JsObject] { __ =>
 }
 ```
 ```tut
-To[Creature, JsObject](Creature("gremlins", false, 1f))
+To[Creature, JsValue](Creature("gremlins", false, 1f))
 ```
 
 ### Adding static values to a `Write`
@@ -228,7 +228,7 @@ case class LatLong(lat: Float, long: Float)
 
 implicit val latLongWrite = {
   import jto.validation.playjson.Writes._
-  To[JsObject] { __ =>
+  To[JsValue] { __ =>
     ((__ \ "lat").write[Float] ~
      (__ \ "long").write[Float]).unlifted(LatLong.unapply)
   }
@@ -238,7 +238,7 @@ case class Point(coords: LatLong)
 
 implicit val pointWrite = {
   import jto.validation.playjson.Writes._
-  To[JsObject] { __ =>
+  To[JsValue] { __ =>
     ((__ \ "coords").write[LatLong] ~
      (__ \ "type").write[String]) ((_: Point).coords -> "point")
   }

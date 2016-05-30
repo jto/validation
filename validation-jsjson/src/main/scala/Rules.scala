@@ -79,27 +79,27 @@ object Rules extends DefaultRules[js.Dynamic] {
   }("error.invalid", "null")
 
   implicit def ooo[O](
-      p: Path)(implicit pick: Path => RuleLike[js.Dynamic, js.Dynamic],
-               coerce: RuleLike[js.Dynamic, O]): Rule[js.Dynamic, Option[O]] =
+      p: Path)(implicit pick: Path => Rule[js.Dynamic, js.Dynamic],
+               coerce: Rule[js.Dynamic, O]): Rule[js.Dynamic, Option[O]] =
     optionR(Rule.zero[O])(pick, coerce)(p)
 
   def optionR[J, O](
-      r: => RuleLike[J, O], noneValues: RuleLike[js.Dynamic, js.Dynamic]*)(
-      implicit pick: Path => RuleLike[js.Dynamic, js.Dynamic],
-      coerce: RuleLike[js.Dynamic, J]): Path => Rule[js.Dynamic, Option[O]] =
+      r: => Rule[J, O], noneValues: Rule[js.Dynamic, js.Dynamic]*)(
+      implicit pick: Path => Rule[js.Dynamic, js.Dynamic],
+      coerce: Rule[js.Dynamic, J]): Path => Rule[js.Dynamic, Option[O]] =
     super.opt[J, O](r, (jsNullR.map(n => n: js.Dynamic) +: noneValues): _*)
 
   implicit def mapR[O](
-      implicit r: RuleLike[js.Dynamic, O]): Rule[js.Dynamic, Map[String, O]] =
+      implicit r: Rule[js.Dynamic, O]): Rule[js.Dynamic, Map[String, O]] =
     super.mapR[js.Dynamic, O](r, jsObjectR.map(_.toSeq))
 
   implicit def jsDictToDyn[O](
-      implicit r: RuleLike[js.Dictionary[js.Dynamic], O])
+      implicit r: Rule[js.Dictionary[js.Dynamic], O])
     : Rule[js.Dynamic, O] =
     jsObjectR.andThen(r)
 
   implicit def pickInJson[II <: js.Dynamic, O](p: Path)(
-      implicit r: RuleLike[js.Dynamic, O]): Rule[II, O] = {
+      implicit r: Rule[js.Dynamic, O]): Rule[II, O] = {
     def search(path: Path, json: js.Dynamic): Option[js.Dynamic] =
       path.path match {
         case KeyPathNode(k) :: t =>
@@ -128,16 +128,16 @@ object Rules extends DefaultRules[js.Dynamic] {
 
   // XXX: a bit of boilerplate
   private def pickInS[T](
-      implicit r: RuleLike[Seq[js.Dynamic], T]): Rule[js.Dynamic, T] =
+      implicit r: Rule[Seq[js.Dynamic], T]): Rule[js.Dynamic, T] =
     jsArrayR[js.Dynamic].map(fs => Seq(fs: _*)).andThen(r)
-  implicit def pickSeq[O](implicit r: RuleLike[js.Dynamic, O]) =
+  implicit def pickSeq[O](implicit r: Rule[js.Dynamic, O]) =
     pickInS(seqR[js.Dynamic, O])
-  implicit def pickSet[O](implicit r: RuleLike[js.Dynamic, O]) =
+  implicit def pickSet[O](implicit r: Rule[js.Dynamic, O]) =
     pickInS(setR[js.Dynamic, O])
-  implicit def pickList[O](implicit r: RuleLike[js.Dynamic, O]) =
+  implicit def pickList[O](implicit r: Rule[js.Dynamic, O]) =
     pickInS(listR[js.Dynamic, O])
   implicit def pickArray[O: scala.reflect.ClassTag](
-      implicit r: RuleLike[js.Dynamic, O]) = pickInS(arrayR[js.Dynamic, O])
-  implicit def pickTraversable[O](implicit r: RuleLike[js.Dynamic, O]) =
+      implicit r: Rule[js.Dynamic, O]) = pickInS(arrayR[js.Dynamic, O])
+  implicit def pickTraversable[O](implicit r: Rule[js.Dynamic, O]) =
     pickInS(traversableR[js.Dynamic, O])
 }

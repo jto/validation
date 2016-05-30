@@ -131,7 +131,8 @@ trait DateRules {
   * GenericRules provides basic constraints, utility methods on Rules, and completely generic Rules.
   * Extends this trait if your implementing a new set of Rules.
   */
-trait GenericRules {
+trait GenericRules[II] {
+  def stringR: Rule[II, String] // Abstract member
 
   /**
     * Create a new constraint, verifying that the provided predicate is satisfied.
@@ -143,10 +144,11 @@ trait GenericRules {
     * @param pred A predicate to satify
     * @return A new Rule validating data of type `I` against a predicate `p`
     */
-  def validateWith[I](msg: String, args: Any*)(pred: I => Boolean) =
-    Rule.fromMapping[I, I] { v =>
+  def validateWith[A](msg: String, args: Any*)(
+      pred: A => Boolean)(implicit r: Rule[II, A]): Rule[II, A] =
+    r.andThen(Rule.fromMapping[A, A] { v =>
       if (!pred(v)) Invalid(Seq(ValidationError(msg, args: _*))) else Valid(v)
-    }
+    })
 
   /**
     * lift a `Rule[I, O]` to a Rule of `Rule[Seq[I], Array[O]]`
@@ -157,7 +159,7 @@ trait GenericRules {
     * @return A new Rule
     */
   implicit def arrayR[I, O: scala.reflect.ClassTag](
-      implicit r: RuleLike[I, O]): Rule[Seq[I], Array[O]] =
+      implicit r: Rule[I, O]): Rule[Seq[I], Array[O]] =
     seqR[I, O](r).map(_.toArray)
 
   /**
@@ -169,7 +171,7 @@ trait GenericRules {
     * @return A new Rule
     */
   implicit def traversableR[I, O](
-      implicit r: RuleLike[I, O]): Rule[Seq[I], Traversable[O]] =
+      implicit r: Rule[I, O]): Rule[Seq[I], Traversable[O]] =
     seqR[I, O](r).map(_.toTraversable)
 
   /**
@@ -180,7 +182,7 @@ trait GenericRules {
     * @param r A Rule[I, O] to lift
     * @return A new Rule
     */
-  implicit def setR[I, O](implicit r: RuleLike[I, O]): Rule[Seq[I], Set[O]] =
+  implicit def setR[I, O](implicit r: Rule[I, O]): Rule[Seq[I], Set[O]] =
     seqR[I, O](r).map(_.toSet)
 
   /**
@@ -191,16 +193,15 @@ trait GenericRules {
     * @param r A Rule[I, O] to lift
     * @return A new Rule
     */
-  implicit def seqR[I, O](implicit r: RuleLike[I, O]): Rule[Seq[I], Seq[O]] =
-    Rule {
-      case is =>
-        val withI = is.zipWithIndex.map {
-          case (v, i) =>
-            Rule.toRule(r).repath((Path \ i) ++ _).validate(v)
-        }
-        import cats.std.list._
-        import cats.syntax.traverse._
-        withI.toList.sequenceU
+  implicit def seqR[I, O](implicit r: Rule[I, O]): Rule[Seq[I], Seq[O]] =
+    Rule { is =>
+      val withI = is.zipWithIndex.map {
+        case (v, i) =>
+          Rule.toRule(r).repath((Path \ i) ++ _).validate(v)
+      }
+      import cats.std.list._
+      import cats.syntax.traverse._
+      withI.toList.sequenceU
     }
 
   /**
@@ -211,7 +212,7 @@ trait GenericRules {
     * @param r A Rule[I, O] to lift
     * @return A new Rule
     */
-  implicit def listR[I, O](implicit r: RuleLike[I, O]): Rule[Seq[I], List[O]] =
+  implicit def listR[I, O](implicit r: Rule[I, O]): Rule[Seq[I], List[O]] =
     seqR[I, O](r).map(_.toList)
 
   /**
@@ -220,7 +221,7 @@ trait GenericRules {
     *   (Path \ "foo").read(headAs(int))
     * }}}
     */
-  implicit def headAs[I, O](implicit c: RuleLike[I, O]) =
+  implicit def headAs[I, O](implicit c: Rule[I, O]) =
     Rule
       .fromMapping[Seq[I], I] {
         _.headOption
@@ -230,7 +231,7 @@ trait GenericRules {
       }
       .andThen(c)
 
-  def not[I, O](r: RuleLike[I, O]) = Rule[I, I] { d =>
+  def not[I, O](r: Rule[I, O]) = Rule[I, I] { d =>
     r.validate(d) match {
       case Valid(_) => Invalid(Nil)
       case Invalid(_) => Valid(d)
@@ -249,7 +250,8 @@ trait GenericRules {
     *   (Path \ "foo").read(equalTo("bar"))
     * }}}
     */
-  def equalTo[T](t: T) = validateWith[T]("error.equals", t) { _.equals(t) }
+  def equalTo[A](t: A)(implicit r: Rule[II, A]): Rule[II, A] =
+    validateWith[A]("error.equals", t)(_.equals(t))
 
   /**
     * a Rule validating that a String is not empty.
@@ -258,45 +260,40 @@ trait GenericRules {
     *   (Path \ "foo").read(notEmpty)
     * }}}
     */
-  def notEmpty = validateWith[String]("error.required") { !_.isEmpty }
+  val notEmpty: Rule[II, String] =
+    validateWith[String]("error.required")(!_.isEmpty)(stringR)
 
   /**
     * {{{
     *   (Path \ "foo").read(min(0)) // validate that there's a positive int at (Path \ "foo")
     * }}}
     */
-  def min[T](m: T)(implicit o: Ordering[T]) = validateWith[T]("error.min", m) {
-    x =>
-      o.gteq(x, m)
-  }
+  def min[T](m: T)(implicit o: Ordering[T], r: Rule[II, T]): Rule[II, T] =
+    validateWith[T]("error.min", m)(x => o.gteq(x, m))
 
   /**
     * {{{
     *   (Path \ "foo").read(max(0)) // validate that there's a negative int at (Path \ "foo")
     * }}}
     */
-  def max[T](m: T)(implicit o: Ordering[T]) = validateWith[T]("error.max", m) {
-    x =>
-      o.lteq(x, m)
-  }
+  def max[T](m: T)(implicit o: Ordering[T], r: Rule[II, T]): Rule[II, T] =
+    validateWith[T]("error.max", m)(x => o.lteq(x, m))
 
   /**
     * {{{
     *   (Path \ "foo").read(minLength(5)) // The length of this String must be >= 5
     * }}}
     */
-  def minLength(l: Int) = validateWith[String]("error.minLength", l) {
-    _.size >= l
-  }
+  def minLength(l: Int): Rule[II, String] =
+    validateWith[String]("error.minLength", l)(_.size >= l)(stringR)
 
   /**
     * {{{
     *   (Path \ "foo").read(maxLength(5)) // The length of this String must be <= 5
     * }}}
     */
-  def maxLength(l: Int) = validateWith[String]("error.maxLength", l) {
-    _.size <= l
-  }
+  def maxLength(l: Int): Rule[II, String] =
+    validateWith[String]("error.maxLength", l)(_.size <= l)(stringR)
 
   /**
     * Validate that a String matches the provided regex
@@ -304,10 +301,9 @@ trait GenericRules {
     *   (Path \ "foo").read(pattern("[a-z]".r)) // This String contains only letters
     * }}}
     */
-  def pattern(regex: scala.util.matching.Regex) =
-    validateWith("error.pattern", regex) {
-      regex.unapplySeq(_: String).isDefined
-    }
+  def pattern(regex: scala.util.matching.Regex): Rule[II, String] =
+    validateWith("error.pattern", regex)(
+        regex.unapplySeq(_: String).isDefined)(stringR)
 
   /**
     * Validate that a String is a valid email
@@ -315,11 +311,13 @@ trait GenericRules {
     *   (Path \ "email").read(email) // This String is an email
     * }}}
     */
-  def email =
-    Rule.fromMapping[String, String](pattern(
+  def email: Rule[II, String] =
+    Rule.fromMapping[II, String](
+        pattern(
             """\b[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\b""".r)
-          .validate(_: String)
-          .bimap(_ => Seq(ValidationError("error.email")), identity))
+          .validate(_)
+          .bimap(_ => Seq(ValidationError("error.email")), identity)
+    )
 
   /**
     * A Rule that always succeed
@@ -329,77 +327,17 @@ trait GenericRules {
   /**
     * A Rule for HTML checkboxes
     */
-  def checked[I](implicit b: RuleLike[I, Boolean]) =
-    Rule.toRule(b) andThen GenericRules.equalTo(true)
-}
-
-object GenericRules extends GenericRules
-
-trait ParsingRules { self: GenericRules =>
-
-  private def stringAs[T](
-      f: PartialFunction[BigDecimal, Validated[Seq[ValidationError], T]])(
-      args: Any*) =
-    Rule.fromMapping[String, T] {
-      val toB: PartialFunction[String, BigDecimal] = {
-        case s if s.matches("""[-+]?[0-9]*\.?[0-9]+""") => BigDecimal(s)
-      }
-      toB
-        .lift(_)
-        .flatMap(f.lift)
-        .getOrElse(Invalid(Seq(ValidationError("error.number", args: _*))))
-    }
-
-  implicit def intR =
-    stringAs {
-      case s if s.isValidInt => Valid(s.toInt)
-    }("Int")
-
-  implicit def shortR =
-    stringAs {
-      case s if s.isValidShort => Valid(s.toShort)
-    }("Short")
-
-  implicit def booleanR = Rule.fromMapping[String, Boolean] {
-    pattern("""(?iu)true|false""".r)
-      .validate(_: String)
-      .map(java.lang.Boolean.parseBoolean)
-      .bimap(_ => Seq(ValidationError("error.invalid", "Boolean")), identity)
-  }
-
-  implicit def longR =
-    stringAs {
-      case s if s.isValidLong => Valid(s.toLong)
-    }("Long")
-
-  implicit def floatR =
-    stringAs {
-      case s if s.isDecimalFloat => Valid(s.toFloat)
-    }("Float")
-
-  implicit def doubleR =
-    stringAs {
-      case s if s.isDecimalDouble => Valid(s.toDouble)
-    }("Double")
-
-  implicit def javaBigDecimalR =
-    stringAs {
-      case s => Valid(s.bigDecimal)
-    }("BigDecimal")
-
-  implicit def bigDecimal =
-    stringAs {
-      case s => Valid(s)
-    }("BigDecimal")
+  def checked(implicit b: Rule[II, Boolean]): Rule[II, Boolean] =
+    equalTo(true)(b)
 }
 
 /**
   * DefaultRules provides basic rules implementations for inputs of type `I`
   * Extends this trait if your implementing a new set of Rules for `I`.
   */
-trait DefaultRules[I] extends GenericRules with DateRules {
-  protected def opt[J, O](r: => RuleLike[J, O], noneValues: RuleLike[I, I]*)(
-      implicit pick: Path => RuleLike[I, I], coerce: RuleLike[I, J]) =
+trait DefaultRules[I] extends GenericRules[I] with DateRules {
+  protected def opt[J, O](r: Rule[J, O], noneValues: Rule[I, I]*)(
+      implicit pick: Path => Rule[I, I], coerce: Rule[I, J]) =
     (path: Path) =>
       Rule[I, Option[O]] { (d: I) =>
         val isNone =
@@ -421,8 +359,8 @@ trait DefaultRules[I] extends GenericRules with DateRules {
         )
     }
 
-  def mapR[K, O](r: RuleLike[K, O],
-                 p: RuleLike[I, Seq[(String, K)]]): Rule[I, Map[String, O]] = {
+  def mapR[K, O](
+      r: Rule[K, O], p: Rule[I, Seq[(String, K)]]): Rule[I, Map[String, O]] = {
     Rule
       .toRule(p)
       .andThen(Path)(

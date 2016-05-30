@@ -38,14 +38,14 @@ object Writes
   }
 
   implicit def errorsW(
-      implicit wErrs: WriteLike[Seq[ValidationError], js.Dynamic]) =
+      implicit wErrs: Write[Seq[ValidationError], js.Dynamic]) =
     Write[(Path, Seq[ValidationError]), js.Dynamic] {
       case (p, errs) =>
         js.Dynamic.literal(p.toString -> wErrs.writes(errs))
     }
 
   implicit def failureW(
-      implicit w: WriteLike[(Path, Seq[ValidationError]), js.Dynamic]) =
+      implicit w: Write[(Path, Seq[ValidationError]), js.Dynamic]) =
     Write[Invalid[Seq[(Path, Seq[ValidationError])]], js.Dynamic] {
       case Invalid(errs) =>
         errs.map(w.writes).reduce(jsonMonoid.combine)
@@ -68,19 +68,19 @@ object Writes
     Write[Boolean, js.Dynamic](_.asInstanceOf[js.Dynamic])
 
   implicit def seqToJsArray[I](
-      implicit w: WriteLike[I, js.Dynamic]): Write[Seq[I], js.Dynamic] =
+      implicit w: Write[I, js.Dynamic]): Write[Seq[I], js.Dynamic] =
     Write(ss => js.Array(ss.map(w.writes _): _*).asInstanceOf[js.Dynamic])
 
-  def optionW[I, J](r: => WriteLike[I, J])(
-      implicit w: Path => WriteLike[J, js.Dynamic])
+  def optionW[I, J](r: => Write[I, J])(
+      implicit w: Path => Write[J, js.Dynamic])
     : Path => Write[Option[I], js.Dynamic] =
     super.optionW[I, J, js.Dynamic](r, js.Dynamic.literal())
 
-  implicit def optionW[I](implicit w: Path => WriteLike[I, js.Dynamic])
+  implicit def optionW[I](implicit w: Path => Write[I, js.Dynamic])
     : Path => Write[Option[I], js.Dynamic] =
     optionW(Write.zero[I])
 
-  implicit def mapW[I](implicit w: WriteLike[I, js.Dynamic]) =
+  implicit def mapW[I](implicit w: Write[I, js.Dynamic]) =
     Write[Map[String, I], js.Dynamic] { m =>
       // Can't use js.Dynamic.literal here because of SI-9308.
       js.Dictionary[js.Dynamic](m.mapValues(w.writes).toSeq: _*)
@@ -88,7 +88,7 @@ object Writes
     }
 
   implicit def writeJson[I](path: Path)(
-      implicit w: WriteLike[I, js.Dynamic]): Write[I, js.Dynamic] = Write {
+      implicit w: Write[I, js.Dynamic]): Write[I, js.Dynamic] = Write {
     i =>
       path match {
         case Path(KeyPathNode(x) :: _) \: _ =>
@@ -99,7 +99,7 @@ object Writes
         case Path(Nil) =>
           w.writes(i).asInstanceOf[js.Dynamic]
         case _ =>
-          throw new RuntimeException(s"path $path is not a path of JsObject") // XXX: should be a compile time error
+          throw new RuntimeException(s"path $path is not a path of JsValue") // XXX: should be a compile time error
       }
   }
 }

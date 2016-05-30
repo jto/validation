@@ -188,7 +188,7 @@ Writes are implemented in a similar fashion, but a generally easier to implement
 
 ```tut
 {
-  implicit def writeJson[I](path: Path)(implicit w: Write[I, JsValue]): Write[I, JsObject] = ???
+  implicit def writeJson[I](path: Path)(implicit w: Write[I, JsValue]): Write[I, JsValue] = ???
 }
 ```
 
@@ -202,13 +202,13 @@ And you then defines all the primitive writes:
 
 ### Monoid
 
-In order to be able to use writes combinators, you also need to create an implementation of `Monoid` for your output type. For example, to create a complex write of `JsObject`, we had to implement a `Monoid[JsObject]`:
+In order to be able to use writes combinators, you also need to create an implementation of `Monoid` for your output type. For example, to create a complex write of `JsValue`, we had to implement a `Monoid[JsValue]`:
 
 ```tut
 {
   import cats.Monoid
-  implicit def jsonMonoid = new Monoid[JsObject] {
-    def combine(a1: JsObject, a2: JsObject) = a1 deepMerge a2
+  implicit def jsonMonoid = new Monoid[JsValue] {
+    def combine(a1: JsValue, a2: JsValue) = a1 deepMerge a2
     def empty = Json.obj()
   }
 }
@@ -226,7 +226,7 @@ case class User(
   email: Option[String],
   isAlive: Boolean)
 
-val userWrite = To[JsObject] { __ =>
+val userWrite = To[JsValue] { __ =>
   import jto.validation.playjson.Writes._
   ((__ \ "name").write[String] ~
    (__ \ "age").write[Int] ~

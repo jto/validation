@@ -103,7 +103,7 @@ object MappingMacros {
                       p <- g) yield {
       val term = p.asTerm
       val name = q"""${term.name.toString}"""
-      q"""(__ \ $name).write[${term.typeSignature}]"""
+      q"""(__ \ $name).as[${term.typeSignature}]"""
     }
 
     val typeI = weakTypeOf[I].dealias
@@ -141,7 +141,7 @@ object MappingMacros {
                      p <- g) yield {
       val term = p.asTerm
       val name = q"""${term.name.toString}"""
-      q"""(__ \ $name).read[${term.typeSignature}]"""
+      q"""(__ \ $name).as[${term.typeSignature}]"""
     }
 
     val typeI = weakTypeOf[I].dealias
@@ -174,12 +174,13 @@ object MappingMacros {
         q"""{ _root_.jto.validation.From[${typeI}] { __ => $body } }""")
   }
 
-  def format[IR: c.WeakTypeTag, IW: c.WeakTypeTag, O: c.WeakTypeTag](
-      c: Context): c.Expr[Format[IR, IW, O]] = {
-    import c.universe._
+  // TODO: we need to come up with a generic way to combine these macros
+  // def format[IR: c.WeakTypeTag, IW: c.WeakTypeTag, O: c.WeakTypeTag](
+  //     c: Context): c.Expr[Format[IR, IW, O]] = {
+  //   import c.universe._
 
-    val r = rule[IR, O](c)
-    val w = write[O, IW](c)
-    c.Expr[Format[IR, IW, O]](q"""_root_.jto.validation.Format($r, $w)""")
-  }
+  //   val r = rule[IR, O](c)
+  //   val w = write[O, IW](c)
+  //   c.Expr[Format[IR, IW, O]](q"""_root_.jto.validation.Format($r, $w)""")
+  // }
 }

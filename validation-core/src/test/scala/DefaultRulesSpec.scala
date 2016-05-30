@@ -1,11 +1,18 @@
 import jto.validation._
-
 import org.scalatest._
+import scala.reflect.runtime.universe._
 
 class DefaultRulesSpec extends WordSpec with Matchers {
 
-  object R extends GenericRules
+  object R extends GenericRules[Any] {
+    def stringR: Rule[Any, String] = r[String]
+  }
   import R._
+
+  implicit def r[A: TypeTag]: Rule[Any, A] = Rule {
+    case a: A @unchecked => Valid(a)
+    case _ => Invalid(Seq.empty)
+  }
 
   "DefaultRules" should {
 

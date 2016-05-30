@@ -34,42 +34,7 @@ If you encounter implicit resolution problem, you probably have a name clash. Ma
 
 #### unlift
 
-Since validation does not uses play-functional anymore, all the uses of `unlift` calls should disappear. We recommend you use the `unlifted` method directly.
-
-For example the following code:
-
-```scala
-implicit lazy val w3: Write[User1, UrlFormEncoded] = To[UrlFormEncoded] { __ =>
-  ((__ \ "name").write[String] ~
-   (__ \ "friend").write[Option[User1]])(unlift(User1.unapply _))
-}
-```
-
-becomes
-
-```scala
-implicit lazy val w3: Write[User1, UrlFormEncoded] = To[UrlFormEncoded] { __ =>
-  ((__ \ "name").write[String] ~
-   (__ \ "friend").write[Option[User1]]).unlifted(User1.unapply)
-}
-```
-
-The same method is also available on `Format` so
-
-```scala
-lazy val w: Format[JsValue, JsObject, RecUser] = Formatting[JsValue, JsObject] { __ =>
-  ((__ \ "name").format[String] ~
-   (__ \ "friends").format(seqR(w), seqW(w)))(RecUser.apply _, unlift(RecUser.unapply _))
-}
-```
-becomes
-
-```scala
-lazy val w: Format[JsValue, JsObject, RecUser] = Formatting[JsValue, JsObject] { __ =>
-  ((__ \ "name").format[String] ~
-   (__ \ "friends").format(seqR(w), seqW(w))).unlifted(RecUser.apply, RecUser.unapply)
-}
-```
+Since validation does not uses play-functional anymore, `unlift` should be imported [directly](https://github.com/playframework/playframework/blob/2.5.3/framework/src/play-functional/src/main/scala/play/api/libs/functional/syntax/package.scala#L31) as `scala.Function.unlift` instead of `play.api.libs.functional.unlift`.
 
 #### ValidationError
 

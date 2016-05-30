@@ -9,3 +9,5 @@
 - [Extensions: Supporting new types](ScalaValidationExtensions.md)
 - [Exporting Validations to Javascript using Scala.js](ScalaJsValidation.md)
 - [Cookbook](ScalaValidationCookbook.md)
+- [Release notes](ReleaseNotes.md)
+- [v2.0 Migration guide](V2MigrationGuide.md)

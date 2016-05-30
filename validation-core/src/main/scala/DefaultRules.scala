@@ -114,9 +114,9 @@ trait DateRules {
     * @param pattern a date pattern, as specified in `java.text.SimpleDateFormat`.
     * @param corrector a simple string transformation function that can be used to transform input String before parsing. Useful when standards are not exactly respected and require a few tweaks
     */
-  def sqlDateR(pattern: String,
-               corrector: String => String =
-                 identity): Rule[String, java.sql.Date] =
+  def sqlDateR(
+      pattern: String,
+      corrector: String => String = identity): Rule[String, java.sql.Date] =
     dateR(pattern, corrector).map((d: java.util.Date) =>
           new java.sql.Date(d.getTime))
 

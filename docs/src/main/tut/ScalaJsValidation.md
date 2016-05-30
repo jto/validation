@@ -4,7 +4,7 @@ def cat(path: String): Unit = {
   println(scala.io.Source.fromURL(url).mkString.trim)
 }
 ```
-Validation 2.0 supports Scala.js, which allows compiling validation logic for JavaScript to run it directly in the browser:
+Validation 2.0 supports Scala.js, which allows compiling validation logic for JavaScript to run it directly in the browser. Let's begin by playing with it. Try to change the `tryMe` variable in the following editor. The result is automatically output.
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.css">
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.min.js"></script>
@@ -14,20 +14,31 @@ Validation 2.0 supports Scala.js, which allows compiling validation logic for Ja
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/theme/material.min.css">
 <style type="text/css">
   .CodeMirror {
-    width: 400px;
+    width: 350px;
+    float: left;
     height: 300px;
     font-size:13px;
     margin: 10px;
   }
+
+  #code-form {
+    overflow: auto;
+  }
 </style>
-<form>
-  <textarea id="json-form" rows="10" cols="50">{
+<form id="code-form">
+<textarea id="json-form" rows="10" cols="50">
+// --------
+// Try editing the tryMe object
+// --------
+var tryMe = {
   "name" : "supercat",
   "age" : 20,
   "email" : "e@mail.com",
   "isAlive" : true
-  }</textarea>
-  <textarea name="" id="validation-output" cols="40" rows="50"></textarea>
+}
+client.Validate().user(tryMe)
+</textarea>
+<textarea name="" id="validation-output" cols="40" rows="50"></textarea>
 </form>
 
 <script src="https://olivierblanvillain.github.io/play-scalajs-validation-example/assets/js-jsdeps.min.js" type="text/javascript"></script>
@@ -35,7 +46,7 @@ Validation 2.0 supports Scala.js, which allows compiling validation logic for Ja
 <script src="https://olivierblanvillain.github.io/play-scalajs-validation-example/assets/js-launcher.js" type="text/javascript"></script>
 
 <script type="text/javascript">
-
+(function() {
   var jsonFormTextarea = document.getElementById("json-form")
   var editor = CodeMirror.fromTextArea(jsonFormTextarea, {
     lineNumbers: true,
@@ -63,20 +74,21 @@ Validation 2.0 supports Scala.js, which allows compiling validation logic for Ja
 
   var demo = function(jsString) {
     try {
-      var json = JSON.parse(jsString);
-      var out = JSON.stringify(client.Validate().user(json), null, 2);
+      var jsOut = eval(jsString);
+      var out = JSON.stringify(jsOut, null, 2);
       editorOutput.setValue(out);
     } catch(err) {
-      editorOutput.setValue(err);
+      editorOutput.setValue(err.message);
     }
   };
 
-  demo(jsonFormTextarea.value);
+  demo(editor.getValue());
 
-  CodeMirror.on(editor, 'change', function(ins, obj) {
+  CodeMirror.on(editor, 'changes', function(ins, obj) {
     var js = ins.getValue();
     demo(js);
   });
+})()
 </script>
 
 Using validation from Scala.js is no different than any other scala library. There is however some friction to intergration Scala.js into an existing Play + JavaScript, which we try to adress in this document. Assuming no prior knowledge on Scala.js, we explain how to cross compiled and integrate validation logic into an existing Play/JavaScript application.

@@ -35,8 +35,8 @@ var tryMe = {
   "age" : 20,
   "email" : "e@mail.com",
   "isAlive" : true
-}
-client.Validate().user(tryMe)
+};
+client.Validate().user(tryMe);
 </textarea>
 <textarea name="" id="validation-output" cols="40" rows="50"></textarea>
 </form>

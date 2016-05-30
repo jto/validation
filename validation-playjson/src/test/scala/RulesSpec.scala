@@ -1,7 +1,7 @@
 import jto.validation._
 import jto.validation.playjson._
 import org.scalatest._
-import play.api.libs.json.{JsValue, JsValue, Json, JsString, JsNumber, JsBoolean, JsArray, JsNull}
+import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray, JsNull}
 
 class RulesSpec extends WordSpec with Matchers {
 
@@ -177,19 +177,19 @@ class RulesSpec extends WordSpec with Matchers {
                         ValidationError("error.invalid", "String")))))
       }
 
-      "JsValue" in {
+      "JsObject" in {
         (Path \ "o")
-          .read[JsValue, JsValue]
+          .read[JsValue, JsObject]
           .validate(Json.obj("o" -> Json.obj("n" -> "foo"))) shouldBe
-        (Valid(JsValue(Seq("n" -> JsString("foo")))))
-        (Path \ "n").read[JsValue, JsValue].validate(Json.obj("n" -> 42)) shouldBe
+        (Valid(JsObject(Seq("n" -> JsString("foo")))))
+        (Path \ "n").read[JsValue, JsObject].validate(Json.obj("n" -> 42)) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
                         ValidationError("error.invalid", "Object")))))
-        (Path \ "n").read[JsValue, JsValue].validate(Json.obj("n" -> "foo")) shouldBe
+        (Path \ "n").read[JsValue, JsObject].validate(Json.obj("n" -> "foo")) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
                         ValidationError("error.invalid", "Object")))))
         (Path \ "n")
-          .read[JsValue, JsValue]
+          .read[JsValue, JsObject]
           .validate(Json.obj("n" -> Seq("foo"))) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
                         ValidationError("error.invalid", "Object")))))
@@ -316,7 +316,7 @@ class RulesSpec extends WordSpec with Matchers {
                         ValidationError("error.invalid", "Array")))))
         (Path \ "n")
           .read[JsValue, Seq[String]]
-          .validate(JsValue(Seq("n" -> JsArray(Seq(JsString("foo"),
+          .validate(JsObject(Seq("n" -> JsArray(Seq(JsString("foo"),
                                                     JsNumber(2)))))) shouldBe
         (Invalid(Seq(Path \ "n" \ 1 -> Seq(
                         ValidationError("error.invalid", "String")))))
@@ -398,8 +398,10 @@ class RulesSpec extends WordSpec with Matchers {
       From[JsValue] { __ =>
         (__ \ "foo").as((__ \ "foo").as(pickSeq(notEmpty)))
       }.validate(
-        Json.obj("foo" -> Json.obj("foo" -> Seq("bar")))
-      ).toOption.get shouldBe (Seq("bar"))
+            Json.obj("foo" -> Json.obj("foo" -> Seq("bar")))
+        )
+        .toOption
+        .get shouldBe (Seq("bar"))
 
       (Path \ "n")
         .from[JsValue](pickSeq(notEmpty))
@@ -552,7 +554,7 @@ class RulesSpec extends WordSpec with Matchers {
     //   val m =
     //     Json.obj("name" -> "bob",
     //              "friends" -> Seq(
-    //                  Json.obj("name" -> "tom", "friends" -> Seq[JsValue]())))
+    //                  Json.obj("name" -> "tom", "friends" -> Seq[JsObject]())))
 
     //   case class User1(name: String, friend: Option[User1] = None)
     //   val u1 = User1("bob", Some(User1("tom")))

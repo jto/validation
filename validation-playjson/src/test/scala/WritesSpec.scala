@@ -37,12 +37,6 @@ class WritesSpec extends WordSpec with Matchers {
       w.writes("Hello World") shouldBe Json.obj("label" -> "Hello World")
     }
 
-    "ignore values" in {
-      (Path \ "n").write(ignored("foo")).writes("test") shouldBe Json.obj(
-          "n" -> "foo")
-      (Path \ "n").write(ignored(42)).writes(0) shouldBe Json.obj("n" -> 42)
-    }
-
     "write option" in {
       val w = (Path \ "email").write[Option[String], JsValue]
       w.writes(Some("Hello World")) shouldBe Json.obj("email" -> "Hello World")
@@ -108,9 +102,8 @@ class WritesSpec extends WordSpec with Matchers {
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
-        (Path \ "n")
-          .write[jBigDecimal, JsValue]
-          .writes(new jBigDecimal("4.0")) shouldBe (Json.obj("n" -> 4.0))
+        (Path \ "n").write[jBigDecimal, JsValue].writes(new jBigDecimal("4.0")) shouldBe (Json
+              .obj("n" -> 4.0))
         (Path \ "n" \ "o")
           .write[jBigDecimal, JsValue]
           .writes(new jBigDecimal("4.5")) shouldBe
@@ -124,9 +117,7 @@ class WritesSpec extends WordSpec with Matchers {
       "scala BigDecimal" in {
         (Path \ "n").write[BigDecimal, JsValue].writes(BigDecimal("4.0")) shouldBe
         (Json.obj("n" -> 4.0))
-        (Path \ "n" \ "o")
-          .write[BigDecimal, JsValue]
-          .writes(BigDecimal("4.5")) shouldBe
+        (Path \ "n" \ "o").write[BigDecimal, JsValue].writes(BigDecimal("4.5")) shouldBe
         (Json.obj("n" -> Json.obj("o" -> 4.5)))
         (Path \ "n" \ "o" \ "p")
           .write[BigDecimal, JsValue]
@@ -262,8 +253,7 @@ class WritesSpec extends WordSpec with Matchers {
     "compose" in {
       val w: Write[(Option[String], Seq[String]), JsValue] = To[JsValue] {
         __ =>
-          ((__ \ "email").write[Option[String]] ~ (__ \ "phones")
-                .write[Seq[String]]).tupled
+          ((__ \ "email").as[Option[String]] ~ (__ \ "phones").as[Seq[String]]).tupled
       }
 
       val v = Some("jto@foobar.com") -> Seq("01.23.45.67.89", "98.76.54.32.10")
@@ -289,21 +279,21 @@ class WritesSpec extends WordSpec with Matchers {
     //           "msg" -> "validation.type-mismatch",
     //           "args" -> Seq("Int")))))
 
-    //   (Path \ "errors").write[Invalid[(Path, Seq[ValidationError]), String], JsValue]
+    //   (Path \ "errors").as[Invalid[(Path, Seq[ValidationError]), String], JsValue]
     //     .writes(f) shouldBe(error)
     // }
 
     "write Map" in {
       implicit val contactInformation = To[JsValue] { __ =>
-        ((__ \ "label").write[String] ~ (__ \ "email").write[Option[String]] ~
-            (__ \ "phones").write[Seq[String]])
+        ((__ \ "label").as[String] ~ (__ \ "email").as[Option[String]] ~
+            (__ \ "phones").as[Seq[String]])
           .unlifted(ContactInformation.unapply)
       }
 
       implicit val contactWrite = To[JsValue] { __ =>
-        ((__ \ "firstname").write[String] ~ (__ \ "lastname").write[String] ~
-            (__ \ "company").write[Option[String]] ~ (__ \ "informations")
-              .write[Seq[ContactInformation]]).unlifted(Contact.unapply)
+        ((__ \ "firstname").as[String] ~ (__ \ "lastname").as[String] ~
+            (__ \ "company").as[Option[String]] ~ (__ \ "informations")
+              .as[Seq[ContactInformation]]).unlifted(Contact.unapply)
       }
 
       contactWrite.writes(contact) shouldBe contactJson
@@ -322,45 +312,45 @@ class WritesSpec extends WordSpec with Matchers {
       val u1 = User1("bob", Some(User1("tom")))
       val m1 = Json.obj("name" -> "bob", "friend" -> Json.obj("name" -> "tom"))
 
-      "using explicit notation" in {
-        lazy val w: Write[RecUser, JsValue] = To[JsValue] { __ =>
-          ((__ \ "name").write[String] ~ (__ \ "friends").write(seqW(w)))
-            .unlifted(RecUser.unapply)
-        }
-        w.writes(u) shouldBe m
+      // "using explicit notation" in {
+      //   lazy val w: Write[RecUser, JsValue] = To[JsValue] { __ =>
+      //     ((__ \ "name").as[String] ~ (__ \ "friends").as(seqW(w)))
+      //       .unlifted(RecUser.unapply)
+      //   }
+      //   w.writes(u) shouldBe m
 
-        lazy val w2: Write[RecUser, JsValue] =
-          ((Path \ "name").write[String, JsValue] ~ (Path \ "friends").write(
-                  seqW(w2))).unlifted(RecUser.unapply)
-        w2.writes(u) shouldBe m
+      //   lazy val w2: Write[RecUser, JsValue] =
+      //     ((Path \ "name").write[String, JsValue] ~ (Path \ "friends").write(
+      //             seqW(w2))).unlifted(RecUser.unapply)
+      //   w2.writes(u) shouldBe m
 
-        lazy val w3: Write[User1, JsValue] = To[JsValue] { __ =>
-          ((__ \ "name").write[String] ~ (__ \ "friend").write(optionW(w3)))
-            .unlifted(User1.unapply)
-        }
-        w3.writes(u1) shouldBe m1
-      }
+      //   lazy val w3: Write[User1, JsValue] = To[JsValue] { __ =>
+      //     ((__ \ "name").as[String] ~ (__ \ "friend").as(optionW(w3)))
+      //       .unlifted(User1.unapply)
+      //   }
+      //   w3.writes(u1) shouldBe m1
+      // }
 
-      "using implicit notation" in {
-        implicit lazy val w: Write[RecUser, JsValue] = To[JsValue] { __ =>
-          ((__ \ "name").write[String] ~ (__ \ "friends").write[Seq[RecUser]])
-            .unlifted(RecUser.unapply)
-        }
-        w.writes(u) shouldBe m
+      // "using implicit notation" in {
+      //   implicit lazy val w: Write[RecUser, JsValue] = To[JsValue] { __ =>
+      //     ((__ \ "name").as[String] ~ (__ \ "friends").as[Seq[RecUser]])
+      //       .unlifted(RecUser.unapply)
+      //   }
+      //   w.writes(u) shouldBe m
 
-        implicit lazy val w3: Write[User1, JsValue] = To[JsValue] { __ =>
-          ((__ \ "name").write[String] ~ (__ \ "friend").write[Option[User1]])
-            .unlifted(User1.unapply)
-        }
-        w3.writes(u1) shouldBe m1
-      }
+      //   implicit lazy val w3: Write[User1, JsValue] = To[JsValue] { __ =>
+      //     ((__ \ "name").as[String] ~ (__ \ "friend").as[Option[User1]])
+      //       .unlifted(User1.unapply)
+      //   }
+      //   w3.writes(u1) shouldBe m1
+      // }
     }
 
     "support write of value class" in {
       import TestValueClass._
 
       val w = To[JsValue] { __ =>
-        (__ \ "id").write[Id]
+        (__ \ "id").as[Id]
       }
 
       w.writes(Id("1")) shouldBe Json.obj("id" -> "1")

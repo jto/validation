@@ -88,18 +88,17 @@ object Writes
     }
 
   implicit def writeJson[I](path: Path)(
-      implicit w: Write[I, js.Dynamic]): Write[I, js.Dynamic] = Write {
-    i =>
-      path match {
-        case Path(KeyPathNode(x) :: _) \: _ =>
-          val ps = path.path.reverse
-          val h = ps.head
-          val o = writeObj(w.writes(i), h)
-          ps.tail.foldLeft(o)(writeObj).asInstanceOf[js.Dynamic]
-        case Path(Nil) =>
-          w.writes(i).asInstanceOf[js.Dynamic]
-        case _ =>
-          throw new RuntimeException(s"path $path is not a path of JsValue") // XXX: should be a compile time error
-      }
+      implicit w: Write[I, js.Dynamic]): Write[I, js.Dynamic] = Write { i =>
+    path match {
+      case Path(KeyPathNode(x) :: _) \: _ =>
+        val ps = path.path.reverse
+        val h = ps.head
+        val o = writeObj(w.writes(i), h)
+        ps.tail.foldLeft(o)(writeObj).asInstanceOf[js.Dynamic]
+      case Path(Nil) =>
+        w.writes(i).asInstanceOf[js.Dynamic]
+      case _ =>
+        throw new RuntimeException(s"path $path is not a path of JsValue") // XXX: should be a compile time error
+    }
   }
 }

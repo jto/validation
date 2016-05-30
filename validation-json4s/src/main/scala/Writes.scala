@@ -29,8 +29,7 @@ object Writes
         }))
   }
 
-  implicit def errorsW(
-      implicit wErrs: Write[Seq[ValidationError], JValue]) =
+  implicit def errorsW(implicit wErrs: Write[Seq[ValidationError], JValue]) =
     Write[(Path, Seq[ValidationError]), JObject] {
       case (p, errs) =>
         JObject(Map(p.toString -> wErrs.writes(errs)))
@@ -62,8 +61,7 @@ object Writes
       implicit w: Write[I, JValue]): Write[Seq[I], JValue] =
     Write(ss => JArray(ss.map(w.writes _).toVector))
 
-  def optionW[I, J](r: => Write[I, J])(
-      implicit w: Path => Write[J, JObject])
+  def optionW[I, J](r: => Write[I, J])(implicit w: Path => Write[J, JObject])
     : Path => Write[Option[I], JObject] =
     super.optionW[I, J, JObject](r, JObject())
 

@@ -16,8 +16,7 @@ object Rules extends DefaultRules[Node] with ParsingRules {
       }
       .andThen(r)
 
-  def attributeR[O](key: String)(
-      implicit r: Rule[String, O]): Rule[Node, O] =
+  def attributeR[O](key: String)(implicit r: Rule[String, O]): Rule[Node, O] =
     Rule
       .fromMapping[Node, String] { node =>
         node.attribute(key).flatMap(_.headOption).map(_.text) match {
@@ -72,16 +71,14 @@ object Rules extends DefaultRules[Node] with ParsingRules {
     pickInS(seqR[Node, O])
   implicit def pickSet[O](implicit r: Rule[Node, O]): Rule[Node, Set[O]] =
     pickInS(setR[Node, O])
-  implicit def pickList[O](
-      implicit r: Rule[Node, O]): Rule[Node, List[O]] =
+  implicit def pickList[O](implicit r: Rule[Node, O]): Rule[Node, List[O]] =
     pickInS(listR[Node, O])
   implicit def pickTraversable[O](
       implicit r: Rule[Node, O]): Rule[Node, Traversable[O]] =
     pickInS(traversableR[Node, O])
 
-  implicit def ooo[O](
-      p: Path)(implicit pick: Path => Rule[Node, Node],
-               coerce: Rule[Node, O]): Rule[Node, Option[O]] =
+  implicit def ooo[O](p: Path)(implicit pick: Path => Rule[Node, Node],
+                               coerce: Rule[Node, O]): Rule[Node, Option[O]] =
     optionR(Rule.zero[O])(pick, coerce)(p)
 
   def optionR[J, O](r: => Rule[J, O], noneValues: Rule[Node, Node]*)(

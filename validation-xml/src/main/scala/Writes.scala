@@ -19,17 +19,15 @@ object Writes
     with DefaultMonoids
     with GenericWrites[XmlWriter] {
 
-  implicit def nodeW[I](
-      implicit w: Write[I, String]): Write[I, XmlWriter] = Write {
-    i => node =>
+  implicit def nodeW[I](implicit w: Write[I, String]): Write[I, XmlWriter] =
+    Write { i => node =>
       node.copy(child = node.child :+ new Text(w.writes(i)))
-  }
+    }
 
   def attributeW[I](name: String)(
-      implicit w: Write[I, String]): Write[I, XmlWriter] = Write {
-    i => node =>
-      node.copy(attributes = node.attributes.append(
-              new UnprefixedAttribute(name, w.writes(i), Null)))
+      implicit w: Write[I, String]): Write[I, XmlWriter] = Write { i => node =>
+    node.copy(attributes = node.attributes.append(
+            new UnprefixedAttribute(name, w.writes(i), Null)))
   }
 
   def optAttributeW[I](name: String)(
@@ -67,8 +65,7 @@ object Writes
       is.map(w.writes).foldLeft(xmlMonoid.empty)(xmlMonoid.combine)
   }
 
-  def optionW[I, J](r: => Write[I, J])(
-      implicit w: Path => Write[J, XmlWriter])
+  def optionW[I, J](r: => Write[I, J])(implicit w: Path => Write[J, XmlWriter])
     : Path => Write[Option[I], XmlWriter] =
     super.optionW[I, J, XmlWriter](r, xmlMonoid.empty)
 

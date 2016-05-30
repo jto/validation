@@ -325,8 +325,8 @@ class RulesSpec extends WordSpec with Matchers {
                 Map("foo" -> "bar")))
         (Path \ "n")
           .read[JValue, Map[String, Int]]
-          .validate(JObject(Map("n" -> JObject(Map(
-                              "foo" -> JNumber(4),
+          .validate(JObject(Map("n" -> JObject(
+                          Map("foo" -> JNumber(4),
                               "bar" -> JNumber(5)))))) shouldBe (Valid(
                 Map("foo" -> 4, "bar" -> 5)))
         (Path \ "x")

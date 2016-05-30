@@ -94,8 +94,7 @@ object Rules extends DefaultRules[js.Dynamic] {
     super.mapR[js.Dynamic, O](r, jsObjectR.map(_.toSeq))
 
   implicit def jsDictToDyn[O](
-      implicit r: Rule[js.Dictionary[js.Dynamic], O])
-    : Rule[js.Dynamic, O] =
+      implicit r: Rule[js.Dictionary[js.Dynamic], O]): Rule[js.Dynamic, O] =
     jsObjectR.andThen(r)
 
   implicit def pickInJson[II <: js.Dynamic, O](p: Path)(

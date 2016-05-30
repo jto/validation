@@ -93,8 +93,7 @@ object Rules extends DefaultRules[JValue] {
                coerce: Rule[JValue, O]): Rule[JValue, Option[O]] =
     optionR(Rule.zero[O])(pick, coerce)(p)
 
-  def optionR[J, O](
-      r: => Rule[J, O], noneValues: Rule[JValue, JValue]*)(
+  def optionR[J, O](r: => Rule[J, O], noneValues: Rule[JValue, JValue]*)(
       implicit pick: Path => Rule[JValue, JValue],
       coerce: Rule[JValue, J]): Path => Rule[JValue, Option[O]] =
     super.opt[J, O](r, (jsNullR.map(n => n: JValue) +: noneValues): _*)
@@ -136,8 +135,7 @@ object Rules extends DefaultRules[JValue] {
   }
 
   // XXX: a bit of boilerplate
-  private def pickInS[T](
-      implicit r: Rule[Seq[JValue], T]): Rule[JValue, T] =
+  private def pickInS[T](implicit r: Rule[Seq[JValue], T]): Rule[JValue, T] =
     jsArrayR.map { case JArray(fs) => Seq(fs: _*) }.andThen(r)
   implicit def pickSeq[O](implicit r: Rule[JValue, O]) =
     pickInS(seqR[JValue, O])

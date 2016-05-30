@@ -122,9 +122,8 @@ object Rules extends DefaultRules[PM.PM] with ParsingRules {
   private val isEmpty = validateWith[PM]("validation.empty") { pm =>
     pm.filter { case (_, vs) => !vs.isEmpty }.isEmpty
   }
-  implicit def optionR[O](
-      implicit pick: Path => Rule[PM, PM],
-      coerce: Rule[PM, O]): Path => Rule[PM, Option[O]] =
+  implicit def optionR[O](implicit pick: Path => Rule[PM, PM],
+                          coerce: Rule[PM, O]): Path => Rule[PM, Option[O]] =
     opt(coerce, isEmpty)
 
   def optionR[J, O](r: => Rule[J, O], noneValues: Rule[PM, PM]*)(

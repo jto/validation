@@ -1,6 +1,7 @@
 import jto.validation._
 import jto.validation.forms._
 import org.scalatest._
+import scala.Function.unlift
 
 class FormatSpec extends WordSpec with Matchers {
   case class User(id: Long, name: String)
@@ -62,7 +63,7 @@ class FormatSpec extends WordSpec with Matchers {
       implicit val userF: Format[UrlFormEncoded, UrlFormEncoded, User] =
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
           ((__ \ "id").format[Long] ~
-              (__ \ "name").format[String]).unlifted(User.apply, User.unapply)
+              (__ \ "name").format[String])(User.apply, unlift(User.unapply))
         }
 
       val m = Map("id" -> Seq("1"), "name" -> Seq("Luigi"))
@@ -399,8 +400,8 @@ class FormatSpec extends WordSpec with Matchers {
         lazy val w: Format[UrlFormEncoded, UrlFormEncoded, RecUser] =
           Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
             ((__ \ "name").format[String] ~
-                (__ \ "friends").format(seqR(w), seqW(w)))
-              .unlifted(RecUser.apply, RecUser.unapply)
+                (__ \ "friends").format(seqR(w), seqW(w)))(
+                RecUser.apply, unlift(RecUser.unapply))
           }
         w.validate(m) shouldBe Valid(u)
         w.writes(u) shouldBe (m - "friends[0].friends")
@@ -408,8 +409,8 @@ class FormatSpec extends WordSpec with Matchers {
         lazy val w3: Format[UrlFormEncoded, UrlFormEncoded, User1] =
           Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
             ((__ \ "name").format[String] ~
-                (__ \ "friend").format(optionR(w3), optionW(w3)))
-              .unlifted(User1.apply, User1.unapply)
+                (__ \ "friend").format(optionR(w3), optionW(w3)))(
+                User1.apply, unlift(User1.unapply))
           }
         w3.validate(m1) shouldBe Valid(u1)
         w3.writes(u1) shouldBe m1
@@ -422,8 +423,8 @@ class FormatSpec extends WordSpec with Matchers {
         implicit lazy val w: Format[UrlFormEncoded, UrlFormEncoded, RecUser] =
           Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
             ((__ \ "name").format[String] ~
-                (__ \ "friends").format[Seq[RecUser]])
-              .unlifted(RecUser.apply, RecUser.unapply)
+                (__ \ "friends").format[Seq[RecUser]])(RecUser.apply,
+                                                       unlift(RecUser.unapply))
           }
         w.validate(m) shouldBe Valid(u)
         w.writes(u) shouldBe (m - "friends[0].friends")
@@ -431,8 +432,8 @@ class FormatSpec extends WordSpec with Matchers {
         implicit lazy val w3: Format[UrlFormEncoded, UrlFormEncoded, User1] =
           Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
             ((__ \ "name").format[String] ~
-                (__ \ "friend").format[Option[User1]])
-              .unlifted(User1.apply, User1.unapply)
+                (__ \ "friend").format[Option[User1]])(User1.apply,
+                                                       unlift(User1.unapply))
           }
         w3.validate(m1) shouldBe Valid(u1)
         w3.writes(u1) shouldBe m1

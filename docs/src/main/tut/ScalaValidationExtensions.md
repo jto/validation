@@ -178,7 +178,7 @@ val u = RecUser(
 lazy val w: Rule[JsValue, RecUser] = From[JsValue]{ __ =>
   import jto.validation.playjson.Rules._
   ((__ \ "name").read[String] ~
-   (__ \ "friends").read(seqR(w))) (RecUser.apply _) // !!! recursive rule definition
+   (__ \ "friends").read(seqR(w)))(RecUser.apply) // !!! recursive rule definition
 }
 ```
 
@@ -231,7 +231,7 @@ val userWrite = To[JsObject] { __ =>
   ((__ \ "name").write[String] ~
    (__ \ "age").write[Int] ~
    (__ \ "email").write[Option[String]] ~
-   (__ \ "isAlive").write[Boolean]).unlifted(User.unapply)
+   (__ \ "isAlive").write[Boolean])(unlift(User.unapply))
 }
 ```
 

@@ -2,6 +2,8 @@ import jto.validation._
 import jto.validation.xml._
 import jto.validation.xml.Writes._
 import org.scalatest._
+import scala.Function.unlift
+import scala.Function.unlift
 
 class WritesSpec extends WordSpec with Matchers {
 
@@ -192,33 +194,33 @@ class WritesSpec extends WordSpec with Matchers {
 
       "using explicit notation" in {
         lazy val w: Write[RecUser, XmlWriter] = To[XmlWriter] { __ =>
-          ((__ \ "name").write[String] ~ (__ \ "friends").write(seqW(w)))
-            .unlifted(RecUser.unapply)
+          ((__ \ "name").write[String] ~ (__ \ "friends").write(seqW(w)))(
+              unlift(RecUser.unapply))
         }
         w.writes(u)(<user></user>) shouldBe m
 
         lazy val w2: Write[RecUser, XmlWriter] =
           ((Path \ "name").write[String, XmlWriter] ~ (Path \ "friends").write(
-                  seqW(w2))).unlifted(RecUser.unapply)
+                  seqW(w2)))(unlift(RecUser.unapply))
         w2.writes(u)(<user></user>) shouldBe m
 
         lazy val w3: Write[User1, XmlWriter] = To[XmlWriter] { __ =>
-          ((__ \ "name").write[String] ~ (__ \ "friend").write(optionW(w3)))
-            .unlifted(User1.unapply)
+          ((__ \ "name").write[String] ~ (__ \ "friend").write(optionW(w3)))(
+              unlift(User1.unapply))
         }
         w3.writes(u1)(<user></user>) shouldBe m1
       }
 
       "using implicit notation" in {
         implicit lazy val w: Write[RecUser, XmlWriter] = To[XmlWriter] { __ =>
-          ((__ \ "name").write[String] ~ (__ \ "friends").write[Seq[RecUser]])
-            .unlifted(RecUser.unapply)
+          ((__ \ "name").write[String] ~ (__ \ "friends").write[Seq[RecUser]])(
+              unlift(RecUser.unapply))
         }
         w.writes(u)(<user></user>) shouldBe m
 
         implicit lazy val w3: Write[User1, XmlWriter] = To[XmlWriter] { __ =>
-          ((__ \ "name").write[String] ~ (__ \ "friend").write[Option[User1]])
-            .unlifted(User1.unapply)
+          ((__ \ "name").write[String] ~ (__ \ "friend").write[Option[User1]])(
+              unlift(User1.unapply))
         }
         w3.writes(u1)(<user></user>) shouldBe m1
       }

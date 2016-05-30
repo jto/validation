@@ -32,7 +32,7 @@ Using the json API, you would have defined something like:
     (__ \ "name").read[String] and
     (__ \ "isDead").read[Boolean] and
     (__ \ "weight").read[Float]
-  )(Creature.apply _)
+  )(Creature.apply)
 
   val js = Json.obj( "name" -> "gremlins", "isDead" -> false, "weight" -> 1.0F)
   Json.fromJson[Creature](js)
@@ -49,7 +49,7 @@ implicit val creatureRule = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   ((__ \ "name").read[String] ~
    (__ \ "isDead").read[Boolean] ~
-   (__ \ "weight").read[Float]) (Creature.apply _)
+   (__ \ "weight").read[Float])(Creature.apply)
 }
 ```
 ```tut
@@ -118,7 +118,7 @@ implicit lazy val UserReads: Reads[User] = (
   (__ \ 'id).read[Long] and
   (__ \ 'name).read[String] and
   (__ \ 'friend).lazyReadNullable(UserReads)
-)(User.apply _)
+)(User.apply)
 
 val js = Json.obj(
   "id" -> 123L,
@@ -138,7 +138,7 @@ implicit lazy val userRule: Rule[JsValue, User] = From[JsValue]{ __ =>
   import jto.validation.playjson.Rules._
   ((__ \ "id").read[Long] ~
    (__ \ "name").read[String] ~
-   (__ \ "friend").read(optionR(userRule))) (User.apply _)
+   (__ \ "friend").read(optionR(userRule)))(User.apply)
 }
 
 val js = Json.obj(
@@ -256,7 +256,7 @@ For example, you would have defined a `Writes` for the `Creature` case class thi
     (__ \ "name").write[String] and
     (__ \ "isDead").write[Boolean] and
     (__ \ "weight").write[Float]
-  ).unlifted(Creature.unapply)
+  )(unlift(Creature.unapply))
 
   Json.toJson(Creature("gremlins", false, 1f))
 }
@@ -277,7 +277,7 @@ implicit val creatureWrite = To[JsObject]{ __ =>
   import jto.validation.playjson.Writes._
   ((__ \ "name").write[String] ~
    (__ \ "isDead").write[Boolean] ~
-   (__ \ "weight").write[Float]).unlifted(Creature.unapply)
+   (__ \ "weight").write[Float])(unlift(Creature.unapply))
 }
 ```
 ```tut

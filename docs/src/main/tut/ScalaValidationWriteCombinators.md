@@ -138,7 +138,7 @@ val userWrite = To[JsObject] { __ =>
   ((__ \ "name").write[String] ~
    (__ \ "age").write[Int] ~
    (__ \ "email").write[Option[String]] ~
-   (__ \ "isAlive").write[Boolean]).unlifted(User.unapply)
+   (__ \ "isAlive").write[Boolean])(unlift(User.unapply))
 }
 ```
 

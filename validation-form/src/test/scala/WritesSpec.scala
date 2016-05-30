@@ -1,6 +1,7 @@
 import jto.validation._
 import jto.validation.forms._
 import org.scalatest._
+import scala.Function.unlift
 
 class WritesSpec extends WordSpec with Matchers {
 
@@ -16,7 +17,8 @@ class WritesSpec extends WordSpec with Matchers {
       "Julien",
       "Tournay",
       None,
-      Seq(ContactInformation("Personal",
+      Seq(
+          ContactInformation("Personal",
                              Some("fakecontact@gmail.com"),
                              Seq("01.23.45.67.89", "98.76.54.32.10"))))
 
@@ -316,16 +318,16 @@ class WritesSpec extends WordSpec with Matchers {
         implicit val contactInformation = To[UrlFormEncoded] { __ =>
           ((__ \ "label").write[String] ~
               (__ \ "email").write[Option[String]] ~
-              (__ \ "phones").write[Seq[String]])
-            .unlifted(ContactInformation.unapply)
+              (__ \ "phones").write[Seq[String]])(
+              unlift(ContactInformation.unapply))
         }
 
         To[UrlFormEncoded] { __ =>
           ((__ \ "firstname").write[String] ~
               (__ \ "lastname").write[String] ~
               (__ \ "company").write[Option[String]] ~
-              (__ \ "informations").write[Seq[ContactInformation]])
-            .unlifted(Contact.unapply)
+              (__ \ "informations").write[Seq[ContactInformation]])(
+              unlift(Contact.unapply))
         }
       }
 
@@ -345,18 +347,18 @@ class WritesSpec extends WordSpec with Matchers {
       "using explicit notation" in {
         lazy val w: Write[RecUser, UrlFormEncoded] = To[UrlFormEncoded] { __ =>
           ((__ \ "name").write[String] ~
-              (__ \ "friends").write(seqW(w))).unlifted(RecUser.unapply)
+              (__ \ "friends").write(seqW(w)))(unlift(RecUser.unapply))
         }
         w.writes(u) shouldBe m
 
         lazy val w2: Write[RecUser, UrlFormEncoded] =
           ((Path \ "name").write[String, UrlFormEncoded] ~
-              (Path \ "friends").write(seqW(w2))).unlifted(RecUser.unapply)
+              (Path \ "friends").write(seqW(w2)))(unlift(RecUser.unapply))
         w2.writes(u) shouldBe m
 
         lazy val w3: Write[User1, UrlFormEncoded] = To[UrlFormEncoded] { __ =>
           ((__ \ "name").write[String] ~
-              (__ \ "friend").write(optionW(w3))).unlifted(User1.unapply)
+              (__ \ "friend").write(optionW(w3)))(unlift(User1.unapply))
         }
         w3.writes(u1) shouldBe m1
       }
@@ -365,14 +367,14 @@ class WritesSpec extends WordSpec with Matchers {
         implicit lazy val w: Write[RecUser, UrlFormEncoded] =
           To[UrlFormEncoded] { __ =>
             ((__ \ "name").write[String] ~
-                (__ \ "friends").write[Seq[RecUser]]).unlifted(RecUser.unapply)
+                (__ \ "friends").write[Seq[RecUser]])(unlift(RecUser.unapply))
           }
         w.writes(u) shouldBe m
 
         implicit lazy val w3: Write[User1, UrlFormEncoded] =
           To[UrlFormEncoded] { __ =>
             ((__ \ "name").write[String] ~
-                (__ \ "friend").write[Option[User1]]).unlifted(User1.unapply)
+                (__ \ "friend").write[Option[User1]])(unlift(User1.unapply))
           }
         w3.writes(u1) shouldBe m1
       }

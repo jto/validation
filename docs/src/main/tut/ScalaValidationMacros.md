@@ -27,7 +27,7 @@ implicit val personRule = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   ((__ \ "name").read[String] ~
    (__ \ "age").read[Int] ~
-   (__ \ "lovesChocolate").read[Boolean]) (Person.apply _)
+   (__ \ "lovesChocolate").read[Boolean])(Person.apply)
 }
 ```
 

@@ -19,7 +19,7 @@ implicit val creatureRule = From[JsValue]{ __ =>
   import jto.validation.playjson.Rules._
   ((__ \ "name").read[String] ~
    (__ \ "isDead").read[Boolean] ~
-   (__ \ "weight").read[Float]) (Creature.apply _)
+   (__ \ "weight").read[Float])(Creature.apply)
 }
 ```
 ```tut
@@ -93,7 +93,7 @@ implicit lazy val userRule: Rule[JsValue, User] = From[JsValue] { __ =>
    (__ \ "age").read[Int] ~
    (__ \ "email").read[Option[String]] ~
    (__ \ "isAlive").read[Boolean] ~
-   (__ \ "friend").read[Option[User]]) (User.apply _)
+   (__ \ "friend").read[Option[User]])(User.apply)
 }
 ```
 
@@ -201,6 +201,7 @@ rule.validate(e)
 ```tut:silent
 import jto.validation._
 import play.api.libs.json._
+import scala.Function.unlift
 
 case class Creature(
   name: String,
@@ -211,7 +212,7 @@ implicit val creatureWrite = To[JsObject] { __ =>
   import jto.validation.playjson.Writes._
   ((__ \ "name").write[String] ~
    (__ \ "isDead").write[Boolean] ~
-   (__ \ "weight").write[Float]).unlifted(Creature.unapply)
+   (__ \ "weight").write[Float])(unlift(Creature.unapply))
 }
 ```
 ```tut
@@ -230,7 +231,7 @@ implicit val latLongWrite = {
   import jto.validation.playjson.Writes._
   To[JsObject] { __ =>
     ((__ \ "lat").write[Float] ~
-     (__ \ "long").write[Float]).unlifted(LatLong.unapply)
+     (__ \ "long").write[Float])(unlift(LatLong.unapply))
   }
 }
 

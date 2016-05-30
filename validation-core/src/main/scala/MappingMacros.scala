@@ -117,7 +117,7 @@ object MappingMacros {
         val typeApply = ts.foldLeft(q"$w1 ~ $w2") { (t1, t2) =>
           q"$t1 ~ $t2"
         }
-        q"($typeApply).unlifted($unapply(_))"
+        q"($typeApply)(unlift($unapply(_)))"
 
       case w1 :: Nil =>
         q"$w1.contramap(Function.unlift($unapply(_)): $t)"

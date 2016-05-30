@@ -7,5 +7,5 @@
 - [Play's Form API migration](ScalaValidationMigrationForm.md)
 - [Play's Json API migration](ScalaValidationMigrationJson.md)
 - [Extensions: Supporting new types](ScalaValidationExtensions.md)
-- [Scala.js validation](ScalaJsValidation.md)
+- [Exporting Validations to Javascript using Scala.js](ScalaJsValidation.md)
 - [Cookbook](ScalaValidationCookbook.md)

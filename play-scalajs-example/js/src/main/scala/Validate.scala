@@ -1,7 +1,7 @@
 package client
 
-import jto.validation.{Format, Valid, Invalid, VA}
-import jto.validation.jsjson.{Rules, Writes}
+import jto.validation.{ Format, Valid, Invalid, VA, Formatting }
+import jto.validation.jsjson.{ Rules, Writes }
 import scala.scalajs.js
 import js.annotation.JSExport
 import model.User
@@ -13,7 +13,15 @@ object Validate {
   def user(json: js.Dynamic): js.Dictionary[Any] = {
     import Rules._, Writes._
 
-    val format = Format.gen[js.Dynamic, js.Dynamic, User]
+    val format =
+      Formatting[js.Dynamic, js.Dynamic] { __ =>
+        (
+          (__ \ "name").format(notEmpty) ~
+          (__ \ "age").format(min(0) |+| max(130)) ~
+          (__ \ "email").format(optionR(email), optionW(stringW)) ~
+          (__ \ "isAlive").format[Boolean]
+        ).unlifted(User.apply, User.unapply _)
+      }
 
     val validated: VA[User] = format.validate(json)
 

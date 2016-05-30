@@ -48,8 +48,8 @@ trait DateWrites {
 }
 
 trait DefaultWrites extends DateWrites {
-  protected def optionW[I, J, O](r: => WriteLike[I, J], empty: O)(
-      implicit w: Path => WriteLike[J, O]) =
+  protected def optionW[I, J, O](r: => Write[I, J], empty: O)(
+      implicit w: Path => Write[J, O]) =
     (p: Path) =>
       Write[Option[I], O] { maybeI =>
         maybeI.map { i =>
@@ -57,28 +57,28 @@ trait DefaultWrites extends DateWrites {
         }.getOrElse(empty)
     }
 
-  implicit def seqW[I, O](implicit w: WriteLike[I, O]) =
+  implicit def seqW[I, O](implicit w: Write[I, O]) =
     Write[Seq[I], Seq[O]] {
       _.map(w.writes)
     }
 
-  implicit def headW[I, O](implicit w: WriteLike[I, O]): Write[I, Seq[O]] =
+  implicit def headW[I, O](implicit w: Write[I, O]): Write[I, Seq[O]] =
     Write.toWrite(w).map(Seq(_))
 
   def ignored[O](x: O) = Write[O, O](_ => x)
 }
 
 trait GenericWrites[O] {
-  implicit def arrayW[I](implicit w: WriteLike[Seq[I], O]) =
+  implicit def arrayW[I](implicit w: Write[Seq[I], O]) =
     Write((_: Array[I]).toSeq) andThen w
 
-  implicit def listW[I](implicit w: WriteLike[Seq[I], O]) =
+  implicit def listW[I](implicit w: Write[Seq[I], O]) =
     Write((_: List[I]).toSeq) andThen w
 
-  implicit def traversableW[I](implicit w: WriteLike[Seq[I], O]) =
+  implicit def traversableW[I](implicit w: Write[Seq[I], O]) =
     Write((_: Traversable[I]).toSeq) andThen w
 
-  implicit def setW[I](implicit w: WriteLike[Seq[I], O]) =
+  implicit def setW[I](implicit w: Write[Seq[I], O]) =
     Write((_: Set[I]).toSeq) andThen w
 }
 

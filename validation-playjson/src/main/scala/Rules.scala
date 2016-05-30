@@ -1,7 +1,7 @@
 package jto.validation
 package playjson
 
-import play.api.libs.json.{JsValue, JsObject, JsString, JsNumber, JsBoolean, JsArray, JsNull}
+import play.api.libs.json.{JsValue, JsValue, JsString, JsNumber, JsBoolean, JsArray, JsNull}
 
 object Rules extends DefaultRules[JsValue] {
   private def jsonAs[T](
@@ -55,8 +55,8 @@ object Rules extends DefaultRules[JsValue] {
     }("error.invalid", "String")
 
   implicit def jsObjectR =
-    jsonAs[JsObject] {
-      case v @ JsObject(_) => Valid(v)
+    jsonAs[JsValue] {
+      case v @ JsValue(_) => Valid(v)
     }("error.invalid", "Object")
 
   implicit def jsArrayR =
@@ -90,31 +90,31 @@ object Rules extends DefaultRules[JsValue] {
   }("error.invalid", "null")
 
   implicit def ooo[O](
-      p: Path)(implicit pick: Path => RuleLike[JsValue, JsValue],
-               coerce: RuleLike[JsValue, O]): Rule[JsValue, Option[O]] =
+      p: Path)(implicit pick: Path => Rule[JsValue, JsValue],
+               coerce: Rule[JsValue, O]): Rule[JsValue, Option[O]] =
     optionR(Rule.zero[O])(pick, coerce)(p)
 
   def optionR[J, O](
-      r: => RuleLike[J, O], noneValues: RuleLike[JsValue, JsValue]*)(
-      implicit pick: Path => RuleLike[JsValue, JsValue],
-      coerce: RuleLike[JsValue, J]): Path => Rule[JsValue, Option[O]] =
+      r: => Rule[J, O], noneValues: Rule[JsValue, JsValue]*)(
+      implicit pick: Path => Rule[JsValue, JsValue],
+      coerce: Rule[JsValue, J]): Path => Rule[JsValue, Option[O]] =
     super.opt[J, O](r, (jsNullR.map(n => n: JsValue) +: noneValues): _*)
 
   implicit def mapR[O](
-      implicit r: RuleLike[JsValue, O]): Rule[JsValue, Map[String, O]] =
-    super.mapR[JsValue, O](r, jsObjectR.map { case JsObject(fs) => fs.toSeq })
+      implicit r: Rule[JsValue, O]): Rule[JsValue, Map[String, O]] =
+    super.mapR[JsValue, O](r, jsObjectR.map { case JsValue(fs) => fs.toSeq })
 
   implicit def JsValue[O](
-      implicit r: RuleLike[JsObject, O]): Rule[JsValue, O] =
+      implicit r: Rule[JsValue, O]): Rule[JsValue, O] =
     jsObjectR.andThen(r)
 
   implicit def pickInJson[II <: JsValue, O](p: Path)(
-      implicit r: RuleLike[JsValue, O]): Rule[II, O] = {
+      implicit r: Rule[JsValue, O]): Rule[II, O] = {
 
     def search(path: Path, json: JsValue): Option[JsValue] = path.path match {
       case KeyPathNode(k) :: t =>
         json match {
-          case JsObject(js) =>
+          case JsValue(js) =>
             js.find(_._1 == k).flatMap(kv => search(Path(t), kv._2))
           case _ => None
         }
@@ -136,16 +136,16 @@ object Rules extends DefaultRules[JsValue] {
   }
 
   private def pickInS[T](
-      implicit r: RuleLike[Seq[JsValue], T]): Rule[JsValue, T] =
+      implicit r: Rule[Seq[JsValue], T]): Rule[JsValue, T] =
     jsArrayR.map { case JsArray(fs) => fs }.andThen(r)
-  implicit def pickSeq[O](implicit r: RuleLike[JsValue, O]) =
+  implicit def pickSeq[O](implicit r: Rule[JsValue, O]) =
     pickInS(seqR[JsValue, O])
-  implicit def pickSet[O](implicit r: RuleLike[JsValue, O]) =
+  implicit def pickSet[O](implicit r: Rule[JsValue, O]) =
     pickInS(setR[JsValue, O])
-  implicit def pickList[O](implicit r: RuleLike[JsValue, O]) =
+  implicit def pickList[O](implicit r: Rule[JsValue, O]) =
     pickInS(listR[JsValue, O])
   implicit def pickArray[O: scala.reflect.ClassTag](
-      implicit r: RuleLike[JsValue, O]) = pickInS(arrayR[JsValue, O])
-  implicit def pickTraversable[O](implicit r: RuleLike[JsValue, O]) =
+      implicit r: Rule[JsValue, O]) = pickInS(arrayR[JsValue, O])
+  implicit def pickTraversable[O](implicit r: Rule[JsValue, O]) =
     pickInS(traversableR[JsValue, O])
 }

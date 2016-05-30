@@ -251,19 +251,19 @@ class DateSpec extends WordSpec with Matchers {
 
   "json" should {
     import jto.validation.playjson._
-    import play.api.libs.json.{JsValue, JsObject, Json}
+    import play.api.libs.json.{JsValue, JsValue, Json}
     import Rules._, Writes._
 
     "Format" when {
       "date" in {
         val f =
           new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format(dateR, dateW)
         }.validate(Json.obj("n" -> "1985-09-10")) shouldBe
         (Valid(f.parse("1985-09-10")))
 
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format(dateR, dateW)
         }.validate(Json.obj("n" -> "foo")) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date",
@@ -273,12 +273,12 @@ class DateSpec extends WordSpec with Matchers {
       "iso date (Can't test on CI)" ignore {
         val f =
           new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format(isoDateR, isoDateW)
         }.validate(Json.obj("n" -> "1985-09-10T00:00:00+02:00")) shouldBe
         (Valid(f.parse("1985-09-10")))
 
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format(isoDateR, isoDateW)
         }.validate(Json.obj("n" -> "foo")) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
@@ -293,11 +293,11 @@ class DateSpec extends WordSpec with Matchers {
         val jd = new DateTime(dd)
 
         "date" in {
-          Formatting[JsValue, JsObject] { __ =>
+          Formatting[JsValue, JsValue] { __ =>
             (__ \ "n").format(jodaDateR, jodaDateW)
           }.validate(Json.obj("n" -> "1985-09-10")) shouldBe (Valid(jd))
 
-          Formatting[JsValue, JsObject] { __ =>
+          Formatting[JsValue, JsValue] { __ =>
             (__ \ "n").format(jodaDateR, jodaDateW)
           }.validate(Json.obj("n" -> "foo")) shouldBe
           (Invalid(Seq(Path \ "n" -> Seq(
@@ -306,11 +306,11 @@ class DateSpec extends WordSpec with Matchers {
         }
 
         "time" in {
-          Formatting[JsValue, JsObject] { __ =>
+          Formatting[JsValue, JsValue] { __ =>
             (__ \ "n").format(jodaTimeR, jodaTimeW)
           }.validate(Json.obj("n" -> dd.getTime)) shouldBe (Valid(jd))
 
-          Formatting[JsValue, JsObject] { __ =>
+          Formatting[JsValue, JsValue] { __ =>
             (__ \ "n").format(jodaDateR, jodaTimeW)
           }.validate(Json.obj("n" -> "foo")) shouldBe
           (Invalid(Seq(Path \ "n" -> Seq(
@@ -322,11 +322,11 @@ class DateSpec extends WordSpec with Matchers {
           import org.joda.time.LocalDate
           val ld = new LocalDate()
 
-          Formatting[JsValue, JsObject] { __ =>
+          Formatting[JsValue, JsValue] { __ =>
             (__ \ "n").format(jodaLocalDateR, jodaLocalDateW)
           }.validate(Json.obj("n" -> ld.toString())) shouldBe (Valid(ld))
 
-          Formatting[JsValue, JsObject] { __ =>
+          Formatting[JsValue, JsValue] { __ =>
             (__ \ "n").format(jodaLocalDateR, jodaLocalDateW)
           }.validate(Json.obj("n" -> "foo")) shouldBe
           (Invalid(Seq(Path \ "n" -> Seq(ValidationError(
@@ -340,7 +340,7 @@ class DateSpec extends WordSpec with Matchers {
         val dd = f.parse("1985-09-10")
         val ds = new java.sql.Date(dd.getTime())
 
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format(sqlDateR, sqlDateW)
         }.validate(Json.obj("n" -> "1985-09-10")) shouldBe (Valid(ds))
       }

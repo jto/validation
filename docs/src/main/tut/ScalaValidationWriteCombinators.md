@@ -21,7 +21,7 @@ import jto.validation._
 val location: Path = Path \ "user" \ "friend"
 ```
 
-`Path` has a `write[I, O]` method, where `I` represents the input we’re trying to serialize, and `O` is the output type. For example, `(Path \ "foo").write[Int, JsObject]`, means we want to try to serialize a value of type `Int` into a `JsObject` at `/foo`.
+`Path` has a `write[I, O]` method, where `I` represents the input we’re trying to serialize, and `O` is the output type. For example, `(Path \ "foo").write[Int, JsValue]`, means we want to try to serialize a value of type `Int` into a `JsValue` at `/foo`.
 
 But let's try something much easier for now:
 
@@ -30,18 +30,18 @@ import jto.validation._
 import play.api.libs.json._
 
 val location: Path = Path \ "user" \ "friend"
-val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
+val serializeFriend: Write[JsValue, JsValue] = location.write[JsValue, JsValue]
 ```
 
-`location.write[JsValue, JsObject]` means the we're trying to serialize a `JsValue` to `location` in a `JsObject`. Effectively, we're just defining a `Write` that is putting a `JsValue` into a `JsObject` at the given location.
+`location.write[JsValue, JsValue]` means the we're trying to serialize a `JsValue` to `location` in a `JsValue`. Effectively, we're just defining a `Write` that is putting a `JsValue` into a `JsValue` at the given location.
 
 If you try to run that code, the compiler gives you the following error:
 
 ```tut:nofail
-val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
+val serializeFriend: Write[JsValue, JsValue] = location.write[JsValue, JsValue]
 ```
 
-The Scala compiler is complaining about not finding an implicit function of type `Path => Write[JsValue, JsObject]`. Indeed, unlike the Json API, you have to provide a method to **transform** the input type into the output type.
+The Scala compiler is complaining about not finding an implicit function of type `Path => Write[JsValue, JsValue]`. Indeed, unlike the Json API, you have to provide a method to **transform** the input type into the output type.
 
 Fortunately, such method already exists. All you have to do is import it:
 
@@ -54,10 +54,10 @@ import jto.validation.playjson.Writes._
 With those implicits in scope, we can finally create our `Write`:
 
 ```tut:silent
-val serializeFriend: Write[JsValue, JsObject] = location.write[JsValue, JsObject]
+val serializeFriend: Write[JsValue, JsValue] = location.write[JsValue, JsValue]
 ```
 
-Alright, so far we've defined a `Write` looking for some data of type `JsValue`, located at `/user/friend` in a `JsObject`.
+Alright, so far we've defined a `Write` looking for some data of type `JsValue`, located at `/user/friend` in a `JsValue`.
 
 Now we need to apply this `Write` on our data:
 
@@ -70,7 +70,7 @@ serializeFriend.writes(JsString("Julien"))
 We now are capable of serializing data to a given `Path`. Let's do it again on a different sub-tree:
 
 ```tut:silent
-val agejs = (Path \ "user" \ "age").write[JsValue, JsObject]
+val agejs = (Path \ "user" \ "age").write[JsValue, JsValue]
 ```
 
 And if we apply this new `Write`:
@@ -83,7 +83,7 @@ That example is nice, but chances are `age` in not a `JsNumber`, but an `Int`.
 All we have to do is to change the input type in our `Write` definition:
 
 ```tut:silent
-val age = (Path \ "user" \ "age").write[Int, JsObject]
+val age = (Path \ "user" \ "age").write[Int, JsValue]
 ```
 
 And apply it:
@@ -92,7 +92,7 @@ And apply it:
 age.writes(28)
 ```
 
-So scala *automagically* figures out how to transform a `Int` into an `JsObject`. How does this happens ?
+So scala *automagically* figures out how to transform a `Int` into an `JsValue`. How does this happens ?
 
 It's fairly simple. The definition of `write` looks like this:
 
@@ -100,7 +100,7 @@ It's fairly simple. The definition of `write` looks like this:
 def write[I, O](implicit w: Path => Write[I, O]): Write[I, O] = ???
 ```
 
-So when you use `(Path \ "user" \ "age").write[Int, JsObject]`, the compiler looks for an `implicit Path => Write[Int, JsObject]`, which happens to exist in `play.api.data.mapping.json.Writes`.
+So when you use `(Path \ "user" \ "age").write[Int, JsValue]`, the compiler looks for an `implicit Path => Write[Int, JsValue]`, which happens to exist in `play.api.data.mapping.json.Writes`.
 
 ### Full example
 
@@ -109,14 +109,14 @@ import jto.validation._
 import jto.validation.playjson.Writes._
 import play.api.libs.json._
 
-val age = (Path \ "user" \ "age").write[Int, JsObject]
+val age = (Path \ "user" \ "age").write[Int, JsValue]
 age.writes(28)
 ```
 
 ## Combining Writes
 
 So far we've serialized only primitives types.
-Now we'd like to serialize an entire `User` object defined below, and transform it into a `JsObject`:
+Now we'd like to serialize an entire `User` object defined below, and transform it into a `JsValue`:
 
 ```tut
 case class User(
@@ -133,7 +133,7 @@ import jto.validation._
 import jto.validation.playjson.Writes._
 import play.api.libs.json._
 
-val userWrite = To[JsObject] { __ =>
+val userWrite = To[JsValue] { __ =>
   import jto.validation.playjson.Writes._
   ((__ \ "name").write[String] ~
    (__ \ "age").write[Int] ~
@@ -146,15 +146,15 @@ val userWrite = To[JsObject] { __ =>
 > **Important:** Note that we're importing `Writes._` **inside** the `To[I]{...}` block.
 It is recommended to always follow this pattern, as it nicely scopes the implicits, avoiding conflicts and accidental shadowing.
 
-`To[JsObject]` defines the `O` type of the writes we're combining. We could have written:
+`To[JsValue]` defines the `O` type of the writes we're combining. We could have written:
 
 ```scala
- (Path \ "name").write[String, JsObject] ~
- (Path \ "age").write[Int, JsObject] ~
+ (Path \ "name").write[String, JsValue] ~
+ (Path \ "age").write[Int, JsValue] ~
  //...
 ```
 
-but repeating `JsObject` all over the place is just not very DRY.
+but repeating `JsValue` all over the place is just not very DRY.
 
 Let's test it now:
 

@@ -2,7 +2,7 @@ package jto.validation
 
 import cats.Applicative
 
-trait RuleLike[I, O] {
+trait Rule[I, O] {
 
   /**
     * Apply the Rule to `data`
@@ -12,14 +12,14 @@ trait RuleLike[I, O] {
   def validate(data: I): VA[O]
 }
 
-object RuleLike {
-  implicit def zero[O]: RuleLike[O, O] = Rule[O, O](Valid.apply)
+object Rule {
+  implicit def zero[O]: Rule[O, O] = Rule[O, O](Valid.apply)
 }
 
-trait Rule[I, O] extends RuleLike[I, O] {
+trait Rule[I, O] extends Rule[I, O] {
 
   @deprecated("use andThen instead.", "2.0")
-  def compose[P](path: Path)(sub: => RuleLike[O, P]): Rule[I, P] =
+  def compose[P](path: Path)(sub: => Rule[O, P]): Rule[I, P] =
     andThen(path)(sub)
 
   /**
@@ -34,7 +34,7 @@ trait Rule[I, O] extends RuleLike[I, O] {
     * @param sub the second Rule to apply
     * @return The combination of the two Rules
     */
-  def andThen[P](path: Path)(sub: => RuleLike[O, P]): Rule[I, P] =
+  def andThen[P](path: Path)(sub: => Rule[O, P]): Rule[I, P] =
     this.flatMap { o =>
       Rule(_ => sub.validate(o))
     }.repath(path ++ _)
@@ -59,12 +59,12 @@ trait Rule[I, O] extends RuleLike[I, O] {
     * @param t an alternative Rule
     * @return a Rule
     */
-  def orElse[OO >: O](t: => RuleLike[I, OO]): Rule[I, OO] =
+  def orElse[OO >: O](t: => Rule[I, OO]): Rule[I, OO] =
     Rule(d => this.validate(d) orElse t.validate(d))
 
   @deprecated("use andThen instead.", "2.0")
-  def compose[P](sub: => RuleLike[O, P]): Rule[I, P] = andThen(sub)
-  def andThen[P](sub: => RuleLike[O, P]): Rule[I, P] = andThen(Path)(sub)
+  def compose[P](sub: => Rule[O, P]): Rule[I, P] = andThen(sub)
+  def andThen[P](sub: => Rule[O, P]): Rule[I, P] = andThen(Path)(sub)
 
   @deprecated("use andThen instead.", "2.0")
   def compose[P](m: Mapping[ValidationError, O, P]): Rule[I, P] = andThen(m)
@@ -82,7 +82,7 @@ trait Rule[I, O] extends RuleLike[I, O] {
     *   (Path \ "firstname").read(composed).validate(valid) // Valid("Julien")
     *  }}}
     */
-  def |+|[OO <: O](r2: RuleLike[I, OO]): Rule[I, O] =
+  def |+|[OO <: O](r2: Rule[I, OO]): Rule[I, O] =
     Rule[I, O] { v =>
       (this.validate(v) *> r2.validate(v)).bimap(
           _.groupBy(_._1).map {
@@ -134,7 +134,7 @@ object Rule {
     Rule { case (a, b) => f(a).validate(b) }
 
   def zero[O]: Rule[O, O] =
-    toRule(RuleLike.zero[O])
+    toRule(Rule.zero[O])
 
   def pure[I, O](o: O): Rule[I, O] =
     Rule(_ => Valid(o))
@@ -146,7 +146,7 @@ object Rule {
 
   def of[I, O](implicit r: Rule[I, O]): Rule[I, O] = r
 
-  def toRule[I, O](r: RuleLike[I, O]): Rule[I, O] =
+  def toRule[I, O](r: Rule[I, O]): Rule[I, O] =
     new Rule[I, O] {
       def validate(data: I): VA[O] = r.validate(data)
     }

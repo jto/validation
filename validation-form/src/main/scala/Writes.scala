@@ -27,17 +27,17 @@ object Writes
     Write((i: T) => i.toString)
   implicit def javanumber[T <: java.lang.Number] = Write((i: T) => i.toString)
 
-  implicit def opm[O](implicit w: WriteLike[O, UrlFormEncoded]) =
+  implicit def opm[O](implicit w: Write[O, UrlFormEncoded]) =
     Write[O, PM] { o =>
       toPM(w.writes(o))
     }
 
-  implicit def mapW[I](implicit w: WriteLike[I, Seq[String]]) =
+  implicit def mapW[I](implicit w: Write[I, Seq[String]]) =
     Write[Map[String, I], PM] { m =>
       toPM(m.mapValues(w.writes))
     }
 
-  implicit def spm[O](implicit w: WriteLike[O, PM]) =
+  implicit def spm[O](implicit w: Write[O, PM]) =
     Write[Seq[O], PM] { os =>
       os.zipWithIndex.toMap.flatMap {
         case (o, i) =>
@@ -45,20 +45,20 @@ object Writes
       }
     }
 
-  implicit def writeM[I](path: Path)(implicit w: WriteLike[I, PM]) =
+  implicit def writeM[I](path: Path)(implicit w: Write[I, PM]) =
     Write[I, UrlFormEncoded] { i =>
       toM(repathPM(w.writes(i), path ++ _))
     }
 
-  implicit def ospm[I](implicit w: WriteLike[I, String]) = Write[I, PM] { i =>
+  implicit def ospm[I](implicit w: Write[I, String]) = Write[I, PM] { i =>
     Map(Path -> w.writes(i))
   }
 
-  implicit def optW[I](implicit w: Path => WriteLike[I, UrlFormEncoded])
+  implicit def optW[I](implicit w: Path => Write[I, UrlFormEncoded])
     : Path => Write[Option[I], UrlFormEncoded] =
     optionW[I, I](Write.zero[I])
 
-  def optionW[I, J](r: => WriteLike[I, J])(
-      implicit w: Path => WriteLike[J, UrlFormEncoded]) =
+  def optionW[I, J](r: => Write[I, J])(
+      implicit w: Path => Write[J, UrlFormEncoded]) =
     super.optionW[I, J, UrlFormEncoded](r, Map.empty)
 }

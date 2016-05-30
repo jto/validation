@@ -158,7 +158,7 @@ implicit lazy val w3: Write[User1, UrlFormEncoded] = To[UrlFormEncoded]{ __ =>
 The same method is also available on `Format` so
 
 ```scala
-lazy val w: Format[JsValue, JsObject, RecUser] = Formatting[JsValue, JsObject]{ __ =>
+lazy val w: Format[JsValue, JsValue, RecUser] = Formatting[JsValue, JsValue]{ __ =>
     ((__ \ "name").format[String] ~
      (__ \ "friends").format(seqR(w), seqW(w)))(RecUser.apply _, unlift(RecUser.unapply _))
   }
@@ -166,7 +166,7 @@ lazy val w: Format[JsValue, JsObject, RecUser] = Formatting[JsValue, JsObject]{ 
 becomes
 
 ```scala
-lazy val w: Format[JsValue, JsObject, RecUser] = Formatting[JsValue, JsObject]{ __ =>
+lazy val w: Format[JsValue, JsValue, RecUser] = Formatting[JsValue, JsValue]{ __ =>
     ((__ \ "name").format[String] ~
      (__ \ "friends").format(seqR(w), seqW(w))).unlifted(RecUser.apply _, RecUser.unapply)
   }

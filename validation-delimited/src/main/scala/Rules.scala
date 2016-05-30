@@ -33,7 +33,7 @@ object Rules extends DefaultRules[Delimited] with ParsingRules {
     * @return   Invalid if the index is out of bounds or the Path was not an IdxPathNode
     */
   implicit def pick[O](p: Path)(
-      implicit r: RuleLike[String, O]): Rule[Delimited, O] =
+      implicit r: Rule[String, O]): Rule[Delimited, O] =
     Rule[Delimited, String] { delimited =>
       p.path match {
         case IdxPathNode(i) :: t if i < delimited.length => Valid(delimited(i))
@@ -55,9 +55,9 @@ object Rules extends DefaultRules[Delimited] with ParsingRules {
     * @tparam O         The desired type for the value
     * @return           The optional value
     */
-  def optionR[O](noneValues: RuleLike[String, String]*)(
-      implicit pick: Path => RuleLike[Delimited, String],
-      coerce: RuleLike[String, O]): Path => Rule[Delimited, Option[O]] =
+  def optionR[O](noneValues: Rule[String, String]*)(
+      implicit pick: Path => Rule[Delimited, String],
+      coerce: Rule[String, O]): Path => Rule[Delimited, Option[O]] =
     myOpt[O](coerce, noneValues: _*)
 
   /**
@@ -70,8 +70,8 @@ object Rules extends DefaultRules[Delimited] with ParsingRules {
     * @return           The optional value
     */
   private def myOpt[O](
-      coerce: => RuleLike[String, O], noneValues: RuleLike[String, String]*)(
-      implicit pick: Path => RuleLike[Delimited, String]) =
+      coerce: => Rule[String, O], noneValues: Rule[String, String]*)(
+      implicit pick: Path => Rule[Delimited, String]) =
     (path: Path) =>
       Rule[Delimited, Option[O]] { delimited =>
         val isNone =
@@ -101,7 +101,7 @@ object Rules extends DefaultRules[Delimited] with ParsingRules {
     * @return       The optional value
     */
   implicit def ooo[O](
-      p: Path)(implicit pick: Path => RuleLike[Delimited, String],
-               coerce: RuleLike[String, O]): Rule[Delimited, Option[O]] =
+      p: Path)(implicit pick: Path => Rule[Delimited, String],
+               coerce: Rule[String, O]): Rule[Delimited, Option[O]] =
     optionR(isEmpty)(pick, coerce)(p)
 }

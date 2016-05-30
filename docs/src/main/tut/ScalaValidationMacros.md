@@ -75,7 +75,7 @@ import play.api.libs.json._
 
 implicit val personWrite = {
   import jto.validation.playjson.Writes._ // let's no leak implicits everywhere
-  Write.gen[Person, JsObject]
+  Write.gen[Person, JsValue]
 }
 ```
 ```tut

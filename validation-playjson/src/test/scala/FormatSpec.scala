@@ -1,7 +1,7 @@
 import jto.validation._
 import jto.validation.playjson._
 import org.scalatest._
-import play.api.libs.json.{JsValue, JsObject, Json, JsArray}
+import play.api.libs.json.{JsValue, JsValue, Json, JsArray}
 
 class FormatSpec extends WordSpec with Matchers {
   case class User(id: Long, name: String)
@@ -12,7 +12,7 @@ class FormatSpec extends WordSpec with Matchers {
       import Rules._
       import Writes._
 
-      val f = Formatting[JsValue, JsObject] { __ =>
+      val f = Formatting[JsValue, JsValue] { __ =>
         (__ \ "id").format[Long]
       }
 
@@ -29,7 +29,7 @@ class FormatSpec extends WordSpec with Matchers {
       import Rules._
       import Writes._
 
-      val f = Formatting[JsValue, JsObject] { __ =>
+      val f = Formatting[JsValue, JsValue] { __ =>
         (__ \ "id").format[String]
       }
 
@@ -46,7 +46,7 @@ class FormatSpec extends WordSpec with Matchers {
       import Rules._
       import Writes._
 
-      val f = Formatting[JsValue, JsObject] { __ =>
+      val f = Formatting[JsValue, JsValue] { __ =>
         (__ \ "ids").format[Seq[String]]
       }
       val m = Json.obj("ids" -> Seq("CAFEBABE", "FOOBAR"))
@@ -59,7 +59,7 @@ class FormatSpec extends WordSpec with Matchers {
       import Rules._
       import Writes._
 
-      implicit val userF = Formatting[JsValue, JsObject] { __ =>
+      implicit val userF = Formatting[JsValue, JsValue] { __ =>
         ((__ \ "id").format[Long] ~ (__ \ "name").format[String])
           .unlifted(User.apply, User.unapply)
       }
@@ -73,33 +73,33 @@ class FormatSpec extends WordSpec with Matchers {
       import Writes._
 
       "Int" in {
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Int]
         }.validate(Json.obj("n" -> 4)) shouldBe (Valid(4))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Int]
         }.validate(Json.obj("n" -> "foo")) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
                         ValidationError("error.number", "Int")))))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Int]
         }.validate(Json.obj("n" -> 4.5)) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
                         ValidationError("error.number", "Int")))))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n" \ "o").format[Int]
         }.validate(Json.obj("n" -> Json.obj("o" -> 4))) shouldBe (Valid(4))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n" \ "o").format[Int]
         }.validate(Json.obj("n" -> Json.obj("o" -> "foo"))) shouldBe
         (Invalid(Seq(Path \ "n" \ "o" -> Seq(
                         ValidationError("error.number", "Int")))))
 
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n" \ "o" \ "p").format[Int]
         }.validate(Json.obj("n" -> Json.obj("o" -> Json.obj("p" -> 4)))) shouldBe
         (Valid(4))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n" \ "o" \ "p").format[Int]
         }.validate(Json.obj("n" -> Json.obj("o" -> Json.obj("p" -> "foo")))) shouldBe
         (Invalid(Seq(Path \ "n" \ "o" \ "p" -> Seq(
@@ -108,21 +108,21 @@ class FormatSpec extends WordSpec with Matchers {
         val errPath = Path \ "foo"
         val error =
           Invalid(Seq(errPath -> Seq(ValidationError("error.required"))))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "foo").format[Int]
         }.validate(Json.obj("n" -> 4)) shouldBe (error)
       }
 
       "Short" in {
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Short]
         }.validate(Json.obj("n" -> 4)) shouldBe (Valid(4))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Short]
         }.validate(Json.obj("n" -> "foo")) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
                         ValidationError("error.number", "Short")))))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Short]
         }.validate(Json.obj("n" -> 4.5)) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
@@ -130,15 +130,15 @@ class FormatSpec extends WordSpec with Matchers {
       }
 
       "Long" in {
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Long]
         }.validate(Json.obj("n" -> 4)) shouldBe (Valid(4))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Long]
         }.validate(Json.obj("n" -> "foo")) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
                         ValidationError("error.number", "Long")))))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Long]
         }.validate(Json.obj("n" -> 4.5)) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
@@ -146,68 +146,68 @@ class FormatSpec extends WordSpec with Matchers {
       }
 
       "Float" in {
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Float]
         }.validate(Json.obj("n" -> 4)) shouldBe (Valid(4))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Float]
         }.validate(Json.obj("n" -> "foo")) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
                         ValidationError("error.number", "Float")))))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Float]
         }.validate(Json.obj("n" -> 4.5)) shouldBe (Valid(4.5F))
       }
 
       "Double" in {
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Double]
         }.validate(Json.obj("n" -> 4)) shouldBe (Valid(4))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Double]
         }.validate(Json.obj("n" -> "foo")) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
                         ValidationError("error.number", "Double")))))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Double]
         }.validate(Json.obj("n" -> 4.5)) shouldBe (Valid(4.5))
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[jBigDecimal]
         }.validate(Json.obj("n" -> 4)) shouldBe (Valid(new jBigDecimal("4")))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[jBigDecimal]
         }.validate(Json.obj("n" -> "foo")) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
                         ValidationError("error.number", "BigDecimal")))))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[jBigDecimal]
         }.validate(Json.obj("n" -> 4.5)) shouldBe
         (Valid(new jBigDecimal("4.5")))
       }
 
       "scala BigDecimal" in {
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[BigDecimal]
         }.validate(Json.obj("n" -> 4)) shouldBe (Valid(BigDecimal(4)))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[BigDecimal]
         }.validate(Json.obj("n" -> "foo")) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
                         ValidationError("error.number", "BigDecimal")))))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[BigDecimal]
         }.validate(Json.obj("n" -> 4.5)) shouldBe (Valid(BigDecimal(4.5)))
       }
 
       "Boolean" in {
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Boolean]
         }.validate(Json.obj("n" -> true)) shouldBe (Valid(true))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Boolean]
         }.validate(Json.obj("n" -> "foo")) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
@@ -215,26 +215,26 @@ class FormatSpec extends WordSpec with Matchers {
       }
 
       "String" in {
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[String]
         }.validate(Json.obj("n" -> "foo")) shouldBe (Valid("foo"))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "o").format[String]
         }.validate(Json.obj("o.n" -> "foo")) shouldBe
         (Invalid(Seq(Path \ "o" -> Seq(ValidationError("error.required")))))
       }
 
       "Option" in {
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Option[Boolean]]
         }.validate(Json.obj("n" -> true)) shouldBe (Valid(Some(true)))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Option[Boolean]]
         }.validate(Json.obj()) shouldBe (Valid(None))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Option[Boolean]]
         }.validate(Json.obj("foo" -> "bar")) shouldBe (Valid(None))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Option[Boolean]]
         }.validate(Json.obj("n" -> "bar")) shouldBe
         (Invalid(Seq(Path \ "n" -> Seq(
@@ -242,19 +242,19 @@ class FormatSpec extends WordSpec with Matchers {
       }
 
       "Map[String, Seq[V]]" in {
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Map[String, Seq[String]]]
         }.validate(Json.obj("n" -> Json.obj("foo" -> Seq("bar")))) shouldBe
         (Valid(Map("foo" -> Seq("bar"))))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Map[String, Seq[Int]]]
         }.validate(Json.obj("n" -> Json.obj("foo" -> Seq(4), "bar" -> Seq(5)))) shouldBe
         (Valid(Map("foo" -> Seq(4), "bar" -> Seq(5))))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "x").format[Map[String, Int]]
         }.validate(Json.obj("n" -> Json.obj("foo" -> 4, "bar" -> "frack"))) shouldBe
         (Invalid(Seq(Path \ "x" -> Seq(ValidationError("error.required")))))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Map[String, Seq[Int]]]
         }.validate(Json.obj("n" -> Json.obj("foo" -> Seq(4),
                                             "bar" -> Seq("frack")))) shouldBe
@@ -263,15 +263,15 @@ class FormatSpec extends WordSpec with Matchers {
       }
 
       "Traversable" in {
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Traversable[String]]
         }.validate(Json.obj("n" -> Seq("foo"))).toOption.get.toSeq shouldBe
         (Seq("foo"))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Traversable[Int]]
         }.validate(Json.obj("n" -> Seq(1, 2, 3))).toOption.get.toSeq shouldBe
         (Seq(1, 2, 3))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Traversable[Int]]
         }.validate(Json.obj("n" -> Seq("1", "paf"))) shouldBe
         (Invalid(Seq(
@@ -283,15 +283,15 @@ class FormatSpec extends WordSpec with Matchers {
       }
 
       "Array" in {
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Array[String]]
         }.validate(Json.obj("n" -> Seq("foo"))).toOption.get.toSeq shouldBe
         (Seq("foo"))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Array[Int]]
         }.validate(Json.obj("n" -> Seq(1, 2, 3))).toOption.get.toSeq shouldBe
         (Seq(1, 2, 3))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Array[Int]]
         }.validate(Json.obj("n" -> Seq("1", "paf"))) shouldBe
         (Invalid(Seq(
@@ -303,15 +303,15 @@ class FormatSpec extends WordSpec with Matchers {
       }
 
       "Seq" in {
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Seq[String]]
         }.validate(Json.obj("n" -> Seq("foo"))).toOption.get shouldBe
         (Seq("foo"))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Seq[Int]]
         }.validate(Json.obj("n" -> Seq(1, 2, 3))).toOption.get shouldBe
         (Seq(1, 2, 3))
-        Formatting[JsValue, JsObject] { __ =>
+        Formatting[JsValue, JsValue] { __ =>
           (__ \ "n").format[Seq[Int]]
         }.validate(Json.obj("n" -> Seq("1", "paf"))) shouldBe
         (Invalid(Seq(
@@ -327,7 +327,7 @@ class FormatSpec extends WordSpec with Matchers {
       import Rules._
       import Writes._
 
-      val f = Formatting[JsValue, JsObject] { __ =>
+      val f = Formatting[JsValue, JsValue] { __ =>
         ((__ \ "firstname").format(notEmpty) ~ (__ \ "lastname").format(
                 notEmpty)).tupled
       }
@@ -364,13 +364,13 @@ class FormatSpec extends WordSpec with Matchers {
         !_.isEmpty
       }
 
-      Formatting[JsValue, JsObject] { __ =>
+      Formatting[JsValue, JsValue] { __ =>
         (__ \ "firstname").format[Seq[String]]
       }.validate(valid) shouldBe (Valid(Seq("Julien")))
-      Formatting[JsValue, JsObject] { __ =>
+      Formatting[JsValue, JsValue] { __ =>
         (__ \ "foobar").format[Seq[String]]
       }.validate(valid) shouldBe (Valid(Seq()))
-      Formatting[JsValue, JsObject] { __ =>
+      Formatting[JsValue, JsValue] { __ =>
         (__ \ "foobar").format(isNotEmpty[Seq[Int]])
       }.validate(valid) shouldBe
       (Invalid(Seq(Path \ "foobar" -> Seq(ValidationError("error.notEmpty")))))
@@ -392,16 +392,16 @@ class FormatSpec extends WordSpec with Matchers {
         import Rules._
         import Writes._
 
-        lazy val w: Format[JsValue, JsObject, RecUser] =
-          Formatting[JsValue, JsObject] { __ =>
+        lazy val w: Format[JsValue, JsValue, RecUser] =
+          Formatting[JsValue, JsValue] { __ =>
             ((__ \ "name").format[String] ~ (__ \ "friends").format(
                     seqR(w), seqW(w))).unlifted(RecUser.apply, RecUser.unapply)
           }
         w.validate(m) shouldBe Valid(u)
         w.writes(u) shouldBe m
 
-        lazy val w3: Format[JsValue, JsObject, User1] =
-          Formatting[JsValue, JsObject] { __ =>
+        lazy val w3: Format[JsValue, JsValue, User1] =
+          Formatting[JsValue, JsValue] { __ =>
             ((__ \ "name").format[String] ~ (__ \ "friend").format(
                     optionR(w3),
                     optionW(w3))).unlifted(User1.apply, User1.unapply)
@@ -414,8 +414,8 @@ class FormatSpec extends WordSpec with Matchers {
         import Rules._
         import Writes._
 
-        implicit lazy val w: Format[JsValue, JsObject, RecUser] =
-          Formatting[JsValue, JsObject] { __ =>
+        implicit lazy val w: Format[JsValue, JsValue, RecUser] =
+          Formatting[JsValue, JsValue] { __ =>
             ((__ \ "name").format[String] ~ (__ \ "friends")
                   .format[Seq[RecUser]])
               .unlifted(RecUser.apply, RecUser.unapply)
@@ -423,8 +423,8 @@ class FormatSpec extends WordSpec with Matchers {
         w.validate(m) shouldBe Valid(u)
         w.writes(u) shouldBe m
 
-        implicit lazy val w3: Format[JsValue, JsObject, User1] =
-          Formatting[JsValue, JsObject] { __ =>
+        implicit lazy val w3: Format[JsValue, JsValue, User1] =
+          Formatting[JsValue, JsValue] { __ =>
             ((__ \ "name").format[String] ~ (__ \ "friend")
                   .format[Option[User1]]).unlifted(User1.apply, User1.unapply)
           }
@@ -437,7 +437,7 @@ class FormatSpec extends WordSpec with Matchers {
       import Rules._
       import Writes._
 
-      implicit val userF = Formatting[JsValue, JsObject] { __ =>
+      implicit val userF = Formatting[JsValue, JsValue] { __ =>
         ((__ \ "id").format[Long] ~ (__ \ "name").format[String])
           .unlifted(User.apply, User.unapply)
       }
@@ -446,7 +446,7 @@ class FormatSpec extends WordSpec with Matchers {
       userF.validate(userJs) shouldBe (Valid(luigi))
       userF.writes(luigi) shouldBe (userJs)
 
-      val fin = From[JsObject] { __ =>
+      val fin = From[JsValue] { __ =>
         (__ \ "user").read[User]
       }
 

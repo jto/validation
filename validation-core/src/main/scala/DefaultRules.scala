@@ -157,7 +157,7 @@ trait GenericRules {
     * @return A new Rule
     */
   implicit def arrayR[I, O: scala.reflect.ClassTag](
-      implicit r: RuleLike[I, O]): Rule[Seq[I], Array[O]] =
+      implicit r: Rule[I, O]): Rule[Seq[I], Array[O]] =
     seqR[I, O](r).map(_.toArray)
 
   /**
@@ -169,7 +169,7 @@ trait GenericRules {
     * @return A new Rule
     */
   implicit def traversableR[I, O](
-      implicit r: RuleLike[I, O]): Rule[Seq[I], Traversable[O]] =
+      implicit r: Rule[I, O]): Rule[Seq[I], Traversable[O]] =
     seqR[I, O](r).map(_.toTraversable)
 
   /**
@@ -180,7 +180,7 @@ trait GenericRules {
     * @param r A Rule[I, O] to lift
     * @return A new Rule
     */
-  implicit def setR[I, O](implicit r: RuleLike[I, O]): Rule[Seq[I], Set[O]] =
+  implicit def setR[I, O](implicit r: Rule[I, O]): Rule[Seq[I], Set[O]] =
     seqR[I, O](r).map(_.toSet)
 
   /**
@@ -191,7 +191,7 @@ trait GenericRules {
     * @param r A Rule[I, O] to lift
     * @return A new Rule
     */
-  implicit def seqR[I, O](implicit r: RuleLike[I, O]): Rule[Seq[I], Seq[O]] =
+  implicit def seqR[I, O](implicit r: Rule[I, O]): Rule[Seq[I], Seq[O]] =
     Rule {
       case is =>
         val withI = is.zipWithIndex.map {
@@ -211,7 +211,7 @@ trait GenericRules {
     * @param r A Rule[I, O] to lift
     * @return A new Rule
     */
-  implicit def listR[I, O](implicit r: RuleLike[I, O]): Rule[Seq[I], List[O]] =
+  implicit def listR[I, O](implicit r: Rule[I, O]): Rule[Seq[I], List[O]] =
     seqR[I, O](r).map(_.toList)
 
   /**
@@ -220,7 +220,7 @@ trait GenericRules {
     *   (Path \ "foo").read(headAs(int))
     * }}}
     */
-  implicit def headAs[I, O](implicit c: RuleLike[I, O]) =
+  implicit def headAs[I, O](implicit c: Rule[I, O]) =
     Rule
       .fromMapping[Seq[I], I] {
         _.headOption
@@ -230,7 +230,7 @@ trait GenericRules {
       }
       .andThen(c)
 
-  def not[I, O](r: RuleLike[I, O]) = Rule[I, I] { d =>
+  def not[I, O](r: Rule[I, O]) = Rule[I, I] { d =>
     r.validate(d) match {
       case Valid(_) => Invalid(Nil)
       case Invalid(_) => Valid(d)
@@ -329,7 +329,7 @@ trait GenericRules {
   /**
     * A Rule for HTML checkboxes
     */
-  def checked[I](implicit b: RuleLike[I, Boolean]) =
+  def checked[I](implicit b: Rule[I, Boolean]) =
     Rule.toRule(b) andThen GenericRules.equalTo(true)
 }
 
@@ -398,8 +398,8 @@ trait ParsingRules { self: GenericRules =>
   * Extends this trait if your implementing a new set of Rules for `I`.
   */
 trait DefaultRules[I] extends GenericRules with DateRules {
-  protected def opt[J, O](r: => RuleLike[J, O], noneValues: RuleLike[I, I]*)(
-      implicit pick: Path => RuleLike[I, I], coerce: RuleLike[I, J]) =
+  protected def opt[J, O](r: => Rule[J, O], noneValues: Rule[I, I]*)(
+      implicit pick: Path => Rule[I, I], coerce: Rule[I, J]) =
     (path: Path) =>
       Rule[I, Option[O]] { (d: I) =>
         val isNone =
@@ -421,8 +421,8 @@ trait DefaultRules[I] extends GenericRules with DateRules {
         )
     }
 
-  def mapR[K, O](r: RuleLike[K, O],
-                 p: RuleLike[I, Seq[(String, K)]]): Rule[I, Map[String, O]] = {
+  def mapR[K, O](r: Rule[K, O],
+                 p: Rule[I, Seq[(String, K)]]): Rule[I, Map[String, O]] = {
     Rule
       .toRule(p)
       .andThen(Path)(

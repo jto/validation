@@ -273,7 +273,7 @@ case class Creature(
   isDead: Boolean,
   weight: Float)
 
-implicit val creatureWrite = To[JsObject]{ __ =>
+implicit val creatureWrite = To[JsValue]{ __ =>
   import jto.validation.playjson.Writes._
   ((__ \ "name").write[String] ~
    (__ \ "isDead").write[Boolean] ~
@@ -281,7 +281,7 @@ implicit val creatureWrite = To[JsObject]{ __ =>
 }
 ```
 ```tut
-val c = To[Creature, JsObject](Creature("gremlins", false, 1f))
+val c = To[Creature, JsValue](Creature("gremlins", false, 1f))
 ```
 
 ## `Format` migration

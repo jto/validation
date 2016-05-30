@@ -30,14 +30,14 @@ object Writes
   }
 
   implicit def errorsW(
-      implicit wErrs: WriteLike[Seq[ValidationError], JValue]) =
+      implicit wErrs: Write[Seq[ValidationError], JValue]) =
     Write[(Path, Seq[ValidationError]), JObject] {
       case (p, errs) =>
         JObject(Map(p.toString -> wErrs.writes(errs)))
     }
 
   implicit def failureW(
-      implicit w: WriteLike[(Path, Seq[ValidationError]), JObject]) =
+      implicit w: Write[(Path, Seq[ValidationError]), JObject]) =
     Write[Invalid[Seq[(Path, Seq[ValidationError])]], JObject] {
       case Invalid(errs) =>
         errs.map(w.writes).reduce(jsonMonoid.combine)
@@ -59,25 +59,25 @@ object Writes
   implicit def booleanW = Write[Boolean, JValue](JBoolean.apply)
 
   implicit def seqToJsArray[I](
-      implicit w: WriteLike[I, JValue]): Write[Seq[I], JValue] =
+      implicit w: Write[I, JValue]): Write[Seq[I], JValue] =
     Write(ss => JArray(ss.map(w.writes _).toVector))
 
-  def optionW[I, J](r: => WriteLike[I, J])(
-      implicit w: Path => WriteLike[J, JObject])
+  def optionW[I, J](r: => Write[I, J])(
+      implicit w: Path => Write[J, JObject])
     : Path => Write[Option[I], JObject] =
     super.optionW[I, J, JObject](r, JObject())
 
-  implicit def optionW[I](implicit w: Path => WriteLike[I, JObject])
+  implicit def optionW[I](implicit w: Path => Write[I, JObject])
     : Path => Write[Option[I], JObject] =
     optionW(Write.zero[I])
 
-  implicit def mapW[I](implicit w: WriteLike[I, JValue]) =
+  implicit def mapW[I](implicit w: Write[I, JValue]) =
     Write[Map[String, I], JObject] { m =>
       JObject(m.mapValues(w.writes))
     }
 
   implicit def writeJson[I](path: Path)(
-      implicit w: WriteLike[I, JValue]): Write[I, JObject] = Write { i =>
+      implicit w: Write[I, JValue]): Write[I, JObject] = Write { i =>
     path match {
       case Path(KeyPathNode(x) :: _) \: _ =>
         val ps = path.path.reverse
@@ -87,7 +87,7 @@ object Writes
       case Path(Nil) =>
         w.writes(i).asInstanceOf[JObject]
       case _ =>
-        throw new RuntimeException(s"path $path is not a path of JsObject") // XXX: should be a compile time error
+        throw new RuntimeException(s"path $path is not a path of JsValue") // XXX: should be a compile time error
     }
   }
 }

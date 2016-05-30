@@ -554,6 +554,8 @@ class RulesSpec extends WordSpec with Matchers {
         Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 
       "by trying all possible Rules" in {
+        import cats.syntax.cartesian._
+
         val rb: Rule[JValue, A] = From[JValue] { __ =>
           (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo")
             .read[Int]

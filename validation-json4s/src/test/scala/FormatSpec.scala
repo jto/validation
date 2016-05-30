@@ -266,8 +266,8 @@ class FormatSpec extends WordSpec with Matchers {
                 Map("foo" -> Seq(4), "bar" -> Seq(5))))
         Formatting[JValue, JObject] { __ =>
           (__ \ "x").format[Map[String, Int]]
-        }.validate(JObject(Map("n" -> JObject(Map(
-                            "foo" -> JNumber(4),
+        }.validate(JObject(Map("n" -> JObject(
+                        Map("foo" -> JNumber(4),
                             "bar" -> JString("frack")))))) shouldBe (Invalid(
                 Seq(Path \ "x" -> Seq(ValidationError("error.required")))))
         Formatting[JValue, JObject] { __ =>

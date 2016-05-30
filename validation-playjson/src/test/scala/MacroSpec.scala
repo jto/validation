@@ -260,8 +260,8 @@ class MacroSpec extends WordSpec with Matchers {
       implicit def c1Rule[A](implicit rds: Rule[A, Id[A]],
                              e: Path => Rule[JsValue, A]) =
         From[JsValue] { __ =>
-          ((__ \ "id").read(rds) ~ (__ \ "name").read[String])((id,
-              name) => C1[A](id, name))
+          ((__ \ "id").read(rds) ~ (__ \ "name").read[String])((id, name) =>
+                C1[A](id, name))
         }
 
       val js = Json.obj("id" -> 123L, "name" -> "toto")

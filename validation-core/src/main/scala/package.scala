@@ -1,8 +1,6 @@
 package jto
 
-import cats.{Monoid, Unapply}
-import cats.syntax.{CartesianOps, CartesianSyntax1}
-import cats.Cartesian
+import cats.Monoid
 
 /**
   * Contains the validation API used by `Form`.
@@ -34,12 +32,6 @@ package object validation {
     new VABackCompat[E, A] {
       val v = va
     }
-
-  implicit def cartesianSyntaxU[FA](fa: FA)(
-      implicit U: Unapply[Cartesian, FA]): CartesianOps[U.M, U.A] = {
-    object As extends CartesianSyntax1
-    As.cartesianSyntaxU(fa)
-  }
 
   implicit def seqAlgebra[A]: Monoid[Seq[A]] =
     new Monoid[Seq[A]] {

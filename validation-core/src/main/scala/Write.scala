@@ -2,6 +2,7 @@ package jto.validation
 
 import cats.Monoid
 import cats.functor.Contravariant
+import scala.language.implicitConversions
 
 trait Write[I, +O] {
 
@@ -9,13 +10,6 @@ trait Write[I, +O] {
     * "Serialize" `i` to the output type
     */
   def writes(i: I): O
-}
-
-object Write {
-  implicit def zero[I]: Write[I, I] = Write(identity[I] _)
-}
-
-trait Write[I, +O] extends Write[I, O] {
 
   /**
     * returns a new Write that applies function `f` to the result of this write.
@@ -28,9 +22,6 @@ trait Write[I, +O] extends Write[I, O] {
     Write[I, B] {
       f.compose(x => this.writes(x))
     }
-
-  @deprecated("use andThen instead.", "2.0")
-  def compose[OO >: O, P](w: Write[OO, P]): Write[I, P] = andThen(w)
 
   /**
     * Returns a new Write that applies `this` Write, and then applies `w` to its result
@@ -58,7 +49,7 @@ object Write {
     }
 
   implicit def zero[I]: Write[I, I] =
-    toWrite(Write.zero[I])
+    Write(identity[I] _)
 
   implicit def contravariantWrite[O]: Contravariant[Write[?, O]] =
     new Contravariant[Write[?, O]] {

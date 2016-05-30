@@ -1,6 +1,7 @@
 package jto.validation
 
 import cats.Applicative
+import scala.language.implicitConversions
 
 trait Rule[I, O] {
 
@@ -10,17 +11,6 @@ trait Rule[I, O] {
     * @return The Result of validating the data
     */
   def validate(data: I): VA[O]
-}
-
-object Rule {
-  implicit def zero[O]: Rule[O, O] = Rule[O, O](Valid.apply)
-}
-
-trait Rule[I, O] extends Rule[I, O] {
-
-  @deprecated("use andThen instead.", "2.0")
-  def compose[P](path: Path)(sub: => Rule[O, P]): Rule[I, P] =
-    andThen(path)(sub)
 
   /**
     * Compose two Rules
@@ -34,7 +24,7 @@ trait Rule[I, O] extends Rule[I, O] {
     * @param sub the second Rule to apply
     * @return The combination of the two Rules
     */
-  def andThen[P](path: Path)(sub: => Rule[O, P]): Rule[I, P] =
+  def andThen[P](path: Path)(sub: Rule[O, P]): Rule[I, P] =
     this.flatMap { o =>
       Rule(_ => sub.validate(o))
     }.repath(path ++ _)
@@ -59,15 +49,11 @@ trait Rule[I, O] extends Rule[I, O] {
     * @param t an alternative Rule
     * @return a Rule
     */
-  def orElse[OO >: O](t: => Rule[I, OO]): Rule[I, OO] =
+  def orElse[OO >: O](t: Rule[I, OO]): Rule[I, OO] =
     Rule(d => this.validate(d) orElse t.validate(d))
 
-  @deprecated("use andThen instead.", "2.0")
-  def compose[P](sub: => Rule[O, P]): Rule[I, P] = andThen(sub)
-  def andThen[P](sub: => Rule[O, P]): Rule[I, P] = andThen(Path)(sub)
+  def andThen[P](sub: Rule[O, P]): Rule[I, P] = andThen(Path())(sub)
 
-  @deprecated("use andThen instead.", "2.0")
-  def compose[P](m: Mapping[ValidationError, O, P]): Rule[I, P] = andThen(m)
   def andThen[P](m: Mapping[ValidationError, O, P]): Rule[I, P] =
     andThen(Rule.fromMapping(m))
 
@@ -106,9 +92,6 @@ trait Rule[I, O] extends Rule[I, O] {
   def map[B](f: O => B): Rule[I, B] =
     Rule(d => this.validate(d).map(f))
 
-  @deprecated("fmap is deprecated, use map instead", "2.0")
-  def fmap[B](f: O => B): Rule[I, B] = map(f)
-
   def ap[A](mf: Rule[I, O => A]): Rule[I, A] =
     Rule { d =>
       val a = validate(d)
@@ -134,7 +117,7 @@ object Rule {
     Rule { case (a, b) => f(a).validate(b) }
 
   def zero[O]: Rule[O, O] =
-    toRule(Rule.zero[O])
+    Rule[O, O](Valid.apply)
 
   def pure[I, O](o: O): Rule[I, O] =
     Rule(_ => Valid(o))
@@ -152,7 +135,7 @@ object Rule {
     }
 
   def fromMapping[I, O](f: Mapping[ValidationError, I, O]): Rule[I, O] =
-    Rule[I, O](f(_: I).bimap(errs => Seq(Path -> errs), identity))
+    Rule[I, O](f(_: I).bimap(errs => Seq(Path() -> errs), identity))
 
   implicit def applicativeRule[I]: Applicative[Rule[I, ?]] =
     new Applicative[Rule[I, ?]] {

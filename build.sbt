@@ -13,6 +13,7 @@ val playVersion = "2.5.3"
 val scalacVersion = "2.11.8"
 val scalatestVersion = "3.0.0-M16-SNAP6"
 val scalaXmlVersion = "1.0.5"
+val si2712fixVersion = "1.2.0"
 
 val json4sAST = libraryDependencies += "org.json4s" %%% "json4s-ast" % json4sAstVersion
 
@@ -112,7 +113,6 @@ val commonScalacOptions = Seq(
   "-feature",
   "-language:existentials",
   "-language:higherKinds",
-  "-language:implicitConversions",
   "-language:experimental.macros",
   "-language:postfixOps",
   "-unchecked",
@@ -132,15 +132,14 @@ val commonResolvers = Seq(
   Resolver.sonatypeRepo("releases")
 )
 
-val dependencies = Seq(
-  libraryDependencies ++= Seq(
-    "org.typelevel" %%% "cats" % catsVersion,
-    "org.scalatest" %%% "scalatest" % scalatestVersion % "test",
-    "joda-time" % "joda-time" % jodaTimeVersion,
-    "org.joda" % "joda-convert" % jodaConvertVersion
-  ),
-  addCompilerPlugin("org.spire-math" %% "kind-projector" % kindProjectorVersion)
-)
+val dependencies = Seq(libraryDependencies ++= Seq(
+  "org.typelevel" %%% "cats" % catsVersion,
+  "org.scalatest" %%% "scalatest" % scalatestVersion % "test",
+  "joda-time" % "joda-time" % jodaTimeVersion,
+  "org.joda" % "joda-convert" % jodaConvertVersion,
+  compilerPlugin("org.spire-math" %% "kind-projector" % kindProjectorVersion),
+  compilerPlugin("com.milessabin" % "si2712fix-plugin" % si2712fixVersion cross CrossVersion.full)
+))
 
 val generateBoilerplate = Seq(
   sourceGenerators in Compile <+= (sourceManaged in Compile).map(Boilerplate.gen)

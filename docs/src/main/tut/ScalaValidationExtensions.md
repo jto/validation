@@ -219,6 +219,7 @@ from there you're able to create complex writes like:
 ```tut:silent
 import jto.validation._
 import play.api.libs.json._
+import scala.Function.unlift
 
 case class User(
   name: String,

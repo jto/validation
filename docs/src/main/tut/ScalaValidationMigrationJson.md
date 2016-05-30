@@ -32,7 +32,7 @@ Using the json API, you would have defined something like:
     (__ \ "name").read[String] and
     (__ \ "isDead").read[Boolean] and
     (__ \ "weight").read[Float]
-  )(Creature.apply)
+  )(Creature.apply _)
 
   val js = Json.obj( "name" -> "gremlins", "isDead" -> false, "weight" -> 1.0F)
   Json.fromJson[Creature](js)
@@ -118,7 +118,7 @@ implicit lazy val UserReads: Reads[User] = (
   (__ \ 'id).read[Long] and
   (__ \ 'name).read[String] and
   (__ \ 'friend).lazyReadNullable(UserReads)
-)(User.apply)
+)(User.apply _)
 
 val js = Json.obj(
   "id" -> 123L,
@@ -244,22 +244,21 @@ pick.validate(js)
 For example, you would have defined a `Writes` for the `Creature` case class this way:
 
 ```scala
-{
-  import play.api.libs.json._
+import play.api.libs.json._
+import scala.Function.unlift
 
-  case class Creature(
-    name: String,
-    isDead: Boolean,
-    weight: Float)
+case class Creature(
+  name: String,
+  isDead: Boolean,
+  weight: Float)
 
-  implicit val creatureWrite = (
-    (__ \ "name").write[String] and
-    (__ \ "isDead").write[Boolean] and
-    (__ \ "weight").write[Float]
-  )(unlift(Creature.unapply))
+implicit val creatureWrite = (
+  (__ \ "name").write[String] and
+  (__ \ "isDead").write[Boolean] and
+  (__ \ "weight").write[Float]
+)(unlift(Creature.unapply))
 
-  Json.toJson(Creature("gremlins", false, 1f))
-}
+Json.toJson(Creature("gremlins", false, 1f))
 ```
 
 With the validation API:
@@ -267,6 +266,7 @@ With the validation API:
 ```tut:silent
 import jto.validation._
 import play.api.libs.json._
+import scala.Function.unlift
 
 case class Creature(
   name: String,

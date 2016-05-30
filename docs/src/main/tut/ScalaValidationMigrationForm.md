@@ -136,6 +136,8 @@ You can use the `Form.fill` method to create a `Form` from a class.
 `Form.fill` needs an instance of `Write[T, UrlFormEncoded]`, where `T` is your class type.
 
 ```tut:silent
+import scala.Function.unlift
+
 implicit val computerW = To[UrlFormEncoded] { __ =>
   import jto.validation.forms.Writes._
   ((__ \ "id").write[Option[Long]] ~

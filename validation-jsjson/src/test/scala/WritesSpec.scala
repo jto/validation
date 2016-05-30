@@ -300,7 +300,8 @@ class WritesSpec extends WordSpec with Matchers with JsAnyEquality {
     "write Map" in {
       implicit val contactInformation = To[js.Dynamic] { __ =>
         ((__ \ "label").write[String] ~ (__ \ "email").write[Option[String]] ~
-            (__ \ "phones").write[Seq[String]])(unlift(ContactInformation.unapply))
+            (__ \ "phones").write[Seq[String]])(
+            unlift(ContactInformation.unapply))
       }
 
       implicit val contactWrite = To[js.Dynamic] { __ =>
@@ -328,7 +329,8 @@ class WritesSpec extends WordSpec with Matchers with JsAnyEquality {
 
       "using explicit notation" in {
         lazy val w: Write[RecUser, js.Dynamic] = To[js.Dynamic] { __ =>
-          ((__ \ "name").write[String] ~ (__ \ "friends").write(seqW(w)))(unlift(RecUser.unapply))
+          ((__ \ "name").write[String] ~ (__ \ "friends").write(seqW(w)))(
+              unlift(RecUser.unapply))
         }
         w.writes(u) shouldBe m
 
@@ -338,7 +340,8 @@ class WritesSpec extends WordSpec with Matchers with JsAnyEquality {
         w2.writes(u) shouldBe m
 
         lazy val w3: Write[User1, js.Dynamic] = To[js.Dynamic] { __ =>
-          ((__ \ "name").write[String] ~ (__ \ "friend").write(optionW(w3)))(unlift(User1.unapply))
+          ((__ \ "name").write[String] ~ (__ \ "friend").write(optionW(w3)))(
+              unlift(User1.unapply))
         }
         w3.writes(u1) shouldBe m1
       }
@@ -352,7 +355,8 @@ class WritesSpec extends WordSpec with Matchers with JsAnyEquality {
         w.writes(u) shouldBe m
 
         implicit lazy val w3: Write[User1, js.Dynamic] = To[js.Dynamic] { __ =>
-          ((__ \ "name").write[String] ~ (__ \ "friend").write[Option[User1]])(unlift(User1.unapply))
+          ((__ \ "name").write[String] ~ (__ \ "friend").write[Option[User1]])(
+              unlift(User1.unapply))
         }
         w3.writes(u1) shouldBe m1
       }

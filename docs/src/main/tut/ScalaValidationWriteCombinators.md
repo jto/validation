@@ -132,6 +132,7 @@ We need to create a `Write[User, JsValue]`. Creating this `Write` is simply a ma
 import jto.validation._
 import jto.validation.playjson.Writes._
 import play.api.libs.json._
+import scala.Function.unlift
 
 val userWrite = To[JsObject] { __ =>
   import jto.validation.playjson.Writes._

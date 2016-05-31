@@ -11,7 +11,7 @@ case class TypeThree(param1: TypeThreeParamOne, param2: Double)
 case class TypeFour(param1param0: String, param2: Double)
 
 class DocSpec extends WordSpec with Matchers {
-  "Format" should {
+  "Doc" should {
     "print TypeTwo" in {
       val docTypeTwo: Doc[TypeTwo] = Build[Doc, TypeTwo] { __ =>
         (

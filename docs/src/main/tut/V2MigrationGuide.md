@@ -1,6 +1,6 @@
 # v2.0 Migration guide
 
-Version 2.x breaks back compatibility with the 1.x version. The migration has been tested on production code making heavy use of validation for json (based on play-json) and xml. Even for big project, migrating to 2.x should not take more than 30 min.
+Version 2.x breaks back compatibility with the 1.x version. The migration has been tested on production code making heavy use of validation for json (based on play-json) and xml. Even for big projects, migrating to 2.x should not take more than 30 min.
 
 The best method is just to update validation in your dependencies, and let the compiler figure out what's broken. The following changes list should cover everything needed.
 
@@ -20,7 +20,7 @@ becomes
 
 #### Package name
 
-- Since the library does not depends on Play anymore, and is not planned to be integrated into Play, the package names have changed. Basically `play.api.mapping` now becomes `jto.validation`. A simple search and replace in your project should work.
+- Since the library does not depend on Play anymore and is not planned to be integrated into Play, the package names have changed. Basically `play.api.mapping` now becomes `jto.validation`. A simple search and replace in your project should work.
 - The validation api support both json4s and play-json. Therefore, the package name for play json changes. `play.api.mapping.json` becomes `play.api.mapping.playjson`
 
 #### Rule renaming

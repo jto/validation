@@ -23,7 +23,7 @@ case class Person(name: String, age: Int, lovesChocolate: Boolean)
 import jto.validation._
 import play.api.libs.json._
 
-implicit val personRule = From[JsValue] { __ =>
+implicit val personRule: Rule[JsValue, Person] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   ((__ \ "name").read[String] ~
    (__ \ "age").read[Int] ~

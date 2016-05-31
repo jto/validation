@@ -1,9 +1,9 @@
 # Form API migration
 
-Although the new Validation API differs significantly from the `Form` API, migrating to to new API is straightforward.
+Although the new Validation API differs significantly from the `Form` API, migrating to new API is straightforward.
 This example is a case study of the migration of one of play sample application: "computer database".
 
-We'll consider `Application.scala`. This controller take care of Computer creation, and edition. The models are defined in `Models.scala`
+We'll consider `Application.scala`. This controller takes care of Computer creation, and edition. The models are defined in `Models.scala`
 
 ```scala
 case class Company(id: Pk[Long] = NotAssigned, name: String)
@@ -108,7 +108,7 @@ You start by defining a simple validation for each field.
 For example `"name" -> nonEmptyText` now becomes `(__ \ "name").read(notEmpty)`
 The next step is to compose these validations together, to get a new validation.
 
-The *old* api does that using a function called `mapping`, the validation api uses a method called `~` or `and` (`and` is a alias).
+The *old* api does that using a function called `mapping`, the validation api uses a method called `~` or `and` (`and` is an alias).
 
 ```scala
 mapping(

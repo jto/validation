@@ -79,7 +79,7 @@ val findFriend: Rule[JsValue, JsValue] = location.read[JsValue, JsValue]
 ```
 
 `location.read[JsValue, JsValue]` means we're trying to lookup at `location` in a `JsValue`, and we expect to find a `JsValue` there.
-In fact we're defining a `Rule` that is picking a subtree in a `JsValue`.
+In fact, we're defining a `Rule` that is picking a subtree in a `JsValue`.
 
 If you try to run that code, the compiler gives you the following error:
 
@@ -159,7 +159,7 @@ If we try to parse something that is not an `Int`, we get a `Invalid` with the a
 (Path \ "user" \ "name").read[JsValue, Int].validate(js)
 ```
 
-So scala *automagically* figures out how to transform a `JsValue` into an `Int`. How does this happens ?
+So scala *automagically* figures out how to transform a `JsValue` into an `Int`. How does this happen?
 
 It's fairly simple. The definition of `read` looks like this:
 
@@ -254,7 +254,7 @@ age.validate(js)
 ## Combining Rules
 
 So far we've validated only fragments of our json object.
-Now we'd like to validate the entire object, and turn it into a instance of the `User` class defined below:
+Now we'd like to validate the entire object, and turn it into an instance of the `User` class defined below:
 
 ```tut
 case class User(
@@ -270,7 +270,7 @@ We need to create a `Rule[JsValue, User]`. Creating this Rule is simply a matter
 import jto.validation._
 import play.api.libs.json._
 
-val userRule = From[JsValue] { __ =>
+val userRule: Rule[JsValue, User] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   ((__ \ "name").read[String] ~
    (__ \ "age").read[Int] ~

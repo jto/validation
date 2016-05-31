@@ -15,7 +15,7 @@ case class Creature(
   isDead: Boolean,
   weight: Float)
 
-implicit val creatureRule = From[JsValue]{ __ =>
+implicit val creatureRule: Rule[JsValue, Creature] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   ((__ \ "name").read[String] ~
    (__ \ "isDead").read[Boolean] ~
@@ -40,7 +40,7 @@ A common example of this use case is the validation of `password` and `password 
 import jto.validation._
 import play.api.libs.json._
 
-val passRule = From[JsValue] { __ =>
+val passRule: Rule[JsValue, String] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   // This code creates a `Rule[JsValue, (String, String)]` each of of the String must be non-empty
   ((__ \ "password").read(notEmpty) ~
@@ -72,7 +72,7 @@ When validating recursive types:
 - Use the `lazy` keyword to allow forward reference.
 - As with any recursive definition, the type of the `Rule` **must** be explicitly given.
 
-```tut
+```tut:silent
 case class User(
   name: String,
   age: Int,
@@ -81,11 +81,11 @@ case class User(
   friend: Option[User])
 ```
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
-// Note the lazy keyword, and the explicit typing
+// Note the lazy keyword
 implicit lazy val userRule: Rule[JsValue, User] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
 
@@ -123,10 +123,10 @@ val js = Json.parse("""
 }
 """)
 
-val r = From[JsValue] { __ =>
+val r: Rule[JsValue, Seq[(String, String)]] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
 
-  val tupleR = Rule.fromMapping[JsValue, (String, String)] {
+  val tupleR: Rule[JsValue, (String, String)] = Rule.fromMapping[JsValue, (String, String)] {
     case JsObject(Seq((key, JsString(value)))) => Valid(key.toString -> value)
     case _ => Invalid(Seq(ValidationError("BAAAM")))
   }
@@ -142,7 +142,7 @@ r.validate(js)
 
 Consider the following class definitions:
 
-```tut
+```tut:silent
 trait A
 case class B(foo: Int) extends A
 case class C(bar: Int) extends A
@@ -179,7 +179,7 @@ rule.validate(e)
 ```tut:silent
 val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 
-val rule = From[JsValue] { __ =>
+val rule: Rule[JsValue, A] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   (__ \ "name").read[String].flatMap[A] {
     case "B" => (__ \ "foo").read[Int].map(B.apply _)

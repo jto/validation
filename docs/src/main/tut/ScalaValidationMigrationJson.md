@@ -14,7 +14,7 @@ Migrating a Json `Reads` to a `Rule` is just a matter of modifying imports and s
 
 Let's take a typical example from the Json API documentation:
 
-```tut
+```tut:silent
 case class Creature(
   name: String,
   isDead: Boolean,
@@ -45,7 +45,7 @@ Using the new API, this code becomes:
 import jto.validation._
 import play.api.libs.json._
 
-implicit val creatureRule = From[JsValue] { __ =>
+implicit val creatureRule: Rule[JsValue, Creature] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   ((__ \ "name").read[String] ~
    (__ \ "isDead").read[Boolean] ~
@@ -57,7 +57,7 @@ val js = Json.obj( "name" -> "gremlins", "isDead" -> false, "weight" -> 1.0F)
 From[JsValue, Creature](js)
 ```
 
-Which appart from the extra imports is very similar. Notice the `From[JsValue]{...}` block, that's one of the nice features of the new validation API. Not only it avoids type repetition, but it also scopes the implicits.
+Which apart from the extra imports is very similar. Notice the `From[JsValue]{...}` block, that's one of the nice features of the new validation API. Not only it avoids type repetition, but it also scopes the implicits.
 
 > **Important:** Note that we're importing `Rules._` **inside** the `From[JsValue]{...}` block.
 It is recommended to always follow this pattern, as it nicely scopes the implicits, avoiding conflicts and accidental shadowing.
@@ -67,7 +67,7 @@ It is recommended to always follow this pattern, as it nicely scopes the implici
 The readNullable method does not exists anymore. Just use a `Rule[JsValue, Option[T]]` instead. `null` and non existing Path will be handled correctly and give you a `None`:
 
 ```tut:silent
-val nullableStringRule = From[JsValue] { __ =>
+val nullableStringRule: Rule[JsValue, Option[String]] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   (__ \ "foo").read[Option[String]]
 }
@@ -95,7 +95,7 @@ The general use for `keepAnd` is to apply two validation on the same `JsValue`, 
 }
 ```
 
-You can achieve the same think in the Validation API using [Rules composition](ScalaValidationRule.md)
+You can achieve the same thing in the Validation API using [Rules composition](ScalaValidationRule.md)
 
 ```tut:silent
 From[JsValue] { __ =>
@@ -106,7 +106,7 @@ From[JsValue] { __ =>
 
 ### lazy reads
 
-Reads are always lazy in the new validation API, therefore you don't need to use any specific function, even for recursive types:
+Reads are always lazy in the new validation API, therefore, you don't need to use any specific function, even for recursive types:
 
 ```tut:silent
 import play.api.libs.json._
@@ -134,7 +134,7 @@ becomes:
 ```tut:silent
 case class User(id: Long, name: String, friend: Option[User] = None)
 
-implicit lazy val userRule: Rule[JsValue, User] = From[JsValue]{ __ =>
+implicit lazy val userRule: Rule[JsValue, User] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   ((__ \ "id").read[Long] ~
    (__ \ "name").read[String] ~
@@ -228,7 +228,7 @@ val js = Json.obj(
     "field32"-> 345
   ))
 
-val pick = From[JsValue] { __ =>
+val pick: Rule[JsValue, JsValue] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   (__ \ "field3").read[JsValue]
 }
@@ -286,7 +286,7 @@ val c = To[Creature, JsObject](Creature("gremlins", false, 1f))
 
 ## `Format` migration
 
-The validation API does not have an equivalent for `Format`. We find that generally `Format` is not really convenient since validation and serialization are rarely symmetrical, and you quite often end up havind multiple `Reads` for a given type, making `Format` rather unsettling.
+The validation API does not have an equivalent for `Format`. We find that generally `Format` is not really convenient since validation and serialization are rarely symmetrical, and you quite often end up having multiple `Reads` for a given type, making `Format` rather unsettling.
 
 ## Json Inception (macro)
 

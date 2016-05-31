@@ -82,10 +82,9 @@ libraryDependencies ++= Seq(
 
 - [Validating and transforming data](http://jto.github.io/validation/docs/book/ScalaValidationRule.html)
 - [Combining Rules](http://jto.github.io/validation/docs/book/ScalaValidationRuleCombinators.html)
-- [Validation Inception](http://jto.github.io/validation/docs/book/ScalaValidationMacros.html)
-- [Validating Json](http://jto.github.io/validation/docs/book/ScalaValidationJson.html)
 - [Serializing data with Write](http://jto.github.io/validation/docs/book/ScalaValidationWrite.html)
 - [Combining Writes](http://jto.github.io/validation/docs/book/ScalaValidationWriteCombinators.html)
+- [Validation Inception](http://jto.github.io/validation/docs/book/ScalaValidationMacros.html)
 - [Play's Form API migration](http://jto.github.io/validation/docs/book/ScalaValidationMigrationForm.html)
 - [Play's Json API migration](http://jto.github.io/validation/docs/book/ScalaValidationMigrationJson.html)
 - [Extensions: Supporting new types](http://jto.github.io/validation/docs/book/ScalaValidationExtensions.html)

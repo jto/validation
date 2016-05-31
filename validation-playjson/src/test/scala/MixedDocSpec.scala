@@ -43,8 +43,7 @@ class MixedDocSpec extends WordSpec with Matchers {
           f2: F[String],
           f4: SyntaxCombine[F],
           f5: Functor[F],
-          f6: At[F],
-          f7: Mixer1[F]
+          f6: At[F]
         ): F[TypeOne] =
           Build[F, TypeOne] { __ =>
             (

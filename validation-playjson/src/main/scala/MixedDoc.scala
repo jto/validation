@@ -11,8 +11,8 @@ object MixedDoc {
   // Boilerplate be build `Doc[A] with X` for `X` in
   // { `Rule[I, A]`, `Write[A, J]`, `Rule[I, A] with Write[A, J]` }
   // ----------------------------------------------------------------------------------------
-  implicit def mixDocRule[I, J]: Mixer2[Doc, Rule[I, ?]] =
-    new Mixer2[Doc, Rule[I, ?]] {
+  implicit def mixDocRule[I, J]: Mixer[Doc, Rule[I, ?]] =
+    new Mixer[Doc, Rule[I, ?]] {
       def mix[A](m1: Doc[A], m2: Rule[I, A]): Doc[A] with Rule[I, A] =
         new Doc[A] with Rule[I, A] {
           def validate(data: I): VA[A] = m2.validate(data)
@@ -20,8 +20,8 @@ object MixedDoc {
         }
     }
 
-  implicit def mixDocWrite[I, J]: Mixer2[Doc, Write[?, J]] =
-    new Mixer2[Doc, Write[?, J]] {
+  implicit def mixDocWrite[I, J]: Mixer[Doc, Write[?, J]] =
+    new Mixer[Doc, Write[?, J]] {
       def mix[A](m1: Doc[A], m2: Write[A, J]): Doc[A] with Write[A, J] =
         new Doc[A] with Write[A, J] {
           def writes(i: A): J = m2.writes(i)
@@ -29,8 +29,8 @@ object MixedDoc {
         }
     }
 
-  implicit def mixDocRuleWrite[I, J]: Mixer2[Doc, Format[I, J, ?]] =
-    new Mixer2[Doc, Format[I, J, ?]] {
+  implicit def mixDocRuleWrite[I, J]: Mixer[Doc, Format[I, J, ?]] =
+    new Mixer[Doc, Format[I, J, ?]] {
       def mix[A](m0: Doc[A], m1: Format[I, J, A]): Doc[A] with Format[I, J, A] =
         new Doc[A] with Rule[I, A] with Write[A, J] {
           def validate(data: I): VA[A] = m1.validate(data)

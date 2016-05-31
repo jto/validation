@@ -60,11 +60,6 @@ trait DocCoreImplicits {
 
   implicit def docFunctorSyntaxCombineObs[A](d: Doc[A]) =
     new FunctorSyntaxObs[Doc, A](d)
-
-  implicit def docMix[I]: Mixer1[Doc] =
-    new Mixer1[Doc] {
-      def mix[A](m1: Doc[A]): Doc[A] = m1
-    }
 }
 
 trait DocDefaultImplicits {

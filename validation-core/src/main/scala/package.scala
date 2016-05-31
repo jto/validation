@@ -49,22 +49,22 @@ package object validation {
       def combine(x: Seq[A], y: Seq[A]): Seq[A] = x ++ y
     }
 
-  // Typeclasses derivable given a Mixer2 instance
+  // Typeclasses derivable given a Mixer instance
   // (all of these could be implicit but scalac is confused by `A with B`...)
   // ----------------------------------------------------------------------------------------
-  def mixInvariants[F1[_], F2[_]](implicit I1: Invariant[F1], I2: Invariant[F2], M: Mixer2[F1, F2]) =
+  def mixInvariants[F1[_], F2[_]](implicit I1: Invariant[F1], I2: Invariant[F2], M: Mixer[F1, F2]) =
     new Invariant[Lambda[O => F1[O] with F2[O]]] {
       def imap[A, B](fa: F1[A] with F2[A])(f: A => B)(g: B => A): F1[B] with F2[B] =
         M.mix(I1.imap(fa)(f)(g), I2.imap(fa)(f)(g))
     }
 
-  def mixFunctors[F1[_], F2[_]](implicit I1: Functor[F1], I2: Functor[F2], M: Mixer2[F1, F2]) =
+  def mixFunctors[F1[_], F2[_]](implicit I1: Functor[F1], I2: Functor[F2], M: Mixer[F1, F2]) =
     new Functor[Lambda[O => F1[O] with F2[O]]] {
       def map[A, B](fa: F1[A] with F2[A])(f: A => B): F1[B] with F2[B] =
         M.mix(I1.map(fa)(f), I2.map(fa)(f))
     }
 
-  def mixSyntaxCombine[F1[_], F2[_]](implicit S1: SyntaxCombine[F1], S2: SyntaxCombine[F2], M: Mixer2[F1, F2]) =
+  def mixSyntaxCombine[F1[_], F2[_]](implicit S1: SyntaxCombine[F1], S2: SyntaxCombine[F2], M: Mixer[F1, F2]) =
     new SyntaxCombine[Lambda[I => F1[I] with F2[I]]] {
       def apply[A, B](ma: F1[A] with F2[A],
                       mb: F1[B] with F2[B]): F1[A ~ B] with F2[A ~ B] =
@@ -97,7 +97,7 @@ package object validation {
   // Sugar (backward source compatible)
   // ----------------------------------------------------------------------------------------
   def Format[IR, OW, A](r: Rule[IR, A], w: Write[A, OW]): Format[IR, OW, A] =
-    Mixer2.mixRuleWrite.mix(r, w)
+    Mixer.mixRuleWrite.mix(r, w)
 
   def Formatting[IR, OW] = new FormattingCurried[IR, OW] {}
   def From[IR] = new FromCurried[IR] {}
@@ -110,7 +110,7 @@ class FormattingCurried[IR, OW] {
   def apply[A](as: As2[Rule[IR, ?], Write[?, OW]] => Format[IR, OW, A])(
       implicit a1: At[Rule[IR, ?]],
       a2: At[Write[?, OW]],
-      M: Mixer2[Rule[IR, ?], Write[?, OW]]): Format[IR, OW, A] =
+      M: Mixer[Rule[IR, ?], Write[?, OW]]): Format[IR, OW, A] =
     Build[Rule[IR, ?], Write[?, OW], A](as)
 }
 

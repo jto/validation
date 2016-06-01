@@ -1,8 +1,7 @@
 package jto.validation
-package json4s
+package jsonAst
 
 import cats.Monoid
-import org.json4s.ast.safe._
 
 trait DefaultMonoids {
   implicit def jsonMonoid = new Monoid[JObject] {
@@ -17,15 +16,15 @@ object Writes
     with DefaultMonoids
     with GenericWrites[JValue] {
   private def writeObj(j: JValue, n: PathNode) = n match {
-    case IdxPathNode(_) => JArray(Vector(j))
+    case IdxPathNode(_) => JArray(Seq(j))
     case KeyPathNode(key) => JObject(Map(key -> j))
   }
 
   implicit val validationErrorW = Write[ValidationError, JValue] { err =>
     JObject(
         Map("msg" -> JString(err.message),
-            "args" -> err.args.foldLeft(JArray(Vector.empty)) { (arr, arg) =>
-          JArray(arr.value :+ JString(arg.toString))
+            "args" -> err.args.foldLeft(JArray()) { (arr, arg) =>
+          JArray((arr.value :+ JString(arg.toString)).toVector)
         }))
   }
 
@@ -45,15 +44,16 @@ object Writes
 
   implicit val stringW: Write[String, JValue] = Write(s => JString(s))
 
-  private def tToJs[T] =
-    Write[T, JValue](i => org.json4s.ast.fast.JNumber(i.toString).toSafe)
+  private def tToJs[T]: Write[T, JValue] =
+    Write[T, JValue](i => JNumber(i.toString))
 
   implicit val intW = tToJs[Int]
   implicit val shortW = tToJs[Short]
   implicit val longW = tToJs[Long]
   implicit val floatW = tToJs[Float]
   implicit val doubleW = tToJs[Double]
-  implicit val bigDecimalW = Write[BigDecimal, JValue](JNumber.apply)
+  implicit val bigDecimalW: Write[BigDecimal, JValue] =
+    Write[BigDecimal, JValue](b => JNumber(b.toString))
   implicit def javanumberW[T <: java.lang.Number] = tToJs[T]
 
   implicit def booleanW = Write[Boolean, JValue](JBoolean.apply)
@@ -74,6 +74,16 @@ object Writes
   implicit def mapW[I](implicit w: WriteLike[I, JValue]) =
     Write[Map[String, I], JObject] { m =>
       JObject(m.mapValues(w.writes))
+    }
+
+  implicit def vaW[I](implicit w: WriteLike[I, JValue]) =
+    Write[VA[I], JObject] { va =>
+      JObject(
+          Map(
+              "isValid" -> JBoolean(va.isValid),
+              "output" -> va.fold(_ => JNull, w.writes),
+              "errors" -> va.fold(e => failureW.writes(Invalid(e)), _ => JNull)
+          ))
     }
 
   implicit def writeJson[I](path: Path)(

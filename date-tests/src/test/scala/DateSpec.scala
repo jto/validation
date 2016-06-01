@@ -480,9 +480,8 @@ class DateSpec extends WordSpec with Matchers {
     }
   }
 
-  "json4s" should {
-    import jto.validation.json4s._
-    import org.json4s.ast.safe._
+  "jsonAst" should {
+    import jto.validation.jsonAst._
     import Rules._, Writes._
 
     "Format" when {
@@ -540,7 +539,7 @@ class DateSpec extends WordSpec with Matchers {
         "time" in {
           Formatting[JValue, JObject] { __ =>
             (__ \ "n").format(jodaTimeR, jodaTimeW)
-          }.validate(JObject(Map("n" -> JNumber(dd.getTime)))) shouldBe
+          }.validate(JObject(Map("n" -> JNumber(dd.getTime.toString)))) shouldBe
           (Valid(jd))
 
           Formatting[JValue, JObject] { __ =>

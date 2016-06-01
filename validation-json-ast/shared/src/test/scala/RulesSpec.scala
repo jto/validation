@@ -1,7 +1,6 @@
 import jto.validation._
-import jto.validation.json4s._
+import jto.validation.jsonAst._
 import org.scalatest._
-import org.json4s.ast.safe._
 
 class RulesSpec extends WordSpec with Matchers {
 
@@ -16,8 +15,8 @@ class RulesSpec extends WordSpec with Matchers {
             "informations" -> JObject(
                 Map("label" -> JString("Personal"),
                     "email" -> JString("fakecontact@gmail.com"),
-                    "phones" -> JArray(JString("01.23.45.67.89"),
-                                       JString("98.76.54.32.10"))))))
+                    "phones" -> JArray(Seq(JString("01.23.45.67.89"),
+                                       JString("98.76.54.32.10")))))))
 
     val invalid = JObject(
         Map("firstname" -> JString("Julien"),
@@ -26,8 +25,8 @@ class RulesSpec extends WordSpec with Matchers {
             "informations" -> JObject(
                 Map("label" -> JString(""),
                     "email" -> JString("fakecontact@gmail.com"),
-                    "phones" -> JArray(JString("01.23.45.67.89"),
-                                       JString("98.76.54.32.10"))))))
+                    "phones" -> JArray(Seq(JString("01.23.45.67.89"),
+                                       JString("98.76.54.32.10")))))))
 
     "extract data" in {
       (Path \ "firstname").read[JValue, String].validate(valid) shouldBe (Valid(
@@ -227,7 +226,7 @@ class RulesSpec extends WordSpec with Matchers {
                         ValidationError("error.invalid", "String")))))
         (Path \ "n")
           .read[JValue, String]
-          .validate(JObject(Map("n" -> JArray(JString("foo"))))) shouldBe (Invalid(
+          .validate(JObject(Map("n" -> JArray(Seq(JString("foo")))))) shouldBe (Invalid(
                 Seq(Path \ "n" -> Seq(
                         ValidationError("error.invalid", "String")))))
         (Path \ "o")
@@ -254,7 +253,7 @@ class RulesSpec extends WordSpec with Matchers {
                         ValidationError("error.invalid", "Object")))))
         (Path \ "n")
           .read[JValue, JObject]
-          .validate(JObject(Map("n" -> JArray(JString("foo"))))) shouldBe (Invalid(
+          .validate(JObject(Map("n" -> JArray(Seq(JString("foo")))))) shouldBe (Invalid(
                 Seq(Path \ "n" -> Seq(
                         ValidationError("error.invalid", "Object")))))
       }
@@ -347,14 +346,14 @@ class RulesSpec extends WordSpec with Matchers {
       "Traversable" in {
         (Path \ "n")
           .read[JValue, Traversable[String]]
-          .validate(JObject(Map("n" -> JArray(JString("foo")))))
+          .validate(JObject(Map("n" -> JArray(Seq(JString("foo"))))))
           .toOption
           .get
           .toSeq shouldBe (Seq("foo"))
         (Path \ "n")
           .read[JValue, Traversable[Int]]
           .validate(
-              JObject(Map("n" -> JArray(JNumber(1), JNumber(2), JNumber(3)))))
+              JObject(Map("n" -> JArray(Seq(JNumber(1), JNumber(2), JNumber(3))))))
           .toOption
           .get
           .toSeq shouldBe (Seq(1, 2, 3))
@@ -368,14 +367,14 @@ class RulesSpec extends WordSpec with Matchers {
       "Array" in {
         (Path \ "n")
           .read[JValue, Array[String]]
-          .validate(JObject(Map("n" -> JArray(JString("foo")))))
+          .validate(JObject(Map("n" -> JArray(Seq(JString("foo"))))))
           .toOption
           .get
           .toSeq shouldBe (Seq("foo"))
         (Path \ "n")
           .read[JValue, Array[Int]]
           .validate(
-              JObject(Map("n" -> JArray(JNumber(1), JNumber(2), JNumber(3)))))
+              JObject(Map("n" -> JArray(Seq(JNumber(1), JNumber(2), JNumber(3))))))
           .toOption
           .get
           .toSeq shouldBe (Seq(1, 2, 3))
@@ -389,13 +388,13 @@ class RulesSpec extends WordSpec with Matchers {
       "Seq" in {
         (Path \ "n")
           .read[JValue, Seq[String]]
-          .validate(JObject(Map("n" -> JArray(JString("foo")))))
+          .validate(JObject(Map("n" -> JArray(Seq(JString("foo"))))))
           .toOption
           .get shouldBe (Seq("foo"))
         (Path \ "n")
           .read[JValue, Seq[Int]]
           .validate(
-              JObject(Map("n" -> JArray(JNumber(1), JNumber(2), JNumber(3)))))
+              JObject(Map("n" -> JArray(Seq(JNumber(1), JNumber(2), JNumber(3))))))
           .toOption
           .get shouldBe (Seq(1, 2, 3))
         (Path \ "n")
@@ -405,7 +404,7 @@ class RulesSpec extends WordSpec with Matchers {
                         ValidationError("error.invalid", "Array")))))
         (Path \ "n")
           .read[JValue, Seq[String]]
-          .validate(JObject(Map("n" -> JArray(JString("foo"), JNumber(2))))) shouldBe (Invalid(
+          .validate(JObject(Map("n" -> JArray(Seq(JString("foo"), JNumber(2)))))) shouldBe (Invalid(
                 Seq(Path \ "n" \ 1 -> Seq(
                         ValidationError("error.invalid", "String")))))
       }
@@ -489,20 +488,20 @@ class RulesSpec extends WordSpec with Matchers {
     "lift validations to seq validations" in {
       (Path \ "foo")
         .from[JValue](seqR(notEmpty))
-        .validate(JObject(Map("foo" -> JArray(JString("bar")))))
+        .validate(JObject(Map("foo" -> JArray(Seq(JString("bar"))))))
         .toOption
         .get shouldBe (Seq("bar"))
 
       From[JValue] { __ =>
         (__ \ "foo").read((__ \ "foo").read(seqR(notEmpty)))
       }.validate(JObject(
-                Map("foo" -> JObject(Map("foo" -> JArray(JString("bar")))))))
+                Map("foo" -> JObject(Map("foo" -> JArray(Seq(JString("bar"))))))))
         .toOption
         .get shouldBe (Seq("bar"))
 
       (Path \ "n")
         .from[JValue](seqR(notEmpty))
-        .validate(JObject(Map("n" -> JArray(JString("foo"), JString(""))))) shouldBe (Invalid(
+        .validate(JObject(Map("n" -> JArray(Seq(JString("foo"), JString("")))))) shouldBe (Invalid(
               Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.required")))))
     }
 
@@ -607,21 +606,19 @@ class RulesSpec extends WordSpec with Matchers {
           Map("firstname" -> JString("Julien"),
               "lastname" -> JString("Tournay"),
               "age" -> JNumber(27),
-              "informations" -> JArray(JObject(
+              "informations" -> JArray(Seq(JObject(
                       Map("label" -> JString("Personal"),
                           "email" -> JString("fakecontact@gmail.com"),
-                          "phones" -> JArray(JString("01.23.45.67.89"),
-                                             JString("98.76.54.32.10")))))))
+                          "phones" -> JArray(Seq(JString("01.23.45.67.89"), JString("98.76.54.32.10")))))))))
 
       val invalidJson = JObject(
           Map("firstname" -> JString("Julien"),
               "lastname" -> JString("Tournay"),
               "age" -> JNumber(27),
-              "informations" -> JArray(JObject(
+              "informations" -> JArray(Seq(JObject(
                       Map("label" -> JString(""),
                           "email" -> JString("fakecontact@gmail.com"),
-                          "phones" -> JArray(JString("01.23.45.67.89"),
-                                             JString("98.76.54.32.10")))))))
+                          "phones" -> JArray(Seq(JString("01.23.45.67.89"), JString("98.76.54.32.10")))))))))
 
       val infoValidated = From[JValue] { __ =>
         ((__ \ "label").read(notEmpty) ~
@@ -656,8 +653,7 @@ class RulesSpec extends WordSpec with Matchers {
 
       val m = JObject(
           Map("name" -> JString("bob"),
-              "friends" -> JArray(JObject(
-                      Map("name" -> JString("tom"), "friends" -> JArray())))))
+              "friends" -> JArray(Seq(JObject(Map("name" -> JString("tom"), "friends" -> JArray()))))))
 
       case class User1(name: String, friend: Option[User1] = None)
       val u1 = User1("bob", Some(User1("tom")))

@@ -5,7 +5,7 @@ import jto.validation.jsjson.{ Rules, Writes }
 import scala.scalajs.js
 import js.annotation.JSExport
 import model.User
-import scala.Function.const
+import scala.Function.{unlift, const}
 
 @JSExport
 object Validate {
@@ -20,15 +20,15 @@ object Validate {
           (__ \ "age").format(min(0) |+| max(130)) ~
           (__ \ "email").format(optionR(email), optionW(stringW)) ~
           (__ \ "isAlive").format[Boolean]
-        ).unlifted(User.apply, User.unapply _)
+        )(User.apply, unlift(User.unapply))
       }
 
     val validated: VA[User] = format.validate(json)
 
     js.Dictionary(
-      "isSuccess" -> validated.fold(const(false), const(true)),
-      "output"    -> validated.fold(const(null), format.writes),
-      "errors"    -> validated.fold(e => failureW.writes(Invalid(e)), const(null))
+      "isValid" -> validated.isValid,
+      "output"  -> validated.fold(const(null), format.writes),
+      "errors"  -> validated.fold(e => failureW.writes(Invalid(e)), const(null))
     )
   }
 }

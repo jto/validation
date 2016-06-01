@@ -2,6 +2,7 @@ import jto.validation._
 import jto.validation.playjson.Writes._
 import org.scalatest._
 import play.api.libs.json.{JsObject, Json, JsString}
+import scala.Function.unlift
 
 class WritesSpec extends WordSpec with Matchers {
 
@@ -296,14 +297,14 @@ class WritesSpec extends WordSpec with Matchers {
     "write Map" in {
       implicit val contactInformation = To[JsObject] { __ =>
         ((__ \ "label").write[String] ~ (__ \ "email").write[Option[String]] ~
-            (__ \ "phones").write[Seq[String]])
-          .unlifted(ContactInformation.unapply)
+            (__ \ "phones").write[Seq[String]])(
+            unlift(ContactInformation.unapply))
       }
 
       implicit val contactWrite = To[JsObject] { __ =>
         ((__ \ "firstname").write[String] ~ (__ \ "lastname").write[String] ~
             (__ \ "company").write[Option[String]] ~ (__ \ "informations")
-              .write[Seq[ContactInformation]]).unlifted(Contact.unapply)
+              .write[Seq[ContactInformation]])(unlift(Contact.unapply))
       }
 
       contactWrite.writes(contact) shouldBe contactJson
@@ -324,33 +325,33 @@ class WritesSpec extends WordSpec with Matchers {
 
       "using explicit notation" in {
         lazy val w: Write[RecUser, JsObject] = To[JsObject] { __ =>
-          ((__ \ "name").write[String] ~ (__ \ "friends").write(seqW(w)))
-            .unlifted(RecUser.unapply)
+          ((__ \ "name").write[String] ~ (__ \ "friends").write(seqW(w)))(
+              unlift(RecUser.unapply))
         }
         w.writes(u) shouldBe m
 
         lazy val w2: Write[RecUser, JsObject] =
           ((Path \ "name").write[String, JsObject] ~ (Path \ "friends").write(
-                  seqW(w2))).unlifted(RecUser.unapply)
+                  seqW(w2)))(unlift(RecUser.unapply))
         w2.writes(u) shouldBe m
 
         lazy val w3: Write[User1, JsObject] = To[JsObject] { __ =>
-          ((__ \ "name").write[String] ~ (__ \ "friend").write(optionW(w3)))
-            .unlifted(User1.unapply)
+          ((__ \ "name").write[String] ~ (__ \ "friend").write(optionW(w3)))(
+              unlift(User1.unapply))
         }
         w3.writes(u1) shouldBe m1
       }
 
       "using implicit notation" in {
         implicit lazy val w: Write[RecUser, JsObject] = To[JsObject] { __ =>
-          ((__ \ "name").write[String] ~ (__ \ "friends").write[Seq[RecUser]])
-            .unlifted(RecUser.unapply)
+          ((__ \ "name").write[String] ~ (__ \ "friends").write[Seq[RecUser]])(
+              unlift(RecUser.unapply))
         }
         w.writes(u) shouldBe m
 
         implicit lazy val w3: Write[User1, JsObject] = To[JsObject] { __ =>
-          ((__ \ "name").write[String] ~ (__ \ "friend").write[Option[User1]])
-            .unlifted(User1.unapply)
+          ((__ \ "name").write[String] ~ (__ \ "friend").write[Option[User1]])(
+              unlift(User1.unapply))
         }
         w3.writes(u1) shouldBe m1
       }

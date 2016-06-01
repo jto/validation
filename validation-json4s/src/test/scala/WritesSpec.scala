@@ -2,6 +2,7 @@ import jto.validation._
 import jto.validation.json4s.Writes._
 import org.scalatest._
 import org.json4s.ast.safe._
+import scala.Function.unlift
 
 class WritesSpec extends WordSpec with Matchers {
 
@@ -313,16 +314,16 @@ class WritesSpec extends WordSpec with Matchers {
       implicit val contactInformation = To[JObject] { __ =>
         ((__ \ "label").write[String] ~
             (__ \ "email").write[Option[String]] ~
-            (__ \ "phones").write[Seq[String]])
-          .unlifted(ContactInformation.unapply)
+            (__ \ "phones").write[Seq[String]])(
+            unlift(ContactInformation.unapply))
       }
 
       implicit val contactWrite = To[JObject] { __ =>
         ((__ \ "firstname").write[String] ~
             (__ \ "lastname").write[String] ~
             (__ \ "company").write[Option[String]] ~
-            (__ \ "informations").write[Seq[ContactInformation]])
-          .unlifted(Contact.unapply)
+            (__ \ "informations").write[Seq[ContactInformation]])(
+            unlift(Contact.unapply))
       }
 
       contactWrite.writes(contact) shouldBe contactJson
@@ -345,18 +346,18 @@ class WritesSpec extends WordSpec with Matchers {
       "using explicit notation" in {
         lazy val w: Write[RecUser, JObject] = To[JObject] { __ =>
           ((__ \ "name").write[String] ~
-              (__ \ "friends").write(seqW(w))).unlifted(RecUser.unapply)
+              (__ \ "friends").write(seqW(w)))(unlift(RecUser.unapply))
         }
         w.writes(u) shouldBe m
 
         lazy val w2: Write[RecUser, JObject] =
           ((Path \ "name").write[String, JObject] ~
-              (Path \ "friends").write(seqW(w2))).unlifted(RecUser.unapply)
+              (Path \ "friends").write(seqW(w2)))(unlift(RecUser.unapply))
         w2.writes(u) shouldBe m
 
         lazy val w3: Write[User1, JObject] = To[JObject] { __ =>
           ((__ \ "name").write[String] ~
-              (__ \ "friend").write(optionW(w3))).unlifted(User1.unapply)
+              (__ \ "friend").write(optionW(w3)))(unlift(User1.unapply))
         }
         w3.writes(u1) shouldBe m1
       }
@@ -364,13 +365,13 @@ class WritesSpec extends WordSpec with Matchers {
       "using implicit notation" in {
         implicit lazy val w: Write[RecUser, JObject] = To[JObject] { __ =>
           ((__ \ "name").write[String] ~
-              (__ \ "friends").write[Seq[RecUser]]).unlifted(RecUser.unapply)
+              (__ \ "friends").write[Seq[RecUser]])(unlift(RecUser.unapply))
         }
         w.writes(u) shouldBe m
 
         implicit lazy val w3: Write[User1, JObject] = To[JObject] { __ =>
           ((__ \ "name").write[String] ~
-              (__ \ "friend").write[Option[User1]]).unlifted(User1.unapply)
+              (__ \ "friend").write[Option[User1]])(unlift(User1.unapply))
         }
         w3.writes(u1) shouldBe m1
       }

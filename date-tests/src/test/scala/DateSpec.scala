@@ -481,7 +481,7 @@ class DateSpec extends WordSpec with Matchers {
   }
 
   "jsonAst" should {
-    import jto.validation.jsonAst._
+    import jto.validation.jsonast._
     import Rules._, Writes._
 
     "Format" when {

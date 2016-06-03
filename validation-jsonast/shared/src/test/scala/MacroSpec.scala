@@ -1,5 +1,5 @@
 import jto.validation._
-import jto.validation.jsonAst._
+import jto.validation.jsonast._
 import org.scalatest._
 
 case class User(age: Int, name: String)

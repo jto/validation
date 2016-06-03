@@ -6,6 +6,6 @@
 
 - Impove error reporting ([#40](https://github.com/jto/validation/pull/40) [1](https://github.com/jto/validation/commit/357b87778f19fbbc06a49da08cb2dccf9e0a40e3), [2](https://github.com/jto/validation/commit/c1bdac7fcff098b1d85c6881c731d5fd4ee2ac2e))
 
-- Rework project structure: `json` → `playjson`, `json4s` → `json-ast`, `jsjson` ([#50](https://github.com/jto/validation/pull/50) [0](https://github.com/jto/validation/commit/f95ac30b1d1346a27e26c08841ee06c00340891f) [1](https://github.com/jto/validation/commit/5b36f606334a5fe26715cf0d7c47ebf861acb811), [2](https://github.com/jto/validation/commit/3f31f4917d01b8f6fdefe4adaca70ddc823722db))
+- Rework project structure: `json` → `playjson`, `json4s` → `jsonast`, `jsjson` ([#50](https://github.com/jto/validation/pull/50) [0](https://github.com/jto/validation/commit/f95ac30b1d1346a27e26c08841ee06c00340891f) [1](https://github.com/jto/validation/commit/5b36f606334a5fe26715cf0d7c47ebf861acb811), [2](https://github.com/jto/validation/commit/3f31f4917d01b8f6fdefe4adaca70ddc823722db))
 
 - Add Scala.js support ([#42](https://github.com/jto/validation/pull/42) [1](https://github.com/jto/validation/commit/db359abfbe90d2b3b853beabcbabe88ecd1cfddb), [2](https://github.com/jto/validation/commit/568aa1fa1df06d775abb583cac8da679c1301227), [3](https://github.com/jto/validation/commit/d67d6dee7d99d27d6cf751cc69b83235b57a8246), [4](https://github.com/jto/validation/commit/67499a823ff463860b72d6697cf45b5764c475b2), [5](https://github.com/jto/validation/commit/d720ba265541a90f225c388043b5430a68e9fff3))

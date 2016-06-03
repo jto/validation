@@ -45,15 +45,15 @@ lazy val delimitedJVM = `validation-delimited`.jvm
 lazy val delimitedJS = `validation-delimited`.js
 lazy val delimited = aggregate("validation-delimited", delimitedJVM, delimitedJS)
 
-lazy val `validation-json-ast` = crossProject
+lazy val `validation-jsonast` = crossProject
   .crossType(CrossType.Full)
   .settings(validationSettings: _*)
   .dependsOn(`validation-core`)
   .jvmSettings(libraryDependencies +=
     "com.typesafe.play" %% "play-json" % playVersion)
-lazy val jsonAstJVM = `validation-json-ast`.jvm
-lazy val jsonAstJS = `validation-json-ast`.js
-lazy val jsonAst = aggregate("validation-json-ast", jsonAstJVM, jsonAstJS)
+lazy val jsonAstJVM = `validation-jsonast`.jvm
+lazy val jsonAstJS = `validation-jsonast`.js
+lazy val jsonAst = aggregate("validation-jsonast", jsonAstJVM, jsonAstJS)
 
 lazy val `validation-playjson` = project
   .settings(validationSettings: _*)

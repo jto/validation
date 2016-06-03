@@ -16,6 +16,7 @@ lazy val jvm = project
   //   "io.github.jto" %% "validation-playjson" % "2.0"))
   .dependsOn(ProjectRef(file(".."), "validation-core"))
   .dependsOn(ProjectRef(file(".."), "validation-playjson"))
+  .dependsOn(ProjectRef(file(".."), "validation-jsonast"))
 
 lazy val js = project
   .in(file("js"))
@@ -30,6 +31,7 @@ lazy val js = project
   //   "io.github.jto" %%% "validation-jsjson" % "2.0"))
   .dependsOn(ProjectRef(file(".."), "validation-core"))
   .dependsOn(ProjectRef(file(".."), "validation-jsjson"))
+  .dependsOn(ProjectRef(file(".."), "validation-jsonast"))
 
 lazy val shared = crossProject.crossType(CrossType.Pure)
   .in(file("shared"))

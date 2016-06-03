@@ -1,6 +1,6 @@
 import jto.validation._
-import jto.validation.jsonAst._
-import jto.validation.jsonAst.Writes._
+import jto.validation.jsonast._
+import jto.validation.jsonast.Writes._
 import org.scalatest._
 import scala.Function.unlift
 

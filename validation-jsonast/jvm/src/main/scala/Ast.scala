@@ -1,5 +1,5 @@
 package jto.validation
-package jsonAst
+package jsonast
 
 import play.api.libs.json._
 

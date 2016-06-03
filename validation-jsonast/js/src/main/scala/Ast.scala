@@ -1,5 +1,5 @@
 package jto.validation
-package jsonAst
+package jsonast
 
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._

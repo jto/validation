@@ -1,5 +1,5 @@
 package jto.validation
-package jsonAst
+package jsonast
 
 import scala.collection.Map
 

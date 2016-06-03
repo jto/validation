@@ -1,5 +1,5 @@
 package jto.validation
-package jsonAst
+package jsonast
 
 object Rules extends DefaultRules[JValue] {
   private def jsonAs[T](

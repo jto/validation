@@ -1,9 +1,9 @@
 # Form API migration
 
-Although the new Validation API differs significantly from the `Form` API, migrating to to new API is straightforward.
+Although the new Validation API differs significantly from the `Form` API, migrating to new API is straightforward.
 This example is a case study of the migration of one of play sample application: "computer database".
 
-We'll consider `Application.scala`. This controller take care of Computer creation, and edition. The models are defined in `Models.scala`
+We'll consider `Application.scala`. This controller takes care of Computer creation, and edition. The models are defined in `Models.scala`
 
 ```scala
 case class Company(id: Pk[Long] = NotAssigned, name: String)
@@ -99,7 +99,7 @@ implicit val computerValidated = From[UrlFormEncoded] { __ =>
    (__ \ "name").read(notEmpty) ~
    (__ \ "introduced").read(optionR(dateR("yyyy-MM-dd"))) ~
    (__ \ "discontinued").read(optionR(dateR("yyyy-MM-dd"))) ~
-   (__ \ "company").read[Option[Long]]) (Computer.apply _)
+   (__ \ "company").read[Option[Long]])(Computer.apply)
 }
 ```
 
@@ -108,7 +108,7 @@ You start by defining a simple validation for each field.
 For example `"name" -> nonEmptyText` now becomes `(__ \ "name").read(notEmpty)`
 The next step is to compose these validations together, to get a new validation.
 
-The *old* api does that using a function called `mapping`, the validation api uses a method called `~` or `and` (`and` is a alias).
+The *old* api does that using a function called `mapping`, the validation api uses a method called `~` or `and` (`and` is an alias).
 
 ```scala
 mapping(
@@ -136,13 +136,15 @@ You can use the `Form.fill` method to create a `Form` from a class.
 `Form.fill` needs an instance of `Write[T, UrlFormEncoded]`, where `T` is your class type.
 
 ```tut:silent
+import scala.Function.unlift
+
 implicit val computerW = To[UrlFormEncoded] { __ =>
   import jto.validation.forms.Writes._
   ((__ \ "id").write[Option[Long]] ~
    (__ \ "name").write[String] ~
    (__ \ "introduced").write(optionW(dateW("yyyy-MM-dd"))) ~
    (__ \ "discontinued").write(optionW(dateW("yyyy-MM-dd"))) ~
-   (__ \ "company").write[Option[Long]]).unlifted(Computer.unapply)
+   (__ \ "company").write[Option[Long]])(unlift(Computer.unapply))
 }
 ```
 

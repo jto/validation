@@ -9,12 +9,12 @@ The API is designed around the concept of `Rule`. A `Rule[I, O]` defines a way t
 Let's say you want to coerce a `String` into an `Float`.
 All you need to do is to define a `Rule` from String to Float:
 
-```tut
+```tut:silent
 import jto.validation._
 def isFloat: Rule[String, Float] = ???
 ```
 
-When a `String` is parsed into an `Float`, two scenario are possible, either:
+When a `String` is parsed into an `Float`, two scenarios are possible, either:
 
 - The `String` can be parsed as a `Float`.
 - The `String` can NOT be parsed as a `Float`
@@ -25,7 +25,7 @@ When validating data, we'd certainly prefer to avoid exceptions, as the failure 
 
 Furthermore, your application should handle it properly, for example by sending a nice error message to the end user. The execution flow of the application should not be altered by a parsing failure, but rather be part of the process. Exceptions are definitely not the appropriate tool for the job.
 
-Back, to our `Rule`. For now we'll not implement `isFloat`, actually the validation API comes with a number of built-in Rules, including the `Float` parsing `Rule[String, Float]`.
+Back, to our `Rule`. For now we'll not implement `isFloat`, actually, the validation API comes with a number of built-in Rules, including the `Float` parsing `Rule[String, Float]`.
 
 All you have to do is import the default Rules.
 
@@ -97,7 +97,7 @@ head.validate(List[Char]())
 
 ## Composing Rules
 
-Rules composition is very important in this API. `Rule` composition means that, given two `Rule` `a` and `b`, we can easily create a new Rule `c`.
+Rules composition is very important in this API. `Rule` composition means that given two `Rule` `a` and `b`, we can easily create a new Rule `c`.
 
 There two different types of composition
 
@@ -112,7 +112,7 @@ We already have defined:
 1. `head: Rule[List[T], T]` returns the first element of a `List`
 2. `float: Rule[String, Float]` parses a `String` into a `Float`
 
-We've done almost all the work already. We just have to create a new `Rule` the applies the first `Rule` and if it return a `Valid`, apply the second `Rule`.
+We've done almost all the work already. We just have to create a new `Rule` the applies the first `Rule` and if it returns a `Valid`, apply the second `Rule`.
 
 It would be fairly easy to create such a `Rule` "manually", but we don't have to. A method doing just that is already available:
 
@@ -145,7 +145,7 @@ firstFloat.validate(List(1, 2, 3))
 #### Improving reporting.
 
 All is fine with our new `Rule` but the error reporting when we parse an element is not perfect yet.
-When a parsing error happens, the `Invalid` does not tells us that it happened on the first element of the `List`.
+When a parsing error happens, the `Invalid` does not tell us that it happened on the first element of the `List`.
 
 To fix that, we can pass  an additionnal parameter to `andThen`:
 
@@ -162,7 +162,7 @@ Parallel composition means that given two rules `a: Rule[I, O]` and `b: Rule[I, 
 
 This form of composition is almost exclusively used for the particular case of rules that are purely constraints, that is, a `Rule[I, I]` checking a value of type `I` satisfies a predicate, but does not transform that value.
 
-Consider the following example: We want to write a `Rule` that given a `Int`, check that this `Int` is positive and even.
+Consider the following example: We want to write a `Rule` that given an `Int`, check that this `Int` is positive and even.
 The validation API already provides `Rules.min`, we have to define `even` ourselves:
 
 ```tut:silent

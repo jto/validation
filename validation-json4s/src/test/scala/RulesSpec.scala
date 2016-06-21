@@ -325,8 +325,8 @@ class RulesSpec extends WordSpec with Matchers {
                 Map("foo" -> "bar")))
         (Path \ "n")
           .read[JValue, Map[String, Int]]
-          .validate(JObject(Map("n" -> JObject(Map(
-                              "foo" -> JNumber(4),
+          .validate(JObject(Map("n" -> JObject(
+                          Map("foo" -> JNumber(4),
                               "bar" -> JNumber(5)))))) shouldBe (Valid(
                 Map("foo" -> 4, "bar" -> 5)))
         (Path \ "x")
@@ -554,6 +554,8 @@ class RulesSpec extends WordSpec with Matchers {
         Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 
       "by trying all possible Rules" in {
+        import cats.syntax.cartesian._
+
         val rb: Rule[JValue, A] = From[JValue] { __ =>
           (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo")
             .read[Int]

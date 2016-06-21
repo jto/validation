@@ -1,4 +1,4 @@
-# The Play data validation library
+# [The Play data validation library](https://github.com/jto/validation)
 
 ## Overview
 

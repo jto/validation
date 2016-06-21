@@ -3,7 +3,7 @@ import jto.validation.jsjson.Rules._
 import jto.validation.jsjson.Writes._
 import org.scalatest._
 import scala.scalajs.js
-import Function.unlift
+import scala.Function.unlift
 
 class FormatSpec extends WordSpec with Matchers with JsAnyEquality {
 

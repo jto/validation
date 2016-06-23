@@ -5,7 +5,7 @@ import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
 
 object Ast {
-  val to: WriteLike[JValue, js.Dynamic] = Write[JValue, js.Any] {
+  val to: Write[JValue, js.Dynamic] = Write[JValue, js.Any] {
     case JNull           => null
     case JObject (value) => value.mapValues(to.writes).toJSDictionary
     case JArray  (value) => value.map(to.writes).toJSArray
@@ -45,7 +45,7 @@ object Ast {
       throw new FunctionInJsonException(path)
   }
 
-  val from: RuleLike[js.Dynamic, JValue] = Rule { j =>
+  val from: Rule[js.Dynamic, JValue] = Rule { j =>
     try {
       Valid(unsafeAny2JValue(j, Path))
     } catch {

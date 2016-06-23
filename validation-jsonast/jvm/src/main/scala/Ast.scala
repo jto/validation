@@ -4,7 +4,7 @@ package jsonast
 import play.api.libs.json._
 
 object Ast {
-  val to: WriteLike[JValue, JsValue] = Write[JValue, JsValue] {
+  val to: Write[JValue, JsValue] = Write[JValue, JsValue] {
     case JNull           => JsNull
     case JObject (value) => JsObject(value.mapValues(to.writes))
     case JArray  (value) => JsArray(value.map(to.writes))
@@ -22,5 +22,5 @@ object Ast {
     case JsNumber (value) => JNumber(value.toString)
   }
 
-  val from: RuleLike[JsValue, JValue] = Rule(x => Valid(totalFrom(x)))
+  val from: Rule[JsValue, JValue] = Rule(x => Valid(totalFrom(x)))
 }

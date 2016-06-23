@@ -10,7 +10,7 @@ import model.User
 
 class Application()(implicit environment: Environment) extends Controller {
   def index = Action {
-    val write: Write[User, JsValue] = Write(u => Ast.to(User.format.writes(u)))
+    val write: Write[User, JsValue] = Write.toWrite(User.format) andThen Ast.to
     val user: User = User("supercat", 20, Some("e@mail.com"), true)
     val json: String = Json.prettyPrint(write.writes(user))
     Ok(views.html.index(json))

@@ -15,8 +15,8 @@ object Validate {
     import Writes._
 
     implicit val format: Format[js.Dynamic, js.Dynamic, User] = Format(
-      Rule(j => User.format.validate(Ast.from(j))),
-      Write(u => Ast.to(User.format.writes(u)))
+      Ast.from andThen User.format,
+      Write.toWrite(User.format) andThen Ast.to
     )
 
     To[VA[User], js.Dynamic](format.validate(json))

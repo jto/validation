@@ -1,10 +1,11 @@
+import jto.validation.Valid
 import jto.validation.jsonast._
 import org.scalatest._
 
 class AstSpec extends WordSpec with Matchers {
   "Ast" should {
     def prop(ast: JValue): Boolean =
-      Ast.from(Ast.to(ast)) == ast
+      Ast.from.validate(Ast.to.writes(ast)) == Valid(ast)
 
     "be a bijection" in {
       val aNull = JNull

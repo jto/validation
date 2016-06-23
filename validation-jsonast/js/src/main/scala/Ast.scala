@@ -5,28 +5,52 @@ import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
 
 object Ast {
-  // https://www.scala-js.org/doc/interoperability/types.html
-  def to(ast: JValue): js.Dynamic =
-    (ast match {
-      case JString(value) => value
-      case JBoolean(value) => value
-      case JNull => null
-      case JArray(value) => value.map(to).toJSArray
-      case JObject(value) => value.mapValues(to).toJSDictionary
-      case JNumber(value) =>
-        val d = value.toDouble; if (d.isNaN || d.isInfinity) null else d
-    }).asInstanceOf[js.Dynamic]
+  val to: WriteLike[JValue, js.Dynamic] = Write[JValue, js.Any] {
+    case JNull           => null
+    case JObject (value) => value.mapValues(to.writes).toJSDictionary
+    case JArray  (value) => value.map(to.writes).toJSArray
+    case JBoolean(value) => value
+    case JString (value) => value
+    case JNumber (value) =>
+      val d = value.toDouble
+      if (d.isNaN || d.isInfinity) null else d
+  }.map(_.asInstanceOf[js.Dynamic])
 
-  def from(json: js.Dynamic): JValue =
-    json match {
-      case v if (v: Any).isInstanceOf[String] =>
-        JString(v.asInstanceOf[String])
-      case v if v.isInstanceOf[Boolean] => JBoolean(v.asInstanceOf[Boolean])
-      case v if v == null => JNull
-      case v if v.isInstanceOf[js.Array[_]] =>
-        JArray(v.asInstanceOf[js.Array[js.Dynamic]].map(from))
-      case v if js.typeOf(v) == "object" =>
-        JObject(v.asInstanceOf[js.Dictionary[js.Dynamic]].mapValues(from))
-      case v if js.typeOf(v) == "number" => JNumber(v.toString)
+  private val undefined = scala.scalajs.js.undefined
+  private case class FunctionInJsonException(path: Path) extends Exception
+
+  private def unsafeAny2JValue(input: Any, path: Path): JValue = input match {
+    case null        => JNull
+    case s: String   => JString(s)
+    case b: Boolean  => JBoolean(b)
+    case d: Double   => JNumber(d.toString)
+    case `undefined` => JNull
+
+    case a: js.Array[js.Dynamic @unchecked] =>
+      JArray(a.map(v => unsafeAny2JValue(v, path \ 0)))
+
+    case o: js.Object =>
+      JObject(o.asInstanceOf[js.Dictionary[js.Dynamic]]
+        .map { case (k, v) => k -> unsafeAny2JValue(v, path \ k) }.toMap)
+
+    case _ =>
+      // This is a trade off between the various option to handle js.Function in json objects.
+      // We could also go one step further and return all the paths which contain functions,
+      // but this would imply sequence over Validated, which would throw away the perfs in
+      // the general case.
+      //
+      // This is what other are doing:
+      // - The native JSON.stringity is completely silent.
+      // - Circe parses then as nulls https://goo.gl/iQ0ANV.
+      throw new FunctionInJsonException(path)
+  }
+
+  val from: RuleLike[js.Dynamic, JValue] = Rule { j =>
+    try {
+      Valid(unsafeAny2JValue(j, Path))
+    } catch {
+      case FunctionInJsonException(path) =>
+        Invalid(Seq(path -> Seq(ValidationError("Json cannot contain functions."))))
     }
+  }
 }

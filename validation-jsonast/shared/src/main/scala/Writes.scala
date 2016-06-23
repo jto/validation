@@ -16,7 +16,7 @@ object Writes
     with DefaultMonoids
     with GenericWrites[JValue] {
   private def writeObj(j: JValue, n: PathNode) = n match {
-    case IdxPathNode(_) => JArray(Seq(j))
+    case IdxPathNode(_) => JArray(Vector(j))
     case KeyPathNode(key) => JObject(Map(key -> j))
   }
 

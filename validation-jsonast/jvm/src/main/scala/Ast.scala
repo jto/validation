@@ -4,23 +4,23 @@ package jsonast
 import play.api.libs.json._
 
 object Ast {
-  def to(ast: JValue): JsValue =
-    ast match {
-      case JString(value) => JsString(value)
-      case JBoolean(value) => JsBoolean(value)
-      case JNull => JsNull
-      case JArray(value) => JsArray(value.map(to))
-      case JObject(value) => JsObject(value.mapValues(to))
-      case JNumber(value) => JsNumber(BigDecimal(value))
-    }
+  val to: WriteLike[JValue, JsValue] = Write[JValue, JsValue] {
+    case JNull           => JsNull
+    case JObject (value) => JsObject(value.mapValues(to.writes))
+    case JArray  (value) => JsArray(value.map(to.writes))
+    case JBoolean(value) => JsBoolean(value)
+    case JString (value) => JsString(value)
+    case JNumber (value) => JsNumber(BigDecimal(value))
+  }
 
-  def from(json: JsValue): JValue =
-    json match {
-      case JsString(value) => JString(value)
-      case JsBoolean(value) => JBoolean(value)
-      case JsNull => JNull
-      case JsArray(value) => JArray(value.map(from))
-      case JsObject(value) => JObject(value.mapValues(from))
-      case JsNumber(value) => JNumber(value.toString)
-    }
+  private def totalFrom(jsValue: JsValue): JValue = jsValue match {
+    case JsNull           => JNull
+    case JsObject (value) => JObject(value.mapValues(totalFrom).toMap)
+    case JsArray  (value) => JArray(value.map(totalFrom).toVector)
+    case JsBoolean(value) => JBoolean(value)
+    case JsString (value) => JString(value)
+    case JsNumber (value) => JNumber(value.toString)
+  }
+
+  val from: RuleLike[JsValue, JValue] = Rule(x => Valid(totalFrom(x)))
 }

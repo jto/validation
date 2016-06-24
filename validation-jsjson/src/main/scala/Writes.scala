@@ -87,6 +87,16 @@ object Writes
         .asInstanceOf[js.Dynamic]
     }
 
+  implicit def vaW[I](implicit w: WriteLike[I, js.Dynamic]) =
+    Write[VA[I], js.Dynamic] { va =>
+      js.Dictionary(
+            "isValid" -> va.isValid.asInstanceOf[js.Dynamic],
+            "output" -> va.fold(_ => null, w.writes),
+            "errors" -> va.fold(e => failureW.writes(Invalid(e)), _ => null)
+        )
+        .asInstanceOf[js.Dynamic]
+    }
+
   implicit def writeJson[I](path: Path)(
       implicit w: WriteLike[I, js.Dynamic]): Write[I, js.Dynamic] = Write {
     i =>

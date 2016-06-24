@@ -1,7 +1,6 @@
 import jto.validation._
-import jto.validation.json4s._
+import jto.validation.jsonast._
 import org.scalatest._
-import org.json4s.ast.safe._
 
 case class User(age: Int, name: String)
 case class Dog(name: String, master: User)
@@ -157,11 +156,11 @@ class MacroSpec extends WordSpec with Matchers {
               Map(
                   "name" -> JString("bob"),
                   "cat" -> JObject(Map("name" -> JString("minou"))),
-                  "hobbies" -> JArray(JString("bobsleig"),
-                                      JString("manhunting")),
-                  "friends" -> JArray(JObject(Map("name" -> JString("tom"),
-                                                  "hobbies" -> JArray(),
-                                                  "friends" -> JArray())))
+                  "hobbies" -> JArray(
+                      Seq(JString("bobsleig"), JString("manhunting"))),
+                  "friends" -> JArray(Seq(JObject(Map("name" -> JString("tom"),
+                                                      "hobbies" -> JArray(),
+                                                      "friends" -> JArray()))))
               ))
       ) shouldBe (
           Valid(
@@ -197,11 +196,11 @@ class MacroSpec extends WordSpec with Matchers {
               Map(
                   "name" -> JString("bob"),
                   "cat" -> JObject(Map("name" -> JString("minou"))),
-                  "hobbies" -> JArray(JString("bobsleig"),
-                                      JString("manhunting")),
-                  "friends" -> JArray(JObject(Map("name" -> JString("tom"),
-                                                  "hobbies" -> JArray(),
-                                                  "friends" -> JArray())))
+                  "hobbies" -> JArray(
+                      Seq(JString("bobsleig"), JString("manhunting"))),
+                  "friends" -> JArray(Seq(JObject(Map("name" -> JString("tom"),
+                                                      "hobbies" -> JArray(),
+                                                      "friends" -> JArray()))))
               ))
       )
     }
@@ -394,16 +393,17 @@ class MacroSpec extends WordSpec with Matchers {
 
       val js = JObject(
           Map("name" -> JArray(
-                  JObject(Map(
-                          "name" -> JString("medor"),
-                          "master" -> JObject(Map("name" -> JString("toto"),
-                                                  "age" -> JNumber(45)))
-                      )),
-                  JObject(
-                      Map("name" -> JString("brutus"),
-                          "master" -> JObject(Map("name" -> JString("tata"),
-                                                  "age" -> JNumber(23)))))
-              )))
+                  Seq(JObject(Map(
+                              "name" -> JString("medor"),
+                              "master" -> JObject(
+                                  Map("name" -> JString("toto"),
+                                      "age" -> JNumber(45)))
+                          )),
+                      JObject(Map("name" -> JString("brutus"),
+                                  "master" -> JObject(Map("name" -> JString(
+                                                              "tata"),
+                                                          "age" -> JNumber(
+                                                              23)))))))))
 
       toto6Rule.validate(js) shouldBe (Valid(
               Toto6(Seq(

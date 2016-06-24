@@ -360,6 +360,15 @@ class WritesSpec extends WordSpec with Matchers with JsAnyEquality {
         }
         w3.writes(u1) shouldBe m1
       }
+
+      "write VA" in {
+        val o = js.Dictionary("a" -> "string").asInstanceOf[js.Dynamic]
+
+        To[VA[js.Dynamic], js.Dynamic](Valid(o)) shouldBe js.Dictionary(
+          "isValid" -> true,
+          "output"  -> o,
+          "errors"  -> null)
+      }
     }
   }
 }

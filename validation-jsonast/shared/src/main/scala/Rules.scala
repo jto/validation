@@ -1,7 +1,5 @@
 package jto.validation
-package json4s
-
-import org.json4s.ast.safe._
+package jsonast
 
 object Rules extends DefaultRules[JValue] {
   private def jsonAs[T](
@@ -25,17 +23,17 @@ object Rules extends DefaultRules[JValue] {
   // in the target type. i.e: JsNumber(4.5) is not considered parseable as an Int.
   implicit def intR =
     jsonAs[Int] {
-      case JNumber(v) if v.isValidInt => Valid(v.toInt)
+      case JNumber(v) if BigDecimal(v).isValidInt => Valid(v.toInt)
     }("error.number", "Int")
 
   implicit def shortR =
     jsonAs[Short] {
-      case JNumber(v) if v.isValidShort => Valid(v.toShort)
+      case JNumber(v) if BigDecimal(v).isValidShort => Valid(v.toShort)
     }("error.number", "Short")
 
   implicit def longR =
     jsonAs[Long] {
-      case JNumber(v) if v.isValidLong => Valid(v.toLong)
+      case JNumber(v) if BigDecimal(v).isValidLong => Valid(v.toLong)
     }("error.number", "Long")
 
   implicit def jsNumber =
@@ -65,23 +63,23 @@ object Rules extends DefaultRules[JValue] {
 
   implicit def floatR =
     jsonAs[Float] {
-      case JNumber(v) if v.isDecimalFloat => Valid(v.toFloat)
+      case JNumber(v) if BigDecimal(v).isDecimalFloat => Valid(v.toFloat)
     }("error.number", "Float")
 
   implicit def doubleR =
     jsonAs[Double] {
-      case JNumber(v) if v.isDecimalDouble => Valid(v.toDouble)
+      case JNumber(v) if BigDecimal(v).isDecimalDouble => Valid(v.toDouble)
     }("error.number", "Double")
 
   implicit def bigDecimal =
     jsonAs[BigDecimal] {
-      case JNumber(v) => Valid(v)
+      case JNumber(v) => Valid(BigDecimal(v))
     }("error.number", "BigDecimal")
 
   import java.{math => jm}
   implicit def javaBigDecimal =
     jsonAs[jm.BigDecimal] {
-      case JNumber(v) => Valid(v.bigDecimal)
+      case JNumber(v) => Valid(BigDecimal(v).bigDecimal)
     }("error.number", "BigDecimal")
 
   implicit val jsNullR: Rule[JValue, JNull.type] = jsonAs[JNull.type] {

@@ -60,10 +60,11 @@ val validationVersion = "2.0"
 libraryDependencies ++= Seq(
   "io.github.jto" %% "validation-core"      % validationVersion,
   "io.github.jto" %% "validation-playjson"  % validationVersion,
-  "io.github.jto" %% "validation-json4s"    % validationVersion,
+  "io.github.jto" %% "validation-jsonast"   % validationVersion,
   "io.github.jto" %% "validation-form"      % validationVersion,
   "io.github.jto" %% "validation-delimited" % validationVersion,
   "io.github.jto" %% "validation-xml"       % validationVersion
+  // "io.github.jto" %%% "validation-jsjson"    % validationVersion
 )
 ```
 

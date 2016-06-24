@@ -1,13 +1,15 @@
 package jto.validation
 
 import cats.Applicative
+import cats.syntax.cartesian._
 
 trait RuleLike[I, O] {
+
   /**
-   * Apply the Rule to `data`
-   * @param data The data to validate
-   * @return The Result of validating the data
-   */
+    * Apply the Rule to `data`
+    * @param data The data to validate
+    * @return The Result of validating the data
+    */
   def validate(data: I): VA[O]
 }
 
@@ -22,44 +24,42 @@ trait Rule[I, O] extends RuleLike[I, O] {
     andThen(path)(sub)
 
   /**
-   * Compose two Rules
-   * {{{
-   *   val r1: Rule[JsValue, String] = // implementation
-   *   val r2: Rule[String, Date] = // implementation
-   *   val r = r1 .andThen(r2)
-   *
-   * }}}
-   * @param path a prefix for the errors path if the result is a `Invalid`
-   * @param sub the second Rule to apply
-   * @return The combination of the two Rules
-   */
+    * Compose two Rules
+    * {{{
+    *   val r1: Rule[JsValue, String] = // implementation
+    *   val r2: Rule[String, Date] = // implementation
+    *   val r = r1 .andThen(r2)
+    *
+    * }}}
+    * @param path a prefix for the errors path if the result is a `Invalid`
+    * @param sub the second Rule to apply
+    * @return The combination of the two Rules
+    */
   def andThen[P](path: Path)(sub: => RuleLike[O, P]): Rule[I, P] =
-    this.flatMap { o => Rule(_ => sub.validate(o)) }.repath(path ++ _)
+    this.flatMap { o =>
+      Rule(_ => sub.validate(o))
+    }.repath(path ++ _)
 
   def flatMap[B](f: O => Rule[I, B]): Rule[I, B] =
     Rule { d =>
-      this.validate(d)
-        .map(f)
-        .fold(
-          es => Invalid(es),
-          r => r.validate(d))
+      this.validate(d).map(f).fold(es => Invalid(es), r => r.validate(d))
     }
 
   /**
-   * Create a new Rule that try `this` Rule, and apply `t` if it fails
-   * {{{
-   *   val rb: Rule[JsValue, A] = From[JsValue]{ __ =>
-   *     ((__ \ "name").read[String] ~ (__ \ "foo").read[Int])(B.apply)
-   *   }
-   *
-   *   val rc: Rule[JsValue, A] = From[JsValue]{ __ =>
-   *     ((__ \ "name").read[String] ~ (__ \ "bar").read[Int])(C.apply)
-   *   }
-   *   val rule = rb orElse rc orElse Rule(_ => typeInvalid)
-   * }}}
-   * @param t an alternative Rule
-   * @return a Rule
-   */
+    * Create a new Rule that try `this` Rule, and apply `t` if it fails
+    * {{{
+    *   val rb: Rule[JsValue, A] = From[JsValue]{ __ =>
+    *     ((__ \ "name").read[String] ~ (__ \ "foo").read[Int])(B.apply)
+    *   }
+    *
+    *   val rc: Rule[JsValue, A] = From[JsValue]{ __ =>
+    *     ((__ \ "name").read[String] ~ (__ \ "bar").read[Int])(C.apply)
+    *   }
+    *   val rule = rb orElse rc orElse Rule(_ => typeInvalid)
+    * }}}
+    * @param t an alternative Rule
+    * @return a Rule
+    */
   def orElse[OO >: O](t: => RuleLike[I, OO]): Rule[I, OO] =
     Rule(d => this.validate(d) orElse t.validate(d))
 
@@ -69,35 +69,40 @@ trait Rule[I, O] extends RuleLike[I, O] {
 
   @deprecated("use andThen instead.", "2.0")
   def compose[P](m: Mapping[ValidationError, O, P]): Rule[I, P] = andThen(m)
-  def andThen[P](m: Mapping[ValidationError, O, P]): Rule[I, P] = andThen(Rule.fromMapping(m))
+  def andThen[P](m: Mapping[ValidationError, O, P]): Rule[I, P] =
+    andThen(Rule.fromMapping(m))
 
   /**
-   * Create a new Rule the validate `this` Rule and `r2` simultaneously
-   * If `this` and `r2` both fail, all the error are returned
-   * {{{
-   *   val valid = Json.obj(
-   *      "firstname" -> "Julien",
-   *      "lastname" -> "Tournay")
-   *   val composed = notEmpty |+| minLength(3)
-   *   (Path \ "firstname").read(composed).validate(valid) // Valid("Julien")
-   *  }}}
-   */
+    * Create a new Rule the validate `this` Rule and `r2` simultaneously
+    * If `this` and `r2` both fail, all the error are returned
+    * {{{
+    *   val valid = Json.obj(
+    *      "firstname" -> "Julien",
+    *      "lastname" -> "Tournay")
+    *   val composed = notEmpty |+| minLength(3)
+    *   (Path \ "firstname").read(composed).validate(valid) // Valid("Julien")
+    *  }}}
+    */
   def |+|[OO <: O](r2: RuleLike[I, OO]): Rule[I, O] =
     Rule[I, O] { v =>
       (this.validate(v) *> r2.validate(v)).bimap(
-        _.groupBy(_._1).map {
-          case (path, errs) =>
-            path -> errs.flatMap(_._2)
-        }.toSeq,
-        identity
+          _.groupBy(_._1).map {
+            case (path, errs) =>
+              path -> errs.flatMap(_._2)
+          }.toSeq,
+          identity
       )
     }
 
   /**
-   * This methods allows you to modify the Path of errors (if the result is a Invalid) when aplying the Rule
-   */
+    * This methods allows you to modify the Path of errors (if the result is a Invalid) when aplying the Rule
+    */
   def repath(f: Path => Path): Rule[I, O] =
-    Rule(d => this.validate(d).bimap(_.map { case (p, errs) => f(p) -> errs }, identity))
+    Rule(
+        d =>
+          this
+            .validate(d)
+            .bimap(_.map { case (p, errs) => f(p) -> errs }, identity))
 
   def map[B](f: O => B): Rule[I, B] =
     Rule(d => this.validate(d).map(f))
@@ -109,7 +114,8 @@ trait Rule[I, O] extends RuleLike[I, O] {
     Rule { d =>
       val a = validate(d)
       val f = mf.validate(d)
-      Validated.fromEither((f *> a).toEither.right.flatMap(x => f.toEither.right.map(_(x))))
+      Validated.fromEither(
+          (f *> a).toEither.right.flatMap(x => f.toEither.right.map(_ (x))))
     }
 }
 
@@ -117,14 +123,14 @@ object Rule {
   def gen[I, O]: Rule[I, O] = macro MappingMacros.rule[I, O]
 
   /**
-   * Turn a `A => Rule[B, C]` into a `Rule[(A, B), C]`
-   * {{{
-   *   val passRule = From[JsValue] { __ =>
-   *      ((__ \ "password").read(notEmpty) ~ (__ \ "verify").read(notEmpty))
-   *        .tupled .andThen(Rule.uncurry(Rules.equalTo[String]).repath(_ => (Path \ "verify")))
-   *    }
-   * }}}
-   */
+    * Turn a `A => Rule[B, C]` into a `Rule[(A, B), C]`
+    * {{{
+    *   val passRule = From[JsValue] { __ =>
+    *      ((__ \ "password").read(notEmpty) ~ (__ \ "verify").read(notEmpty))
+    *        .tupled .andThen(Rule.uncurry(Rules.equalTo[String]).repath(_ => (Path \ "verify")))
+    *    }
+    * }}}
+    */
   def uncurry[A, B, C](f: A => Rule[B, C]): Rule[(A, B), C] =
     Rule { case (a, b) => f(a).validate(b) }
 
@@ -161,6 +167,8 @@ object Rule {
         b.ap(a.map(a => c => new ~(a, c)))
     }
 
-  implicit def ruleFunctorSyntaxObs[I, O](r: Rule[I, O])(implicit fcb: SyntaxCombine[Rule[I, ?]]): FunctorSyntaxObs[Rule[I, ?], O] =
+  implicit def ruleFunctorSyntaxObs[I, O](
+      r: Rule[I, O])(implicit fcb: SyntaxCombine[Rule[I, ?]])
+    : FunctorSyntaxObs[Rule[I, ?], O] =
     new FunctorSyntaxObs[Rule[I, ?], O](r)(fcb)
 }

@@ -15,11 +15,11 @@ case class Creature(
   isDead: Boolean,
   weight: Float)
 
-implicit val creatureRule = From[JsValue]{ __ =>
+implicit val creatureRule: Rule[JsValue, Creature] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   ((__ \ "name").read[String] ~
    (__ \ "isDead").read[Boolean] ~
-   (__ \ "weight").read[Float]) (Creature.apply _)
+   (__ \ "weight").read[Float])(Creature.apply)
 }
 ```
 ```tut
@@ -40,7 +40,7 @@ A common example of this use case is the validation of `password` and `password 
 import jto.validation._
 import play.api.libs.json._
 
-val passRule = From[JsValue] { __ =>
+val passRule: Rule[JsValue, String] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   // This code creates a `Rule[JsValue, (String, String)]` each of of the String must be non-empty
   ((__ \ "password").read(notEmpty) ~
@@ -72,7 +72,7 @@ When validating recursive types:
 - Use the `lazy` keyword to allow forward reference.
 - As with any recursive definition, the type of the `Rule` **must** be explicitly given.
 
-```tut
+```tut:silent
 case class User(
   name: String,
   age: Int,
@@ -81,11 +81,11 @@ case class User(
   friend: Option[User])
 ```
 
-```tut
+```tut:silent
 import jto.validation._
 import play.api.libs.json._
 
-// Note the lazy keyword, and the explicit typing
+// Note the lazy keyword
 implicit lazy val userRule: Rule[JsValue, User] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
 
@@ -93,7 +93,7 @@ implicit lazy val userRule: Rule[JsValue, User] = From[JsValue] { __ =>
    (__ \ "age").read[Int] ~
    (__ \ "email").read[Option[String]] ~
    (__ \ "isAlive").read[Boolean] ~
-   (__ \ "friend").read[Option[User]]) (User.apply _)
+   (__ \ "friend").read[Option[User]])(User.apply)
 }
 ```
 
@@ -123,10 +123,10 @@ val js = Json.parse("""
 }
 """)
 
-val r = From[JsValue] { __ =>
+val r: Rule[JsValue, Seq[(String, String)]] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
 
-  val tupleR = Rule.fromMapping[JsValue, (String, String)] {
+  val tupleR: Rule[JsValue, (String, String)] = Rule.fromMapping[JsValue, (String, String)] {
     case JsObject(Seq((key, JsString(value)))) => Valid(key.toString -> value)
     case _ => Invalid(Seq(ValidationError("BAAAM")))
   }
@@ -142,7 +142,7 @@ r.validate(js)
 
 Consider the following class definitions:
 
-```tut
+```tut:silent
 trait A
 case class B(foo: Int) extends A
 case class C(bar: Int) extends A
@@ -155,6 +155,8 @@ val e = Json.obj("name" -> "E", "eee" -> 6)
 #### Trying all the possible rules implementations
 
 ```tut:silent
+import cats.syntax.cartesian._
+
 val rb: Rule[JsValue, A] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   (__ \ "name").read(equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
@@ -179,7 +181,7 @@ rule.validate(e)
 ```tut:silent
 val typeInvalid = Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 
-val rule = From[JsValue] { __ =>
+val rule: Rule[JsValue, A] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   (__ \ "name").read[String].flatMap[A] {
     case "B" => (__ \ "foo").read[Int].map(B.apply _)
@@ -201,6 +203,7 @@ rule.validate(e)
 ```tut:silent
 import jto.validation._
 import play.api.libs.json._
+import scala.Function.unlift
 
 case class Creature(
   name: String,
@@ -211,7 +214,7 @@ implicit val creatureWrite = To[JsObject] { __ =>
   import jto.validation.playjson.Writes._
   ((__ \ "name").write[String] ~
    (__ \ "isDead").write[Boolean] ~
-   (__ \ "weight").write[Float]).unlifted(Creature.unapply)
+   (__ \ "weight").write[Float])(unlift(Creature.unapply))
 }
 ```
 ```tut
@@ -230,7 +233,7 @@ implicit val latLongWrite = {
   import jto.validation.playjson.Writes._
   To[JsObject] { __ =>
     ((__ \ "lat").write[Float] ~
-     (__ \ "long").write[Float]).unlifted(LatLong.unapply)
+     (__ \ "long").write[Float])(unlift(LatLong.unapply))
   }
 }
 

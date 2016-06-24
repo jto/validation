@@ -16,7 +16,7 @@ In the validation API, we create complex object writes by combining simple write
 
 We start by creating a Path representing the location at which we'd like to serialize our data:
 
-```tut
+```tut:silent
 import jto.validation._
 val location: Path = Path \ "user" \ "friend"
 ```
@@ -45,7 +45,7 @@ The Scala compiler is complaining about not finding an implicit function of type
 
 Fortunately, such method already exists. All you have to do is import it:
 
-```tut
+```tut:silent
 import jto.validation.playjson.Writes._
 ```
 
@@ -70,7 +70,7 @@ serializeFriend.writes(JsString("Julien"))
 We now are capable of serializing data to a given `Path`. Let's do it again on a different sub-tree:
 
 ```tut:silent
-val agejs = (Path \ "user" \ "age").write[JsValue, JsObject]
+val agejs: Write[JsValue, JsObject] = (Path \ "user" \ "age").write[JsValue, JsObject]
 ```
 
 And if we apply this new `Write`:
@@ -83,7 +83,7 @@ That example is nice, but chances are `age` in not a `JsNumber`, but an `Int`.
 All we have to do is to change the input type in our `Write` definition:
 
 ```tut:silent
-val age = (Path \ "user" \ "age").write[Int, JsObject]
+val age: Write[Int, JsObject] = (Path \ "user" \ "age").write[Int, JsObject]
 ```
 
 And apply it:
@@ -92,11 +92,11 @@ And apply it:
 age.writes(28)
 ```
 
-So scala *automagically* figures out how to transform a `Int` into an `JsObject`. How does this happens ?
+So scala *automagically* figures out how to transform a `Int` into a `JsObject`. How does this happen?
 
 It's fairly simple. The definition of `write` looks like this:
 
-```tut
+```tut:silent
 def write[I, O](implicit w: Path => Write[I, O]): Write[I, O] = ???
 ```
 
@@ -109,7 +109,9 @@ import jto.validation._
 import jto.validation.playjson.Writes._
 import play.api.libs.json._
 
-val age = (Path \ "user" \ "age").write[Int, JsObject]
+val age: Write[Int, JsObject] = (Path \ "user" \ "age").write[Int, JsObject]
+```
+```tut
 age.writes(28)
 ```
 
@@ -118,12 +120,13 @@ age.writes(28)
 So far we've serialized only primitives types.
 Now we'd like to serialize an entire `User` object defined below, and transform it into a `JsObject`:
 
-```tut
+```tut:silent
 case class User(
   name: String,
   age: Int,
   email: Option[String],
-  isAlive: Boolean)
+  isAlive: Boolean
+)
 ```
 
 We need to create a `Write[User, JsValue]`. Creating this `Write` is simply a matter of combining together the writes serializing each field of the class.
@@ -132,13 +135,14 @@ We need to create a `Write[User, JsValue]`. Creating this `Write` is simply a ma
 import jto.validation._
 import jto.validation.playjson.Writes._
 import play.api.libs.json._
+import scala.Function.unlift
 
-val userWrite = To[JsObject] { __ =>
+val userWrite: Write[User, JsObject] = To[JsObject] { __ =>
   import jto.validation.playjson.Writes._
   ((__ \ "name").write[String] ~
    (__ \ "age").write[Int] ~
    (__ \ "email").write[Option[String]] ~
-   (__ \ "isAlive").write[Boolean]).unlifted(User.unapply)
+   (__ \ "isAlive").write[Boolean])(unlift(User.unapply))
 }
 ```
 
@@ -149,9 +153,9 @@ It is recommended to always follow this pattern, as it nicely scopes the implici
 `To[JsObject]` defines the `O` type of the writes we're combining. We could have written:
 
 ```scala
- (Path \ "name").write[String, JsObject] ~
- (Path \ "age").write[Int, JsObject] ~
- //...
+(Path \ "name").write[String, JsObject] ~
+(Path \ "age").write[Int, JsObject] ~
+//...
 ```
 
 but repeating `JsObject` all over the place is just not very DRY.

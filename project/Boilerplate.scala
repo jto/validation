@@ -21,7 +21,10 @@ object Boilerplate {
     }
   }
 
-  val header = "// Auto-generated boilerplate"
+  val header = """
+    // Auto-generated boilerplate
+    // $COVERAGE-OFF$Disabling coverage for generated code
+  """
 
   val minArity = 2
   val maxArity = 22
@@ -112,12 +115,6 @@ object Boilerplate {
         -        (b: B) => { val (${`a..n`}) = f2(b); ${`new ~(.., n)`} }
         -      )
         -
-        -    def unlifted[B](f1: (${`A..N`}) => B, f2: B => Option[(${`A..N`})])(implicit fu: Invariant[M]): M[B] =
-        -      fu.imap[${`A~N`}, B](
-        -        combine(m1, m2))({ case ${`a~n`} => f1(${`a..n`}) })(
-        -        (b: B) => { val (${`a..n`}) = f2(b).get; ${`new ~(.., n)`} }
-        -      )
-        -
         -    def tupled(implicit fu: Invariant[M]): M[(${`A..N`})] =
         -      apply[(${`A..N`})]({ (${`a:A..n:N`}) => (${`a..n`}) }, { (a: (${`A..N`})) => (${`a._1..a._N`}) })
         -  }
@@ -179,9 +176,6 @@ object Boilerplate {
         -
         -    def apply[B](f: B => (${`A..N`}))(implicit fu: Contravariant[M]): M[B] =
         -      fu.contramap(combine(m1, m2))((b: B) => { val (${`a..n`}) = f(b); ${`new ~(.., n)`} })
-        -
-        -    def unlifted[B](f: B => Option[(${`A..N`})])(implicit fu: Contravariant[M]): M[B] =
-        -      fu.contramap(combine(m1, m2))((b: B) => { val (${`a..n`}) = f(b).get; ${`new ~(.., n)`} })
         -
         -    def tupled(implicit fu: Contravariant[M]): M[(${`A..N`})] =
         -      apply[(${`A..N`})]({ (a: (${`A..N`})) => (${`a._1..a._N`}) })

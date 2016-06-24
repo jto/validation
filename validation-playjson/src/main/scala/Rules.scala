@@ -144,7 +144,7 @@ object Rules extends DefaultRules[JsValue] {
     pickInS(setR[JsValue, O])
   implicit def pickList[O](implicit r: RuleLike[JsValue, O]) =
     pickInS(listR[JsValue, O])
-  implicit def pickArray[O : scala.reflect.ClassTag](
+  implicit def pickArray[O: scala.reflect.ClassTag](
       implicit r: RuleLike[JsValue, O]) = pickInS(arrayR[JsValue, O])
   implicit def pickTraversable[O](implicit r: RuleLike[JsValue, O]) =
     pickInS(traversableR[JsValue, O])

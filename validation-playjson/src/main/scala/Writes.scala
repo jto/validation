@@ -13,7 +13,9 @@ trait DefaultMonoids {
 }
 
 object Writes
-    extends DefaultWrites with DefaultMonoids with GenericWrites[JsValue] {
+    extends DefaultWrites
+    with DefaultMonoids
+    with GenericWrites[JsValue] {
 
   private def writeObj(j: JsValue, n: PathNode) = n match {
     case IdxPathNode(_) => Json.arr(j)
@@ -72,8 +74,8 @@ object Writes
       implicit w: WriteLike[I, JsValue]): Write[Seq[I], JsValue] =
     Write(ss => JsArray(ss.map(w.writes _)))
 
-  def optionW[I, J](
-      r: => WriteLike[I, J])(implicit w: Path => WriteLike[J, JsObject])
+  def optionW[I, J](r: => WriteLike[I, J])(
+      implicit w: Path => WriteLike[J, JsObject])
     : Path => Write[Option[I], JsObject] =
     super.optionW[I, J, JsObject](r, Json.obj())
 

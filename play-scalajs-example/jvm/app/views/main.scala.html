@@ -1,0 +1,12 @@
+@(title: String)(content: Html)(implicit environment: play.api.Environment)
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>@title</title>
+  </head>
+  <body>
+    @content
+    @playscalajs.html.scripts(projectName = "js")
+  </body>
+</html>

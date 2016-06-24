@@ -2,7 +2,7 @@
 
 The validation API is designed to be easily extensible. Supporting new types is just a matter of providing the appropriate set of Rules and Writes.
 
-In this documentation, we'll study the implementation of the Json support. All extensions are to be defined in a similar fashion. The total amount of code needed is rather small, but there's best practices you need to follow.
+In this documentation, we'll study the implementation of the Json support. All extensions are to be defined in a similar fashion. The total amount of code needed is rather small, but there're best practices you need to follow.
 
 ## Rules
 
@@ -46,7 +46,7 @@ Now we are able to do this:
     "field31" -> "beta",
     "field32"-> 345))
 
-  val pick = From[JsValue]{ __ =>
+  val pick: Rule[JsValue, JsValue] = From[JsValue] { __ =>
     (__ \ "field2").read[JsValue]
   }
 
@@ -75,7 +75,7 @@ implicit def pickInJson[O](p: Path)(implicit r: Rule[JsValue, O]): Rule[JsValue,
     }.andThen(r)
 ```
 
-The now all we have to do is to write a `Rule[JsValue, O]`, and we automatically get the ` Path => Rule[JsValue, O]` we're interested in. The rest is just a matter of defining all the prmitives rules, for example:
+The now all we have to do is to write a `Rule[JsValue, O]`, and we automatically get the ` Path => Rule[JsValue, O]` we're interested in. The rest is just a matter of defining all the primitives rules, for example:
 
 ```tut
 def jsonAs[T](f: PartialFunction[JsValue, Validated[Seq[ValidationError], T]])(args: Any*) =
@@ -110,7 +110,7 @@ Supporting primitives is nice, but not enough. Users are going to deal with `Seq
 
 ### Option
 
-What we want to do is to implement a function that takes a `Path => Rule[JsValue, O]`, an lift it into a `Path => Rule[JsValue, Option[O]]` for any type `O`. The reason we're working on the fully defined `Path => Rule[JsValue, O]` and not just `Rule[JsValue, O]` is because a non existent `Path` must be validated as a `Valid(None)`. If we were to use `pickInJson` on a `Rule[JsValue, Option[O]]`, we would end up with a `Invalid` in the case of non-existing `Path`.
+What we want to do is to implement a function that takes a `Path => Rule[JsValue, O]`, an lift it into a `Path => Rule[JsValue, Option[O]]` for any type `O`. The reason we're working on the fully defined `Path => Rule[JsValue, O]` and not just `Rule[JsValue, O]` is because a non-existent `Path` must be validated as a `Valid(None)`. If we were to use `pickInJson` on a `Rule[JsValue, Option[O]]`, we would end up with an `Invalid` in the case of non-existing `Path`.
 
 The `play.api.data.mapping.DefaultRules[I]` traits provides a helper for building the desired method. It's signature is:
 
@@ -119,9 +119,9 @@ protected def opt[J, O](r: => Rule[J, O], noneValues: Rule[I, I]*)(implicit pick
 ```
 
 - `noneValues` is a List of all the values we should consider to be `None`. For Json that would be `JsNull`.
-- `pick` is a extractor. It's going to extract a subtree.
+- `pick` is an extractor. It's going to extract a subtree.
 - `coerce` is a type conversion `Rule`
-- `r` is a `Rule` to be applied on the data if they are found
+- `r` is a `Rule` to be applied to the data if they are found
 
 All you have to do is to use this method to implement a specialized version for your type.
 For example it's defined this way for Json:
@@ -135,7 +135,7 @@ Basically it's just the same, but we are now only supporting `JsValue`. We are a
 Despite the type signature funkiness, this function is actually **really** simple to use:
 
 ```tut:silent
-val maybeEmail = From[JsValue]{ __ =>
+val maybeEmail: Rule[JsValue, Option[String]] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   (__ \ "email").read(optionR(email))
 }
@@ -149,7 +149,7 @@ maybeEmail.validate(Json.obj())
 
 Alright, so now we can explicitly define rules for optional data.
 
-But what if we write `(__ \ "age").read[Option[Int]]` ? It does not compile !
+But what if we write `(__ \ "age").read[Option[Int]]`? It does not compile!
 We need to define an implicit rule for that:
 
 ```scala
@@ -158,7 +158,7 @@ implicit def option[O](p: Path)(implicit pick: Path => Rule[JsValue, JsValue], c
 ```
 
 ```tut:silent
-val maybeAge = From[JsValue]{ __ =>
+val maybeAge: Rule[JsValue, Option[Int]] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   (__ \ "age").read[Option[Int]]
 }
@@ -175,10 +175,10 @@ val u = RecUser(
   "bob",
   Seq(RecUser("tom")))
 
-lazy val w: Rule[JsValue, RecUser] = From[JsValue]{ __ =>
+lazy val w: Rule[JsValue, RecUser] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   ((__ \ "name").read[String] ~
-   (__ \ "friends").read(seqR(w))) (RecUser.apply _) // !!! recursive rule definition
+   (__ \ "friends").read(seqR(w)))(RecUser.apply) // !!! recursive rule definition
 }
 ```
 
@@ -192,7 +192,7 @@ Writes are implemented in a similar fashion, but a generally easier to implement
 }
 ```
 
-And you then defines all the primitive writes:
+And you then define all the primitive writes:
 
 ```tut
 {
@@ -219,6 +219,7 @@ from there you're able to create complex writes like:
 ```tut:silent
 import jto.validation._
 import play.api.libs.json._
+import scala.Function.unlift
 
 case class User(
   name: String,
@@ -231,10 +232,10 @@ val userWrite = To[JsObject] { __ =>
   ((__ \ "name").write[String] ~
    (__ \ "age").write[Int] ~
    (__ \ "email").write[Option[String]] ~
-   (__ \ "isAlive").write[Boolean]).unlifted(User.unapply)
+   (__ \ "isAlive").write[Boolean])(unlift(User.unapply))
 }
 ```
 
 ## Testing
 
-We highly recommend you to test your rules as much as possible. There's a few tricky cases you need to handle properly. You should port the tests in `RulesSpec.scala` and use them on your rules.
+We highly recommend you to test your rules as much as possible. There're a few tricky cases you need to handle properly. You should port the tests in `RulesSpec.scala` and use them on your rules.

@@ -3,7 +3,7 @@ import jto.validation.jsjson.Rules._
 import jto.validation.jsjson.Writes._
 import org.scalatest._
 import scala.scalajs.js
-import Function.unlift
+import scala.Function.unlift
 
 class FormatSpec extends WordSpec with Matchers with JsAnyEquality {
 
@@ -91,8 +91,8 @@ class FormatSpec extends WordSpec with Matchers with JsAnyEquality {
                     "o" -> js.Dynamic.literal("p" -> 4)))) shouldBe (Valid(4))
         Formatting[js.Dynamic, js.Dynamic] { __ =>
           (__ \ "n" \ "o" \ "p").format[Int]
-        }.validate(js.Dynamic.literal("n" -> js.Dynamic
-                  .literal("o" -> js.Dynamic.literal("p" -> "foo")))) shouldBe
+        }.validate(js.Dynamic.literal("n" -> js.Dynamic.literal(
+                    "o" -> js.Dynamic.literal("p" -> "foo")))) shouldBe
         (Invalid(Seq(Path \ "n" \ "o" \ "p" -> Seq(
                         ValidationError("error.number", "Int")))))
 
@@ -417,8 +417,7 @@ class FormatSpec extends WordSpec with Matchers with JsAnyEquality {
     "work with Rule ans Write seamlessly" in {
       implicit val userF = Formatting[js.Dynamic, js.Dynamic] { __ =>
         ((__ \ "id").format[Long] ~ (__ \ "name").format[String])(
-            User.apply,
-            unlift(User.unapply))
+            User.apply, unlift(User.unapply))
       }
 
       val userJs = js.Dynamic.literal("id" -> 1L, "name" -> "Luigi")

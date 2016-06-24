@@ -5,7 +5,10 @@ import org.scalatest._
 case class User(age: Int, name: String)
 case class Dog(name: String, master: User)
 case class Cat(name: String)
-case class RecUser(name: String, cat: Option[Cat] = None, hobbies: Seq[String] = Seq(), friends: Seq[RecUser] = Seq())
+case class RecUser(name: String,
+                   cat: Option[Cat] = None,
+                   hobbies: Seq[String] = Seq(),
+                   friends: Seq[RecUser] = Seq())
 case class User1(name: String, friend: Option[User1] = None)
 case class UserMap(name: String, friends: Map[String, UserMap] = Map())
 
@@ -21,14 +24,33 @@ case class Id[A](id: A)
 case class C1[A](id: Id[A], name: String)
 
 case class X(
-  _1: String, _2: String, _3: String, _4: String, _5: String,
-  _6: String, _7: String, _8: String, _9: String, _10: String,
-  _11: String, _12: String, _13: String, _14: String, _15: String,
-  _16: String, _17: String, _18: String, _19: String, _20: String,
-  _21: String
+    _1: String,
+    _2: String,
+    _3: String,
+    _4: String,
+    _5: String,
+    _6: String,
+    _7: String,
+    _8: String,
+    _9: String,
+    _10: String,
+    _11: String,
+    _12: String,
+    _13: String,
+    _14: String,
+    _15: String,
+    _16: String,
+    _17: String,
+    _18: String,
+    _19: String,
+    _20: String,
+    _21: String
 )
 
-case class Program(id: Long, name: String, logoPath: Option[String], logoThumb: Option[String])
+case class Program(id: Long,
+                   name: String,
+                   logoPath: Option[String],
+                   logoThumb: Option[String])
 object Program {
   def programs = List.empty[Program]
 }
@@ -47,7 +69,7 @@ object Person {
 
 case class Person2(names: List[String])
 
-object Person2{
+object Person2 {
   implicit val personRule = {
     import Rules._
     Rule.gen[UrlFormEncoded, Person2]
@@ -65,13 +87,15 @@ class MacroSpec extends WordSpec with Matchers {
     "create a Rule[User]" in {
       import Rules._
       implicit val userReads = Rule.gen[UrlFormEncoded, User]
-      userReads.validate(Map("name" -> Seq("toto"), "age" -> Seq("45"))) shouldBe(Valid(User(45, "toto")))
+      userReads.validate(Map("name" -> Seq("toto"), "age" -> Seq("45"))) shouldBe (Valid(
+              User(45, "toto")))
     }
 
     "create a Write[User]" in {
       import Writes._
       implicit val userWrites = Write.gen[User, UrlFormEncoded]
-      userWrites.writes(User(45, "toto")) shouldBe(Map("name" -> Seq("toto"), "age" -> Seq("45")))
+      userWrites.writes(User(45, "toto")) shouldBe (Map("name" -> Seq("toto"),
+                                                        "age" -> Seq("45")))
     }
 
     "create a Rule[Dog]" in {
@@ -80,13 +104,12 @@ class MacroSpec extends WordSpec with Matchers {
       implicit val dogRule = Rule.gen[UrlFormEncoded, Dog]
 
       dogRule.validate(
-        Map(
-          "name" -> Seq("medor"),
-          "master.name" -> Seq("toto"),
-          "master.age" -> Seq("45")
-        )
-      ) shouldBe(Valid(Dog("medor", User(45, "toto"))))
-
+          Map(
+              "name" -> Seq("medor"),
+              "master.name" -> Seq("toto"),
+              "master.age" -> Seq("45")
+          )
+      ) shouldBe (Valid(Dog("medor", User(45, "toto"))))
     }
 
     "create a Write[Dog]" in {
@@ -94,11 +117,10 @@ class MacroSpec extends WordSpec with Matchers {
       implicit val userWrite = Write.gen[User, UrlFormEncoded]
       implicit val dogWrite = Write.gen[Dog, UrlFormEncoded]
 
-      dogWrite.writes(Dog("medor", User(45, "toto"))) shouldBe(
-        Map(
-          "name" -> Seq("medor"),
-          "master.name" -> Seq("toto"),
-          "master.age" -> Seq("45")))
+      dogWrite.writes(Dog("medor", User(45, "toto"))) shouldBe (Map(
+              "name" -> Seq("medor"),
+              "master.name" -> Seq("toto"),
+              "master.age" -> Seq("45")))
     }
 
     "create a Format[Dog]" in {
@@ -109,13 +131,12 @@ class MacroSpec extends WordSpec with Matchers {
       implicit val dogRule = Format.gen[UrlFormEncoded, UrlFormEncoded, Dog]
 
       dogRule.validate(
-        Map(
-          "name" -> Seq("medor"),
-          "master.name" -> Seq("toto"),
-          "master.age" -> Seq("45")
-        )
-      ) shouldBe(Valid(Dog("medor", User(45, "toto"))))
-
+          Map(
+              "name" -> Seq("medor"),
+              "master.name" -> Seq("toto"),
+              "master.age" -> Seq("45")
+          )
+      ) shouldBe (Valid(Dog("medor", User(45, "toto"))))
     }
 
     "create a Rule[RecUser]" in {
@@ -124,57 +145,55 @@ class MacroSpec extends WordSpec with Matchers {
       implicit val catRule = Rule.gen[UrlFormEncoded, Cat]
 
       catRule.validate(
-        Map("name" -> Seq("minou"))
-      ) shouldBe(Valid(Cat("minou")))
+          Map("name" -> Seq("minou"))
+      ) shouldBe (Valid(Cat("minou")))
 
       implicit lazy val recUserRule: Rule[UrlFormEncoded, RecUser] =
         Rule.gen[UrlFormEncoded, RecUser]
 
       recUserRule.validate(
-        Map(
-          "name" -> Seq("bob"),
-          "cat.name" -> Seq("minou"),
-          "hobbies[0]" -> Seq("bobsleig"),
-          "hobbies[1]" -> Seq("manhunting"),
-          "friends[0].name" -> Seq("tom")
-        )
-      ) shouldBe(
-        Valid(
-          RecUser(
-            "bob",
-            Some(Cat("minou")),
-            List("bobsleig", "manhunting"),
-            List(RecUser("tom"))
+          Map(
+              "name" -> Seq("bob"),
+              "cat.name" -> Seq("minou"),
+              "hobbies[0]" -> Seq("bobsleig"),
+              "hobbies[1]" -> Seq("manhunting"),
+              "friends[0].name" -> Seq("tom")
           )
-        )
+      ) shouldBe (
+          Valid(
+              RecUser(
+                  "bob",
+                  Some(Cat("minou")),
+                  List("bobsleig", "manhunting"),
+                  List(RecUser("tom"))
+              )
+          )
       )
-
     }
 
     "create a Write[RecUser]" in {
       import Writes._
 
       implicit val catWrite = Write.gen[Cat, UrlFormEncoded]
-      catWrite.writes(Cat("minou")) shouldBe(Map("name" -> Seq("minou")))
+      catWrite.writes(Cat("minou")) shouldBe (Map("name" -> Seq("minou")))
 
-      implicit lazy val recUserWrite: Write[RecUser, UrlFormEncoded] = Write.gen[RecUser, UrlFormEncoded]
+      implicit lazy val recUserWrite: Write[RecUser, UrlFormEncoded] =
+        Write.gen[RecUser, UrlFormEncoded]
 
       recUserWrite.writes(
-        RecUser(
-          "bob",
-          Some(Cat("minou")),
-          Seq("bobsleig", "manhunting"),
-          Seq(RecUser("tom"))
-        )
-      ) shouldBe(
-        Map(
-          "name" -> Seq("bob"),
-          "cat.name" -> Seq("minou"),
-          "hobbies[0]" -> Seq("bobsleig"),
-          "hobbies[1]" -> Seq("manhunting"),
-          "friends[0].name" -> Seq("tom"))
+          RecUser(
+              "bob",
+              Some(Cat("minou")),
+              Seq("bobsleig", "manhunting"),
+              Seq(RecUser("tom"))
+          )
+      ) shouldBe (
+          Map("name" -> Seq("bob"),
+              "cat.name" -> Seq("minou"),
+              "hobbies[0]" -> Seq("bobsleig"),
+              "hobbies[1]" -> Seq("manhunting"),
+              "friends[0].name" -> Seq("tom"))
       )
-
     }
 
     "create a Format[RecUser]" in {
@@ -185,96 +204,90 @@ class MacroSpec extends WordSpec with Matchers {
       val cat = Cat("minou")
       val catMap = Map("name" -> Seq("minou"))
 
-      catFormat.writes(cat) shouldBe(catMap)
-      catFormat.validate(catMap) shouldBe(Valid(cat))
+      catFormat.writes(cat) shouldBe (catMap)
+      catFormat.validate(catMap) shouldBe (Valid(cat))
 
-      implicit lazy val recUserFormat: Format[UrlFormEncoded, UrlFormEncoded, RecUser] =
+      implicit lazy val recUserFormat: Format[UrlFormEncoded,
+                                              UrlFormEncoded,
+                                              RecUser] =
         Format.gen[UrlFormEncoded, UrlFormEncoded, RecUser]
 
-      val recMap = Map(
-        "name" -> Seq("bob"),
-        "cat.name" -> Seq("minou"),
-        "hobbies[0]" -> Seq("bobsleig"),
-        "hobbies[1]" -> Seq("manhunting"),
-        "friends[0].name" -> Seq("tom"))
+      val recMap = Map("name" -> Seq("bob"),
+                       "cat.name" -> Seq("minou"),
+                       "hobbies[0]" -> Seq("bobsleig"),
+                       "hobbies[1]" -> Seq("manhunting"),
+                       "friends[0].name" -> Seq("tom"))
 
-      val u = RecUser(
-        "bob",
-        Some(Cat("minou")),
-        List("bobsleig", "manhunting"),
-        List(RecUser("tom")))
+      val u = RecUser("bob",
+                      Some(Cat("minou")),
+                      List("bobsleig", "manhunting"),
+                      List(RecUser("tom")))
 
-      recUserFormat.validate(recMap) shouldBe(Valid(u))
-      recUserFormat.writes(u) shouldBe(recMap)
-
+      recUserFormat.validate(recMap) shouldBe (Valid(u))
+      recUserFormat.writes(u) shouldBe (recMap)
     }
 
     "create a Rule[User1]" in {
       import Rules._
 
-      implicit lazy val userRule: Rule[UrlFormEncoded, User1] = Rule.gen[UrlFormEncoded, User1]
+      implicit lazy val userRule: Rule[UrlFormEncoded, User1] =
+        Rule.gen[UrlFormEncoded, User1]
 
       userRule.validate(
-        Map(
-          "name" -> Seq("bob"),
-          "friend.name" -> Seq("tom"))
-      ) shouldBe(
-        Valid(
-          User1(
-            "bob",
-            Some(User1("tom"))
+          Map("name" -> Seq("bob"), "friend.name" -> Seq("tom"))
+      ) shouldBe (
+          Valid(
+              User1(
+                  "bob",
+                  Some(User1("tom"))
+              )
           )
-        )
       )
     }
 
-
     "create a writes[User1]" in {
       import Writes._
-      implicit lazy val userWrites: Write[User1, UrlFormEncoded] = Write.gen[User1, UrlFormEncoded]
+      implicit lazy val userWrites: Write[User1, UrlFormEncoded] =
+        Write.gen[User1, UrlFormEncoded]
 
       userWrites.writes(
-        User1(
-          "bob",
-          Some(User1("tom")))
-      ) shouldBe(
-        Map(
-          "name" -> Seq("bob"),
-          "friend.name" -> Seq("tom" )))
+          User1("bob", Some(User1("tom")))
+      ) shouldBe (Map("name" -> Seq("bob"), "friend.name" -> Seq("tom")))
     }
 
     "create a Format[User1]" in {
       import Rules._
-       import Writes._
+      import Writes._
 
-      implicit lazy val userFormat: Format[UrlFormEncoded, UrlFormEncoded, User1] = Format.gen[UrlFormEncoded, UrlFormEncoded, User1]
+      implicit lazy val userFormat: Format[UrlFormEncoded,
+                                           UrlFormEncoded,
+                                           User1] =
+        Format.gen[UrlFormEncoded, UrlFormEncoded, User1]
 
-      val userMap = Map(
-        "name" -> Seq("bob"),
-        "friend.name" -> Seq("tom"))
-      val user = User1("bob",Some(User1("tom")))
+      val userMap = Map("name" -> Seq("bob"), "friend.name" -> Seq("tom"))
+      val user = User1("bob", Some(User1("tom")))
 
-      userFormat.validate(userMap) shouldBe(Valid(user))
-      userFormat.writes(user) shouldBe(userMap)
+      userFormat.validate(userMap) shouldBe (Valid(user))
+      userFormat.writes(user) shouldBe (userMap)
     }
 
     "manage Boxed class" in {
       import Rules._
 
       implicit def idRule[A]: Rule[A, Id[A]] =
-        Rule.zero[A].map{ Id[A](_) }
+        Rule.zero[A].map { Id[A](_) }
 
-      implicit def c1Rule[A](implicit rds: Rule[A, Id[A]], e: Path => Rule[UrlFormEncoded, A]) =
-        From[UrlFormEncoded]{ __ =>
+      implicit def c1Rule[A](implicit rds: Rule[A, Id[A]],
+                             e: Path => Rule[UrlFormEncoded, A]) =
+        From[UrlFormEncoded] { __ =>
           ((__ \ "id").read(rds) ~
-           (__ \ "name").read[String])( (id, name) => C1[A](id, name) )
+              (__ \ "name").read[String])((id, name) => C1[A](id, name))
         }
 
-      val map = Map(
-        "id" -> Seq("123"),
-        "name" -> Seq("toto"))
+      val map = Map("id" -> Seq("123"), "name" -> Seq("toto"))
 
-      c1Rule[Long].validate(map) shouldBe(Valid(C1[Long](Id[Long](123L), "toto")))
+      c1Rule[Long].validate(map) shouldBe (Valid(
+              C1[Long](Id[Long](123L), "toto")))
     }
 
     /* // test to validate it doesn't compile if missing implicit
@@ -327,7 +340,8 @@ class MacroSpec extends WordSpec with Matchers {
       "Format" in {
         import Rules._
         import Writes._
-        implicit val totoFormat = Format.gen[UrlFormEncoded, UrlFormEncoded, Toto]
+        implicit val totoFormat =
+          Format.gen[UrlFormEncoded, UrlFormEncoded, Toto]
         ()
       }
     }
@@ -348,7 +362,8 @@ class MacroSpec extends WordSpec with Matchers {
       "Format" in {
         import Rules._
         import Writes._
-        implicit val toto2Format = Format.gen[UrlFormEncoded, UrlFormEncoded, Toto2]
+        implicit val toto2Format =
+          Format.gen[UrlFormEncoded, UrlFormEncoded, Toto2]
         ()
       }
     }
@@ -369,7 +384,8 @@ class MacroSpec extends WordSpec with Matchers {
       "Format" in {
         import Rules._
         import Writes._
-        implicit val toto3Format = Format.gen[UrlFormEncoded, UrlFormEncoded, Toto3]
+        implicit val toto3Format =
+          Format.gen[UrlFormEncoded, UrlFormEncoded, Toto3]
         ()
       }
     }
@@ -390,7 +406,8 @@ class MacroSpec extends WordSpec with Matchers {
       "Format" in {
         import Rules._
         import Writes._
-        implicit val toto4Format = Format.gen[UrlFormEncoded, UrlFormEncoded, Toto4]
+        implicit val toto4Format =
+          Format.gen[UrlFormEncoded, UrlFormEncoded, Toto4]
         ()
       }
     }
@@ -411,7 +428,8 @@ class MacroSpec extends WordSpec with Matchers {
       "Format" in {
         import Rules._
         import Writes._
-        implicit val toto5Format = Format.gen[UrlFormEncoded, UrlFormEncoded, Toto5]
+        implicit val toto5Format =
+          Format.gen[UrlFormEncoded, UrlFormEncoded, Toto5]
         ()
       }
     }
@@ -423,32 +441,31 @@ class MacroSpec extends WordSpec with Matchers {
       implicit val dogRule = Rule.gen[UrlFormEncoded, Dog]
       implicit val toto6Rule = Rule.gen[UrlFormEncoded, Toto6]
 
-      val map = Map(
-        "name[0].name" -> Seq("medor"),
-        "name[0].master.name" -> Seq("toto"),
-        "name[0].master.age" -> Seq("45"),
-        "name[1].name" -> Seq("brutus"),
-        "name[1].master.name" -> Seq("tata"),
-        "name[1].master.age" -> Seq("23"))
+      val map = Map("name[0].name" -> Seq("medor"),
+                    "name[0].master.name" -> Seq("toto"),
+                    "name[0].master.age" -> Seq("45"),
+                    "name[1].name" -> Seq("brutus"),
+                    "name[1].master.name" -> Seq("tata"),
+                    "name[1].master.age" -> Seq("23"))
 
-      toto6Rule.validate(map) shouldBe(Valid(
-        Toto6(Seq(
-          Dog("medor", User(45, "toto")),
-          Dog("brutus", User(23, "tata"))
-        ))
-      ))
+      toto6Rule.validate(map) shouldBe (Valid(
+              Toto6(Seq(
+                      Dog("medor", User(45, "toto")),
+                      Dog("brutus", User(23, "tata"))
+                  ))
+          ))
     }
 
     "test case reads in companion object" in {
       From[UrlFormEncoded, Person](
-        To[Person, UrlFormEncoded](Person("bob", 15))
-      ) shouldBe(Valid(Person("bob", 15)))
+          To[Person, UrlFormEncoded](Person("bob", 15))
+      ) shouldBe (Valid(Person("bob", 15)))
     }
 
     "test case single-field in companion object" in {
       From[UrlFormEncoded, Person2](
-        To[Person2, UrlFormEncoded](Person2(List("bob", "bobby")))
-      ) shouldBe(Valid(Person2(List("bob", "bobby"))))
+          To[Person2, UrlFormEncoded](Person2(List("bob", "bobby")))
+      ) shouldBe (Valid(Person2(List("bob", "bobby"))))
     }
   }
 }

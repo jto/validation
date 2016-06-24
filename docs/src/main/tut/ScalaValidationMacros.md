@@ -1,8 +1,5 @@
 # Validation Inception
 
-> This feature is experimental such as Scala Macros which are flagged experimental in Scala 2.10.0.
-> If you would rather not use Scala experimental features, just stick to hand-written `Rule` / `Write` which are strictly equivalent.
-
 ## Introduction
 
 The validation API provides macro-based helpers to generate `Rule` and `Write` for case classes (or any class with a companion object providing `apply` / and `unapply` methods).
@@ -26,11 +23,11 @@ case class Person(name: String, age: Int, lovesChocolate: Boolean)
 import jto.validation._
 import play.api.libs.json._
 
-implicit val personRule = From[JsValue] { __ =>
+implicit val personRule: Rule[JsValue, Person] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._
   ((__ \ "name").read[String] ~
    (__ \ "age").read[Int] ~
-   (__ \ "lovesChocolate").read[Boolean]) (Person.apply _)
+   (__ \ "lovesChocolate").read[Boolean])(Person.apply)
 }
 ```
 

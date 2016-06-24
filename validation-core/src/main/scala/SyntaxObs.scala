@@ -20,7 +20,8 @@ class FunctorSyntaxObs[M[_], A](ma: M[A])(implicit combine: SyntaxCombine[M]) {
   }
 }
 
-class ContravariantSyntaxObs[M[_], A](ma: M[A])(implicit combine: SyntaxCombine[M]) {
+class ContravariantSyntaxObs[M[_], A](ma: M[A])(
+    implicit combine: SyntaxCombine[M]) {
   def ~[B](mb: M[B]): ContravariantSyntax[M]#ContravariantSyntax2[A, B] = {
     val b = new ContravariantSyntax(combine)
     new b.ContravariantSyntax2[A, B](ma, mb)

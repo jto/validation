@@ -1,0 +1,477 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <title>Serializing data with Write · GitBook</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.0.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="ScalaValidationWriteCombinators.html" />
+    
+    
+    <link rel="prev" href="ScalaValidationRuleCombinators.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" >
+            
+                <span>
+            
+                    
+                    Features
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="ScalaValidationRule.html">
+            
+                <a href="ScalaValidationRule.html">
+            
+                    
+                    Validating and transforming data
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="ScalaValidationRuleCombinators.html">
+            
+                <a href="ScalaValidationRuleCombinators.html">
+            
+                    
+                    Combining Rules
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.2.3" data-path="ScalaValidationWrite.html">
+            
+                <a href="ScalaValidationWrite.html">
+            
+                    
+                    Serializing data with Write
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.4" data-path="ScalaValidationWriteCombinators.html">
+            
+                <a href="ScalaValidationWriteCombinators.html">
+            
+                    
+                    Combining Writes
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.5" data-path="ScalaValidationMacros.html">
+            
+                <a href="ScalaValidationMacros.html">
+            
+                    
+                    Validation Inception
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.6" data-path="ScalaJsValidation.html">
+            
+                <a href="ScalaJsValidation.html">
+            
+                    
+                    Exporting Validations to Javascript using Scala.js
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.7" data-path="ScalaValidationExtensions.html">
+            
+                <a href="ScalaValidationExtensions.html">
+            
+                    
+                    Extensions: Supporting new types
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.8" data-path="ScalaValidationCookbook.html">
+            
+                <a href="ScalaValidationCookbook.html">
+            
+                    
+                    Cookbook
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" >
+            
+                <span>
+            
+                    
+                    Migration
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="V2MigrationGuide.html">
+            
+                <a href="V2MigrationGuide.html">
+            
+                    
+                    v2.0 Migration guide
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="ScalaValidationMigrationForm.html">
+            
+                <a href="ScalaValidationMigrationForm.html">
+            
+                    
+                    Play's Form API migration
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="ScalaValidationMigrationJson.html">
+            
+                <a href="ScalaValidationMigrationJson.html">
+            
+                    
+                    Play's Json API migration
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="ReleaseNotes.html">
+            
+                <a href="ReleaseNotes.html">
+            
+                    
+                    Release notes
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="." >Serializing data with Write</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="serializing-data">Serializing data</h1>
+<h2 id="introduction">Introduction</h2>
+<p>To serialize data, the validation API provides the <code>Write</code> type. A <code>Write[I, O]</code> defines a way to transform data, from type <code>I</code> to type <code>O</code>. It&apos;s basically a function <code>I =&gt; O</code>, where <code>I</code> is the type of the input to serialize, and <code>O</code> is the expected output type.</p>
+<h2 id="a-simple-example">A simple example</h2>
+<p>Let&apos;s say you want to serialize a <code>Float</code> to <code>String</code>.
+All you need to do is to define a <code>Write</code> from <code>Float</code> to <code>String</code>:</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">import</span> jto.validation._
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">floatToString</span></span>: <span class="hljs-type">Write</span>[<span class="hljs-type">Float</span>, <span class="hljs-type">String</span>] = ???
+</code></pre>
+<p>For now we&apos;ll not implement <code>floatToString</code>, actually, the validation API comes with a number of built-in Writes, including <code>Writes.floatW[T]</code>.</p>
+<p>All you have to do is import the default Writes.</p>
+<pre><code class="lang-scala"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">Writes</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">NumericTypes2StringWrites</span></span>
+<span class="hljs-type">Writes</span>.floatW
+</code></pre>
+<p>Let&apos;s now test it against different <code>Float</code> values:</p>
+<pre><code class="lang-scala">scala&gt; <span class="hljs-type">Writes</span>.floatW.writes(<span class="hljs-number">12.8</span>F)
+res1: <span class="hljs-type">String</span> = <span class="hljs-number">12.8</span>
+
+scala&gt; <span class="hljs-type">Writes</span>.floatW.writes(<span class="hljs-number">12</span>F)
+res2: <span class="hljs-type">String</span> = <span class="hljs-number">12.0</span>
+</code></pre>
+<h2 id="defining-your-own-write">Defining your own <code>Write</code></h2>
+<p>Creating a new <code>Write</code> is almost as simple as creating a new function.
+This example creates a new <code>Write</code> serializing a Float with a custom format.</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> currency = <span class="hljs-type">Write</span>[<span class="hljs-type">Double</span>, <span class="hljs-type">String</span>]{ money =&gt;
+  <span class="hljs-keyword">import</span> java.text.<span class="hljs-type">NumberFormat</span>
+  <span class="hljs-keyword">import</span> java.util.<span class="hljs-type">Locale</span>
+  <span class="hljs-keyword">val</span> f = <span class="hljs-type">NumberFormat</span>.getCurrencyInstance(<span class="hljs-type">Locale</span>.<span class="hljs-type">FRANCE</span>)
+  f.format(money)
+}
+</code></pre>
+<p>Testing it:</p>
+<pre><code class="lang-scala">scala&gt; currency.writes(<span class="hljs-number">9.99</span>)
+res3: <span class="hljs-type">String</span> = <span class="hljs-number">9</span>,<span class="hljs-number">99</span> &#x20AC;
+</code></pre>
+<h2 id="composing-writes">Composing Writes</h2>
+<p>Writes composition is very important in this API. <code>Write</code> composition means that given two writes <code>a: Write[I, J]</code> and <code>b: Write[J, O]</code>, we can create a new write <code>c: Write[I, O]</code>.</p>
+<h3 id="example">Example</h3>
+<p>Let&apos;s see we&apos;re working on an e-commerce website. We have defined a <code>Product</code> class.
+Each product has a name and a price:</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Product</span>(<span class="hljs-params">name: <span class="hljs-type">String</span>, price: <span class="hljs-type">Double</span></span>)</span>
+</code></pre>
+<p>Now we&apos;d like to create a <code>Write[Product, String]</code> that serializes a product to a <code>String</code> of it price: <code>Product(&quot;demo&quot;, 123)</code> becomes <code>123,00 &#x20AC;</code></p>
+<p>We have already defined <code>currency: Write[Double, String]</code>, so we&apos;d like to reuse that.
+First, we&apos;ll create a <code>Write[Product, Double]</code> extracting the price of the product:</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> productPrice: <span class="hljs-type">Write</span>[<span class="hljs-type">Product</span>, <span class="hljs-type">Double</span>] = <span class="hljs-type">Write</span>[<span class="hljs-type">Product</span>, <span class="hljs-type">Double</span>](_.price)
+</code></pre>
+<p>Now we just have to compose it with <code>currency</code>:</p>
+<pre><code class="lang-scala"><span class="hljs-keyword">val</span> productAsPrice: <span class="hljs-type">Write</span>[<span class="hljs-type">Product</span>,<span class="hljs-type">String</span>] = productPrice andThen currency
+</code></pre>
+<p>Let&apos;s test our new <code>Write</code>:</p>
+<pre><code class="lang-scala">scala&gt; productAsPrice.writes(<span class="hljs-type">Product</span>(<span class="hljs-string">&quot;Awesome product&quot;</span>, <span class="hljs-number">9.99</span>))
+res4: <span class="hljs-type">String</span> = <span class="hljs-number">9</span>,<span class="hljs-number">99</span> &#x20AC;
+</code></pre>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="ScalaValidationRuleCombinators.html" class="navigation navigation-prev " aria-label="Previous page: Combining Rules">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="ScalaValidationWriteCombinators.html" class="navigation navigation-next " aria-label="Next page: Combining Writes">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Serializing data with Write","level":"1.2.3","depth":2,"next":{"title":"Combining Writes","level":"1.2.4","depth":2,"path":"ScalaValidationWriteCombinators.md","ref":"ScalaValidationWriteCombinators.md","articles":[]},"previous":{"title":"Combining Rules","level":"1.2.2","depth":2,"path":"ScalaValidationRuleCombinators.md","ref":"ScalaValidationRuleCombinators.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"ScalaValidationWrite.md","mtime":"2016-06-24T15:40:06.000Z","type":"markdown"},"gitbook":{"version":"3.0.2","time":"2016-06-24T15:40:18.647Z"},"basePath":".","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="gitbook/gitbook.js"></script>
+    <script src="gitbook/theme.js"></script>
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fontsettings/buttons.js"></script>
+        
+    
+
+    </body>
+</html>
+

@@ -1,0 +1,703 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <title>Exporting Validations to Javascript using Scala.js · GitBook</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.0.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="ScalaValidationExtensions.html" />
+    
+    
+    <link rel="prev" href="ScalaValidationMacros.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" >
+            
+                <span>
+            
+                    
+                    Features
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="ScalaValidationRule.html">
+            
+                <a href="ScalaValidationRule.html">
+            
+                    
+                    Validating and transforming data
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="ScalaValidationRuleCombinators.html">
+            
+                <a href="ScalaValidationRuleCombinators.html">
+            
+                    
+                    Combining Rules
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.3" data-path="ScalaValidationWrite.html">
+            
+                <a href="ScalaValidationWrite.html">
+            
+                    
+                    Serializing data with Write
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.4" data-path="ScalaValidationWriteCombinators.html">
+            
+                <a href="ScalaValidationWriteCombinators.html">
+            
+                    
+                    Combining Writes
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.5" data-path="ScalaValidationMacros.html">
+            
+                <a href="ScalaValidationMacros.html">
+            
+                    
+                    Validation Inception
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.2.6" data-path="ScalaJsValidation.html">
+            
+                <a href="ScalaJsValidation.html">
+            
+                    
+                    Exporting Validations to Javascript using Scala.js
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.7" data-path="ScalaValidationExtensions.html">
+            
+                <a href="ScalaValidationExtensions.html">
+            
+                    
+                    Extensions: Supporting new types
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.8" data-path="ScalaValidationCookbook.html">
+            
+                <a href="ScalaValidationCookbook.html">
+            
+                    
+                    Cookbook
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" >
+            
+                <span>
+            
+                    
+                    Migration
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="V2MigrationGuide.html">
+            
+                <a href="V2MigrationGuide.html">
+            
+                    
+                    v2.0 Migration guide
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="ScalaValidationMigrationForm.html">
+            
+                <a href="ScalaValidationMigrationForm.html">
+            
+                    
+                    Play's Form API migration
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="ScalaValidationMigrationJson.html">
+            
+                <a href="ScalaValidationMigrationJson.html">
+            
+                    
+                    Play's Json API migration
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="ReleaseNotes.html">
+            
+                <a href="ReleaseNotes.html">
+            
+                    
+                    Release notes
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="." >Exporting Validations to Javascript using Scala.js</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="exporting-validations-to-javascript-using-scalajs">Exporting Validations to Javascript using Scala.js</h1>
+<p>Validation 2.0 supports Scala.js, which allows compiling validation logic for JavaScript to run it directly in the browser. Let&apos;s begin by playing with it. Try to change the <code>tryMe</code> variable in the following editor. The result is automatically outputted.</p>
+<p><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.css"></p>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/mode/javascript/javascript.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/addon/edit/matchbrackets.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/addon/selection/active-line.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/theme/material.min.css">
+<style type="text/css">
+  .CodeMirror {
+    width: 350px;
+    float: left;
+    height: 300px;
+    font-size:13px;
+    margin: 10px;
+  }
+
+  #code-form {
+    overflow: auto;
+  }
+</style>
+<form id="code-form">
+<textarea id="json-form" rows="10" cols="50">
+// --------
+// Try editing the tryMe object
+// --------
+var tryMe = {
+  &quot;name&quot; : &quot;supercat&quot;,
+  &quot;age&quot; : 20,
+  &quot;email&quot; : &quot;e@mail.com&quot;,
+  &quot;isAlive&quot; : true
+};
+client.Validate().user(tryMe);
+</textarea>
+<textarea name="" id="validation-output" cols="40" rows="50"></textarea>
+</form>
+
+<script src="js-opt.js" type="text/javascript"></script>
+<script src="js-launcher.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+(function() {
+  var jsonFormTextarea = document.getElementById("json-form")
+  var editor = CodeMirror.fromTextArea(jsonFormTextarea, {
+    lineNumbers: true,
+    styleActiveLine: true,
+    matchBrackets: true,
+    theme: "material",
+    mode: {
+      name: "javascript",
+      json: true
+    }
+  });
+
+  var output = document.getElementById("validation-output")
+  var editorOutput = CodeMirror.fromTextArea(output, {
+    lineNumbers: true,
+    styleActiveLine: true,
+    matchBrackets: true,
+    theme: "material",
+    readonly: true,
+    mode: {
+      name: "javascript",
+      json: true
+    }
+  });
+
+  var demo = function(jsString) {
+    try {
+      var jsOut = eval(jsString);
+      var out = JSON.stringify(jsOut, null, 2);
+      editorOutput.setValue(out);
+    } catch(err) {
+      editorOutput.setValue(err.message);
+    }
+  };
+
+  demo(editor.getValue());
+
+  CodeMirror.on(editor, 'changes', function(ins, obj) {
+    var js = ins.getValue();
+    demo(js);
+  });
+})()
+</script>
+
+<p>Using validation from Scala.js is no different than any other Scala library. There is, however, some friction to integrate Scala.js into an existing Play + JavaScript, which we try to address in this document. Assuming no prior knowledge on Scala.js, we explain how to cross-compile and integrate validation logic into an existing Play/JavaScript application.</p>
+<p>You will first need to add two SBT plugins, Scala.js itself and <code>sbt-play-scalajs</code> to make it Scala.js and Play coexist nicely:</p>
+<pre><code class="lang-scala">scala&gt; cat(<span class="hljs-string">&quot;project/plugins.sbt&quot;</span>)
+addSbtPlugin(<span class="hljs-string">&quot;com.typesafe.play&quot;</span> % <span class="hljs-string">&quot;sbt-plugin&quot;</span>       % <span class="hljs-string">&quot;2.5.2&quot;</span>)
+addSbtPlugin(<span class="hljs-string">&quot;org.scala-js&quot;</span>      % <span class="hljs-string">&quot;sbt-scalajs&quot;</span>      % <span class="hljs-string">&quot;0.6.9&quot;</span>)
+addSbtPlugin(<span class="hljs-string">&quot;com.vmunier&quot;</span>       % <span class="hljs-string">&quot;sbt-play-scalajs&quot;</span> % <span class="hljs-string">&quot;0.3.0&quot;</span>)
+</code></pre>
+<p>Scala.js uses a separate compilation pass to transform Scala sources to a single <code>.js</code> file. Specifying which part of a Scala codebase should be processed by Scala.js is done by splitting the code in different SBT projects. This is usually done with 3 projects, one targeting the JVM, another one targeting JS, and a third one for code shared between the two. In case of a Play application it could look like the following:</p>
+<pre><code>&lt;project root&gt;
+ +- build.sbt
+ +- jvm
+ |   +- app
+ |   +- conf
+ |   +- public
+ |   +- test
+ +- js
+ |   +- src/main/scala
+ +- shared
+     +- src/main/scala
+</code></pre><p>Now let&apos;s look at a minimal <code>build.sbt</code> reflecting this structure. Information on the sbt settings are available on the <a href="https://www.scala-js.org/doc/project/cross-build.html" _target="blank">Scala.js documentation on cross build</a>, and on <a href="https://github.com/vmunier/sbt-play-scalajs" _target="blank"><code>sbt-play-scalajs</code> documentation</a>.</p>
+<pre><code class="lang-scala">scala&gt; cat(<span class="hljs-string">&quot;build.sbt&quot;</span>)
+<span class="hljs-keyword">val</span> scalaV = <span class="hljs-string">&quot;2.11.8&quot;</span>
+
+<span class="hljs-keyword">val</span> validationVersion = <span class="hljs-string">&quot;2.0&quot;</span>
+
+<span class="hljs-keyword">lazy</span> <span class="hljs-keyword">val</span> jvm = project
+  .in(file(<span class="hljs-string">&quot;jvm&quot;</span>))
+  .settings(
+    scalaVersion := scalaV,
+    scalaJSProjects := <span class="hljs-type">Seq</span>(js),
+    pipelineStages := <span class="hljs-type">Seq</span>(scalaJSProd),
+    libraryDependencies ++= <span class="hljs-type">Seq</span>(
+      <span class="hljs-string">&quot;com.vmunier&quot;</span>   %% <span class="hljs-string">&quot;play-scalajs-scripts&quot;</span> % <span class="hljs-string">&quot;0.5.0&quot;</span>,
+      <span class="hljs-string">&quot;io.github.jto&quot;</span> %% <span class="hljs-string">&quot;validation-core&quot;</span>      % validationVersion,
+      <span class="hljs-string">&quot;io.github.jto&quot;</span> %% <span class="hljs-string">&quot;validation-playjson&quot;</span>  % validationVersion,
+      <span class="hljs-string">&quot;io.github.jto&quot;</span> %% <span class="hljs-string">&quot;validation-jsonast&quot;</span>   % validationVersion))
+  .enablePlugins(<span class="hljs-type">PlayScala</span>)
+  .aggregate(js)
+  .dependsOn(sharedJVM)
+
+<span class="hljs-keyword">lazy</span> <span class="hljs-keyword">val</span> js = project
+  .in(file(<span class="hljs-string">&quot;js&quot;</span>))
+  .settings(
+    scalaVersion := scalaV,
+    persistLauncher := <span class="hljs-literal">true</span>,
+    libraryDependencies ++= <span class="hljs-type">Seq</span>(
+      <span class="hljs-string">&quot;io.github.jto&quot;</span> %%% <span class="hljs-string">&quot;validation-core&quot;</span>    % validationVersion,
+      <span class="hljs-string">&quot;io.github.jto&quot;</span> %%% <span class="hljs-string">&quot;validation-jsjson&quot;</span>  % validationVersion,
+      <span class="hljs-string">&quot;io.github.jto&quot;</span> %%% <span class="hljs-string">&quot;validation-jsonast&quot;</span> % validationVersion))
+  .enablePlugins(<span class="hljs-type">ScalaJSPlugin</span>, <span class="hljs-type">ScalaJSPlay</span>)
+  .dependsOn(sharedJS)
+
+<span class="hljs-keyword">lazy</span> <span class="hljs-keyword">val</span> sharedJVM = shared.jvm
+<span class="hljs-keyword">lazy</span> <span class="hljs-keyword">val</span> sharedJS  = shared.js
+<span class="hljs-keyword">lazy</span> <span class="hljs-keyword">val</span> shared    = crossProject.crossType(<span class="hljs-type">CrossType</span>.<span class="hljs-type">Pure</span>)
+  .in(file(<span class="hljs-string">&quot;shared&quot;</span>))
+  .settings(
+    scalaVersion := scalaV,
+    libraryDependencies ++= <span class="hljs-type">Seq</span>(
+      <span class="hljs-string">&quot;io.github.jto&quot;</span> %%% <span class="hljs-string">&quot;validation-core&quot;</span>    % validationVersion,
+      <span class="hljs-string">&quot;io.github.jto&quot;</span> %%% <span class="hljs-string">&quot;validation-jsonast&quot;</span> % validationVersion))
+  .jsConfigure(_.enablePlugins(<span class="hljs-type">ScalaJSPlay</span>))
+
+onLoad in <span class="hljs-type">Global</span> := (<span class="hljs-type">Command</span>.process(<span class="hljs-string">&quot;project jvm&quot;</span>, _: <span class="hljs-type">State</span>)) compose (onLoad in <span class="hljs-type">Global</span>).value
+</code></pre>
+<p>In addition to the <code>validation</code> dependency, we also included <code>play-scalajs-scripts</code>, which provides a convenient way to link the output of Scala.js compilation from a Play template:</p>
+<pre><code class="lang-scala">scala&gt; cat(<span class="hljs-string">&quot;jvm/app/views/main.scala.html&quot;</span>)
+@(title: <span class="hljs-type">String</span>)(content: <span class="hljs-type">Html</span>)(<span class="hljs-keyword">implicit</span> environment: play.api.<span class="hljs-type">Environment</span>)
+
+&lt;!<span class="hljs-type">DOCTYPE</span> html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;<span class="hljs-meta">@title</span>&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    <span class="hljs-meta">@content</span>
+    @* <span class="hljs-type">Outputs</span> a &lt;script&gt;&lt;/script&gt; tag to include the output of <span class="hljs-type">Scala</span>.js compilation. *@
+    <span class="hljs-meta">@playscalajs</span>.html.scripts(projectName = <span class="hljs-string">&quot;js&quot;</span>)
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>Let&apos;s define a simple case class for our example inside of the <code>shared</code> project to make it available to both JVM and JV platforms. We collocate a simple validation for this case class in its companion object:</p>
+<pre><code class="lang-scala">scala&gt; cat(<span class="hljs-string">&quot;shared/src/main/scala/User.scala&quot;</span>)
+<span class="hljs-keyword">package</span> model
+
+<span class="hljs-keyword">import</span> jto.validation._
+<span class="hljs-keyword">import</span> jto.validation.jsonast._
+<span class="hljs-keyword">import</span> scala.<span class="hljs-type">Function</span>.unlift
+
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span>(<span class="hljs-params">
+  name: <span class="hljs-type">String</span>,
+  age: <span class="hljs-type">Int</span>,
+  email: <span class="hljs-type">Option</span>[<span class="hljs-type">String</span>],
+  isAlive: <span class="hljs-type">Boolean</span>
+</span>)</span>
+
+<span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">User</span> </span>{
+  <span class="hljs-keyword">import</span> <span class="hljs-type">Rules</span>._, <span class="hljs-type">Writes</span>._
+  <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">val</span> format: <span class="hljs-type">Format</span>[<span class="hljs-type">JValue</span>, <span class="hljs-type">JObject</span>, <span class="hljs-type">User</span>] =
+    <span class="hljs-type">Formatting</span>[<span class="hljs-type">JValue</span>, <span class="hljs-type">JObject</span>] { __ =&gt;
+      (
+        (__ \ <span class="hljs-string">&quot;name&quot;</span>).format(notEmpty) ~
+        (__ \ <span class="hljs-string">&quot;age&quot;</span>).format(min(<span class="hljs-number">0</span>) |+| max(<span class="hljs-number">130</span>)) ~
+        (__ \ <span class="hljs-string">&quot;email&quot;</span>).format(optionR(email), optionW(stringW)) ~
+        (__ \ <span class="hljs-string">&quot;isAlive&quot;</span>).format[<span class="hljs-type">Boolean</span>]
+      )(<span class="hljs-type">User</span>.apply, unlift(<span class="hljs-type">User</span>.unapply))
+    }
+}
+</code></pre>
+<p>Note the use of <code>jto.validation.jsonast</code> here. This project implements in just a few lines of code an immutable version of the JSON specification based on Scala collections: (It might eventually be replaced with an external abstract syntax tree (AST), see discussion in <a href="https://github.com/scala/slip/pull/28" _target="blank">https://github.com/scala/slip/pull/28</a>)</p>
+<pre><code class="lang-scala">scala&gt; cat(<span class="hljs-string">&quot;../validation-jsonast/shared/src/main/scala/JValue.scala&quot;</span>)
+<span class="hljs-keyword">package</span> jto.validation
+<span class="hljs-keyword">package</span> jsonast
+
+<span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">JValue</span></span>
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">JNull</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">JValue</span></span>
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JObject</span> (<span class="hljs-params">value: <span class="hljs-type">Map</span>[<span class="hljs-type">String</span>, <span class="hljs-type">JValue</span>] = <span class="hljs-type">Map</span>.empty</span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">JValue</span></span>
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JArray</span>  (<span class="hljs-params">value: <span class="hljs-type">Seq</span>[<span class="hljs-type">JValue</span>] = <span class="hljs-type">Seq</span>.empty</span>)         <span class="hljs-keyword">extends</span> <span class="hljs-title">JValue</span></span>
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JBoolean</span>(<span class="hljs-params">value: <span class="hljs-type">Boolean</span></span>)                         <span class="hljs-keyword">extends</span> <span class="hljs-title">JValue</span></span>
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JString</span> (<span class="hljs-params">value: <span class="hljs-type">String</span></span>)                          <span class="hljs-keyword">extends</span> <span class="hljs-title">JValue</span></span>
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">JNumber</span> (<span class="hljs-params">value: <span class="hljs-type">String</span></span>)                          <span class="hljs-keyword">extends</span> <span class="hljs-title">JValue</span> </span>{
+  require(<span class="hljs-type">JNumber</span>.regex.matcher(value).matches)
+}
+
+<span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">JNumber</span> </span>{
+  <span class="hljs-keyword">val</span> regex = <span class="hljs-string">&quot;&quot;</span><span class="hljs-string">&quot;-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?&quot;</span><span class="hljs-string">&quot;&quot;</span>.r.pattern
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">apply</span></span>(i: <span class="hljs-type">Int</span>): <span class="hljs-type">JNumber</span> = <span class="hljs-type">JNumber</span>(i.toString)
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">apply</span></span>(l: <span class="hljs-type">Long</span>): <span class="hljs-type">JNumber</span> = <span class="hljs-type">JNumber</span>(l.toString)
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">apply</span></span>(d: <span class="hljs-type">Double</span>): <span class="hljs-type">JNumber</span> = <span class="hljs-type">JNumber</span>(d.toString)
+}
+</code></pre>
+<p>This AST has the same capabilities than other JSON representations, but it does no provide a parser nor a pretty printer. The suggested approach here is to use conversions from this cross compiled AST to platform specific ones to take advantage of existing platform specific serialization. To do so, Validation provides the following <code>Rule</code>s and <code>Write</code>s, defined in <code>jto.validation.jsonast</code>:</p>
+<ul>
+<li><code>Ast.from: Rule[play.api.libs.json.JsValue, JValue]</code></li>
+<li><code>Ast.to:   Write[JValue, play.api.libs.json.JsValue]</code></li>
+<li><code>Ast.from: Rule[scala.scalajs.jsDynamic, JValue]</code></li>
+<li><code>Ast.to:   Write[JValue, scala.scalajs.jsDynamic]</code></li>
+</ul>
+<p>To use our previously defined validation, we could compose what we defined targeting the cross compiling JSON AST with the above <code>Rule</code>s / <code>Write</code>s to finally obtain platform-specific validation.</p>
+<p>One last technicality about Scala.js is the <code>@JSExport</code> annotation, which is used to explicitly expose Scala objects and methods to the javascript world. To complete our example, we define and expose a single method taking a JSON representation of our case class and returning the output of our validation, also a JSON:</p>
+<pre><code class="lang-scala">scala&gt; cat(<span class="hljs-string">&quot;js/src/main/scala/Validate.scala&quot;</span>)
+<span class="hljs-keyword">package</span> client
+
+<span class="hljs-keyword">import</span> jto.validation._
+<span class="hljs-keyword">import</span> jto.validation.jsonast.<span class="hljs-type">Ast</span>
+<span class="hljs-keyword">import</span> jto.validation.jsjson._
+<span class="hljs-keyword">import</span> scala.scalajs.js
+<span class="hljs-keyword">import</span> js.annotation.<span class="hljs-type">JSExport</span>
+<span class="hljs-keyword">import</span> model.<span class="hljs-type">User</span>
+<span class="hljs-keyword">import</span> scala.<span class="hljs-type">Function</span>.{unlift, const}
+
+<span class="hljs-meta">@JSExport</span>
+<span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">Validate</span> </span>{
+  <span class="hljs-meta">@JSExport</span>
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">user</span></span>(json: js.<span class="hljs-type">Dynamic</span>): js.<span class="hljs-type">Dynamic</span> = {
+    <span class="hljs-keyword">import</span> <span class="hljs-type">Writes</span>._
+
+    <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">val</span> format: <span class="hljs-type">Format</span>[js.<span class="hljs-type">Dynamic</span>, js.<span class="hljs-type">Dynamic</span>, <span class="hljs-type">User</span>] = <span class="hljs-type">Format</span>(
+      <span class="hljs-type">Ast</span>.from andThen <span class="hljs-type">User</span>.format,
+      <span class="hljs-type">Write</span>.toWrite(<span class="hljs-type">User</span>.format) andThen <span class="hljs-type">Ast</span>.to
+    )
+
+    <span class="hljs-type">To</span>[<span class="hljs-type">VA</span>[<span class="hljs-type">User</span>], js.<span class="hljs-type">Dynamic</span>](format.validate(json))
+  }
+}
+</code></pre>
+<p>Finally, we can create a simple view with a textarea which validates it&apos;s content on every keystroke:</p>
+<pre><code class="lang-scala">scala&gt; cat(<span class="hljs-string">&quot;jvm/app/views/index.scala.html&quot;</span>)
+@(json: <span class="hljs-type">String</span>)(<span class="hljs-keyword">implicit</span> environment: play.api.<span class="hljs-type">Environment</span>)
+
+<span class="hljs-meta">@main</span>(<span class="hljs-string">&quot;Play Scala.js Validation&quot;</span>) {
+  &lt;textarea id=<span class="hljs-string">&quot;json-form&quot;</span> rows=<span class="hljs-string">&quot;10&quot;</span> cols=<span class="hljs-string">&quot;40&quot;</span>&gt;<span class="hljs-meta">@json</span>&lt;/textarea&gt;
+  &lt;pre id=<span class="hljs-string">&quot;validation-output&quot;</span>&gt;&lt;/pre&gt;
+}
+
+&lt;script <span class="hljs-class"><span class="hljs-keyword">type</span></span>=<span class="hljs-string">&quot;text/javascript&quot;</span>&gt;
+  <span class="hljs-keyword">var</span> validationOutputPre = document.getElementById(<span class="hljs-string">&quot;validation-output&quot;</span>)
+  <span class="hljs-keyword">var</span> jsonFormTextarea = document.getElementById(<span class="hljs-string">&quot;json-form&quot;</span>)
+
+  <span class="hljs-keyword">var</span> demo = function() {
+    <span class="hljs-keyword">try</span> {
+      <span class="hljs-keyword">var</span> json = <span class="hljs-type">JSON</span>.parse(jsonFormTextarea.value);
+      validationOutputPre.innerHTML =
+        <span class="hljs-type">JSON</span>.stringify(client.<span class="hljs-type">Validate</span>().user(json), <span class="hljs-literal">null</span>, <span class="hljs-number">2</span>);
+    } <span class="hljs-keyword">catch</span>(err) {
+      validationOutputPre.innerHTML = err.message;
+    }
+  };
+
+  jsonFormTextarea.addEventListener(<span class="hljs-symbol">&apos;inpu</span>t&apos;, demo, <span class="hljs-literal">false</span>);
+  demo();
+&lt;/script&gt;
+</code></pre>
+<p>This complete code of this example is available in the <a href="https://github.com/jto/validation/tree/v2.0/play-scalajs-example" _target="blank">play-scalajs-example</a> subproject. The binary used to power the editor at the beginning of this page was generated by running Play in production mode, which fully optimizes the output of Scala.js compilation using the Google Closure Compiler to obtain a final .js file under 100KB once gzipped.</p>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="ScalaValidationMacros.html" class="navigation navigation-prev " aria-label="Previous page: Validation Inception">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="ScalaValidationExtensions.html" class="navigation navigation-next " aria-label="Next page: Extensions: Supporting new types">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Exporting Validations to Javascript using Scala.js","level":"1.2.6","depth":2,"next":{"title":"Extensions: Supporting new types","level":"1.2.7","depth":2,"path":"ScalaValidationExtensions.md","ref":"ScalaValidationExtensions.md","articles":[]},"previous":{"title":"Validation Inception","level":"1.2.5","depth":2,"path":"ScalaValidationMacros.md","ref":"ScalaValidationMacros.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":[],"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"ScalaJsValidation.md","mtime":"2016-06-24T15:39:39.000Z","type":"markdown"},"gitbook":{"version":"3.0.2","time":"2016-06-24T15:40:18.647Z"},"basePath":".","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="gitbook/gitbook.js"></script>
+    <script src="gitbook/theme.js"></script>
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="gitbook/gitbook-plugin-fontsettings/buttons.js"></script>
+        
+    
+
+    </body>
+</html>
+

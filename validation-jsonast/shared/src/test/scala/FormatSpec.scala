@@ -1,7 +1,6 @@
 import jto.validation._
-import jto.validation.json4s._
+import jto.validation.jsonast._
 import org.scalatest._
-import org.json4s.ast.safe._
 import scala.Function.unlift
 
 class FormatSpec extends WordSpec with Matchers {
@@ -51,8 +50,8 @@ class FormatSpec extends WordSpec with Matchers {
       val f = Formatting[JValue, JObject] { __ =>
         (__ \ "ids").format[Seq[String]]
       }
-      val m =
-        JObject(Map("ids" -> JArray(JString("CAFEBABE"), JString("FOOBAR"))))
+      val m = JObject(
+          Map("ids" -> JArray(Seq(JString("CAFEBABE"), JString("FOOBAR")))))
 
       f.validate(m) shouldBe (Valid(Seq("CAFEBABE", "FOOBAR")))
       f.writes(Seq("CAFEBABE", "FOOBAR")) shouldBe (m)
@@ -257,25 +256,26 @@ class FormatSpec extends WordSpec with Matchers {
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format[Map[String, Seq[String]]]
         }.validate(JObject(Map("n" -> JObject(Map("foo" -> JArray(
-                                JString("bar"))))))) shouldBe (Valid(
+                                Seq(JString("bar")))))))) shouldBe (Valid(
                 Map("foo" -> Seq("bar"))))
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format[Map[String, Seq[Int]]]
         }.validate(JObject(Map("n" -> JObject(
-                        Map("foo" -> JArray(JNumber(4)),
-                            "bar" -> JArray(JNumber(5))))))) shouldBe (Valid(
+                        Map("foo" -> JArray(Seq(JNumber(4))),
+                            "bar" -> JArray(Seq(JNumber(5)))))))) shouldBe (Valid(
                 Map("foo" -> Seq(4), "bar" -> Seq(5))))
         Formatting[JValue, JObject] { __ =>
           (__ \ "x").format[Map[String, Int]]
-        }.validate(JObject(Map("n" -> JObject(
-                        Map("foo" -> JNumber(4),
+        }.validate(JObject(Map("n" -> JObject(Map(
+                            "foo" -> JNumber(4),
                             "bar" -> JString("frack")))))) shouldBe (Invalid(
                 Seq(Path \ "x" -> Seq(ValidationError("error.required")))))
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format[Map[String, Seq[Int]]]
-        }.validate(JObject(Map("n" -> JObject(
-                        Map("foo" -> JArray(JNumber(4)),
-                            "bar" -> JArray(JString("frack"))))))) shouldBe (Invalid(
+        }.validate(JObject(
+                Map("n" -> JObject(Map("foo" -> JArray(Seq(JNumber(4))),
+                                       "bar" -> JArray(Seq(JString(
+                                                   "frack")))))))) shouldBe (Invalid(
                 Seq(Path \ "n" \ "bar" \ 0 -> Seq(
                         ValidationError("error.number", "Int")))))
       }
@@ -283,21 +283,22 @@ class FormatSpec extends WordSpec with Matchers {
       "Traversable" in {
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format[Traversable[String]]
-        }.validate(JObject(Map("n" -> JArray(JString("foo")))))
+        }.validate(JObject(Map("n" -> JArray(Seq(JString("foo"))))))
           .toOption
           .get
           .toSeq shouldBe (Seq("foo"))
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format[Traversable[Int]]
         }.validate(JObject(
-                  Map("n" -> JArray(JNumber(1), JNumber(2), JNumber(3)))))
+                  Map("n" -> JArray(Seq(JNumber(1), JNumber(2), JNumber(3))))))
           .toOption
           .get
           .toSeq shouldBe (Seq(1, 2, 3))
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format[Traversable[Int]]
-        }.validate(JObject(Map("n" -> JArray(JString("1"), JString("paf"))))) shouldBe (Invalid(
-                Seq(
+        }.validate(JObject(Map("n" -> JArray(Seq(
+                            JString("1"),
+                            JString("paf")))))) shouldBe (Invalid(Seq(
                     Path \ "n" \ 0 -> Seq(
                         ValidationError("error.number", "Int")),
                     Path \ "n" \ 1 -> Seq(
@@ -308,21 +309,22 @@ class FormatSpec extends WordSpec with Matchers {
       "Array" in {
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format[Array[String]]
-        }.validate(JObject(Map("n" -> JArray(JString("foo")))))
+        }.validate(JObject(Map("n" -> JArray(Seq(JString("foo"))))))
           .toOption
           .get
           .toSeq shouldBe (Seq("foo"))
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format[Array[Int]]
         }.validate(JObject(
-                  Map("n" -> JArray(JNumber(1), JNumber(2), JNumber(3)))))
+                  Map("n" -> JArray(Seq(JNumber(1), JNumber(2), JNumber(3))))))
           .toOption
           .get
           .toSeq shouldBe (Seq(1, 2, 3))
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format[Array[Int]]
-        }.validate(JObject(Map("n" -> JArray(JString("1"), JString("paf"))))) shouldBe (Invalid(
-                Seq(
+        }.validate(JObject(Map("n" -> JArray(Seq(
+                            JString("1"),
+                            JString("paf")))))) shouldBe (Invalid(Seq(
                     Path \ "n" \ 0 -> Seq(
                         ValidationError("error.number", "Int")),
                     Path \ "n" \ 1 -> Seq(
@@ -333,18 +335,20 @@ class FormatSpec extends WordSpec with Matchers {
       "Seq" in {
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format[Seq[String]]
-        }.validate(JObject(Map("n" -> JArray(JString("foo"))))).toOption.get shouldBe (Seq(
-                "foo"))
+        }.validate(JObject(Map("n" -> JArray(Seq(JString("foo"))))))
+          .toOption
+          .get shouldBe (Seq("foo"))
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format[Seq[Int]]
         }.validate(JObject(
-                  Map("n" -> JArray(JNumber(1), JNumber(2), JNumber(3)))))
+                  Map("n" -> JArray(Seq(JNumber(1), JNumber(2), JNumber(3))))))
           .toOption
           .get shouldBe (Seq(1, 2, 3))
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format[Seq[Int]]
-        }.validate(JObject(Map("n" -> JArray(JString("1"), JString("paf"))))) shouldBe (Invalid(
-                Seq(
+        }.validate(JObject(Map("n" -> JArray(Seq(
+                            JString("1"),
+                            JString("paf")))))) shouldBe (Invalid(Seq(
                     Path \ "n" \ 0 -> Seq(
                         ValidationError("error.number", "Int")),
                     Path \ "n" \ 1 -> Seq(
@@ -382,15 +386,15 @@ class FormatSpec extends WordSpec with Matchers {
       import Writes._
 
       val valid = JObject(
-          Map("firstname" -> JArray(JString("Julien")),
+          Map("firstname" -> JArray(Seq(JString("Julien"))),
               "foobar" -> JArray(),
               "lastname" -> JString("Tournay"),
               "age" -> JNumber(27),
               "information" -> JObject(
                   Map("label" -> JString("Personal"),
                       "email" -> JString("fakecontact@gmail.com"),
-                      "phones" -> JArray(JString("01.23.45.67.89"),
-                                         JString("98.76.54.32.10"))))))
+                      "phones" -> JArray(Seq(JString("01.23.45.67.89"),
+                                             JString("98.76.54.32.10")))))))
 
       def isNotEmpty[T <: Traversable[_]] = validateWith[T]("error.notEmpty") {
         !_.isEmpty
@@ -414,8 +418,8 @@ class FormatSpec extends WordSpec with Matchers {
 
       val m = JObject(
           Map("name" -> JString("bob"),
-              "friends" -> JArray(JObject(
-                      Map("name" -> JString("tom"), "friends" -> JArray())))))
+              "friends" -> JArray(Seq(JObject(Map("name" -> JString("tom"),
+                                                  "friends" -> JArray()))))))
 
       case class User1(name: String, friend: Option[User1] = None)
       val u1 = User1("bob", Some(User1("tom")))

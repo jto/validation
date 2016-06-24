@@ -1,7 +1,7 @@
 import jto.validation._
-import jto.validation.json4s.Writes._
+import jto.validation.jsonast._
+import jto.validation.jsonast.Writes._
 import org.scalatest._
-import org.json4s.ast.safe._
 import scala.Function.unlift
 
 class WritesSpec extends WordSpec with Matchers {
@@ -23,14 +23,16 @@ class WritesSpec extends WordSpec with Matchers {
                              Some("fakecontact@gmail.com"),
                              Seq("01.23.45.67.89", "98.76.54.32.10"))))
 
-  val contactJson = JObject(
-      Map("firstname" -> JString("Julien"),
+  val contactJson = JObject(Map(
+          "firstname" -> JString("Julien"),
           "lastname" -> JString("Tournay"),
-          "informations" -> JArray(
-              JObject(Map("label" -> JString("Personal"),
+          "informations" -> JArray(Seq(JObject(
+                      Map(
+                          "label" -> JString("Personal"),
                           "email" -> JString("fakecontact@gmail.com"),
-                          "phones" -> JArray(JString("01.23.45.67.89"),
-                                             JString("98.76.54.32.10")))))))
+                          "phones" -> JArray(Seq(
+                                  JString("01.23.45.67.89"),
+                                  JString("98.76.54.32.10")))))))))
 
   "Writes" should {
 
@@ -61,8 +63,8 @@ class WritesSpec extends WordSpec with Matchers {
     "write seq" in {
       val w = (Path \ "phones").write[Seq[String], JObject]
       w.writes(Seq("01.23.45.67.89", "98.76.54.32.10")) shouldBe JObject(
-          Map("phones" -> JArray(JString("01.23.45.67.89"),
-                                 JString("98.76.54.32.10"))))
+          Map("phones" -> JArray(Seq(JString("01.23.45.67.89"),
+                                     JString("98.76.54.32.10")))))
       w.writes(Nil) shouldBe JObject(Map("phones" -> JArray()))
     }
 
@@ -109,8 +111,8 @@ class WritesSpec extends WordSpec with Matchers {
       }
 
       "Double" in {
-        (Path \ "n").write[Double, JObject].writes(4d) shouldBe (JObject(
-                Map("n" -> JNumber(4.0))))
+        (Path \ "n").write[Double, JObject].writes(4.1d) shouldBe (JObject(
+                Map("n" -> JNumber(4.1))))
         (Path \ "n" \ "o").write[Double, JObject].writes(4.5d) shouldBe (JObject(
                 Map("n" -> JObject(Map("o" -> JNumber(4.5))))))
         (Path \ "n" \ "o" \ "p").write[Double, JObject].writes(4.5d) shouldBe (JObject(
@@ -120,8 +122,8 @@ class WritesSpec extends WordSpec with Matchers {
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
-        (Path \ "n").write[jBigDecimal, JObject].writes(new jBigDecimal("4.0")) shouldBe (JObject(
-                Map("n" -> JNumber(4.0))))
+        (Path \ "n").write[jBigDecimal, JObject].writes(new jBigDecimal("4.2")) shouldBe (JObject(
+                Map("n" -> JNumber(4.2))))
         (Path \ "n" \ "o")
           .write[jBigDecimal, JObject]
           .writes(new jBigDecimal("4.5")) shouldBe (JObject(
@@ -133,8 +135,8 @@ class WritesSpec extends WordSpec with Matchers {
       }
 
       "scala BigDecimal" in {
-        (Path \ "n").write[BigDecimal, JObject].writes(BigDecimal("4.0")) shouldBe (JObject(
-                Map("n" -> JNumber(4.0))))
+        (Path \ "n").write[BigDecimal, JObject].writes(BigDecimal("4")) shouldBe (JObject(
+                Map("n" -> JNumber(4))))
         (Path \ "n" \ "o").write[BigDecimal, JObject].writes(BigDecimal("4.5")) shouldBe (JObject(
                 Map("n" -> JObject(Map("o" -> JNumber(4.5))))))
         (Path \ "n" \ "o" \ "p")
@@ -185,16 +187,17 @@ class WritesSpec extends WordSpec with Matchers {
         (Path \ "n")
           .write[Map[String, Seq[String]], JObject]
           .writes(Map("foo" -> Seq("bar"))) shouldBe (JObject(
-                Map("n" -> JObject(Map("foo" -> JArray(JString("bar")))))))
+                Map("n" -> JObject(
+                        Map("foo" -> JArray(Seq(JString("bar"))))))))
         (Path \ "n")
           .write[Map[String, Seq[Int]], JObject]
           .writes(Map("foo" -> Seq(4))) shouldBe (JObject(
-                Map("n" -> JObject(Map("foo" -> JArray(JNumber(4)))))))
+                Map("n" -> JObject(Map("foo" -> JArray(Seq(JNumber(4))))))))
         (Path \ "n" \ "o")
           .write[Map[String, Seq[Int]], JObject]
           .writes(Map("foo" -> Seq(4))) shouldBe (JObject(
                 Map("n" -> JObject(Map("o" -> JObject(
-                                Map("foo" -> JArray(JNumber(4)))))))))
+                                Map("foo" -> JArray(Seq(JNumber(4))))))))))
         (Path \ "n" \ "o")
           .write[Map[String, Int], JObject]
           .writes(Map("foo" -> 4)) shouldBe (JObject(Map("n" -> JObject(
@@ -207,16 +210,18 @@ class WritesSpec extends WordSpec with Matchers {
         (Path \ "n")
           .write[Traversable[String], JObject]
           .writes(Array("foo", "bar")) shouldBe (JObject(
-                Map("n" -> JArray(JString("foo"), JString("bar")))))
+                Map("n" -> JArray(Seq(JString("foo"), JString("bar"))))))
         (Path \ "n" \ "o")
           .write[Traversable[String], JObject]
-          .writes(Array("foo", "bar")) shouldBe (JObject(Map("n" -> JObject(
-                        Map("o" -> JArray(JString("foo"), JString("bar")))))))
+          .writes(Array("foo", "bar")) shouldBe (JObject(
+                Map("n" -> JObject(Map("o" -> JArray(Seq(JString("foo"),
+                                                         JString("bar"))))))))
         (Path \ "n" \ "o" \ "p")
           .write[Traversable[String], JObject]
           .writes(Array("foo", "bar")) shouldBe (JObject(
-                Map("n" -> JObject(Map("o" -> JObject(Map("p" -> JArray(
-                                        JString("foo"), JString("bar")))))))))
+                Map("n" -> JObject(Map("o" -> JObject(
+                                Map("p" -> JArray(Seq(JString("foo"),
+                                                      JString("bar"))))))))))
 
         (Path \ "n")
           .write[Traversable[String], JObject]
@@ -233,16 +238,18 @@ class WritesSpec extends WordSpec with Matchers {
 
       "Array" in {
         (Path \ "n").write[Array[String], JObject].writes(Array("foo", "bar")) shouldBe (JObject(
-                Map("n" -> JArray(JString("foo"), JString("bar")))))
+                Map("n" -> JArray(Seq(JString("foo"), JString("bar"))))))
         (Path \ "n" \ "o")
           .write[Array[String], JObject]
-          .writes(Array("foo", "bar")) shouldBe (JObject(Map("n" -> JObject(
-                        Map("o" -> JArray(JString("foo"), JString("bar")))))))
+          .writes(Array("foo", "bar")) shouldBe (JObject(
+                Map("n" -> JObject(Map("o" -> JArray(Seq(JString("foo"),
+                                                         JString("bar"))))))))
         (Path \ "n" \ "o" \ "p")
           .write[Array[String], JObject]
           .writes(Array("foo", "bar")) shouldBe (JObject(
-                Map("n" -> JObject(Map("o" -> JObject(Map("p" -> JArray(
-                                        JString("foo"), JString("bar")))))))))
+                Map("n" -> JObject(Map("o" -> JObject(
+                                Map("p" -> JArray(Seq(JString("foo"),
+                                                      JString("bar"))))))))))
 
         (Path \ "n").write[Array[String], JObject].writes(Array()) shouldBe (JObject(
                 Map("n" -> JArray())))
@@ -255,16 +262,18 @@ class WritesSpec extends WordSpec with Matchers {
 
       "Seq" in {
         (Path \ "n").write[Seq[String], JObject].writes(Seq("foo", "bar")) shouldBe (JObject(
-                Map("n" -> JArray(JString("foo"), JString("bar")))))
+                Map("n" -> JArray(Seq(JString("foo"), JString("bar"))))))
         (Path \ "n" \ "o")
           .write[Seq[String], JObject]
-          .writes(Seq("foo", "bar")) shouldBe (JObject(Map("n" -> JObject(
-                        Map("o" -> JArray(JString("foo"), JString("bar")))))))
+          .writes(Seq("foo", "bar")) shouldBe (JObject(
+                Map("n" -> JObject(Map("o" -> JArray(Seq(JString("foo"),
+                                                         JString("bar"))))))))
         (Path \ "n" \ "o" \ "p")
           .write[Seq[String], JObject]
           .writes(Seq("foo", "bar")) shouldBe (JObject(
-                Map("n" -> JObject(Map("o" -> JObject(Map("p" -> JArray(
-                                        JString("foo"), JString("bar")))))))))
+                Map("n" -> JObject(Map("o" -> JObject(
+                                Map("p" -> JArray(Seq(JString("foo"),
+                                                      JString("bar"))))))))))
 
         (Path \ "n").write[Seq[String], JObject].writes(Nil) shouldBe (JObject(
                 Map("n" -> JArray())))
@@ -286,8 +295,8 @@ class WritesSpec extends WordSpec with Matchers {
 
       w.writes(v) shouldBe JObject(
           Map("email" -> JString("jto@foobar.com"),
-              "phones" -> JArray(JString("01.23.45.67.89"),
-                                 JString("98.76.54.32.10"))))
+              "phones" -> JArray(Seq(JString("01.23.45.67.89"),
+                                     JString("98.76.54.32.10")))))
       w.writes(Some("jto@foobar.com") -> Nil) shouldBe JObject(
           Map("email" -> JString("jto@foobar.com"), "phones" -> JArray()))
       w.writes(None -> Nil) shouldBe JObject(Map("phones" -> JArray()))
@@ -335,8 +344,8 @@ class WritesSpec extends WordSpec with Matchers {
 
       val m = JObject(
           Map("name" -> JString("bob"),
-              "friends" -> JArray(JObject(
-                      Map("name" -> JString("tom"), "friends" -> JArray())))))
+              "friends" -> JArray(Seq(JObject(Map("name" -> JString("tom"),
+                                                  "friends" -> JArray()))))))
 
       case class User1(name: String, friend: Option[User1] = None)
       val u1 = User1("bob", Some(User1("tom")))
@@ -385,6 +394,15 @@ class WritesSpec extends WordSpec with Matchers {
       }
 
       w.writes(Id("1")) shouldBe JObject(Map("id" -> JString("1")))
+    }
+
+    "write VA" in {
+      val o = JObject(Map("a" -> JString("string")))
+
+      To[VA[JObject], JObject](Valid(o)) shouldBe JObject(
+          Map("isValid" -> JBoolean(true),
+              "output" -> o,
+              "errors" -> JNull))
     }
   }
 }

@@ -6,7 +6,6 @@ val license = ("Apache License", url("http://www.apache.org/licenses/LICENSE-2.0
 val catsVersion = "0.6.0"
 val jodaConvertVersion = "1.8.1"
 val jodaTimeVersion = "2.9.4"
-val json4sAstVersion = "4.0.0-M1"
 val kindProjectorVersion = "0.7.1"
 val parserCombinatorsVersion = "1.0.2"
 val playVersion = "2.5.3"
@@ -14,11 +13,9 @@ val scalacVersion = "2.11.8"
 val scalatestVersion = "3.0.0-M16-SNAP6"
 val scalaXmlVersion = "1.0.5"
 
-val json4sAST = libraryDependencies += "org.json4s" %%% "json4s-ast" % json4sAstVersion
-
 lazy val root = aggregate("validation", validationJVM, validationJS, docs).in(file("."))
-lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-playjson`, `validation-xml`, `date-tests`)
-lazy val validationJS = aggregate("validationJS", coreJS, formJS, delimitedJS, json4sJS, `validation-jsjson`)
+lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, jsonAstJVM, `validation-playjson`, `validation-xml`, `date-tests`)
+lazy val validationJS = aggregate("validationJS", coreJS, formJS, delimitedJS, jsonAstJS, `validation-jsjson`)
 
 lazy val `validation-core` = crossProject
   .crossType(CrossType.Pure)
@@ -48,14 +45,15 @@ lazy val delimitedJVM = `validation-delimited`.jvm
 lazy val delimitedJS = `validation-delimited`.js
 lazy val delimited = aggregate("validation-delimited", delimitedJVM, delimitedJS)
 
-lazy val `validation-json4s` = crossProject
-  .crossType(CrossType.Pure)
+lazy val `validation-jsonast` = crossProject
+  .crossType(CrossType.Full)
   .settings(validationSettings: _*)
-  .settings(json4sAST)
   .dependsOn(`validation-core`)
-lazy val json4sJVM = `validation-json4s`.jvm
-lazy val json4sJS = `validation-json4s`.js
-lazy val json4s = aggregate("validation-json4s", json4sJVM, json4sJS)
+  .jvmSettings(libraryDependencies +=
+    "com.typesafe.play" %% "play-json" % playVersion)
+lazy val jsonAstJVM = `validation-jsonast`.jvm
+lazy val jsonAstJS = `validation-jsonast`.js
+lazy val jsonAst = aggregate("validation-jsonast", jsonAstJVM, jsonAstJS)
 
 lazy val `validation-playjson` = project
   .settings(validationSettings: _*)
@@ -80,13 +78,12 @@ lazy val docs = project
   .settings(crossTarget := file(".") / "docs" / "target")
   .settings(tutSettings: _*)
   .settings(scalacOptions -= "-Ywarn-unused-import")
-  .dependsOn(coreJVM, formJVM, delimitedJVM, json4sJVM, `validation-playjson`, `validation-xml`)
+  .dependsOn(coreJVM, formJVM, delimitedJVM, jsonAstJVM, `validation-playjson`, `validation-xml`)
 
 lazy val `date-tests` = project
   .settings(validationSettings: _*)
   .settings(dontPublish: _*)
-  .settings(json4sAST)
-  .dependsOn(coreJVM, formJVM, json4sJVM, `validation-playjson`, `validation-xml`)
+  .dependsOn(coreJVM, formJVM, jsonAstJVM, `validation-playjson`, `validation-xml`)
 
 def aggregate(name: String, projects: ProjectReference*): Project =
   Project(name, file("." + name))
@@ -104,7 +101,7 @@ lazy val settings = Seq(
   testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
   scalaJSStage in Global := FastOptStage,
   parallelExecution := false
-) ++ reformatOnCompileSettings
+)
 
 val commonScalacOptions = Seq(
   "-deprecation",

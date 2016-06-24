@@ -11,7 +11,7 @@
     ```sh
     git checkout gh-pages
     git checkout master .
-    sh misc/build-book.sh
+    sh scripts/build-book.sh
     git add .
     git commit -am "Update book"
     git push

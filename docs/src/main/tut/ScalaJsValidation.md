@@ -90,7 +90,7 @@ client.Validate().user(tryMe);
 })()
 </script>
 
-Using validation from Scala.js is no different than any other Scala library. There is, however, some friction to integrate Scala.js into an existing Play + JavaScript, which we try to address in this document. Assuming no prior knowledge on Scala.js, we explain how to cross compiled and integrate validation logic into an existing Play/JavaScript application.
+Using validation from Scala.js is no different than any other Scala library. There is, however, some friction to integrate Scala.js into an existing Play + JavaScript, which we try to address in this document. Assuming no prior knowledge on Scala.js, we explain how to cross-compile and integrate validation logic into an existing Play/JavaScript application.
 
 You will first need to add two SBT plugins, Scala.js itself and `sbt-play-scalajs` to make it Scala.js and Play coexist nicely:
 
@@ -98,7 +98,7 @@ You will first need to add two SBT plugins, Scala.js itself and `sbt-play-scalaj
 cat("project/plugins.sbt")
 ```
 
-Scala.js uses a separate compilation pass to transforms Scala sources to single `.js` file. Specifying which part of a Scala codebase should be processed by Scala.js is done by splitting the code in different SBT project. This is usually done with 3 projects, one targeting the JVM, another one targeting JS, and a third one for code shared between the two. In case of a Play application it could look like the following:
+Scala.js uses a separate compilation pass to transform Scala sources to a single `.js` file. Specifying which part of a Scala codebase should be processed by Scala.js is done by splitting the code in different SBT projects. This is usually done with 3 projects, one targeting the JVM, another one targeting JS, and a third one for code shared between the two. In case of a Play application it could look like the following:
 
 ```
 <project root>
@@ -126,19 +126,19 @@ In addition to the `validation` dependency, we also included `play-scalajs-scrip
 cat("jvm/app/views/main.scala.html")
 ```
 
-Let's define a simple case class for our example, inside of the `shared` project to make it available to both JVM and JV platforms. We collocate a simple validation for this case class in its companion object:
+Let's define a simple case class for our example inside of the `shared` project to make it available to both JVM and JV platforms. We collocate a simple validation for this case class in its companion object:
 
 ```tut
 cat("shared/src/main/scala/User.scala")
 ```
 
-Note the use of `jto.validation.jsonast` here. This project implements an immutable version of the JSON specification based on Scala collections, which is can be done in a few lines: (might eventually be replaced with an external abstract syntax tree (AST), see discussion in <https://github.com/scala/slip/pull/28>)
+Note the use of `jto.validation.jsonast` here. This project implements in just a few lines of code an immutable version of the JSON specification based on Scala collections: (It might eventually be replaced with an external abstract syntax tree (AST), see discussion in <https://github.com/scala/slip/pull/28>)
 
 ```tut
 cat("../validation-jsonast/shared/src/main/scala/JValue.scala")
 ```
 
-This AST has the same capabilities than other JSON representation, but you useful in practice you would typically need parsers/pretty printer to a String or javascript representation. The suggested approach here is to use conversions from this cross compiled AST to platform specific onces, in order to take advantage of existing platform specific serialization. To do so, validation provide the following `Rule`s and `Write`s, defined in `jto.validation.jsonast`:
+This AST has the same capabilities than other JSON representations, but it does no provide a parser nor a pretty printer. The suggested approach here is to use conversions from this cross compiled AST to platform specific ones to take advantage of existing platform specific serialization. To do so, Validation provides the following `Rule`s and `Write`s, defined in `jto.validation.jsonast`:
 
 - `Ast.from: Rule[play.api.libs.json.JsValue, JValue]`
 - `Ast.to:   Write[JValue, play.api.libs.json.JsValue]`
@@ -147,7 +147,7 @@ This AST has the same capabilities than other JSON representation, but you usefu
 
 To use our previously defined validation, we could compose what we defined targeting the cross compiling JSON AST with the above `Rule`s / `Write`s to finally obtain platform-specific validation.
 
-One last technicality about Scala.js is the `@JSExport` annotation, which is used to explicitly exposed Scala objects and methods to the javascript world. To complete our example, we define and expose a single method taking a JSON representation of our case class and returning the output of our validation, also a JSON:
+One last technicality about Scala.js is the `@JSExport` annotation, which is used to explicitly expose Scala objects and methods to the javascript world. To complete our example, we define and expose a single method taking a JSON representation of our case class and returning the output of our validation, also a JSON:
 
 ```tut
 cat("js/src/main/scala/Validate.scala")
@@ -159,4 +159,4 @@ Finally, we can create a simple view with a textarea which validates it's conten
 cat("jvm/app/views/index.scala.html")
 ```
 
-This complete code of this example is available in the [play-scalajs-example](https://github.com/jto/validation/tree/v2.0/play-scalajs-example) subproject. The binary used to power the editor at the beginning of this page was generated by running Play in production mode, which fully optimizes the output of Scala.js compilation using the Google Closure Compiler to obtain a final .js file under 100KB gzipped.
+This complete code of this example is available in the [play-scalajs-example](https://github.com/jto/validation/tree/v2.0/play-scalajs-example) subproject. The binary used to power the editor at the beginning of this page was generated by running Play in production mode, which fully optimizes the output of Scala.js compilation using the Google Closure Compiler to obtain a final .js file under 100KB once gzipped.

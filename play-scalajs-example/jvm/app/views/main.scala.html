@@ -1,0 +1,13 @@
+@(title: String)(content: Html)(implicit environment: play.api.Environment)
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>@title</title>
+  </head>
+  <body>
+    @content
+    @* Outputs a <script></script> tag to include the output of Scala.js compilation. *@
+    @playscalajs.html.scripts(projectName = "js")
+  </body>
+</html>

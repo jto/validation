@@ -1,6 +1,6 @@
 # The unified data validation library
 
-[![Travis](https://api.travis-ci.org/jto/validation.png?branch=master)](https://travis-ci.org/jto/validation) [![Coverage Status](https://coveralls.io/repos/github/jto/validation/badge.svg?branch=v2.0)](https://coveralls.io/github/jto/validation?branch=v2.0) [![Maven](https://img.shields.io/maven-central/v/io.github.jto/validation-core_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.jto/validation-core_2.11) [![Scala.js](https://www.scala-js.org/assets/badges/scalajs-0.6.8.svg)](https://www.scala-js.org) [![Gitter](https://badges.gitter.im/jto/validation.svg)](https://gitter.im/jto/validation?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Travis](https://api.travis-ci.org/jto/validation.png?branch=master)](https://travis-ci.org/jto/validation) [![Coverage Status](https://coveralls.io/repos/github/jto/validation/badge.svg)](https://coveralls.io/github/jto/validation) [![Maven](https://img.shields.io/maven-central/v/io.github.jto/validation-core_2.11.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.jto/validation-core_2.11) [![Scala.js](https://www.scala-js.org/assets/badges/scalajs-0.6.8.svg)](https://www.scala-js.org) [![Gitter](https://badges.gitter.im/jto/validation.svg)](https://gitter.im/jto/validation?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
 ## Overview
@@ -43,7 +43,7 @@ Being based on the same concepts as play's Json validation API, it should feel v
 
 ## Design
 
-The unified validation API is designed around a core defined in package `play.api.data.mapping`, and "extensions". Each extension provides primitives to validate and serialize data from / to a particular format ([Json](http://jto.github.io/validation/docs/book/ScalaValidationJson.html), [form encoded request body](http://jto.github.io/validation/docs/book/ScalaValidationMigrationForm.html), etc.). See [the extensions documentation](http://jto.github.io/validation/docs/book/ScalaValidationExtensions.html) for more information.
+The unified validation API is designed around a core defined in package `jto.validation`, and "extensions". Each extension provides primitives to validate and serialize data from / to a particular format ([Json](http://jto.github.io/validation/docs/book/ScalaValidationJson.html), [form encoded request body](http://jto.github.io/validation/docs/book/ScalaValidationMigrationForm.html), etc.). See [the extensions documentation](http://jto.github.io/validation/docs/book/ScalaValidationExtensions.html) for more information.
 
 To learn more about data validation, please consult [Validation and transformation with Rule](documentation/tut/ScalaValidationRule.md), for data serialization read [Serialization with Write](documentation/tut/ScalaValidationWrite.md). If you just want to figure all this out by yourself, please see the [Cookbook](documentation/tut/ScalaValidationCookbook.md).
 

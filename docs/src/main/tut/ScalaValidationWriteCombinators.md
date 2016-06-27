@@ -100,7 +100,7 @@ It's fairly simple. The definition of `write` looks like this:
 def write[I, O](implicit w: Path => Write[I, O]): Write[I, O] = ???
 ```
 
-So when you use `(Path \ "user" \ "age").write[Int, JsObject]`, the compiler looks for an `implicit Path => Write[Int, JsObject]`, which happens to exist in `play.api.data.mapping.json.Writes`.
+So when you use `(Path \ "user" \ "age").write[Int, JsObject]`, the compiler looks for an `implicit Path => Write[Int, JsObject]`, which happens to exist in `jto.validation.json.Writes`.
 
 ### Full example
 

@@ -169,7 +169,7 @@ It's fairly simple. The definition of `read` looks like this:
 }
 ```
 
-So when use `(Path \ "user" \ "age").read[JsValue, Int]`, the compiler looks for an `implicit Path => Rule[JsValue, Int]`, which happens to exist in `play.api.data.mapping.json.Rules`.
+So when use `(Path \ "user" \ "age").read[JsValue, Int]`, the compiler looks for an `implicit Path => Rule[JsValue, Int]`, which happens to exist in `jto.validation.json.Rules`.
 
 
 ### Validated

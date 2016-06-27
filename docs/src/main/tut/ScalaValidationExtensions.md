@@ -112,7 +112,7 @@ Supporting primitives is nice, but not enough. Users are going to deal with `Seq
 
 What we want to do is to implement a function that takes a `Path => Rule[JsValue, O]`, an lift it into a `Path => Rule[JsValue, Option[O]]` for any type `O`. The reason we're working on the fully defined `Path => Rule[JsValue, O]` and not just `Rule[JsValue, O]` is because a non-existent `Path` must be validated as a `Valid(None)`. If we were to use `pickInJson` on a `Rule[JsValue, Option[O]]`, we would end up with an `Invalid` in the case of non-existing `Path`.
 
-The `play.api.data.mapping.DefaultRules[I]` traits provides a helper for building the desired method. It's signature is:
+The `jto.validation.DefaultRules[I]` traits provides a helper for building the desired method. It's signature is:
 
 ```scala
 protected def opt[J, O](r: => Rule[J, O], noneValues: Rule[I, I]*)(implicit pick: Path => Rule[I, I], coerce: Rule[I, J]): Path = Rule[I, O]

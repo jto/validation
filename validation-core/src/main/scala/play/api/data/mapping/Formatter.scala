@@ -150,8 +150,11 @@ case class Formatter[IR, IW](path: Path = Path(Nil)) {
     Format[IR, IW, O](Reader(path).read(subR), Writer(path).write(subW))
   }
 
-  def format[J, O](subR: => RuleLike[J, O])(implicit r: Path => RuleLike[IR, J], w: Path => WriteLike[O, IW]): Format[IR, IW, O] =
-    format(subR, Write.zero[O])
+  def format[JJ, J, O](subF: => Format[JJ, J, O])(implicit r: Path => RuleLike[IR, JJ], w: Path => WriteLike[J, IW]): Format[IR, IW, O] =
+    format(subF, subF)
+
+  // def format[J, O](subR: => RuleLike[J, O])(implicit r: Path => RuleLike[IR, J], w: Path => WriteLike[O, IW]): Format[IR, IW, O] =
+  //   format(subR, Write.zero[O])
 
   // def format[JJ, O](subW: => WriteLike[O, JJ])(implicit r: Path => RuleLike[I, O], w: Path => WriteLike[JJ, I]): Format[I, O] =
   //   format(Rule.zero[O], subW)

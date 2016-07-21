@@ -5,9 +5,28 @@ import cats.Monoid
 
 trait DefaultMonoids {
   implicit def jsonMonoid = new Monoid[JObject] {
-    // TODO: Should this be a deepMerge?
-    def combine(a1: JObject, a2: JObject) = JObject(a1.value ++ a2.value)
     def empty = JObject()
+
+    def combine(a1: JObject, a2: JObject) = {
+      // This method is copy pasted from Play:
+      // https://github.com/playframework/playframework/blob/2.5.4/framework/src/play-json/src/main/scala/play/api/libs/json/JsValue.scala
+      // Copyright (C) 2009-2016 Lightbend Inc. <https://www.lightbend.com>
+      // Licensed under the Apache 2 license, http://www.apache.org/licenses/LICENSE-2.0.
+      def merge(existingObject: JObject, otherObject: JObject): JObject = {
+        val result = existingObject.value ++ otherObject.value.map {
+          case (otherKey, otherValue) =>
+            val maybeExistingValue = existingObject.value.get(otherKey)
+
+            val newValue = (maybeExistingValue, otherValue) match {
+              case (Some(e: JObject), o: JObject) => merge(e, o)
+              case _ => otherValue
+            }
+            otherKey -> newValue
+        }
+        JObject(result)
+      }
+      merge(a1, a2)
+    }
   }
 }
 

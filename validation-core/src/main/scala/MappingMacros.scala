@@ -3,7 +3,7 @@ package jto.validation
 object MappingMacros {
   import scala.reflect.macros.blackbox.Context
 
-  private abstract class Helper {
+  private[validation] abstract class Helper {
     val context: Context
     import context.universe._
 
@@ -117,10 +117,10 @@ object MappingMacros {
         val typeApply = ts.foldLeft(q"$w1 ~ $w2") { (t1, t2) =>
           q"$t1 ~ $t2"
         }
-        q"($typeApply)(Function.unlift($unapply(_)))"
+        q"($typeApply)(_root_.scala.Function.unlift($unapply(_)))"
 
       case w1 :: Nil =>
-        q"$w1.contramap(Function.unlift($unapply(_)): $t)"
+        q"$w1.contramap(_root_.scala.Function.unlift($unapply(_)): $t)"
     }
 
     // XXX: recursive values need the user to use explcitly typed implicit val

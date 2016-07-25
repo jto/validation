@@ -14,6 +14,7 @@ object Ast {
     case JNumber (value) =>
       val d = value.toDouble
       if (d.isNaN || d.isInfinity) null else d
+    case JUndefined(value) => value
   }.map(_.asInstanceOf[js.Dynamic])
 
   private val undefined = scala.scalajs.js.undefined

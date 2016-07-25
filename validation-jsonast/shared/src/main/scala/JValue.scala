@@ -10,6 +10,7 @@ case class JString (value: String)                          extends JValue
 case class JNumber (value: String)                          extends JValue {
   require(JNumber.regex.matcher(value).matches)
 }
+case class JUndefined(value: String)                        extends JValue
 
 object JNumber {
   val regex = """-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?""".r.pattern

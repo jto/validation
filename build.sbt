@@ -14,7 +14,7 @@ val scalatestVersion = "3.0.0-M16-SNAP6"
 val scalaXmlVersion = "1.0.5"
 
 lazy val root = aggregate("validation", validationJVM, validationJS, docs).in(file("."))
-lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, jsonAstJVM, `validation-playjson`, `validation-xml`, `date-tests`)
+lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, jsonAstJVM, `validation-playjson`, `validation-xml`, `date-tests`, `validation-mson`)
 lazy val validationJS = aggregate("validationJS", coreJS, formJS, delimitedJS, jsonAstJS, `validation-jsjson`)
 
 lazy val `validation-core` = crossProject
@@ -65,6 +65,10 @@ lazy val `validation-xml` = project
   .settings(validationSettings: _*)
   .settings(libraryDependencies +=
     "org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion)
+  .dependsOn(coreJVM)
+
+lazy val `validation-mson` = project
+  .settings(validationSettings: _*)
   .dependsOn(coreJVM)
 
 lazy val `validation-jsjson` = project

@@ -55,7 +55,7 @@ Add the following dependencies your `build.sbt` as needed:
 ```scala
 resolvers += Resolver.sonatypeRepo("releases")
 
-val validationVersion = "2.0"
+val validationVersion = "2.0.1"
 
 libraryDependencies ++= Seq(
   "io.github.jto" %% "validation-core"      % validationVersion,
@@ -72,7 +72,7 @@ libraryDependencies ++= Seq(
 
 | Validation | Play  |
 | ---------- | ----- |
-| 2.0        | 2.5.3 |
+| 2.0.x      | 2.5.3 |
 | 1.1.x      | 2.4.x |
 | 1.0.2      | 2.3.x |
 

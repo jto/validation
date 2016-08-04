@@ -97,6 +97,8 @@ lazy val settings = Seq(
   scalaVersion := scalacVersion,
   organization := org,
   scalacOptions ++= commonScalacOptions,
+  scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Ywarn-unused-import")),
+  scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value,
   resolvers ++= commonResolvers,
   testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
   scalaJSStage in Global := FastOptStage,

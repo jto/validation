@@ -4,7 +4,7 @@
 def cat(path: String): Unit =
   println(scala.io.Source.fromFile(s"play-scalajs-example/$path").mkString.trim)
 ```
-Validation 2.0 supports Scala.js, which allows compiling validation logic for JavaScript to run it directly in the browser. Let's begin by playing with it. Try to change the `tryMe` variable in the following editor. The result is automatically outputted.
+Validation 2.0.x supports Scala.js, which allows compiling validation logic for JavaScript to run it directly in the browser. Let's begin by playing with it. Try to change the `tryMe` variable in the following editor. The result is automatically outputted.
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.css">
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.15.2/codemirror.min.js"></script>

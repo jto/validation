@@ -1,5 +1,9 @@
 # Release notes
 
+### 2.0.1:
+
+- Add Read / Write utilities [1](https://github.com/jto/validation/commit/c7f223ce65a8b55c6a2a4839364f5559fdeed7a2)
+
 ### 2.0:
 
 - Replace `play/functional` with `typelevel/cats` ([#38](https://github.com/jto/validation/pull/38) [1](https://github.com/jto/validation/commit/49110067caea0a483f840ad2334ad05ae379f1cf), [2](https://github.com/jto/validation/commit/a9108a00cbef8b6de668bfb7c7bee44c1b974537), [3](https://github.com/jto/validation/commit/5ccc7895672412da189f4e9efbea97ce7be467be), [4](https://github.com/jto/validation/commit/0ebcd973e24a33f87d280fc8565419d8ad8b9829), [5](https://github.com/jto/validation/commit/6505afe98972f8cf3b356f334db2a9a39b806961), [6](https://github.com/jto/validation/commit/b5aacbe711e59a7fe35d55ec1a63d0b633646ddc), [7](https://github.com/jto/validation/commit/cbe0d5b0310038840af3e1f6fa5668963ae32773), [8](https://github.com/jto/validation/commit/09aca48b858afb20845c21bf7e25faf2ad611cc7), [9](https://github.com/jto/validation/commit/86f63d0cc547d41c6dce36e2877d5b0de8a8cbac))

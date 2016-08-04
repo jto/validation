@@ -50,6 +50,12 @@ object Write {
       def writes(i: I) = w(i)
     }
 
+  sealed trait Deferred[O] {
+    def apply[I](i: I)(implicit w: WriteLike[I, O]) = w.writes(i)
+  }
+
+  def apply[O] = new Deferred[O]{}
+
   def of[I, O](implicit w: Write[I, O]): Write[I, O] = w
 
   def toWrite[I, O](r: WriteLike[I, O]): Write[I, O] =

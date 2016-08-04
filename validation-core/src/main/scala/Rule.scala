@@ -172,3 +172,11 @@ object Rule {
     : FunctorSyntaxObs[Rule[I, ?], O] =
     new FunctorSyntaxObs[Rule[I, ?], O](r)(fcb)
 }
+
+object Read {
+  sealed trait Deferred[O] {
+    def apply[I](i: I)(implicit r: RuleLike[I, O]) = r.validate(i)
+  }
+
+  def apply[O] = new Deferred[O]{}
+}

@@ -20,5 +20,6 @@
 - Publish library:
 
     ```sh
-    sbt publish # TBD
+    sbt publishSigned
+    sbt sonatypeReleaseAll
     ```

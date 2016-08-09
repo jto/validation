@@ -20,8 +20,8 @@ becomes
 
 #### Package name
 
-- Since the library does not depend on Play anymore and is not planned to be integrated into Play, the package names have changed. Basically `play.api.mapping` now becomes `jto.validation`. A simple search and replace in your project should work.
-- The validation api support several json representations. Therefore, the package name for play json changes. `play.api.mapping.json` becomes `play.api.mapping.playjson`
+- Since the library does not depend on Play anymore and is not planned to be integrated into Play, the package names have changed. Basically `play.api.data.mapping` now becomes `jto.validation`. A simple search and replace in your project should work.
+- The validation api support several json representations. Therefore, the package name for play json changes. `play.api.data.mapping.json` becomes `play.api.mapping.playjson`
 
 #### Rule renaming
 

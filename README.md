@@ -45,7 +45,7 @@ Being based on the same concepts as play's Json validation API, it should feel v
 
 The unified validation API is designed around a core defined in package `jto.validation`, and "extensions". Each extension provides primitives to validate and serialize data from / to a particular format ([Json](http://jto.github.io/validation/docs/book/ScalaValidationJson.html), [form encoded request body](http://jto.github.io/validation/docs/book/ScalaValidationMigrationForm.html), etc.). See [the extensions documentation](http://jto.github.io/validation/docs/book/ScalaValidationExtensions.html) for more information.
 
-To learn more about data validation, please consult [Validation and transformation with Rule](documentation/tut/ScalaValidationRule.md), for data serialization read [Serialization with Write](documentation/tut/ScalaValidationWrite.md). If you just want to figure all this out by yourself, please see the [Cookbook](documentation/tut/ScalaValidationCookbook.md).
+To learn more about data validation, please consult [Validation and transformation with Rule](docs/src/main/tut/ScalaValidationRule.md), for data serialization read [Serialization with Write](docs/src/main/tut/ScalaValidationWrite.md). If you just want to figure all this out by yourself, please see the [Cookbook](docs/src/main/tut/ScalaValidationCookbook.md).
 
 
 ## Using the validation api in your project

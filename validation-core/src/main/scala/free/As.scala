@@ -73,6 +73,8 @@ trait Divisible[F[_]] extends cats.functor.Contravariant[F] {
 }
 
 object Divisible {
+  def apply[F[_]](implicit d: Divisible[F]) = d
+
   implicit def writeDivisible[I: cats.Monoid] =
     new Divisible[Write[?, I]] {
       type F[A] = Write[A, I]
@@ -124,8 +126,13 @@ trait Materialized[F[_]] {
       }
   }
 
-  def merge(implicit ap: cats.Applicative[F], lf: LeftFolder[Imps, F[HNil.type], seqH.type]) = {
-    val z = ap.pure(HNil)
+  def merge(implicit ap: cats.Applicative[F], lf: LeftFolder[Imps, F[HNil], seqH.type]) = {
+    val z = ap.pure(HNil: HNil)
+    h.foldLeft(z)(seqH)
+  }
+
+  def merge(implicit div: Divisible[F], rf: LeftFolder[Imps, F[HNil], seqH.type]) = {
+    val z = div.conquer[HNil]
     h.foldLeft(z)(seqH)
   }
 
@@ -159,8 +166,4 @@ trait Materialized[F[_]] {
   // matD.merge2: Write[Int :: String :: Double :: HNil, JObject]
   */
 
-  def merge(implicit div: Divisible[F], rf: LeftFolder[Imps, F[HNil], seqH.type]) = {
-    val z = div.conquer[HNil]
-    h.foldLeft(z)(seqH)
-  }
 }

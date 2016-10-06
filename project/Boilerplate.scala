@@ -252,16 +252,26 @@ object Boilerplate {
     def content(tv: TemplateVals) = {
       import tv._
 
-      val `((A..N))` = synTypes.reduce[String] { case (acc, el) => s"($acc, $el)" }
-      val `((a..n))` = `((A..N))`.toLowerCase
+      val `A..N` = synTypes.reduce[String] { case (acc, el) => s"$acc, $el" }
+      val `as..ns` = synTypes.zipWithIndex.map{ case (t, i) => s"as$i" }
+      val `P=>F[A]..P=>F[N]` = synTypes.map { t => s"Path => F[$t]" }
+      val `f..n` = (0 until arity).map{ i => s"f$i" }
+      val `a:P=>F[A]..n:P=>F[N]` = `f..n`.zip(`P=>F[A]..P=>F[N]`).map { case (f, t) => s"${f}: $t"}.mkString(", ")
+      val `asA..nsN` = synTypes.zipWithIndex.map{ case (t, i) => s"as$i: As[$t]" }.mkString(", ")
+      val `A::N` = synTypes.map(t => s"$t").mkString(" :: ")
+
+      val appliedPaths =`as..ns`.zip(`f..n`).map{ case (a, f) => s"$f($a.path)" }.mkString(" :: ")
 
       val next = if (arity >= maxArity) "" else
         s"""
-        |-    def ~[IX <: HList, IO <: HList, X]
-        |-      (fb: As.Aux[X, IX])
-        |-      (implicit p: shapeless.ops.hlist.Prepend.Aux[Types, IX, IO])
-        |-      : AsSyntax${arity + 1}[IO, ${`A..N`}, X] =
-        |-        AsSyntax${arity + 1}(As.Zip(fa, fb)(p): As.Aux[(${`((A..N))`}, X), IO])
+        |-    def ~[X](fb: As[X]): AsSyntax${arity + 1}[${`A..N`}, X] =
+        |-      AsSyntax${arity + 1}(${`as..ns`.mkString(", ")}, fb)
+        |-
+        |-   def materialize[F[_]](implicit ${`a:P=>F[A]..n:P=>F[N]`}): F[${`A::N`} :: HNil] = {
+        |-      val fs = ${appliedPaths} :: HNil
+        |-      ???
+        |-   }
+        |-
         """.trim.stripMargin
 
       block"""
@@ -269,8 +279,8 @@ object Boilerplate {
         |package v3
         |
         |object AsSyntax {
-        -  import shapeless._
-        -  case class AsSyntax${arity}[Types <: HList, ${`A..N`}](fa: As.Aux[(${`((A..N))`}), Types]) {
+        |  import shapeless.{::, HNil}
+        -  case class AsSyntax${arity}[${`A..N`}](${`asA..nsN`}) {
         $next
         -  }
         -

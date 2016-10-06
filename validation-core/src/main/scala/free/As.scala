@@ -4,29 +4,9 @@ package v3
 import shapeless.{ Path => _, _ }
 import ops.hlist._
 
-sealed trait As[A] {
-  type Types <: HList
-
-  def ~[IB <: HList, IO <: HList, B]
-    (fb: As.Aux[B, IB])
-    (implicit p: Prepend.Aux[Types, IB, IO])
-    : AsSyntax.AsSyntax2[IO, A, B] =
-      AsSyntax.AsSyntax2(As.Zip(this: this.type, fb)(p))
-}
-
-object As {
-  type Aux[A, I] = As[A] { type Types = I }
-
-  /* private[validation] */ case class Leaf[A](path: Path) extends As[A] {
-    type Types = A :: HNil
-  }
-
-  private[validation] case class Zip[IA <: HList, IB <: HList, IO <: HList, A, B]
-    (fa: As.Aux[A, IA], fb: As.Aux[B, IB])
-    (implicit p: Prepend.Aux[IA, IB, IO])
-    extends As[(A, B)] {
-      type Types = IO
-    }
+case class As[A](path: Path) {
+  def ~[B](fb: As[B]): AsSyntax.AsSyntax2[A, B] =
+    AsSyntax.AsSyntax2(this, fb)
 }
 
 // trait SequenceH[F[_], H <: HList] {
@@ -89,6 +69,10 @@ object Divisible {
     }
 }
 
+// trait HSequence[F[_]] {
+//   def sequence(implicit lf: LeftFolder[Imps, F[HNil], seqH.type]): lf.Out
+// }
+
 trait Materialized[F[_]] {
   import cats.Apply
 
@@ -126,12 +110,12 @@ trait Materialized[F[_]] {
       }
   }
 
-  def merge(implicit ap: cats.Applicative[F], lf: LeftFolder[Imps, F[HNil], seqH.type]) = {
+  def sequence(implicit ap: cats.Applicative[F], lf: LeftFolder[Imps, F[HNil], seqH.type]) = {
     val z = ap.pure(HNil: HNil)
     h.foldLeft(z)(seqH)
   }
 
-  def merge(implicit div: Divisible[F], rf: LeftFolder[Imps, F[HNil], seqH.type]) = {
+  def sequence(implicit div: Divisible[F], rf: LeftFolder[Imps, F[HNil], seqH.type]) = {
     val z = div.conquer[HNil]
     h.foldLeft(z)(seqH)
   }

@@ -31,6 +31,7 @@ object Boilerplate {
     FunctorSyntax,
     ContravariantSyntax,
     UFreeSyntax,
+    AsSyntax,
     LiftInstances
   )
 
@@ -237,6 +238,39 @@ object Boilerplate {
         -          ${`((a..n))`}
         -        })
         -
+        $next
+        -  }
+        -
+        |}
+      """
+    }
+  }
+
+  object AsSyntax extends Template {
+    def filename(root: File) = root / "AsSyntax.scala"
+
+    def content(tv: TemplateVals) = {
+      import tv._
+
+      val `((A..N))` = synTypes.reduce[String] { case (acc, el) => s"($acc, $el)" }
+      val `((a..n))` = `((A..N))`.toLowerCase
+
+      val next = if (arity >= maxArity) "" else
+        s"""
+        |-    def ~[IX <: HList, IO <: HList, X]
+        |-      (fb: As.Aux[X, IX])
+        |-      (implicit p: shapeless.ops.hlist.Prepend.Aux[Types, IX, IO])
+        |-      : AsSyntax${arity + 1}[IO, ${`A..N`}, X] =
+        |-        AsSyntax${arity + 1}(As.Zip(fa, fb)(p): As.Aux[(${`((A..N))`}, X), IO])
+        """.trim.stripMargin
+
+      block"""
+        |package jto.validation
+        |package v3
+        |
+        |object AsSyntax {
+        -  import shapeless._
+        -  case class AsSyntax${arity}[Types <: HList, ${`A..N`}](fa: As.Aux[(${`((A..N))`}), Types]) {
         $next
         -  }
         -

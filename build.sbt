@@ -135,6 +135,7 @@ val commonResolvers = Seq(
 val dependencies = Seq(
   libraryDependencies ++= Seq(
     "org.typelevel" %%% "cats" % catsVersion,
+    "com.chuusai" %%% "shapeless" % "2.3.2",
     "org.scalatest" %%% "scalatest" % scalatestVersion % "test",
     "joda-time" % "joda-time" % jodaTimeVersion,
     "org.joda" % "joda-convert" % jodaConvertVersion

@@ -6,6 +6,9 @@ import shapeless.{ HList, HNil, :: }
 case class As[A](path: Path) {
   def ~[B](fb: As[B]): AsSyntax.AsSyntax2[A, B] =
     AsSyntax.AsSyntax2(this, fb)
+
+  def materialize[F[_]](implicit f: Path => F[A]) =
+    f(path)
 }
 
 /**

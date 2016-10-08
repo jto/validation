@@ -1,7 +1,6 @@
 package jto.validation
 
 import cats.Monoid
-import cats.functor.Contravariant
 
 trait WriteLike[I, +O] {
 
@@ -66,12 +65,6 @@ object Write {
   implicit def zero[I]: Write[I, I] =
     toWrite(WriteLike.zero[I])
 
-  implicit def contravariantWrite[O]: Contravariant[Write[?, O]] =
-    new Contravariant[Write[?, O]] {
-      def contramap[A, B](wa: Write[A, O])(f: B => A): Write[B, O] =
-        wa.contramap(f)
-    }
-
   implicit def writeSyntaxCombine[O](
       implicit m: Monoid[O]): SyntaxCombine[Write[?, O]] =
     new SyntaxCombine[Write[?, O]] {
@@ -85,4 +78,21 @@ object Write {
       w: Write[I, O])(implicit fcb: SyntaxCombine[Write[?, O]])
     : ContravariantSyntaxObs[Write[?, O], I] =
     new ContravariantSyntaxObs[Write[?, O], I](w)(fcb)
+
+  implicit def writeDivisible[O: Monoid]: v3.Divisible[Write[?, O]] =
+    new v3.Divisible[Write[?, O]] {
+      type F[A] = Write[A, O]
+      def divide[A, B, C](f: A => (B, C))(fb: F[B])(fc: F[C]): F[A] =
+        Write { a =>
+          val (b, c) = f(a)
+          Monoid[O].combine(fb.writes(b), fc.writes(c))
+        }
+      def conquer[A]: F[A] =
+        Write{_ => Monoid[O].empty }
+      def contramap[A, B](wa: F[A])(f: B => A): F[B] =
+        wa.contramap(f)
+    }
+
+  implicit def writeHSequence0[O: Monoid] =
+    v3.HSequence0.divisibleHSequence0[Write[?, O]]
 }

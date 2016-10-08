@@ -171,6 +171,9 @@ object Rule {
       r: Rule[I, O])(implicit fcb: SyntaxCombine[Rule[I, ?]])
     : FunctorSyntaxObs[Rule[I, ?], O] =
     new FunctorSyntaxObs[Rule[I, ?], O](r)(fcb)
+
+  implicit def ruleHSequence0[I] =
+    v3.HSequence0.applicativeHSequence0[Rule[I, ?]]
 }
 
 object Read {

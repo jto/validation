@@ -1,47 +1,12 @@
 package jto.validation
 package v3
 
-import shapeless.{ Path => _, _ }
-import ops.hlist._
+import shapeless.{ HList, HNil, :: }
 
 case class As[A](path: Path) {
   def ~[B](fb: As[B]): AsSyntax.AsSyntax2[A, B] =
     AsSyntax.AsSyntax2(this, fb)
 }
-
-// trait SequenceH[F[_], H <: HList] {
-//   type Out <: HList
-//   def sequence(h: H): F[Out]
-// }
-//
-// object SequenceH {
-//   type Aux[F[_], H <: HList, Out0 <: HList] = SequenceH[F, H] { type Out = Out0 }
-//   def apply[F[_], H <: HList](implicit seqH: SequenceH[F, H]): Aux[F, H, seqH.Out] = seqH
-// }
-//
-// object ApplicativeSequenceH {
-//   import cats.Applicative
-//   import SequenceH.Aux
-//
-//   implicit def hnilSeqenceH[F[_]: Applicative]: Aux[F, HNil, HNil] =
-//     new SequenceH[F, HNil] {
-//       type Out = HNil
-//       def sequence(h: HNil) = Applicative[F].pure(HNil)
-//     }
-//
-//   implicit def applySequenceH[F[_]: Applicative, H, T <: HList](
-//     implicit seqH: SequenceH[F, T]
-//   ): Aux[F, F[H] :: T, H :: seqH.Out] =
-//     new SequenceH[F, F[H] :: T] {
-//       type Out = H :: seqH.Out
-//
-//       def sequence(h: F[H] :: T): F[H :: seqH.Out] = {
-//         val head :: tail = h
-//         Applicative[F].map2(head, seqH.sequence(tail))(_ :: _)
-//       }
-//
-//     }
-// }
 
 /**
 * Contravariant Applicative Functor typeclass
@@ -54,19 +19,6 @@ trait Divisible[F[_]] extends cats.functor.Contravariant[F] {
 
 object Divisible {
   def apply[F[_]](implicit d: Divisible[F]) = d
-
-  implicit def writeDivisible[I: cats.Monoid] =
-    new Divisible[Write[?, I]] {
-      type F[A] = Write[A, I]
-      def divide[A, B, C](f: A => (B, C))(fb: F[B])(fc: F[C]): F[A] =
-        Write { a =>
-          val (b, c) = f(a)
-          cats.Monoid[I].combine(fb.writes(b), fc.writes(c))
-        }
-      def conquer[A]: F[A] =
-        Write{_ => cats.Monoid[I].empty }
-      def contramap[A, B](wa: F[A])(f: B => A): F[B] = wa.contramap(f)
-    }
 }
 
 trait HSequence0[F[_]] {
@@ -83,4 +35,22 @@ object HSequence0 {
       def sequence[A, H <: HList](fa: F[A], fh: F[H]): F[A :: H] =
         Applicative[F].map2(fa, fh)((a, h) => a :: h)
     }
+
+  implicit def divisibleHSequence0[F[_]: Divisible]: HSequence0[F] =
+    new HSequence0[F] {
+      def empty = Divisible[F].conquer[HNil]
+      def sequence[A, H <: HList](fa: F[A], fh: F[H]): F[A :: H] =
+        Divisible[F].divide[A :: H, A, H]({ case a :: h => (a, h)})(fa)(fh)
+    }
 }
+
+/*
+import jto.validation._, v3._, jsonast._, Rules._, Writes._
+val __ = jto.validation.Path
+val a1 = As[Int](__ \ "bar")
+val a2 = As[String](__ \ "baz")
+val a3 = As[Double](__ \ "foo")
+val as = a1 ~ a2 ~ a3
+val rule = as.materialize[({type R[A] = Rule[JValue, A]})#R]
+val write = as.materialize[({type W[A] = Write[A, JObject]})#W]
+*/

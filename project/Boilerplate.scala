@@ -260,17 +260,25 @@ object Boilerplate {
       val `asA..nsN` = synTypes.zipWithIndex.map{ case (t, i) => s"as$i: As[$t]" }.mkString(", ")
       val `A::N` = synTypes.map(t => s"$t").mkString(" :: ")
 
-      val appliedPaths =`as..ns`.zip(`f..n`).map{ case (a, f) => s"$f($a.path)" }.mkString(" :: ")
+      val appliedPaths =
+        (`as..ns`
+          .zip(`f..n`)
+          .map{ case (a, f) =>
+            s"$f($a.path)"
+          } :+ "empty")
+          .reduceRight[String]{ case (r, f) =>
+            s"s($r, $f)"
+          }
 
       val next = if (arity >= maxArity) "" else
         s"""
         |-    def ~[X](fb: As[X]): AsSyntax${arity + 1}[${`A..N`}, X] =
         |-      AsSyntax${arity + 1}(${`as..ns`.mkString(", ")}, fb)
         |-
-        |-   def materialize[F[_]](implicit ${`a:P=>F[A]..n:P=>F[N]`}): F[${`A::N`} :: HNil] = {
-        |-      val fs = ${appliedPaths} :: HNil
-        |-      ???
-        |-   }
+        |-    def materialize[F[_]](implicit ${`a:P=>F[A]..n:P=>F[N]`}, hsq0: HSequence0[F]): F[${`A::N`} :: HNil] = {
+        |-       import hsq0.{ sequence => s, empty }
+        |-       ${appliedPaths}
+        |-    }
         |-
         """.trim.stripMargin
 

@@ -69,85 +69,18 @@ object Divisible {
     }
 }
 
-// trait HSequence[F[_]] {
-//   def sequence(implicit lf: LeftFolder[Imps, F[HNil], seqH.type]): lf.Out
-// }
+trait HSequence0[F[_]] {
+  def empty: F[HNil]
+  def sequence[A, H <: HList](fa: F[A], fh: F[H]): F[A :: H]
+}
 
-trait Materialized[F[_]] {
-  import cats.Apply
+object HSequence0 {
+  import cats.Applicative
 
-  type Imps <: HList
-  val h: Imps
-
-  object seqH extends Poly2 {
-    implicit def caseApply[H <: HList, A](implicit p: Prepend[H, A :: HNil], ap: Apply[F]) =
-      at[F[H], F[A]] { (fh, fa) =>
-        ap.map2(fh, fa)(_ :+ _)
-      }
-
-    implicit def caseDivisibleHList[H, T <: HList, A, POut <: HList](implicit
-      div: Divisible[F],
-      pre: Prepend.Aux[H :: T, A :: HNil, POut],
-      init: Init.Aux[POut, H :: T],
-      last: Last.Aux[POut, A]
-    ) =
-      at[F[H :: T], F[A]] { (fh, fa) =>
-        val f = (hl: pre.Out) => {
-          val a = last(hl)
-          val ht = init(hl)
-          (ht, a)
-        }
-        div.divide(f)(fh)(fa)
-      }
-
-    implicit def caseDivisibleHNil[A](implicit div: Divisible[F]) =
-      at[F[HNil], F[A]] { (fh, fa) =>
-        val f = (hl: A :: HNil) => {
-          val a :: HNil = hl
-          (HNil: HNil, a)
-        }
-        div.divide(f)(fh)(fa)
-      }
-  }
-
-  def sequence(implicit ap: cats.Applicative[F], lf: LeftFolder[Imps, F[HNil], seqH.type]) = {
-    val z = ap.pure(HNil: HNil)
-    h.foldLeft(z)(seqH)
-  }
-
-  def sequence(implicit div: Divisible[F], rf: LeftFolder[Imps, F[HNil], seqH.type]) = {
-    val z = div.conquer[HNil]
-    h.foldLeft(z)(seqH)
-  }
-
-  /*
-  import jto.validation._, v3._, jsonast._, Rules._, Writes._
-  import shapeless._
-  import Divisible._
-
-  val __ = jto.validation.Path
-
-  val r1: Rule[JValue, Int] = (__ \ "foo").read[JValue, Int]
-  val r2: Rule[JValue, String] = (__ \ "bar").read[JValue, String]
-  val r3: Rule[JValue, Double] = (__ \ "baz").read[JValue, Double]
-  val rs = r1 :: r2 :: r3 :: HNil
-  val matA =
-    new Materialized[({type R[A] = Rule[JValue, A]})#R] {
-      type Imps =  Rule[JValue, Int] :: Rule[JValue, String] :: Rule[JValue, Double] :: HNil
-      val h = rs
+  implicit def applicativeHSequence0[F[_]: Applicative]: HSequence0[F] =
+    new HSequence0[F] {
+      def empty = Applicative[F].pure(HNil)
+      def sequence[A, H <: HList](fa: F[A], fh: F[H]): F[A :: H] =
+        Applicative[F].map2(fa, fh)((a, h) => a :: h)
     }
-  // matA.merge: res5: Rule[JValue, Int :: String :: Double :: HNil]
-
-  val w1: Write[Int, JObject] = (__ \ "foo").write[Int, JObject]
-  val w2: Write[String, JObject] = (__ \ "bar").write[String, JObject]
-  val w3: Write[Double, JObject] = (__ \ "baz").write[Double, JObject]
-  val ws = w1 :: w2 :: w3 :: HNil
-  val matD =
-    new Materialized[({type W[A] = Write[A, JObject]})#W] {
-      type Imps =  Write[Int, JObject] :: Write[String, JObject] :: Write[Double, JObject] :: HNil
-      val h = ws
-    }
-  // matD.merge2: Write[Int :: String :: Double :: HNil, JObject]
-  */
-
 }

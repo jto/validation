@@ -482,6 +482,37 @@ class RulesSpec extends WordSpec with Matchers {
       }
 
       "use attribute filtering" in {
+        val reads = (
+          pickChildsWithAttribute[String]("entity", attrKey = "type", attrValue = "type1")
+                                         (attributeR[String]("name"))
+        )
+
+        val entityXml =
+          <entities>
+            <entity type="type1" name="Alexandre"></entity>
+            <entity type="type2" name="Jean"></entity>
+            <entity type="type1" name="Pierre"></entity>
+          </entities>
+
+        val emptyXml =
+          <entities>
+            <entity type="type2" name="Jean"></entity>
+          </entities>
+
+        val invalidXml =
+          <entities>
+            <entity type="type1"></entity>
+          </entities>
+
+        reads.validate(entityXml)  shouldBe Valid(Seq("Alexandre", "Pierre"))
+        reads.validate(emptyXml)   shouldBe Valid(Seq.empty[String])
+        reads.validate(invalidXml) shouldBe Invalid(
+          Seq((Path \ 0, Seq(ValidationError("error.required"))))
+        )
+
+      }
+
+      "use attribute filtering to read first" in {
         val entityXml = <entity>
             <prop name="name" value="Alexandre"></prop>
             <prop name="age" value="25"></prop>

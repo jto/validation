@@ -10,7 +10,7 @@ trait DefaultMonoids {
   }
 }
 
-object Writes
+trait Writes
     extends DefaultWrites
     with GenericWrites[PM.PM]
     with DefaultMonoids {
@@ -62,3 +62,5 @@ object Writes
       implicit w: Path => WriteLike[J, UrlFormEncoded]) =
     super.optionW[I, J, UrlFormEncoded](r, Map.empty)
 }
+
+object Writes extends Writes

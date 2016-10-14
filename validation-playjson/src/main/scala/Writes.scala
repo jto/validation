@@ -12,7 +12,7 @@ trait DefaultMonoids {
   }
 }
 
-object Writes
+trait Writes
     extends DefaultWrites
     with DefaultMonoids
     with GenericWrites[JsValue] {
@@ -101,3 +101,5 @@ object Writes
     }
   }
 }
+
+object Writes extends Writes

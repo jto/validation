@@ -112,7 +112,7 @@ object PM {
 /**
   * This object provides Rules for Map[String, Seq[String]]
   */
-object Rules extends DefaultRules[PM.PM] with ParsingRules {
+trait Rules extends DefaultRules[PM.PM] with ParsingRules {
   import PM._
 
   implicit def mapR[O](
@@ -181,3 +181,5 @@ object Rules extends DefaultRules[PM.PM] with ParsingRules {
       implicit r: RuleLike[UrlFormEncoded, O]): Rule[PM, O] =
     Rule.zero[PM].map(toM).andThen(r)
 }
+
+object Rules extends Rules

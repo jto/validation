@@ -1,7 +1,7 @@
 package jto.validation
 package jsonast
 
-object Rules extends DefaultRules[JValue] {
+trait Rules extends DefaultRules[JValue] {
   private def jsonAs[T](
       f: PartialFunction[JValue, Validated[Seq[ValidationError], T]])(
       msg: String, args: Any*) =
@@ -148,3 +148,5 @@ object Rules extends DefaultRules[JValue] {
   implicit def pickTraversable[O](implicit r: RuleLike[JValue, O]) =
     pickInS(traversableR[JValue, O])
 }
+
+object Rules extends Rules

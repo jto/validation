@@ -21,7 +21,7 @@ import jto.validation._
   *   contactReads.validate(csv2) // returns Valid(Contact("Jane Doe", "jane@example.com", None))
   * }}
   */
-object Rules extends DefaultRules[Delimited] with ParsingRules {
+trait Rules extends DefaultRules[Delimited] with ParsingRules {
   import scala.language.implicitConversions
 
   /**
@@ -105,3 +105,5 @@ object Rules extends DefaultRules[Delimited] with ParsingRules {
                coerce: RuleLike[String, O]): Rule[Delimited, Option[O]] =
     optionR(isEmpty)(pick, coerce)(p)
 }
+
+object Rules extends Rules

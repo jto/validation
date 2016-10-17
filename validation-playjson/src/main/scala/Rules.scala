@@ -3,7 +3,7 @@ package playjson
 
 import play.api.libs.json.{JsValue, JsObject, JsString, JsNumber, JsBoolean, JsArray, JsNull}
 
-object Rules extends DefaultRules[JsValue] {
+trait Rules extends DefaultRules[JsValue] {
   private def jsonAs[T](
       f: PartialFunction[JsValue, Validated[Seq[ValidationError], T]])(
       msg: String, args: Any*) =
@@ -149,3 +149,5 @@ object Rules extends DefaultRules[JsValue] {
   implicit def pickTraversable[O](implicit r: RuleLike[JsValue, O]) =
     pickInS(traversableR[JsValue, O])
 }
+
+object Rules extends Rules

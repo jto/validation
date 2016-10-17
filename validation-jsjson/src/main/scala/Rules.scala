@@ -4,7 +4,7 @@ package jsjson
 import scala.scalajs.js
 import scala.util.Try
 
-object Rules extends DefaultRules[js.Dynamic] {
+trait Rules extends DefaultRules[js.Dynamic] {
   private def jsonAs[T](
       f: PartialFunction[js.Any, Validated[Seq[ValidationError], T]])(
       msg: String, args: Any*) =
@@ -141,3 +141,5 @@ object Rules extends DefaultRules[js.Dynamic] {
   implicit def pickTraversable[O](implicit r: RuleLike[js.Dynamic, O]) =
     pickInS(traversableR[js.Dynamic, O])
 }
+
+object Rules extends Rules

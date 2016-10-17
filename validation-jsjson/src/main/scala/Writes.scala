@@ -19,7 +19,7 @@ trait DefaultMonoids {
   }
 }
 
-object Writes
+trait Writes
     extends DefaultWrites
     with DefaultMonoids
     with GenericWrites[js.Dynamic] {
@@ -113,3 +113,5 @@ object Writes
       }
   }
 }
+
+object Writes extends Writes

@@ -13,7 +13,7 @@ trait DefaultMonoids {
   }
 }
 
-object Writes
+trait Writes
     extends DefaultWrites
     with NumericTypes2StringWrites
     with DefaultMonoids
@@ -76,3 +76,5 @@ object Writes
     : Path => Write[Option[I], XmlWriter] =
     optionW(Write.zero[I])
 }
+
+object Writes extends Writes

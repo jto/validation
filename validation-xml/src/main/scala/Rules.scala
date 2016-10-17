@@ -3,7 +3,7 @@ package xml
 
 import scala.xml._
 
-object Rules extends DefaultRules[Node] with ParsingRules {
+trait Rules extends DefaultRules[Node] with ParsingRules {
   implicit def nodeR[O](implicit r: RuleLike[String, O]): Rule[Node, O] =
     Rule
       .fromMapping[Node, String] { node =>
@@ -89,6 +89,13 @@ object Rules extends DefaultRules[Node] with ParsingRules {
       coerce: RuleLike[Node, J]): Path => Rule[Node, Option[O]] =
     super.opt[J, O](r, noneValues: _*)
 
+  def pickChildsWithAttribute[O](
+      key: String, attrKey: String, attrValue: String)(
+      implicit r: RuleLike[Node, O]): Rule[Node, Seq[O]] =
+    Rule.fromMapping[Node, Seq[Node]] { node =>
+      Valid( (node \ "_").filter(_.attribute(attrKey).exists(_.text == attrValue)).toSeq )
+    }.andThen(seqR(r))
+
   def pickChildWithAttribute[O](
       key: String, attrKey: String, attrValue: String)(
       implicit r: RuleLike[Node, O]): Rule[Node, O] =
@@ -106,3 +113,5 @@ object Rules extends DefaultRules[Node] with ParsingRules {
       }
       .andThen(r)
 }
+
+object Rules extends Rules

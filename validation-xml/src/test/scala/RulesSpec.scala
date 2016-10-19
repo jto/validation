@@ -492,6 +492,7 @@ class RulesSpec extends WordSpec with Matchers {
             <entity type="type1" name="Alexandre"></entity>
             <entity type="type2" name="Jean"></entity>
             <entity type="type1" name="Pierre"></entity>
+            <prop type="type1" name="Jean"></prop>
           </entities>
 
         val emptyXml =
@@ -514,6 +515,7 @@ class RulesSpec extends WordSpec with Matchers {
 
       "use attribute filtering to read first" in {
         val entityXml = <entity>
+            <entity name="age" value="24"></entity>
             <prop name="name" value="Alexandre"></prop>
             <prop name="age" value="25"></prop>
             <prop name="job" value="software engineer" type="fulltime"></prop>
@@ -528,6 +530,8 @@ class RulesSpec extends WordSpec with Matchers {
                   attributeR[Int]("value")
               )) tupled
         }
+
+        reads.validate(entityXml) shouldBe Valid( ("software engineer" -> "fulltime", 25) )
 
         val invalidXml = <entity>
             <prop name="name" value="Alexandre"></prop>

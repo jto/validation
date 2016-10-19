@@ -93,7 +93,7 @@ trait Rules extends DefaultRules[Node] with ParsingRules {
       key: String, attrKey: String, attrValue: String)(
       implicit r: RuleLike[Node, O]): Rule[Node, Seq[O]] =
     Rule.fromMapping[Node, Seq[Node]] { node =>
-      Valid( (node \ "_").filter(_.attribute(attrKey).exists(_.text == attrValue)).toSeq )
+      Valid( (node \ key).filter(_.attribute(attrKey).exists(_.text == attrValue)).toSeq )
     }.andThen(seqR(r))
 
   def pickChildWithAttribute[O](
@@ -101,7 +101,7 @@ trait Rules extends DefaultRules[Node] with ParsingRules {
       implicit r: RuleLike[Node, O]): Rule[Node, O] =
     Rule
       .fromMapping[Node, Node] { node =>
-        val maybeChild = (node \ "_").find(
+        val maybeChild = (node \ key).find(
             _.attribute(attrKey).filter(_.text == attrValue).isDefined)
         maybeChild match {
           case Some(child) => Valid(child)

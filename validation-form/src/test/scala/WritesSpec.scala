@@ -69,6 +69,17 @@ class WritesSpec extends WordSpec with Matchers {
       w.writes(Nil) shouldBe Map.empty
     }
 
+    "write seq with duplicates" in {
+      val w = (Path \ "phones").write[Seq[String], UrlFormEncoded]
+      w.writes(Seq("01.23.45.67.89", "98.76.54.32.10", "98.76.54.32.10", "56.78.90.12.34")) shouldBe Map(
+        "phones[0]" -> Seq("01.23.45.67.89"),
+        "phones[1]" -> Seq("98.76.54.32.10"),
+        "phones[2]" -> Seq("98.76.54.32.10"),
+        "phones[3]" -> Seq("56.78.90.12.34")
+      )
+      w.writes(Nil) shouldBe Map.empty
+    }
+
     "support primitives types" when {
 
       "Int" in {

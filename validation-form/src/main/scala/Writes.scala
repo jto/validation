@@ -39,8 +39,8 @@ trait Writes
 
   implicit def spm[O](implicit w: WriteLike[O, PM]) =
     Write[Seq[O], PM] { os =>
-      os.zipWithIndex.toMap.flatMap {
-        case (o, i) =>
+      os.zipWithIndex.map(_.swap).toMap.flatMap {
+        case (i, o) =>
           repathPM(w.writes(o), (Path \ i) ++ _)
       }
     }

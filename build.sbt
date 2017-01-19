@@ -3,7 +3,7 @@ val repo = "git@github.com:jto/validation.git"
 val org = "io.github.jto"
 val license = ("Apache License", url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 
-val catsVersion = "0.6.0"
+val catsVersion = "0.7.0-SNAPSHOT"
 val jodaConvertVersion = "1.8.1"
 val jodaTimeVersion = "2.9.4"
 val kindProjectorVersion = "0.7.1"

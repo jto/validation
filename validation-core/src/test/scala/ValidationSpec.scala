@@ -93,8 +93,7 @@ class ValidatedSpec extends WordSpec with Matchers {
       val s1: Validated[List[String], String] = Valid("1")
       val s2: Validated[List[String], String] = Valid("2")
 
-      import cats.std.list._
-      import cats.syntax.traverse._
+      import cats.implicits._
       List(s1, s2).sequenceU shouldBe (Valid(List("1", "2")))
       List(f1, f2).sequenceU shouldBe (Invalid(List("err1", "err2")))
     }

@@ -136,7 +136,7 @@ object Validation {
   @deprecated("use .toList.sequenceU", "2.0")
   def sequence[E, A](
       vs: Seq[Validated[Seq[E], A]]): Validated[Seq[E], Seq[A]] = {
-    import cats.std.list._; import cats.syntax.traverse._;
+    import cats.implicits._
     vs.toList.sequenceU
   }
 }

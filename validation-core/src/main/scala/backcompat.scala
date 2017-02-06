@@ -109,15 +109,6 @@ trait VABackCompat[E, A] {
   @deprecated("use toEither", "2.0")
   def asEither = v.toEither
 
-  @deprecated("use toXor.recover(errManager).toValidated", "2.0")
-  def recover[AA >: A](errManager: PartialFunction[Invalid[Seq[E]], AA])
-    : Validated[Seq[E], AA] =
-    v.toXor.recover { case err => errManager(Invalid(err)) }.toValidated
-
-  @deprecated("use fold", "2.0")
-  def recoverTotal[AA >: A](errManager: Invalid[Seq[E]] => AA): AA =
-    recover { case err => errManager(err) }.toOption.get
-
   @deprecated("use leftMap", "2.0")
   def fail = FailProjection(v)
 
@@ -136,7 +127,7 @@ object Validation {
   @deprecated("use .toList.sequenceU", "2.0")
   def sequence[E, A](
       vs: Seq[Validated[Seq[E], A]]): Validated[Seq[E], Seq[A]] = {
-    import cats.std.list._; import cats.syntax.traverse._;
+    import cats.instances.list._; import cats.syntax.traverse._;
     vs.toList.sequenceU
   }
 }

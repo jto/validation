@@ -3,14 +3,14 @@ val repo = "git@github.com:jto/validation.git"
 val org = "io.github.jto"
 val license = ("Apache License", url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 
-val catsVersion = "0.6.0"
+val catsVersion = "0.9.0"
 val jodaConvertVersion = "1.8.1"
-val jodaTimeVersion = "2.9.4"
-val kindProjectorVersion = "0.7.1"
-val parserCombinatorsVersion = "1.0.2"
-val playVersion = "2.5.3"
-val scalacVersion = "2.11.8"
-val scalatestVersion = "3.0.0-M16-SNAP6"
+val jodaTimeVersion = "2.9.7"
+val kindProjectorVersion = "0.9.3"
+val parserCombinatorsVersion = "1.0.5"
+val playVersion = "2.6.0-M1"
+val scalacVersion = "2.12.1"
+val scalatestVersion = "3.2.0-SNAP3"
 val scalaXmlVersion = "1.0.5"
 
 lazy val root = aggregate("validation", validationJVM, validationJS, docs).in(file("."))
@@ -31,7 +31,7 @@ lazy val `validation-form` = crossProject
   .jvmSettings(libraryDependencies +=
     "org.scala-lang.modules" %% "scala-parser-combinators" % parserCombinatorsVersion)
   .jsSettings(libraryDependencies +=
-    "org.scala-js" %%% "scala-parser-combinators" % parserCombinatorsVersion)
+    "org.scala-lang.modules" %%% "scala-parser-combinators" % parserCombinatorsVersion)
   .dependsOn(`validation-core`)
 lazy val formJVM = `validation-form`.jvm
 lazy val formJS = `validation-form`.js
@@ -117,7 +117,7 @@ val commonScalacOptions = Seq(
   "-unchecked",
   "-Xfatal-warnings",
   "-Xlint",
-  "-Yinline-warnings",
+  // "-Yinline-warnings",
   "-Yno-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",

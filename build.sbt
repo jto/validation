@@ -11,7 +11,7 @@ val parserCombinatorsVersion = "1.0.5"
 val playVersion = "2.6.0-M1"
 val scalacVersion = "2.12.1"
 val scalatestVersion = "3.2.0-SNAP3"
-val scalaXmlVersion = "1.0.5"
+val scalaXmlVersion = "1.0.6"
 
 lazy val root = aggregate("validation", validationJVM, validationJS, docs).in(file("."))
 lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, jsonAstJVM, `validation-playjson`, `validation-xml`, `date-tests`)
@@ -95,6 +95,7 @@ lazy val validationSettings = settings ++ dependencies ++ doPublish ++ scoverage
 
 lazy val settings = Seq(
   scalaVersion := scalacVersion,
+  crossScalaVersions := Seq("2.11.8"),
   organization := org,
   scalacOptions ++= commonScalacOptions,
   scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Ywarn-unused-import")),

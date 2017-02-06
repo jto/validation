@@ -2,13 +2,21 @@ package jto.validation
 package v3
 
 import shapeless.{ HList, HNil, :: }
+import shapeless.ops.hlist.Prepend
 
-case class As[A](path: Path) {
-  def ~[B](fb: As[B]): AsSyntax.AsSyntax2[A, B] =
+object As {
+  def apply[A](path: Path) = new As[A, HNil](path, HNil)
+}
+
+case class As[A, H <: HList](path: Path, constraints: H) {
+  def ~[B, HB <: HList](fb: As[B, HB]): AsSyntax.AsSyntax2[A, H, B, HB] =
     AsSyntax.AsSyntax2(this, fb)
 
   def materialize[F[_]](implicit f: Path => F[A]) =
     f(path)
+
+  def apply[H1 <: HList](h: H1)(implicit prepend: Prepend[H, H1]) =
+    new As(path, constraints ::: h)
 }
 
 /**

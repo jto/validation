@@ -253,11 +253,13 @@ object Boilerplate {
       import tv._
 
       val `A..N` = synTypes.reduce[String] { case (acc, el) => s"$acc, $el" }
+      val `AH..NH` = synTypes.zipWithIndex.map{ case (t, i) => s"$t, H$i" }.mkString(", ")
+      val `AH..NH<:HList` = synTypes.zipWithIndex.map{ case (t, i) => s"$t, H$i <: HList" }.mkString(", ")
       val `as..ns` = synTypes.zipWithIndex.map{ case (t, i) => s"as$i" }
       val `P=>F[A]..P=>F[N]` = synTypes.map { t => s"Path => F[$t]" }
       val `f..n` = (0 until arity).map{ i => s"f$i" }
       val `a:P=>F[A]..n:P=>F[N]` = `f..n`.zip(`P=>F[A]..P=>F[N]`).map { case (f, t) => s"${f}: $t"}.mkString(", ")
-      val `asA..nsN` = synTypes.zipWithIndex.map{ case (t, i) => s"as$i: As[$t]" }.mkString(", ")
+      val `asA..nsN` = synTypes.zipWithIndex.map{ case (t, i) => s"as$i: As[$t, H$i]" }.mkString(", ")
       val `A::N` = synTypes.map(t => s"$t").mkString(" :: ")
 
       val appliedPaths =
@@ -272,7 +274,7 @@ object Boilerplate {
 
       val next = if (arity >= maxArity) "" else
         s"""
-        |-    def ~[X](fb: As[X]): AsSyntax${arity + 1}[${`A..N`}, X] =
+        |-    def ~[X, H <: HNil](fb: As[X, H]): AsSyntax${arity + 1}[${`AH..NH`}, X, H] =
         |-      AsSyntax${arity + 1}(${`as..ns`.mkString(", ")}, fb)
         |-
         |-    def materialize[F[_]](implicit ${`a:P=>F[A]..n:P=>F[N]`}, hsq0: HSequence0[F]): F[${`A::N`} :: HNil] = {
@@ -287,8 +289,8 @@ object Boilerplate {
         |package v3
         |
         |object AsSyntax {
-        |  import shapeless.{::, HNil}
-        -  case class AsSyntax${arity}[${`A..N`}](${`asA..nsN`}) {
+        |  import shapeless.{::, HNil, HList}
+        -  case class AsSyntax${arity}[${`AH..NH<:HList`}](${`asA..nsN`}) {
         $next
         -  }
         -

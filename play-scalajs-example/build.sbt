@@ -1,6 +1,6 @@
 val scalaV = "2.11.8"
 
-val validationVersion = "2.0"
+val validationVersion = "2.1.0"
 
 lazy val jvm = project
   .in(file("jvm"))

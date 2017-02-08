@@ -4,6 +4,28 @@ package v3
 import shapeless.{ HList, HNil, :: }
 import shapeless.ops.hlist.Prepend
 
+object TLP {
+  type Flip[F[_, _]] = { type λ[B, A] = F[A, B] }
+}
+
+object Grammar {
+  case class Min[T <: AnyVal](v: T)
+  case class Max[T <: AnyVal](v: T)
+  case object NotEmpty
+}
+
+// import cats.~>
+trait Interpreter[G, F[_, _], A] {
+  def apply(g: G): F[A, A]
+}
+
+object RuleInterpreters {
+  import Grammar._
+  implicit def maxInt: Interpreter[Max[Int], Rule, Int] = ???
+  implicit def minInt: Interpreter[Max[Int], Rule, Int] = ???
+  implicit def notEmptyString: Interpreter[NotEmpty.type, Rule, Int] = ???
+}
+
 object As {
   def apply[A](path: Path) = new As[A, HNil](path, HNil)
 }
@@ -12,7 +34,7 @@ case class As[A, H <: HList](path: Path, constraints: H) {
   def ~[B, HB <: HList](fb: As[B, HB]): AsSyntax.AsSyntax2[A, H, B, HB] =
     AsSyntax.AsSyntax2(this, fb)
 
-  def materialize[F[_]](implicit f: Path => F[A]) =
+  def materialize[F[_, _], I](implicit f: Path => F[I, A]) =
     f(path)
 
   def apply[H1 <: HList](h: H1)(implicit prepend: Prepend[H, H1]) =
@@ -56,12 +78,14 @@ object HSequence0 {
 }
 
 /*
-import jto.validation._, v3._, jsonast._, Rules._, Writes._
+{
+import jto.validation._, v3._, jsonast._, Rules._, Writes._, TLP._
 val __ = jto.validation.Path
 val a1 = As[Int](__ \ "bar")
 val a2 = As[String](__ \ "baz")
 val a3 = As[Double](__ \ "foo")
 val as = a1 ~ a2 ~ a3
-val rule = as.materialize[({type R[A] = Rule[JValue, A]})#R]
-val write = as.materialize[({type W[A] = Write[A, JObject]})#W]
+}
+val rule = as.materialize[Rule, JValue]
+val write = as.materialize[Flip[Write]#λ, JObject]
 */

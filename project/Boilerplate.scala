@@ -256,7 +256,7 @@ object Boilerplate {
       val `AH..NH` = synTypes.zipWithIndex.map{ case (t, i) => s"$t, H$i" }.mkString(", ")
       val `AH..NH<:HList` = synTypes.zipWithIndex.map{ case (t, i) => s"$t, H$i <: HList" }.mkString(", ")
       val `as..ns` = synTypes.zipWithIndex.map{ case (t, i) => s"as$i" }
-      val `P=>F[A]..P=>F[N]` = synTypes.map { t => s"Path => F[$t]" }
+      val `P=>F[A]..P=>F[N]` = synTypes.map { t => s"Path => F[I, $t]" }
       val `f..n` = (0 until arity).map{ i => s"f$i" }
       val `a:P=>F[A]..n:P=>F[N]` = `f..n`.zip(`P=>F[A]..P=>F[N]`).map { case (f, t) => s"${f}: $t"}.mkString(", ")
       val `asA..nsN` = synTypes.zipWithIndex.map{ case (t, i) => s"as$i: As[$t, H$i]" }.mkString(", ")
@@ -277,7 +277,7 @@ object Boilerplate {
         |-    def ~[X, H <: HNil](fb: As[X, H]): AsSyntax${arity + 1}[${`AH..NH`}, X, H] =
         |-      AsSyntax${arity + 1}(${`as..ns`.mkString(", ")}, fb)
         |-
-        |-    def materialize[F[_]](implicit ${`a:P=>F[A]..n:P=>F[N]`}, hsq0: HSequence0[F]): F[${`A::N`} :: HNil] = {
+        |-    def materialize[F[_, _], I](implicit ${`a:P=>F[A]..n:P=>F[N]`}, hsq0: HSequence0[F[I, ?]]): F[I, ${`A::N`} :: HNil] = {
         |-       import hsq0.{ sequence => s, empty }
         |-       ${appliedPaths}
         |-    }

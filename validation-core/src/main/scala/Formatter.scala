@@ -158,8 +158,6 @@ object Formatting {
 
 case class Formatter[IR, IW](path: Path = Path(Nil)) {
 
-  self =>
-
   def format[JJ, J, O](subR: => RuleLike[J, O], subW: => WriteLike[O, JJ])(
       implicit r: Path => RuleLike[IR, J],
       w: Path => WriteLike[JJ, IW]): Format[IR, IW, O] = {
@@ -178,7 +176,6 @@ case class Formatter[IR, IW](path: Path = Path(Nil)) {
       implicit r: Path => RuleLike[IR, O],
       w: Path => WriteLike[O, IW]): Format[IR, IW, O] = new Format[IR, IW, O] {
     lazy val f = format(Rule.zero[O], Write.zero[O])
-    def path = self.path
     def validate(i: IR) = f.validate(i)
     def writes(o: O) = f.writes(o)
   }

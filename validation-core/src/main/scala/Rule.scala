@@ -5,8 +5,6 @@ import cats.syntax.cartesian._
 
 trait RuleLike[I, O] {
 
-  def path: Path
-
   /**
     * Apply the Rule to `data`
     * @param data The data to validate
@@ -144,7 +142,6 @@ object Rule {
 
   def apply[I, O](m: Mapping[(Path, Seq[ValidationError]), I, O]): Rule[I, O] =
     new Rule[I, O] {
-      def path = Path
       def validate(data: I): VA[O] = m(data)
     }
 
@@ -152,7 +149,6 @@ object Rule {
 
   def toRule[I, O](r: RuleLike[I, O]): Rule[I, O] =
     new Rule[I, O] {
-      def path = r.path
       def validate(data: I): VA[O] = r.validate(data)
     }
 

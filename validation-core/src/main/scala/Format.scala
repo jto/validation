@@ -17,7 +17,6 @@ object Format {
   def apply[IR, IW, O](
       r: RuleLike[IR, O], w: WriteLike[O, IW]): Format[IR, IW, O] =
     new Format[IR, IW, O] {
-      def path = r.path
       def validate(i: IR) = r.validate(i)
       def writes(o: O): IW = w.writes(o)
     }

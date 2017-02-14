@@ -27,12 +27,6 @@ package object validation {
   type Invalid[+E] = cats.data.Validated.Invalid[E]
   val Invalid = cats.data.Validated.Invalid
 
-  implicit def validatedBackcompat[E, A](
-      va: Validated[Seq[E], A]): VABackCompat[E, A] =
-    new VABackCompat[E, A] {
-      val v = va
-    }
-
   implicit def seqAlgebra[A]: Monoid[Seq[A]] =
     new Monoid[Seq[A]] {
       def empty: Seq[A] = Seq.empty[A]

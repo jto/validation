@@ -28,9 +28,6 @@ trait Write[I, +O] extends WriteLike[I, O] {
       f.compose(x => this.writes(x))
     }
 
-  @deprecated("use andThen instead.", "2.0")
-  def compose[OO >: O, P](w: WriteLike[OO, P]): Write[I, P] = andThen(w)
-
   /**
     * Returns a new Write that applies `this` Write, and then applies `w` to its result
     */

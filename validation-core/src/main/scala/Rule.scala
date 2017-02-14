@@ -3,7 +3,7 @@ package jto.validation
 import cats.Applicative
 import cats.syntax.cartesian._
 
-trait RuleLike[I, O] {
+sealed trait RuleLike[I, O] {
 
   /**
     * Apply the Rule to `data`
@@ -18,10 +18,6 @@ object RuleLike {
 }
 
 trait Rule[I, O] extends RuleLike[I, O] {
-
-  @deprecated("use andThen instead.", "2.0")
-  def compose[P](path: Path)(sub: => RuleLike[O, P]): Rule[I, P] =
-    andThen(path)(sub)
 
   /**
     * Compose two Rules
@@ -63,12 +59,9 @@ trait Rule[I, O] extends RuleLike[I, O] {
   def orElse[OO >: O](t: => RuleLike[I, OO]): Rule[I, OO] =
     Rule(d => this.validate(d) orElse t.validate(d))
 
-  @deprecated("use andThen instead.", "2.0")
-  def compose[P](sub: => RuleLike[O, P]): Rule[I, P] = andThen(sub)
-  def andThen[P](sub: => RuleLike[O, P]): Rule[I, P] = andThen(Path)(sub)
+  def andThen[P](sub: => RuleLike[O, P]): Rule[I, P] =
+    andThen(Path)(sub)
 
-  @deprecated("use andThen instead.", "2.0")
-  def compose[P](m: Mapping[ValidationError, O, P]): Rule[I, P] = andThen(m)
   def andThen[P](m: Mapping[ValidationError, O, P]): Rule[I, P] =
     andThen(Rule.fromMapping(m))
 
@@ -106,9 +99,6 @@ trait Rule[I, O] extends RuleLike[I, O] {
 
   def map[B](f: O => B): Rule[I, B] =
     Rule(d => this.validate(d).map(f))
-
-  @deprecated("fmap is deprecated, use map instead", "2.0")
-  def fmap[B](f: O => B): Rule[I, B] = map(f)
 
   def ap[A](mf: Rule[I, O => A]): Rule[I, A] =
     Rule { d =>

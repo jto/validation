@@ -90,6 +90,12 @@ object Write {
         wa.contramap(f)
     }
 
+  implicit def writeCompose =
+    new cats.arrow.Compose[Write] {
+      def compose[A, B, C](f: Write[B,C], g: Write[A,B]): Write[A,C] =
+        g andThen f
+    }
+
   implicit def writeHSequence0[O: Monoid] =
     v3.HSequence0.divisibleHSequence0[Write[?, O]]
 }

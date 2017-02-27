@@ -12,6 +12,7 @@ object Grammar {
   case class Min[T <: AnyVal](v: T)
   case class Max[T <: AnyVal](v: T)
   case object NotEmpty
+  case object Optional
 }
 
 // import cats.~>
@@ -20,6 +21,7 @@ trait Interpreter[G, F[_, _], A] {
 }
 
 object RuleInterpreters {
+  object R extends GenericRules with DateRules
   import Grammar._
   implicit def maxInt: Interpreter[Max[Int], Rule, Int] = ???
   implicit def minInt: Interpreter[Max[Int], Rule, Int] = ???

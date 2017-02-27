@@ -30,9 +30,7 @@ object Boilerplate {
     InvariantSyntax,
     FunctorSyntax,
     ContravariantSyntax,
-    UFreeSyntax,
-    AsSyntax,
-    LiftInstances
+    AsSyntax
   )
 
   /** Returns a seq of the generated files. As a side-effect, it actually generates them... */
@@ -198,54 +196,6 @@ object Boilerplate {
     }
   }
 
-  object UFreeSyntax extends Template {
-    def filename(root: File) = root / "UFreeSyntax.scala"
-
-    def content(tv: TemplateVals) = {
-      import tv._
-
-      val `((A..N))` = synTypes.reduce[String] { case (acc, el) => s"($acc, $el)" }
-      val `((a..n))` = `((A..N))`.toLowerCase
-
-      val next = if (arity >= maxArity) "" else
-        s"""
-        |-    def ~[IX <: HList, IO <: HList, X]
-        |-      (fb: UFree.Aux[X, IX])
-        |-      (implicit p: UnliftPrepend.Aux[Implicits, IX, IO])
-        |-      : UFreeSyntax${arity + 1}[IO, ${`A..N`}, X] =
-        |-        UFreeSyntax${arity + 1}(UFree.Zip(fa, fb)(p): UFree.Aux[(${`((A..N))`}, X), IO])
-        """.trim.stripMargin
-
-      block"""
-        |package jto.validation
-        |package free
-        |
-        |object UFreeSyntax {
-        -  case class UFreeSyntax${arity}[Implicits <: HList, ${`A..N`}](fa: UFree.Aux[(${`((A..N))`}), Implicits]) {
-        -    def imap[X](f: ${`(A..N)`} => X, g: X => (${`(A..N)`})): UFree.Aux[X, Implicits] =
-        -      UFree.Imap(fa)(
-        -        { case ${`((a..n))`} => f(${`a..n`}) },
-        -        { x =>
-        -          val ${`(a..n)`} = g(x)
-        -          ${`((a..n))`}
-        -        })
-        -
-        -    def as[X](implicit t: CaseClassTupler.Aux[X, ${`(A..N)`}]): UFree.Aux[X, Implicits] =
-        -      UFree.Imap(fa)(
-        -        { case ${`((a..n))`} => t.from(${`(a..n)`}) },
-        -        { x =>
-        -          val ${`(a..n)`} = t.to(x)
-        -          ${`((a..n))`}
-        -        })
-        -
-        $next
-        -  }
-        -
-        |}
-      """
-    }
-  }
-
   object AsSyntax extends Template {
     def filename(root: File) = root / "AsSyntax.scala"
 
@@ -292,49 +242,6 @@ object Boilerplate {
         |  import shapeless.{::, HNil, HList}
         -  case class AsSyntax${arity}[${`AH..NH<:HList`}](${`asA..nsN`}) {
         $next
-        -  }
-        -
-        |}
-      """
-    }
-  }
-
-  object LiftInstances extends Template {
-    def filename(root: File) = root / "LiftInstances.scala"
-
-    def content(tv: TemplateVals) = {
-      import tv._
-
-      val `A::N` = synTypes.mkString(" :: ")
-      val `a::n` = `A::N`.toLowerCase
-      val `P=>F[A]..P=>F[N]` = synTypes.map(t => s"(Path=>F[$t])").mkString(" :: ")
-      val `a:P=>F[A]..n:P=>F[N]` = synVals.zip(synTypes).map { case (a, t) => s"$a: Path=>F[$t]"}.mkString(", ")
-
-      block"""
-        |package jto.validation
-        |package free
-        |
-        |import cats._
-        |
-        |trait LiftInstances {
-        |  implicit class liftHList1[A, A0](self: UFree.Aux[A, A0 :: HNil]) {
-        |    def materialize[F[_]: InvariantMonoidal](implicit a0: Path=>F[A0]): F[A] =
-        |      self.mat(
-        |        new jto.validation.free.Lift[λ[t => Path=>F[t]], A0 :: HNil] {
-        |          type Out = (Path=>F[A0]) :: HNil
-        |          def instances = a0 :: HNil
-        |        }
-        |      )
-        |  }
-        |
-        -  implicit class liftHList${arity}[A, ${`A..N`}](self: UFree.Aux[A, ${`A::N`} :: HNil]) {
-        -    def materialize[F[_]: InvariantMonoidal](implicit ${`a:P=>F[A]..n:P=>F[N]`}): F[A] =
-        -      self.mat(
-        -        new jto.validation.free.Lift[λ[t => Path=>F[t]], ${`A::N`} :: HNil] {
-        -          type Out = ${`P=>F[A]..P=>F[N]`} :: HNil
-        -          def instances = ${`a::n`} :: HNil
-        -        }
-        -      )
         -  }
         -
         |}

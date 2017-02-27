@@ -154,6 +154,12 @@ object Rule {
       }
     }
 
+  implicit def ruleCompose =
+    new cats.arrow.Compose[Rule] {
+      def compose[A, B, C](f: Rule[B,C], g: Rule[A,B]): Rule[A,C] =
+        g andThen f
+    }
+
   implicit def ruleFunctorSyntaxObs[I, O](
       r: Rule[I, O])(implicit fcb: SyntaxCombine[Rule[I, ?]])
     : FunctorSyntaxObs[Rule[I, ?], O] =

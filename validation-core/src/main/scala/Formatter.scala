@@ -85,7 +85,7 @@ case class Reader[I](path: Path = Path(Nil)) {
     */
   def read[J, O](sub: => RuleLike[J, O])(
       implicit r: Path => RuleLike[I, J]): Rule[I, O] =
-    Rule.toRule(r(path)).andThen(path)(sub)
+    Rule.toRule(r(path)).andThen(sub)
 
   /**
     * Try to convert the data at `Path` to type `O`
@@ -103,9 +103,7 @@ case class Reader[I](path: Path = Path(Nil)) {
     * @return A Rule validating the existence and validity of data at `path`.
     */
   def read[O](implicit r: Path => RuleLike[I, O]): Rule[I, O] =
-    Rule { i =>
-      read(Rule.zero[O])(r).validate(i)
-    } // makes it lazy evaluated. Allows recursive writes
+    Rule.lazily[I, O](path)(r) // makes it lazy evaluated. Allows recursive writes
 
   def \(key: String): Reader[I] = Reader(path \ key)
   def \(idx: Int): Reader[I] = Reader(path \ idx)

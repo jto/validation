@@ -28,7 +28,7 @@ package object free {
         fa.map(f)
 
       def pure[A](a: A): Rule[I, A] =
-        Rule(_ => Valid(a))
+        Rule(Path)(_ => Valid(a))
     }
 
   // To be added directly to Path.

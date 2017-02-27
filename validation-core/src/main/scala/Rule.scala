@@ -2,43 +2,35 @@ package jto.validation
 
 import cats.Applicative
 import cats.syntax.cartesian._
+import shapeless.tag, tag.@@
 
 sealed trait RuleLike[I, O] {
+
+  private[validation] def path: Path
+
+  private[validation] def validateNoRoot(data: I): VA[O]
 
   /**
     * Apply the Rule to `data`
     * @param data The data to validate
     * @return The Result of validating the data
     */
-  def validate(data: I): VA[O]
+  def validate(data: I): VA[O] =
+    validateNoRoot(data).leftMap {
+      _.map{ case (ep, errs) => (path ++ ep) -> errs }
+    }
 }
 
 object RuleLike {
-  implicit def zero[O]: RuleLike[O, O] = Rule[O, O](Valid.apply)
+  implicit def zero[O]: RuleLike[O, O] = Rule[O, O](Path)(Valid.apply)
 }
 
 trait Rule[I, O] extends RuleLike[I, O] {
 
-  /**
-    * Compose two Rules
-    * {{{
-    *   val r1: Rule[JsValue, String] = // implementation
-    *   val r2: Rule[String, Date] = // implementation
-    *   val r = r1 .andThen(r2)
-    *
-    * }}}
-    * @param path a prefix for the errors path if the result is a `Invalid`
-    * @param sub the second Rule to apply
-    * @return The combination of the two Rules
-    */
-  def andThen[P](path: Path)(sub: => RuleLike[O, P]): Rule[I, P] =
-    this.flatMap { o =>
-      Rule(_ => sub.validate(o))
-    }.repath(path ++ _)
-
   def flatMap[B](f: O => Rule[I, B]): Rule[I, B] =
-    Rule { d =>
-      this.validate(d).map(f).fold(es => Invalid(es), r => r.validate(d))
+    Rule(path) { d =>
+      val res = validateNoRoot(d).map(f).fold(es => Invalid(es), r => r.validate(d))
+      res
     }
 
   /**
@@ -57,59 +49,40 @@ trait Rule[I, O] extends RuleLike[I, O] {
     * @return a Rule
     */
   def orElse[OO >: O](t: => RuleLike[I, OO]): Rule[I, OO] =
-    Rule(d => this.validate(d) orElse t.validate(d))
+    Rule(Path)(d => this.validate(d) orElse t.validate(d))
 
   def andThen[P](sub: => RuleLike[O, P]): Rule[I, P] =
-    andThen(Path)(sub)
+    flatMap { o =>
+      Rule[I, P](Path){ _ =>
+        sub.validate(o)
+      }
+    }
 
   def andThen[P](m: Mapping[ValidationError, O, P]): Rule[I, P] =
     andThen(Rule.fromMapping(m))
 
   /**
-    * Create a new Rule the validate `this` Rule and `r2` simultaneously
-    * If `this` and `r2` both fail, all the error are returned
-    * {{{
-    *   val valid = Json.obj(
-    *      "firstname" -> "Julien",
-    *      "lastname" -> "Tournay")
-    *   val composed = notEmpty |+| minLength(3)
-    *   (Path \ "firstname").read(composed).validate(valid) // Valid("Julien")
-    *  }}}
-    */
-  def |+|[OO <: O](r2: RuleLike[I, OO]): Rule[I, O] =
-    Rule[I, O] { v =>
-      (this.validate(v) *> r2.validate(v)).bimap(
-          _.groupBy(_._1).map {
-            case (path, errs) =>
-              path -> errs.flatMap(_._2)
-          }.toSeq,
-          identity
-      )
-    }
-
-  /**
     * This methods allows you to modify the Path of errors (if the result is a Invalid) when aplying the Rule
     */
   def repath(f: Path => Path): Rule[I, O] =
-    Rule(
-        d =>
-          this
-            .validate(d)
-            .bimap(_.map { case (p, errs) => f(p) -> errs }, identity))
+    Rule(f(path))(d => validateNoRoot(d))
 
   def map[B](f: O => B): Rule[I, B] =
-    Rule(d => this.validate(d).map(f))
+    Rule(path)(d => this.validate(d).map(f))
 
   def ap[A](mf: Rule[I, O => A]): Rule[I, A] =
-    Rule { d =>
+    Rule(Path) { d =>
       val a = validate(d)
-      val f = mf.validate(d)
+      val f = mf.validateNoRoot(d)
       Validated.fromEither(
           (f *> a).toEither.right.flatMap(x => f.toEither.right.map(_ (x))))
     }
 }
 
 object Rule {
+
+  trait Root
+
   def gen[I, O]: Rule[I, O] = macro MappingMacros.rule[I, O]
 
   /**
@@ -122,28 +95,35 @@ object Rule {
     * }}}
     */
   def uncurry[A, B, C](f: A => Rule[B, C]): Rule[(A, B), C] =
-    Rule { case (a, b) => f(a).validate(b) }
+    Rule(Path) { case (a, b) => f(a).validate(b) }
 
   def zero[O]: Rule[O, O] =
     toRule(RuleLike.zero[O])
 
   def pure[I, O](o: O): Rule[I, O] =
-    Rule(_ => Valid(o))
+    Rule(Path)(_ => Valid(o))
 
-  def apply[I, O](m: Mapping[(Path, Seq[ValidationError]), I, O]): Rule[I, O] =
+  def apply[I, O](p: Path)(m: Mapping[(Path, Seq[ValidationError]), I, O]): Rule[I, O] =
     new Rule[I, O] {
-      def validate(data: I): VA[O] = m(data)
+      def path = p
+      def validateNoRoot(data: I): VA[O] = m(data)
+    }
+
+  def lazily[I, O](path: Path)(r: Path => RuleLike[I, O]): Rule[I, O] =
+    Rule(path) { i =>
+      r(path).validateNoRoot(i)
     }
 
   def of[I, O](implicit r: Rule[I, O]): Rule[I, O] = r
 
   def toRule[I, O](r: RuleLike[I, O]): Rule[I, O] =
     new Rule[I, O] {
-      def validate(data: I): VA[O] = r.validate(data)
+      def path = r.path
+      def validateNoRoot(data: I): VA[O] = r.validateNoRoot(data)
     }
 
-  def fromMapping[I, O](f: Mapping[ValidationError, I, O]): Rule[I, O] =
-    Rule[I, O](f(_: I).bimap(errs => Seq(Path -> errs), identity))
+  def fromMapping[I, O](f: Mapping[ValidationError, I, O]): Rule[I, O] @@ Root =
+    tag[Root](Rule[I, O](Path)(f(_: I).bimap(errs => Seq(Path -> errs), identity)))
 
   implicit def applicativeRule[I]: Applicative[Rule[I, ?]] =
     new Applicative[Rule[I, ?]] {
@@ -155,6 +135,23 @@ object Rule {
     new SyntaxCombine[Rule[I, ?]] {
       def apply[A, B](a: Rule[I, A], b: Rule[I, B]): Rule[I, A ~ B] =
         b.ap(a.map(a => c => new ~(a, c)))
+    }
+
+  implicit def ruleSemigroup[I, O] =
+    new cats.Semigroup[Rule[I, O] @@ Root] {
+      def combine(r1: Rule[I,O] @@ Root, r2: Rule[I,O] @@ Root): Rule[I,O] @@ Root = {
+        val r =
+          Rule[I, O](Path) { v =>
+             (r1.validate(v) *> r2.validate(v)).bimap(
+                 _.groupBy(_._1).map {
+                   case (path, errs) =>
+                     path -> errs.flatMap(_._2)
+                 }.toSeq,
+                 identity
+             )
+           }
+        tag.apply(r)
+      }
     }
 
   implicit def ruleFunctorSyntaxObs[I, O](

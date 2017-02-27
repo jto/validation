@@ -22,5 +22,5 @@ object Ast {
     case JsNumber (value) => JNumber(value.toString)
   }
 
-  val from: Rule[JsValue, JValue] = Rule(x => Valid(totalFrom(x)))
+  val from: Rule[JsValue, JValue] = Rule(Path)(x => Valid(totalFrom(x)))
 }

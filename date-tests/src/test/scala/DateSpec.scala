@@ -86,6 +86,50 @@ class DateSpec extends WordSpec with Matchers {
         }
       }
 
+      "java time" when {
+        import java.time.LocalDate
+        import java.time.ZonedDateTime
+        import java.time.format.DateTimeFormatter
+
+        val ldf = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val zdf = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX")
+
+        val ld: LocalDate = LocalDate.parse("1989-03-30", ldf)
+        val zd: ZonedDateTime = ZonedDateTime.parse("1989-03-30T09:15:00Z")
+
+        "localdate" in {
+          Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
+            (__ \ "n").format(localDateR, localDateW)
+          }.validate(Map("n" -> Seq("1989-03-30"))) shouldBe (Valid(ld))
+
+          Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
+            (__ \ "n").format(localDateR, localDateW)
+          }.validate(Map("n" -> Seq("foo"))) shouldBe
+          (Invalid(Seq(Path \ "n" -> Seq(
+                          ValidationError("error.expected.localdate.format",
+                                          "yyyy-MM-dd")))))
+        }
+
+        "zoneddatetime" in {
+          Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
+            (__ \ "n").format(zonedDateTimeR, zonedDateTimeW)
+          }.validate(Map("n" -> Seq("1989-03-30T09:15:00+00:00"))) shouldBe (Valid(zd))
+
+          Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
+            (__ \ "n").format(zonedDateTimeR, zonedDateTimeW)
+          }.validate(Map("n" -> Seq("foo"))) shouldBe
+          (Invalid(Seq(Path \ "n" -> Seq(
+                          ValidationError("error.expected.zoneddatetime.format",
+                                          "yyyy-MM-dd'T'HH:mm:ssXXX")))))
+        }
+
+        "time" in {
+          Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
+            (__ \ "n").format(timeR, timeW)
+          }.validate(Map("n" -> Seq(zd.toInstant.toEpochMilli.toString))) shouldBe (Valid(zd.toLocalDateTime))
+        }
+      }
+
       "sql date" in {
         val f =
           new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)

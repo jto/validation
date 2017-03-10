@@ -1,5 +1,8 @@
 package jto.validation
 
+import java.time.{LocalDate, ZonedDateTime}
+import java.time.format.DateTimeFormatter
+
 /**
   * This trait provides default Rule implementations,
   * from String to various date types and format
@@ -36,6 +39,68 @@ trait DateRules {
     */
   implicit def dateR: Rule[String, java.util.Date] =
     dateR("yyyy-MM-dd")
+
+  /**
+    * Rule for the `java.time.LocalDate` type.
+    *
+    * @param pattern a date pattern, as specified in `java.time.format.DateTimeFormatter`.
+    * @param corrector a simple string transformation function that can be used to transform input String before parsing. Useful when standards are not exactly respected and require a few tweaks
+    */
+  def localDateR(pattern: String,
+                 corrector: String => String =
+                  identity): Rule[String, java.time.LocalDate] =
+    Rule.fromMapping[String, java.time.LocalDate] { s =>
+      import scala.util.Try
+
+      val df = DateTimeFormatter.ofPattern(pattern)
+      Try(LocalDate.parse(corrector(s), df))
+        .map(Valid.apply)
+        .getOrElse(Invalid(Seq(ValidationError(
+          "error.expected.localdate.format", pattern))))
+    }
+
+  /**
+    * Default Rule for the `java.time.LocalDate` type.
+    * It uses the default date format: `yyyy-MM-dd`
+    */
+  implicit def localDateR: Rule[String, java.time.LocalDate] =
+    localDateR("yyyy-MM-dd")
+
+  /**
+    * Rule for the `java.time.ZonedDateTime` type.
+    *
+    * @param pattern a date pattern, as specified in `java.time.format.DateTimeFormatter`.
+    * @param corrector a simple string transformation function that can be used to transform input String before parsing. Useful when standards are not exactly respected and require a few tweaks
+    */
+  def zonedDateTimeR(pattern: String,
+                     corrector: String => String =
+                  identity): Rule[String, java.time.ZonedDateTime] =
+    Rule.fromMapping[String, java.time.ZonedDateTime] { s =>
+      import scala.util.Try
+
+      val df = DateTimeFormatter.ofPattern(pattern)
+      Try(ZonedDateTime.parse(corrector(s), df))
+        .map(Valid.apply)
+        .getOrElse(Invalid(Seq(ValidationError(
+          "error.expected.zoneddatetime.format", pattern))))
+    }
+
+  /**
+    * Default Rule for the `java.time.ZonedDateTime` type.
+    * It uses the default date format: `yyyy-MM-dd`
+    */
+  implicit def zonedDateTimeR: Rule[String, java.time.ZonedDateTime] =
+    zonedDateTimeR("yyyy-MM-dd'T'HH:mm:ssXXX")
+
+  /**
+    * Default Rule for the `java.util.LocalDateTime` type from long.
+    */
+  implicit def timeR: Rule[Long, java.time.LocalDateTime] =
+    Rule.fromMapping[Long, java.time.LocalDateTime] { d =>
+      Valid(java.time.LocalDateTime.ofInstant(
+        java.time.Instant.ofEpochMilli(d),
+        java.time.ZoneOffset.UTC))
+    }
 
   /**
     * Rule for the `org.joda.time.DateTime` type.

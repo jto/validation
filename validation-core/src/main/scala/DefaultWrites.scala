@@ -9,6 +9,25 @@ trait DateWrites {
   implicit def dateW: Write[java.util.Date, String] =
     dateW("yyyy-MM-dd")
 
+  def localDateW(pattern: String): Write[java.time.LocalDate, String] =
+    Write[java.time.LocalDate, String] { d =>
+      java.time.format.DateTimeFormatter.ofPattern(pattern).format(d)
+    }
+
+  implicit def localDateW: Write[java.time.LocalDate, String] =
+    localDateW("yyyy-MM-dd")
+
+  def zonedDateTimeW(pattern: String): Write[java.time.ZonedDateTime, String] =
+    Write[java.time.ZonedDateTime, String] { d =>
+      java.time.format.DateTimeFormatter.ofPattern(pattern).format(d)
+    }
+
+  implicit def zonedDateTimeW: Write[java.time.ZonedDateTime, String] =
+    zonedDateTimeW("yyyy-MM-dd")
+
+  implicit def timeW: Write[java.time.LocalDateTime, Long] =
+    Write[java.time.LocalDateTime, Long](_.toInstant(java.time.ZoneOffset.UTC).toEpochMilli)
+
   def isoDateW: Write[java.util.Date, String] =
     Write[java.util.Date, String] { d =>
       import org.joda.time.format.ISODateTimeFormat

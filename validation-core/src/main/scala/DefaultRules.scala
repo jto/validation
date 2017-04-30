@@ -133,6 +133,14 @@ trait DateRules {
   */
 trait GenericRules {
 
+  def required[I]: Rule[Option[I], I] =
+    Rule.fromMapping {
+      case None =>
+        Invalid(Seq(ValidationError("error.required")))
+      case Some(i) =>
+        Valid(i)
+    }
+
   /**
     * Create a new constraint, verifying that the provided predicate is satisfied.
     * {{{

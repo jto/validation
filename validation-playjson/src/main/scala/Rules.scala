@@ -126,7 +126,7 @@ trait Rules extends DefaultRules[JsValue] {
       case Nil => Some(json)
     }
 
-    Rule[II, JsValue] { json =>
+    Rule[II, JsValue](p) { (json: II) =>
       search(p, json) match {
         case None =>
           Invalid(Seq(Path -> Seq(ValidationError("error.required"))))

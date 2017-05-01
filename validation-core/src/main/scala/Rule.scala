@@ -81,8 +81,6 @@ trait Rule[I, O] extends RuleLike[I, O] {
 
 object Rule {
 
-  trait Root
-
   def gen[I, O]: Rule[I, O] = macro MappingMacros.rule[I, O]
 
   /**

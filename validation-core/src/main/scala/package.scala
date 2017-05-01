@@ -33,3 +33,7 @@ package object validation {
       def combine(x: Seq[A], y: Seq[A]): Seq[A] = x ++ y
     }
 }
+
+package validation {
+  trait Root
+}

@@ -2,6 +2,7 @@ package jto.validation
 package v3.tagless
 
 import shapeless.{ ::, HNil, HList, Generic }
+import shapeless.tag.@@
 
 case class Goal[A, B](value: A) {
   def trivial(implicit ev: A =:= (B :: HNil)): B = value.head
@@ -59,33 +60,46 @@ package object syntax {
   }
 }
 
-
-import syntax._
-
 trait Primitives[I, K[_, _]] {
+  self: Constraints[K] with Typeclasses[K] =>
+
+  // TODO: add Root tag on k
   def at[A](p: Path)(k: K[I, A]): K[I, A]
-  def is[A](implicit K: K[I, A]) = K
+  def opt[A](p: Path)(k: K[I, A]): K[I, Option[A]]
+
+  // TODO: add Root tag on k (breaks compose)
+  def is[A](implicit K: K[I, A] @@ Root): K[I, A] = K
 
   def toGoal[Repr, A]: K[I, Repr] => K[I, Goal[Repr, A]]
 
-  sealed trait Defered[A] {
-    def apply[Repr](k: K[I, Repr]): K[I, Goal[Repr, A]] = toGoal(k)
+  def goal[A] = {
+    sealed trait Defered {
+      def apply[Repr](k: K[I, Repr]): K[I, Goal[Repr, A]] = toGoal(k)
+    }
+    new Defered{}
   }
-
-  def goal[A] = new Defered[A]{}
 
   def knil: K[I, HNil]
 
-  implicit def int: K[I, Int]
-  implicit def string: K[I, String]
+  implicit def int: K[I, Int] @@ Root
+  implicit def string: K[I, String] @@ Root
+  implicit def short: K[I, Short] @@ Root
+  implicit def long: K[I, Long] @@ Root
+  implicit def float: K[I, Float] @@ Root
+  implicit def double: K[I, Double] @@ Root
+  implicit def jBigDecimal: K[I, java.math.BigDecimal] @@ Root
+  implicit def bigDecimal: K[I, BigDecimal] @@ Root
+  implicit def boolean: K[I, Boolean] @@ Root
 }
 
 trait Constraints[K[_, _]] {
-  type C[A] = K[A, A]
+  type C[A] = K[A, A] @@ Root
 
-  def min[A](a: A): C[A]
-  def max[A](a: A): C[A]
-  def notEmpty(a: String): C[String]
+  def required[A]: K[Option[A], A]
+  def min[A](a: A)(implicit O: Ordering[A]): C[A]
+  def max[A](a: A)(implicit O: Ordering[A]): C[A]
+  def notEmpty: C[String]
+  def minLength(l: Int): C[String]
 }
 
 trait Typeclasses[K[_, _]] {
@@ -99,32 +113,3 @@ trait Grammar[I, K[_, _]]
   extends Primitives[I, K]
   with Constraints[K]
   with Typeclasses[K]
-
-object Demo {
-
-  val __ = Path
-
-  case class Foo(i: Int, s: String)
-  case class Bar(s: String, foo: Foo)
-
-  import cats.syntax.compose._
-  import cats.syntax.semigroup._
-
-  def foo[I, K[_, _]](implicit g: Grammar[I, K]): K[I, Goal[Int :: String :: HNil, Foo]] =
-    g.goal[Foo] {
-      import g._
-      at(__ \ "i"){ is[Int] andThen (min(0) |+| max(3)) } ~:
-      at(__ \ "s"){ is[String] } ~:
-      knil
-    }
-
-  def bar[I, K[_, _]](implicit g: Grammar[I, K]): K[I, Goal[String :: Goal[Int :: String :: HNil, Foo] :: HNil, Bar]] =
-    g.goal[Bar] {
-      import g._
-      at(__ \ "s"){ is[String] } ~:
-      at(__ \ "foo"){ foo } ~:
-      knil
-    }
-
-  // val supR = sup[JsValue, Rule].map(solve)
-}

@@ -4,6 +4,7 @@ package playjson
 import play.api.libs.json.{JsValue, JsObject, JsString, JsNumber, JsBoolean, JsArray, JsNull}
 
 trait Rules extends DefaultRules[JsValue] {
+
   private def jsonAs[T](
       f: PartialFunction[JsValue, Validated[Seq[ValidationError], T]])(
       msg: String, args: Any*) =

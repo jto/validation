@@ -60,6 +60,7 @@ lazy val `validation-playjson` = project
   .settings(libraryDependencies +=
     "com.typesafe.play" %% "play-json" % playVersion)
   .dependsOn(coreJVM)
+  .dependsOn(coreJVM % "test->test")
 
 lazy val `validation-xml` = project
   .settings(validationSettings: _*)

@@ -19,6 +19,7 @@ sealed trait RuleLike[I, O] {
     validateNoRoot(data).leftMap {
       _.map{ case (ep, errs) => (path ++ ep) -> errs }
     }
+
 }
 
 object RuleLike {
@@ -77,6 +78,9 @@ trait Rule[I, O] extends RuleLike[I, O] {
       Validated.fromEither(
           (f *> a).toEither.right.flatMap(x => f.toEither.right.map(_ (x))))
     }
+
+  def to[T](implicit g: shapeless.Generic.Aux[T, O]) =
+    map(o => g.from(o))
 }
 
 object Rule {

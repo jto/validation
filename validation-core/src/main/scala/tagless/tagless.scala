@@ -3,11 +3,13 @@ package v3.tagless
 
 import shapeless.{ ::, HNil, HList, Generic }
 import shapeless.tag.@@
+import cats.Functor
 
 case class Goal[A, B](value: A) {
   def trivial(implicit ev: A =:= (B :: HNil)): B = value.head
 }
 
+// TODO: Add helpful implicit not found message
 trait Solver[I, O] {
   def solve(h: I): O
 }
@@ -39,6 +41,24 @@ object Solver {
     new Solver[H, T] {
       def solve(h: H): T = G.from(S.solve(h))
     }
+
+  implicit def functorSolver[I, O, F[_]: Functor, T <: HList](implicit S: Solver[I, O]) =
+    new Solver[F[Goal[I, O]] :: T, F[O] :: T] {
+      def solve(h: F[Goal[I, O]] :: T): F[O] :: T =
+        Functor[F].map(h.head) {
+          i => S.solve(i.value)
+        } :: h.tail
+    }
+
+
+  implicit def seqSolver[I, O, T <: HList](implicit S: Solver[I, O]) =
+    new Solver[Seq[Goal[I, O]] :: T, Seq[O] :: T] {
+      def solve(h: Seq[Goal[I, O]] :: T): Seq[O] :: T =
+        h.head.map {
+          i => S.solve(i.value)
+        } :: h.tail
+    }
+
 }
 
 trait Merge[F[_]] {
@@ -67,17 +87,16 @@ trait Primitives[I, K[_, _]] {
   def at[A](p: Path)(k: K[I, A]): K[I, A]
   def opt[A](p: Path)(k: K[I, A]): K[I, Option[A]]
 
-  // TODO: add Root tag on k (breaks compose)
-  def is[A](implicit K: K[I, A] @@ Root): K[I, A] = K
+  // TODO: add Root tag on k (breaks seq implicit resolution)
+  def is[A](implicit K: K[I, A]): K[I, A] = K
 
   def toGoal[Repr, A]: K[I, Repr] => K[I, Goal[Repr, A]]
 
-  def goal[A] = {
-    sealed trait Defered {
-      def apply[Repr](k: K[I, Repr]): K[I, Goal[Repr, A]] = toGoal(k)
-    }
-    new Defered{}
+  sealed trait Defered[A] {
+    def apply[Repr](k: K[I, Repr]): K[I, Goal[Repr, A]] = toGoal(k)
   }
+
+  def goal[A] = new Defered[A]{}
 
   def knil: K[I, HNil]
 
@@ -90,6 +109,10 @@ trait Primitives[I, K[_, _]] {
   implicit def jBigDecimal: K[I, java.math.BigDecimal] @@ Root
   implicit def bigDecimal: K[I, BigDecimal] @@ Root
   implicit def boolean: K[I, Boolean] @@ Root
+  implicit def seq[A](implicit k: K[I, A]): K[I, Seq[A]]
+  implicit def array[A: scala.reflect.ClassTag](implicit k: K[I, A]): K[I, Array[A]]
+  implicit def map[A](implicit k: K[I, A]): K[I, Map[String, A]]
+  implicit def traversable[A](implicit k: K[I, A]): K[I, Traversable[A]]
 }
 
 trait Constraints[K[_, _]] {
@@ -100,6 +123,9 @@ trait Constraints[K[_, _]] {
   def max[A](a: A)(implicit O: Ordering[A]): C[A]
   def notEmpty: C[String]
   def minLength(l: Int): C[String]
+  def email: C[String]
+  def forall[I, O](k: K[I, O]): K[Seq[I], Seq[O]]
+  def equalTo[A](a: A): C[A]
 }
 
 trait Typeclasses[K[_, _]] {

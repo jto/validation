@@ -8,9 +8,10 @@ import jto.validation.playjson.Rules
 import cats.syntax.cartesian._
 
 package object playjson {
+
   implicit object RulesGrammar extends Grammar[JsValue, Rule]{
 
-    private def search(path: Path, json: JsValue): Option[JsValue] =
+    @inline private def search(path: Path, json: JsValue): Option[JsValue] =
       path.path match {
         case KeyPathNode(k) :: t =>
           json match {
@@ -49,31 +50,34 @@ package object playjson {
 
     import shapeless.{::, HNil, HList}
 
-    def knil =
-      Rule.pure(HNil)
+    def knil = Rule.pure(HNil)
+
+    implicit def int = Rules.intR
+    implicit def string = Rules.stringR
+    implicit def bigDecimal = Rules.bigDecimal
+    implicit def boolean = Rules.booleanR
+    implicit def double = Rules.doubleR
+    implicit def float = Rules.floatR
+    implicit def jBigDecimal = Rules.javaBigDecimal
+    implicit def long = Rules.longR
+    implicit def short = Rules.shortR
+    implicit def seq[A](implicit k: Rule[JsValue, A]) = Rules.pickSeq(k)
+    implicit def array[A: scala.reflect.ClassTag](implicit k: Rule[JsValue, A]) = Rules.pickArray
+    implicit def map[A](implicit k: Rule[JsValue, A]) = Rules.mapR
+    implicit def traversable[A](implicit k: Rule[JsValue, A]) = Rules.pickTraversable
 
     def required[A]: Rule[Option[A], A] = Rules.required
+    def max[A](a: A)(implicit O: Ordering[A]) = Rules.max(a)
+    def min[A](a: A)(implicit O: Ordering[A]) = Rules.min(a)
+    def notEmpty = Rules.notEmpty
+    def minLength(l: Int) = Rules.minLength(l)
+    def email = Rules.email
+    def forall[I, O](k: Rule[I,O]) = Rules.seqR(k)
+    def equalTo[T](t: T) = Rules.equalTo(t)
 
-    override implicit def int = Rules.intR
-    override implicit def string = Rules.stringR
-    override implicit def bigDecimal = Rules.bigDecimal
-    override implicit def boolean = Rules.booleanR
-    override implicit def double = Rules.doubleR
-    override implicit def float = Rules.floatR
-    override implicit def jBigDecimal = Rules.javaBigDecimal
-    override implicit def long = Rules.longR
-    override implicit def short = Rules.shortR
+    def toGoal[Repr, A] = _.map { Goal.apply }
 
-    override def max[A](a: A)(implicit O: Ordering[A]) = Rules.max(a)
-    override def min[A](a: A)(implicit O: Ordering[A]) = Rules.min(a)
-    override def notEmpty = Rules.notEmpty
-    override def minLength(l: Int) = Rules.minLength(l)
-
-    def toGoal[Repr, A] =
-      _.map { Goal.apply }
-
-    override implicit def composeTC =
-      Rule.ruleCompose
+    implicit def composeTC = Rule.ruleCompose
 
     implicit def mergeTC[I]: Merge[Rule[I, ?]] =
       new Merge[Rule[I, ?]] {

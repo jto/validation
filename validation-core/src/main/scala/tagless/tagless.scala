@@ -57,7 +57,6 @@ trait Primitives[I, K[_, _]] {
 trait Constraints[K[_, _]] {
   type C[A] = K[A, A] @@ Root
 
-  // def required[A]: K[Option[A], A]
   def min[A](a: A)(implicit O: Ordering[A]): C[A]
   def max[A](a: A)(implicit O: Ordering[A]): C[A]
   def notEmpty: C[String]

@@ -10,7 +10,7 @@ import cats.Semigroup
 
 import shapeless.tag.@@
 
-object WritesGrammar extends Grammar[JsValue, types.flip[Write]#λ] with WriteConstraints {
+object WritesGrammar extends JsonGrammar[types.flip[Write]#λ] with WriteConstraints {
 
   def at[A](p: Path)(k: => Write[A, JsValue]): Write[A, JsValue] =
     ???

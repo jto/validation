@@ -7,6 +7,9 @@ trait TestCases[T] {
   trait base {
     def valid: T
     def invalid: T
+    def smthTrue: T
+    def smthFalse: T
+    def emptyObj: T
   }
 
   trait int {
@@ -105,16 +108,6 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       def err = at(errPath)(is[String])
       err.validate(invalid) shouldBe (error)
     }
-    // "support checked" in {
-    //   val js = Json.obj("issmth" -> true)
-    //   val p = Path \ "issmth"
-    //   p.from[JsValue](checked).validate(js) shouldBe (Valid(true))
-    //   p.from[JsValue](checked).validate(Json.obj()) shouldBe
-    //   (Invalid(Seq(Path \ "issmth" -> Seq(ValidationError("error.required")))))
-    //   p.from[JsValue](checked).validate(Json.obj("issmth" -> false)) shouldBe
-    //   (Invalid(Seq(Path \ "issmth" -> Seq(
-    //                   ValidationError("error.equals", true)))))
-    // }
 
     "support primitive types" when {
 
@@ -378,9 +371,6 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       label.validate(invalid) shouldBe
         (Invalid(Seq(p ->
           Seq(ValidationError("error.required")))))
-
-      // def second = opt(Path \ "first" \ "second")(is[String])
-      // second validate (JsNull) shouldBe Valid(None) // TODO: extract
     }
 
     "coerce type" in {

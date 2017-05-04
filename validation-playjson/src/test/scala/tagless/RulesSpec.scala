@@ -36,6 +36,10 @@ object JsonTestCases extends TestCases[JsValue] {
                     "email" -> "fakecontact@gmail.com",
                     "phones" -> Seq("01.23.45.67.89",
                                     "98.76.54.32.10"))))
+
+    val smthTrue = Json.obj("issmth" -> true)
+    val smthFalse = Json.obj("issmth" -> false)
+    val emptyObj = Json.obj()
   }
 
   val int = new int {

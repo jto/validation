@@ -65,6 +65,11 @@ trait TestCases[T] {
     val e: T
   }
 
+  trait rec {
+    val bobAndFriends: T
+    val bobAndFriend: T
+  }
+
   val base: base
   val int: int
   val boolean: boolean
@@ -74,6 +79,7 @@ trait TestCases[T] {
   val map: map
   val password: password
   val subclasses: subclasses
+  val rec: rec
 }
 
 trait RulesSpec[T] extends WordSpec with Matchers {
@@ -586,54 +592,65 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         (Invalid(Seq((Path \ "contacts" \ 0 \ "label") -> Seq(
           ValidationError("error.required")))))
     }
-/*
-  //   "read recursive" when {
-  //     case class RecUser(name: String, friends: Seq[RecUser] = Nil)
-  //     val u = RecUser("bob", Seq(RecUser("tom")))
 
-  //     val m =
-  //       Json.obj("name" -> "bob",
-  //                "friends" -> Seq(
-  //                    Json.obj("name" -> "tom", "friends" -> Seq[JsObject]())))
+    "read recursive" when {
+      import testCases.rec._
 
-  //     case class User1(name: String, friend: Option[User1] = None)
-  //     val u1 = User1("bob", Some(User1("tom")))
-  //     val m1 = Json.obj("name" -> "bob", "friend" -> Json.obj("name" -> "tom"))
+      case class RecUser(name: String, friends: Seq[RecUser] = Nil)
+      val u = RecUser("bob", Seq(RecUser("tom")))
 
-  //     "using explicit notation" in {
-  //       lazy val w: Rule[JsValue, RecUser] = From[JsValue] { __ =>
-  //         ((__ \ "name").read[String] ~ (__ \ "friends").read(seqR(w)))(
-  //             RecUser.apply)
-  //       }
-  //       w.validate(m) shouldBe Valid(u)
+      case class User1(name: String, friend: Option[User1] = None)
+      val u1 = User1("bob", Some(User1("tom")))
 
-  //       lazy val w2: Rule[JsValue, RecUser] =
-  //         ((Path \ "name").read[JsValue, String] ~ (Path \ "friends")
-  //               .from[JsValue](seqR(w2)))(RecUser.apply)
-  //       w2.validate(m) shouldBe Valid(u)
+      "using explicit notation" in {
+        lazy val w: Rule[T, RecUser] =
+          (
+            at(Path \ "name")(is[String]) ~:
+            at(Path \ "friends")(seq(w)) ~:
+            knil
+          ).to[RecUser]
 
-  //       lazy val w3: Rule[JsValue, User1] = From[JsValue] { __ =>
-  //         ((__ \ "name").read[String] ~ (__ \ "friend").read(optionR(w3)))(
-  //             User1.apply)
-  //       }
-  //       w3.validate(m1) shouldBe Valid(u1)
-  //     }
+        w.validate(bobAndFriends) shouldBe Valid(u)
 
-  //     "using implicit notation" in {
-  //       implicit lazy val w: Rule[JsValue, RecUser] = From[JsValue] { __ =>
-  //         ((__ \ "name").read[String] ~ (__ \ "friends").read[Seq[RecUser]])(
-  //             RecUser.apply)
-  //       }
-  //       w.validate(m) shouldBe Valid(u)
+        lazy val w2: Rule[T, RecUser] =
+          (
+            at(Path \ "name")(is[String]) ~:
+            at(Path \ "friends")(seq(w2)) ~:
+            knil
+          ).to[RecUser]
 
-  //       implicit lazy val w3: Rule[JsValue, User1] = From[JsValue] { __ =>
-  //         ((__ \ "name").read[String] ~ (__ \ "friend").read[Option[User1]])(
-  //             User1.apply)
-  //       }
-  //       w3.validate(m1) shouldBe Valid(u1)
-  //     }
-  //   }
-  */
+        w2.validate(bobAndFriends) shouldBe Valid(u)
+
+        lazy val w3: Rule[T, User1] =
+          (
+            at(Path \ "name")(is[String]) ~:
+            opt(Path \ "friend")(w3) ~:
+            knil
+          ).to[User1]
+
+        w3.validate(bobAndFriend) shouldBe Valid(u1)
+      }
+
+      "using implicit notation" in {
+        implicit lazy val w: Rule[T, RecUser] =
+          (
+            at(Path \ "name")(is[String]) ~:
+            at(Path \ "friends")(is[Seq[RecUser]]) ~:
+            knil
+          ).to[RecUser]
+
+        w.validate(bobAndFriends) shouldBe Valid(u)
+
+        implicit lazy val w3: Rule[T, User1] =
+          (
+            at(Path \ "name")(is[String]) ~:
+            opt(Path \ "friend")(is[User1]) ~:
+            knil
+          ).to[User1]
+
+        w3.validate(bobAndFriend) shouldBe Valid(u1)
+      }
+    }
 
   }
 }

@@ -7,9 +7,11 @@ import cats.Semigroup
 import jto.validation.playjson.Rules
 import cats.syntax.cartesian._
 
+import shapeless.tag.@@
+
 package object playjson {
 
-  implicit object RulesGrammar extends Grammar[JsValue, Rule]{
+  implicit object RulesGrammar extends Grammar[JsValue, Rule] with RuleConstraints {
 
     @inline private def search(path: Path, json: JsValue): Option[JsValue] =
       path.path match {
@@ -28,7 +30,7 @@ package object playjson {
           Some(json)
       }
 
-    def at[A](p: Path)(k: Rule[JsValue, A]): Rule[JsValue, A] =
+    def at[A](p: Path)(k: => Rule[JsValue, A]): Rule[JsValue, A] =
       Rule(p) { js =>
         search(p, js) match {
           case None =>
@@ -38,7 +40,7 @@ package object playjson {
         }
       }
 
-    def opt[A](p: Path)(k: Rule[JsValue,A]): Rule[JsValue, Option[A]] =
+    def opt[A](p: Path)(k: => Rule[JsValue,A]): Rule[JsValue, Option[A]] =
       Rule(p) { js =>
         search(p, js) match {
           case None =>
@@ -66,15 +68,6 @@ package object playjson {
     implicit def map[A](implicit k: Rule[JsValue, A]) = Rules.mapR
     implicit def traversable[A](implicit k: Rule[JsValue, A]) = Rules.pickTraversable
 
-    def required[A]: Rule[Option[A], A] = Rules.required
-    def max[A](a: A)(implicit O: Ordering[A]) = Rules.max(a)
-    def min[A](a: A)(implicit O: Ordering[A]) = Rules.min(a)
-    def notEmpty = Rules.notEmpty
-    def minLength(l: Int) = Rules.minLength(l)
-    def email = Rules.email
-    def forall[I, O](k: Rule[I,O]) = Rules.seqR(k)
-    def equalTo[T](t: T) = Rules.equalTo(t)
-
     def toGoal[Repr, A] = _.map { Goal.apply }
 
     implicit def composeTC = Rule.ruleCompose
@@ -85,6 +78,8 @@ package object playjson {
           (fa |@| fb).map(_ :: _)
       }
 
-    implicit def semigroupTC[A]: Semigroup[Rule[A, A]] = ???
+    implicit def semigroupTC[I, O]: Semigroup[Rule[I, O] @@ Root] =
+      Rule.ruleSemigroup
+
   }
 }

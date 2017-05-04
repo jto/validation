@@ -1,64 +1,11 @@
 package jto.validation
 package v3.tagless
 
-import shapeless.{ ::, HNil, HList, Generic }
+import shapeless.{ ::, HNil, HList }
 import shapeless.tag.@@
-import cats.Functor
 
 case class Goal[A, B](value: A) {
   def trivial(implicit ev: A =:= (B :: HNil)): B = value.head
-}
-
-// TODO: Add helpful implicit not found message
-trait Solver[I, O] {
-  def solve(h: I): O
-}
-
-object Solver {
-
-  def apply[I, O](implicit S: Solver[I, O]) = S
-
-  implicit def hnilSolver =
-    new Solver[HNil, HNil] {
-      def solve(h: HNil): HNil = h
-    }
-
-  implicit def hlistSolver[H, T1 <: HList, T2 <: HList](implicit S: Solver[T1, T2]) =
-    new Solver[H :: T1, H :: T2] {
-      def solve(h: H :: T1): H :: T2 = h.head :: S.solve(h.tail)
-    }
-
-  implicit def goalSolver[I, O, T1 <: HList, T2 <: HList](implicit SG: Solver[I, O], ST: Solver[T1, T2]) =
-    new Solver[Goal[I, O] :: T1, O :: T2]{
-      def solve(h: Goal[I, O] :: T1): O :: T2 =
-        SG.solve(h.head.value) :: ST.solve(h.tail)
-    }
-
-  implicit def genSolver[H <: HList, T, Repr <: HList](implicit
-    G: Generic.Aux[T, Repr],
-    S: Solver[H, Repr]
-  ): Solver[H, T] =
-    new Solver[H, T] {
-      def solve(h: H): T = G.from(S.solve(h))
-    }
-
-  implicit def functorSolver[I, O, F[_]: Functor, T <: HList](implicit S: Solver[I, O]) =
-    new Solver[F[Goal[I, O]] :: T, F[O] :: T] {
-      def solve(h: F[Goal[I, O]] :: T): F[O] :: T =
-        Functor[F].map(h.head) {
-          i => S.solve(i.value)
-        } :: h.tail
-    }
-
-
-  implicit def seqSolver[I, O, T <: HList](implicit S: Solver[I, O]) =
-    new Solver[Seq[Goal[I, O]] :: T, Seq[O] :: T] {
-      def solve(h: Seq[Goal[I, O]] :: T): Seq[O] :: T =
-        h.head.map {
-          i => S.solve(i.value)
-        } :: h.tail
-    }
-
 }
 
 trait Merge[F[_]] {
@@ -69,23 +16,12 @@ case class MergeOps[F[_], B <: HList](fb: F[B])(implicit M: Merge[F]) {
   def ~:[A](fa: F[A]) = M.merge(fa, fb)
 }
 
-package object syntax {
-  implicit def toMergeOps[F[_, _], I, B <: HList](fb: F[I, B])(implicit M: Merge[F[I, ?]]) =
-    MergeOps[F[I, ?], B](fb)
-
-  def solve[H, T](g: Goal[H, T])(implicit S: Solver[H, T]): T = S.solve(g.value)
-
-  def as[T] = new {
-    def apply[I](i: I)(implicit S: Solver[I, T]): T = solve(Goal[I, T](i))
-  }
-}
-
 trait Primitives[I, K[_, _]] {
   self: Constraints[K] with Typeclasses[K] =>
 
   // TODO: add Root tag on k
-  def at[A](p: Path)(k: K[I, A]): K[I, A]
-  def opt[A](p: Path)(k: K[I, A]): K[I, Option[A]]
+  def at[A](p: Path)(k:  => K[I, A]): K[I, A]
+  def opt[A](p: Path)(k: => K[I, A]): K[I, Option[A]]
 
   // TODO: add Root tag on k (breaks seq implicit resolution)
   def is[A](implicit K: K[I, A]): K[I, A] = K
@@ -131,7 +67,7 @@ trait Constraints[K[_, _]] {
 trait Typeclasses[K[_, _]] {
   import cats.arrow.Compose
   implicit def composeTC: Compose[K]
-  implicit def semigroupTC[A]: cats.Semigroup[K[A, A]]
+  implicit def semigroupTC[I, O]: cats.Semigroup[K[I, O] @@ Root]
   implicit def mergeTC[I]: Merge[K[I, ?]]
 }
 

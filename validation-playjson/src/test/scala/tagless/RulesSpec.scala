@@ -102,6 +102,18 @@ object JsonTestCases extends TestCases[JsValue] {
     val e = Json.obj("name" -> "E", "eee" -> 6)
   }
 
+  val rec = new rec {
+    val bobAndFriends =
+      Json.obj("name" -> "bob",
+               "friends" -> Seq(
+                   Json.obj("name" -> "tom", "friends" -> Seq[JsObject]())))
+
+    val bobAndFriend =
+      Json.obj(
+        "name" -> "bob",
+        "friend" -> Json.obj("name" -> "tom"))
+  }
+
 }
 
 class JsonRulesSpec extends RulesSpec[JsValue] {

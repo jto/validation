@@ -139,11 +139,6 @@ class JsonRulesSpec extends RulesSpec[JsValue] {
         jn.validate(Json.obj("n" -> 4.5)) shouldBe
           Invalid(Seq(Path \ "n" -> Seq(
             ValidationError("error.invalid", "null"))))
-
-        // TODO
-        // import testCases.option._
-        // opt(Path \ "n")(is[Boolean])
-        //   .validate(nNull) shouldBe Valid(None)
       }
 
       "JsObject" in {

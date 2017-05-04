@@ -4,6 +4,10 @@ package v3.tagless
 import shapeless.{ ::, HNil, HList }
 import shapeless.tag.@@
 
+object types {
+  type flip[F[_, _]] = { type λ[B, A] = F[A, B] }
+}
+
 case class Goal[A, B](value: A) {
   def trivial(implicit ev: A =:= (B :: HNil)): B = value.head
 }

@@ -117,64 +117,77 @@ object JsonTestCases extends TestCases[JsValue] {
 }
 
 class JsonRulesSpec extends RulesSpec[JsValue] {
-  implicit val grammar = RulesGrammar
+  val grammar = RulesGrammar
   val testCases = JsonTestCases
 
-   //     "null" in {
-  //       (Path \ "n")
-  //         .read[JsValue, JsNull.type]
-  //         .validate(Json.obj("n" -> JsNull)) shouldBe (Valid(JsNull))
-  //       (Path \ "n")
-  //         .read[JsValue, JsNull.type]
-  //         .validate(Json.obj("n" -> "foo")) shouldBe
-  //       (Invalid(Seq(Path \ "n" -> Seq(
-  //                       ValidationError("error.invalid", "null")))))
-  //       (Path \ "n").read[JsValue, JsNull.type].validate(Json.obj("n" -> 4.5)) shouldBe
-  //       (Invalid(Seq(Path \ "n" -> Seq(
-  //                       ValidationError("error.invalid", "null")))))
-  //     }
+  import grammar._
 
-  //     "JsObject" in {
-  //       (Path \ "o")
-  //         .read[JsValue, JsObject]
-  //         .validate(Json.obj("o" -> Json.obj("n" -> "foo"))) shouldBe
-  //       (Valid(JsObject(Seq("n" -> JsString("foo")))))
-  //       (Path \ "n").read[JsValue, JsObject].validate(Json.obj("n" -> 42)) shouldBe
-  //       (Invalid(Seq(Path \ "n" -> Seq(
-  //                       ValidationError("error.invalid", "Object")))))
-  //       (Path \ "n").read[JsValue, JsObject].validate(Json.obj("n" -> "foo")) shouldBe
-  //       (Invalid(Seq(Path \ "n" -> Seq(
-  //                       ValidationError("error.invalid", "Object")))))
-  //       (Path \ "n")
-  //         .read[JsValue, JsObject]
-  //         .validate(Json.obj("n" -> Seq("foo"))) shouldBe
-  //       (Invalid(Seq(Path \ "n" -> Seq(
-  //                       ValidationError("error.invalid", "Object")))))
-  //     }
+  "Specific JSON Rules" should {
+    "support null" in {
+        val jn = at(Path \ "n")(is[JsNull.type])
 
-  //     "JsString" in {
-  //       (Path \ "n").read[JsValue, JsString].validate(Json.obj("n" -> "foo")) shouldBe
-  //       (Valid(JsString("foo")))
-  //       (Path \ "n").read[JsValue, JsString].validate(Json.obj("n" -> 42)) shouldBe
-  //       (Invalid(Seq(Path \ "n" -> Seq(
-  //                       ValidationError("error.invalid", "String")))))
-  //     }
+        jn.validate(Json.obj("n" -> JsNull)) shouldBe Valid(JsNull)
 
-  //     "JsNumber" in {
-  //       (Path \ "n").read[JsValue, JsNumber].validate(Json.obj("n" -> 4)) shouldBe
-  //       (Valid(JsNumber(4)))
-  //       (Path \ "n").read[JsValue, JsNumber].validate(Json.obj("n" -> "foo")) shouldBe
-  //       (Invalid(Seq(Path \ "n" -> Seq(
-  //                       ValidationError("error.number", "Number")))))
-  //       (Path \ "n").read[JsValue, JsNumber].validate(Json.obj("n" -> 4.5)) shouldBe
-  //       (Valid(JsNumber(4.5)))
-  //     }
+        jn.validate(Json.obj("n" -> "foo")) shouldBe
+          Invalid(Seq(Path \ "n" -> Seq(
+            ValidationError("error.invalid", "null"))))
 
-  //     "JsBoolean" in {
-  //       (Path \ "n").read[JsValue, JsBoolean].validate(Json.obj("n" -> true)) shouldBe
-  //       (Valid(JsBoolean(true)))
-  //       (Path \ "n").read[JsValue, JsBoolean].validate(Json.obj("n" -> "foo")) shouldBe
-  //       (Invalid(Seq(Path \ "n" -> Seq(
-  //                       ValidationError("error.invalid", "Boolean")))))
-  //     }
+        jn.validate(Json.obj("n" -> 4.5)) shouldBe
+          Invalid(Seq(Path \ "n" -> Seq(
+            ValidationError("error.invalid", "null"))))
+
+        // TODO
+        // import testCases.option._
+        // opt(Path \ "n")(is[Boolean])
+        //   .validate(nNull) shouldBe Valid(None)
+      }
+
+      "JsObject" in {
+        at(Path \ "o")(is[JsObject])
+          .validate(Json.obj("o" -> Json.obj("n" -> "foo"))) shouldBe
+            Valid(JsObject(Seq("n" -> JsString("foo"))))
+
+        def n = at(Path \ "n")(is[JsObject])
+
+        n.validate(Json.obj("n" -> 42)) shouldBe
+          Invalid(Seq(Path \ "n" -> Seq(
+            ValidationError("error.invalid", "Object"))))
+
+        n.validate(Json.obj("n" -> "foo")) shouldBe
+          Invalid(Seq(Path \ "n" -> Seq(
+            ValidationError("error.invalid", "Object"))))
+
+        n.validate(Json.obj("n" -> Seq("foo"))) shouldBe
+          Invalid(Seq(Path \ "n" -> Seq(
+            ValidationError("error.invalid", "Object"))))
+      }
+
+     "JsString" in {
+        def n = at(Path \ "n")(is[JsString])
+        n.validate(Json.obj("n" -> "foo")) shouldBe Valid(JsString("foo"))
+        n.validate(Json.obj("n" -> 42)) shouldBe
+          Invalid(Seq(Path \ "n" -> Seq(
+            ValidationError("error.invalid", "String"))))
+      }
+
+      "JsNumber" in {
+        def n = at(Path \ "n")(is[JsNumber])
+        n.validate(Json.obj("n" -> 4)) shouldBe Valid(JsNumber(4))
+
+        n.validate(Json.obj("n" -> "foo")) shouldBe
+          Invalid(Seq(Path \ "n" -> Seq(
+            ValidationError("error.number", "Number"))))
+
+        n.validate(Json.obj("n" -> 4.5)) shouldBe Valid(JsNumber(4.5))
+      }
+
+      "JsBoolean" in {
+        def n = at(Path \ "n")(is[JsBoolean])
+        n.validate(Json.obj("n" -> true)) shouldBe Valid(JsBoolean(true))
+        n.validate(Json.obj("n" -> "foo")) shouldBe
+          Invalid(Seq(Path \ "n" -> Seq(
+            ValidationError("error.invalid", "Boolean"))))
+      }
+  }
+
 }

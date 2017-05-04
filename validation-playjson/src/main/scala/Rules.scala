@@ -1,6 +1,7 @@
 package jto.validation
 package playjson
 
+import shapeless.tag.@@
 import play.api.libs.json.{JsValue, JsObject, JsString, JsNumber, JsBoolean, JsArray, JsNull}
 
 trait Rules extends DefaultRules[JsValue] {
@@ -86,9 +87,10 @@ trait Rules extends DefaultRules[JsValue] {
       case JsNumber(v) => Valid(v.bigDecimal)
     }("error.number", "BigDecimal")
 
-  implicit val jsNullR: Rule[JsValue, JsNull.type] = jsonAs[JsNull.type] {
-    case JsNull => Valid(JsNull)
-  }("error.invalid", "null")
+  implicit val jsNullR: Rule[JsValue, JsNull.type] @@ Root =
+    jsonAs[JsNull.type] {
+      case JsNull => Valid(JsNull)
+    }("error.invalid", "null")
 
   implicit def ooo[O](
       p: Path)(implicit pick: Path => RuleLike[JsValue, JsValue],

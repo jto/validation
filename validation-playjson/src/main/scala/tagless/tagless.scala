@@ -1,7 +1,7 @@
 package jto.validation
 package v3.tagless
 
-import play.api.libs.json.{JsValue, JsObject, JsArray}
+import play.api.libs.json.{JsValue, JsObject, JsArray, JsNull, JsString, JsNumber, JsBoolean}
 import cats.Semigroup
 
 import jto.validation.playjson.Rules
@@ -9,9 +9,19 @@ import cats.syntax.cartesian._
 
 import shapeless.tag.@@
 
+package playjson {
+  trait JsonGrammar[K[_, _]] extends Grammar[JsValue, K] {
+    implicit def jsNull: K[JsValue, JsNull.type] @@ Root
+    implicit def jsObject: K[JsValue, JsObject] @@ Root
+    implicit def jsString: K[JsValue, JsString] @@ Root
+    implicit def jsNumber: K[JsValue, JsNumber] @@ Root
+    implicit def jsBoolean: K[JsValue, JsBoolean] @@ Root
+  }
+}
+
 package object playjson {
 
-  implicit object RulesGrammar extends Grammar[JsValue, Rule] with RuleConstraints {
+  implicit object RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
 
     @inline private def search(path: Path, json: JsValue): Option[JsValue] =
       path.path match {
@@ -67,6 +77,12 @@ package object playjson {
     implicit def array[A: scala.reflect.ClassTag](implicit k: Rule[JsValue, A]) = Rules.pickArray
     implicit def map[A](implicit k: Rule[JsValue, A]) = Rules.mapR
     implicit def traversable[A](implicit k: Rule[JsValue, A]) = Rules.pickTraversable
+
+    implicit def jsNull = Rules.jsNullR
+    implicit def jsObject = Rules.jsObjectR
+    implicit def jsString = Rules.jsStringR
+    implicit def jsNumber = Rules.jsNumberR
+    implicit def jsBoolean = Rules.jsBooleanR
 
     def toGoal[Repr, A] = _.map { Goal.apply }
 

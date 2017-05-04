@@ -19,11 +19,10 @@ case class MergeOps[F[_], B <: HList](fb: F[B])(implicit M: Merge[F]) {
 trait Primitives[I, K[_, _]] {
   self: Constraints[K] with Typeclasses[K] =>
 
-  // TODO: add Root tag on k
   def at[A](p: Path)(k:  => K[I, A]): K[I, A]
   def opt[A](p: Path)(k: => K[I, A]): K[I, Option[A]]
 
-  // TODO: add Root tag on k (breaks seq implicit resolution)
+  // TODO: add Root tag on k ? (breaks seq implicit resolution)
   def is[A](implicit K: K[I, A]): K[I, A] = K
 
   def toGoal[Repr, A]: K[I, Repr] => K[I, Goal[Repr, A]]
@@ -54,7 +53,7 @@ trait Primitives[I, K[_, _]] {
 trait Constraints[K[_, _]] {
   type C[A] = K[A, A] @@ Root
 
-  def required[A]: K[Option[A], A]
+  // def required[A]: K[Option[A], A]
   def min[A](a: A)(implicit O: Ordering[A]): C[A]
   def max[A](a: A)(implicit O: Ordering[A]): C[A]
   def notEmpty: C[String]

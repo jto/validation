@@ -85,7 +85,7 @@ trait TestCases[T] {
 trait RulesSpec[T] extends WordSpec with Matchers {
 
   val testCases: TestCases[T]
-  implicit val grammar: Grammar[T, Rule]
+  val grammar: Grammar[T, Rule]
 
   import grammar._
   import syntax._
@@ -259,7 +259,6 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         def n = opt(Path \ "n")(is[Boolean])
 
         n.validate(ok) shouldBe (Valid(Some(true)))
-        // n.validate(nNull) shouldBe (Valid(None)) // TODO
         n.validate(fooBar) shouldBe (Valid(None))
         n.validate(nBar) shouldBe
           (Invalid(Seq(Path \ "n" -> Seq(

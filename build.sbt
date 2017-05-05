@@ -8,7 +8,7 @@ val jodaConvertVersion = "1.8.1"
 val jodaTimeVersion = "2.9.7"
 val kindProjectorVersion = "0.9.3"
 val parserCombinatorsVersion = "1.0.5"
-val playVersion = "2.6.0-M1"
+val playVersion = "2.6.0-M6"
 val scalacVersion = "2.12.1"
 val scalatestVersion = "3.2.0-SNAP3"
 val scalaXmlVersion = "1.0.6"
@@ -49,16 +49,15 @@ lazy val `validation-jsonast` = crossProject
   .crossType(CrossType.Full)
   .settings(validationSettings: _*)
   .dependsOn(`validation-core`)
-  .jvmSettings(libraryDependencies +=
-    "com.typesafe.play" %% "play-json" % playVersion)
+  .jvmSettings(libraryDependencies += "com.typesafe.play" %% "play-json" % playVersion)
+
 lazy val jsonAstJVM = `validation-jsonast`.jvm
 lazy val jsonAstJS = `validation-jsonast`.js
 lazy val jsonAst = aggregate("validation-jsonast", jsonAstJVM, jsonAstJS)
 
 lazy val `validation-playjson` = project
   .settings(validationSettings: _*)
-  .settings(libraryDependencies +=
-    "com.typesafe.play" %% "play-json" % playVersion)
+  .settings(libraryDependencies += "com.typesafe.play" %% "play-json" % playVersion % "provided")
   .dependsOn(coreJVM)
 
 lazy val `validation-xml` = project

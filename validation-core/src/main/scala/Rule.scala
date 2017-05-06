@@ -81,6 +81,9 @@ trait Rule[I, O] extends RuleLike[I, O] {
 
   def to[T](implicit g: shapeless.Generic.Aux[T, O]) =
     map(o => g.from(o))
+
+  def tupled[T](implicit t: Tupler[O]) =
+    map(o => t.from(o))
 }
 
 object Rule {

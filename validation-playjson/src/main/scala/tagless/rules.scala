@@ -13,6 +13,8 @@ import shapeless.tag.@@
 
 object RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
 
+  type J = JsValue
+
   @inline private def search(path: Path, json: JsValue): Option[JsValue] =
     path.path match {
       case KeyPathNode(k) :: t =>
@@ -30,7 +32,7 @@ object RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
         Some(json)
     }
 
-  def at[A](p: Path)(k: => Rule[JsValue, A]): Rule[JsValue, A] =
+  def at[A](p: Path)(k: => Rule[_ >: J <: JsValue, A]): Rule[JsValue, A] =
     Rule(p) { js =>
       search(p, js) match {
         case None =>
@@ -40,7 +42,7 @@ object RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
       }
     }
 
-  def opt[A](p: Path)(k: => Rule[JsValue,A]): Rule[JsValue, Option[A]] =
+  def opt[A](p: Path)(k: => Rule[_ >: J <: JsValue, A]): Rule[JsValue, Option[A]] =
     Rule(p) { js =>
       search(p, js) match {
         case None =>
@@ -63,10 +65,10 @@ object RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
   implicit def jBigDecimal = Rules.javaBigDecimal
   implicit def long = Rules.longR
   implicit def short = Rules.shortR
-  implicit def seq[A](implicit k: Rule[JsValue, A]) = Rules.pickSeq(k)
-  implicit def array[A: scala.reflect.ClassTag](implicit k: Rule[JsValue, A]) = Rules.pickArray
-  implicit def map[A](implicit k: Rule[JsValue, A]) = Rules.mapR
-  implicit def traversable[A](implicit k: Rule[JsValue, A]) = Rules.pickTraversable
+  implicit def seq[A](implicit k: Rule[_ >: JsValue <: JsValue, A]) = Rules.pickSeq(k)
+  implicit def array[A: scala.reflect.ClassTag](implicit k: Rule[_ >: J <: JsValue, A]) = Rules.pickArray
+  implicit def map[A](implicit k: Rule[_ >: J <: JsValue, A]) = Rules.mapR
+  implicit def traversable[A](implicit k: Rule[_ >: J <: JsValue, A]) = Rules.pickTraversable
 
   implicit def jsNull = Rules.jsNullR
   implicit def jsObject = Rules.jsObjectR
@@ -78,9 +80,9 @@ object RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
 
   implicit def composeTC = Rule.ruleCompose
 
-  implicit def mergeTC[I]: Merge[Rule[I, ?]] =
-    new Merge[Rule[I, ?]] {
-      def merge[A, B <: HList](fa: Rule[I, A], fb: Rule[I, B]): Rule[I, A :: B] =
+  implicit def mergeTC: Merge[Rule[J, ?]] =
+    new Merge[Rule[J, ?]] {
+      def merge[A, B <: HList](fa: Rule[J, A], fb: Rule[J, B]): Rule[J, A :: B] =
         (fa |@| fb).map(_ :: _)
     }
 

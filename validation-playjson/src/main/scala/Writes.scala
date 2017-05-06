@@ -1,6 +1,7 @@
 package jto.validation
 package playjson
 
+import shapeless.tag.@@
 import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray}
 
 trait DefaultMonoids {
@@ -54,7 +55,7 @@ trait Writes
         errs.map(w.writes).reduce(_ ++ _)
     }
 
-  implicit val string: Write[String, JsValue] = Write(s => JsString(s))
+  implicit val string: Write[String, JsValue] @@ Root = Write(s => JsString(s))
 
   private def tToJs[T] =
     Write[T, JsValue]((i: T) => JsNumber(BigDecimal(i.toString)))

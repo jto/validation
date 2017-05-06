@@ -1,6 +1,29 @@
 package jto.validation
 
 import cats.Monoid
+import shapeless.tag, tag.@@
+import shapeless.{Generic, HList}
+import shapeless.ops.hlist.{Tupler => STupler}
+
+trait Tupler[H] {
+  type In
+  def to(t: In): H
+  def from(t: H): In
+}
+
+object Tupler {
+  type Aux[H, T] = Tupler[H]{ type In = T }
+
+  implicit def hlistTupler[H <: HList, T](implicit
+    T: STupler.Aux[H, T],
+    G: Generic.Aux[T, H]
+  ): Aux[H, T] =
+    new Tupler[H] {
+      type In = T
+      def to(t: T): H = G.to(t)
+      def from(t: H): T = G.from(t)
+    }
+}
 
 trait WriteLike[I, +O] {
 
@@ -36,15 +59,21 @@ trait Write[I, +O] extends WriteLike[I, O] {
 
   def contramap[B](f: B => I): Write[B, O] =
     Write[B, O]((b: B) => writes(f(b)))
+
+  def from[T](implicit G: Generic.Aux[T, I]): Write[T, O] =
+    contramap(t => G.to(t))
+
+  def tupled(implicit tupler: Tupler[I]): Write[tupler.In, O] =
+    contramap(i => tupler.to(i))
 }
 
 object Write {
   def gen[I, O]: Write[I, O] = macro MappingMacros.write[I, O]
 
-  def apply[I, O](w: I => O): Write[I, O] =
-    new Write[I, O] {
+  def apply[I, O](w: I => O): Write[I, O] @@ Root =
+    tag[Root](new Write[I, O] {
       def writes(i: I) = w(i)
-    }
+    })
 
   sealed trait Deferred[O] {
     def apply[I](i: I)(implicit w: WriteLike[I, O]) = w.writes(i)
@@ -59,8 +88,8 @@ object Write {
       def writes(data: I): O = r.writes(data)
     }
 
-  implicit def zero[I]: Write[I, I] =
-    toWrite(WriteLike.zero[I])
+  implicit def zero[I]: Write[I, I] @@ Root =
+    tag[Root](toWrite(WriteLike.zero[I]))
 
   implicit def writeSyntaxCombine[O](
       implicit m: Monoid[O]): SyntaxCombine[Write[?, O]] =
@@ -92,7 +121,7 @@ object Write {
 
   implicit def writeCompose =
     new cats.arrow.Compose[Write] {
-      def compose[A, B, C](f: Write[B,C], g: Write[A,B]): Write[A,C] =
+      def compose[A, B, C](f: Write[B, C], g: Write[A, B]): Write[A, C] =
         g andThen f
     }
 

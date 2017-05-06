@@ -121,7 +121,7 @@ val commonScalacOptions = Seq(
   "-Xlint",
   // "-Yinline-warnings",
   "-Yno-adapted-args",
-  "-Ywarn-dead-code",
+  // "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
   "-Ywarn-value-discard",
   "-Ywarn-unused-import",

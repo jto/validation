@@ -21,23 +21,24 @@ case class MergeOps[F[_], B <: HList](fb: F[B])(implicit M: Merge[F]) {
 }
 
 trait Primitives[I, K[_, _]] {
-  self: Constraints[K] with Typeclasses[K] =>
+  self: Constraints[K] =>
 
-  def at[A](p: Path)(k:  => K[I, A]): K[I, A]
-  def opt[A](p: Path)(k: => K[I, A]): K[I, Option[A]]
+  type J <: I
 
-  // TODO: add Root tag on k ? (breaks seq implicit resolution)
-  def is[A](implicit K: K[I, A]): K[I, A] = K
+  def at[A](p: Path)(k:  => K[_ >: J <: I, A]): K[J, A]
+  def opt[A](p: Path)(k: => K[_ >: J <: I, A]): K[J, Option[A]]
 
-  def toGoal[Repr, A]: K[I, Repr] => K[I, Goal[Repr, A]]
+  def is[A](implicit K: K[_ >: J <: I, A]): K[I, A] = K.asInstanceOf[K[I, A]]
+
+  def toGoal[Repr, A]: K[J, Repr] => K[J, Goal[Repr, A]]
 
   sealed trait Defered[A] {
-    def apply[Repr](k: K[I, Repr]): K[I, Goal[Repr, A]] = toGoal(k)
+    def apply[Repr](k: K[J, Repr]): K[J, Goal[Repr, A]] = toGoal(k)
   }
 
   def goal[A] = new Defered[A]{}
 
-  def knil: K[I, HNil]
+  def knil: K[J, HNil]
 
   implicit def int: K[I, Int] @@ Root
   implicit def string: K[I, String] @@ Root
@@ -48,10 +49,18 @@ trait Primitives[I, K[_, _]] {
   implicit def jBigDecimal: K[I, java.math.BigDecimal] @@ Root
   implicit def bigDecimal: K[I, BigDecimal] @@ Root
   implicit def boolean: K[I, Boolean] @@ Root
-  implicit def seq[A](implicit k: K[I, A]): K[I, Seq[A]]
-  implicit def array[A: scala.reflect.ClassTag](implicit k: K[I, A]): K[I, Array[A]]
-  implicit def map[A](implicit k: K[I, A]): K[I, Map[String, A]]
-  implicit def traversable[A](implicit k: K[I, A]): K[I, Traversable[A]]
+  implicit def seq[A](implicit k: K[_ >: J <: I, A]): K[I, Seq[A]]
+  implicit def array[A: scala.reflect.ClassTag](implicit k: K[_ >: J <: I, A]): K[I, Array[A]]
+  implicit def map[A](implicit k: K[_ >: J <: I, A]): K[I, Map[String, A]]
+  implicit def traversable[A](implicit k: K[_ >: J <: I, A]): K[I, Traversable[A]]
+
+  import cats.arrow.Compose
+  implicit def composeTC: Compose[K]
+  implicit def semigroupTC[I0, O]: cats.Semigroup[K[I0, O] @@ Root]
+  implicit def mergeTC: Merge[K[J, ?]]
+
+  implicit def toMergeOps[B <: HList](fb: K[J, B]) =
+    MergeOps[K[J, ?], B](fb)(mergeTC)
 }
 
 trait Constraints[K[_, _]] {
@@ -66,14 +75,6 @@ trait Constraints[K[_, _]] {
   def equalTo[A](a: A): C[A]
 }
 
-trait Typeclasses[K[_, _]] {
-  import cats.arrow.Compose
-  implicit def composeTC: Compose[K]
-  implicit def semigroupTC[I, O]: cats.Semigroup[K[I, O] @@ Root]
-  implicit def mergeTC[I]: Merge[K[I, ?]]
-}
-
 trait Grammar[I, K[_, _]]
   extends Primitives[I, K]
   with Constraints[K]
-  with Typeclasses[K]

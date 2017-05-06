@@ -3,92 +3,10 @@ package v3.tagless
 
 import org.scalatest._
 
-trait TestCases[T] {
-  trait base {
-    def valid: T
-    def invalid: T
-    def smthTrue: T
-    def smthFalse: T
-    def emptyObj: T
-  }
-
-  trait int {
-    def ok: T
-    def foo: T
-    def float: T
-    def noOK: T
-    def noFoo: T
-    def nopOK: T
-    def nopFoo: T
-  }
-
-  trait boolean {
-    def ok: T
-    def foo: T
-  }
-
-  trait string {
-    def foo: T
-    def foos: T
-    def _42: T
-    def onFoo: T
-  }
-
-  trait option {
-    def nNull: T
-    def fooBar: T
-    def nBar: T
-  }
-
-  trait seq {
-    def foos: T
-    def fooBars: T
-    def foofoobars: T
-    def ns: T
-    def ints: T
-    def paf: T
-    def mixed: T
-  }
-
-  trait map {
-    def foobar: T
-    def ints: T
-    def mixed: T
-  }
-
-  trait password {
-    val ok: T
-    val empty: T
-    val err: T
-  }
-
-  trait subclasses {
-    val b: T
-    val c: T
-    val e: T
-  }
-
-  trait rec {
-    val bobAndFriends: T
-    val bobAndFriend: T
-  }
-
-  val base: base
-  val int: int
-  val boolean: boolean
-  val string: string
-  val option: option
-  val seq: seq
-  val map: map
-  val password: password
-  val subclasses: subclasses
-  val rec: rec
-}
-
 trait RulesSpec[T] extends WordSpec with Matchers {
 
-  val testCases: TestCases[T]
   val grammar: Grammar[T, Rule]
+  val testCases: TestCases[grammar.J]
 
   import grammar._
   import syntax._
@@ -497,13 +415,13 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       "by trying all possible Rules" in {
         import cats.syntax.cartesian._
 
-        val rb: Rule[T, A] =
+        val rb: Rule[grammar.J, A] =
           (
             at(Path \ "name")(is[String] andThen equalTo("B")) *>
             at(Path \ "foo")(is[Int])
           ).map(B.apply)
 
-        val rc: Rule[T, A] =
+        val rc: Rule[grammar.J, A] =
           (
             at(Path \ "name")(is[String] andThen equalTo("C")) *>
             at(Path \ "bar")(is[Int])
@@ -592,7 +510,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       val u1 = User1("bob", Some(User1("tom")))
 
       "using explicit notation" in {
-        lazy val w: Rule[T, RecUser] =
+        lazy val w: Rule[grammar.J, RecUser] =
           (
             at(Path \ "name")(is[String]) ~:
             at(Path \ "friends")(seq(w)) ~:
@@ -601,7 +519,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
         w.validate(bobAndFriends) shouldBe Valid(u)
 
-        lazy val w2: Rule[T, RecUser] =
+        lazy val w2: Rule[grammar.J, RecUser] =
           (
             at(Path \ "name")(is[String]) ~:
             at(Path \ "friends")(seq(w2)) ~:
@@ -610,7 +528,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
         w2.validate(bobAndFriends) shouldBe Valid(u)
 
-        lazy val w3: Rule[T, User1] =
+        lazy val w3: Rule[grammar.J, User1] =
           (
             at(Path \ "name")(is[String]) ~:
             opt(Path \ "friend")(w3) ~:
@@ -621,7 +539,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       }
 
       "using implicit notation" in {
-        implicit lazy val w: Rule[T, RecUser] =
+        implicit lazy val w: Rule[grammar.J, RecUser] =
           (
             at(Path \ "name")(is[String]) ~:
             at(Path \ "friends")(is[Seq[RecUser]]) ~:
@@ -630,7 +548,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
         w.validate(bobAndFriends) shouldBe Valid(u)
 
-        implicit lazy val w3: Rule[T, User1] =
+        implicit lazy val w3: Rule[grammar.J, User1] =
           (
             at(Path \ "name")(is[String]) ~:
             opt(Path \ "friend")(is[User1]) ~:

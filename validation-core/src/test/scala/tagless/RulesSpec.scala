@@ -9,7 +9,6 @@ trait RulesSpec[T] extends WordSpec with Matchers {
   val testCases: TestCases[grammar.J]
 
   import grammar._
-  import syntax._
 
   "Rules" should {
 

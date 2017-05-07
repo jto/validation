@@ -49,6 +49,7 @@ trait Primitives[I, K[_, _]] {
   implicit def bigDecimal: K[I, BigDecimal] @@ Root
   implicit def boolean: K[I, Boolean] @@ Root
   implicit def seq[A](implicit k: K[_ >: J <: I, A]): K[I, Seq[A]]
+  implicit def list[A](implicit k: K[_ >: J <: I, A]): K[I, List[A]]
   implicit def array[A: scala.reflect.ClassTag](implicit k: K[_ >: J <: I, A]): K[I, Array[A]]
   implicit def map[A](implicit k: K[_ >: J <: I, A]): K[I, Map[String, A]]
   implicit def traversable[A](implicit k: K[_ >: J <: I, A]): K[I, Traversable[A]]

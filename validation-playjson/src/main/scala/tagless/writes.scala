@@ -11,12 +11,19 @@ import cats.arrow.Compose
 import shapeless.tag, tag.@@
 import shapeless.HNil
 
-object WritesGrammar extends JsonGrammar[types.flip[Write]#λ] with WriteConstraints {
+object WriteTypeAlias {
+  // I should be able to use flip[Write]#λ instead of creating this ugly
+  // type alias but somehow, not naming the type breaks inference...
+  type FWrite[A, B] = Write[B, A]
+}
+
+object WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstraints {
 
   type J = JsObject
 
+  //Extra wrapping in a Write to force lazy evaludation
   def at[A](p: Path)(k: => Write[A, _ >: J <: JsValue]): Write[A, JsObject] =
-    Writes.writeJson(p)(Write{ t => k.writes(t) }) //Extra wrapping in a Write to force lazy evaludation
+    Writes.writeJson(p)(Write{ t => k.writes(t) })
 
   def opt[A](p: Path)(k: => Write[A, _ >: J <: JsValue]): Write[Option[A], JsObject] =
     Writes.optionW(p0 => Writes.writeJson(p0)(k))(p)
@@ -33,6 +40,7 @@ object WritesGrammar extends JsonGrammar[types.flip[Write]#λ] with WriteConstra
   implicit def long = Writes.longW
   implicit def short = Writes.shortW
   implicit def seq[A](implicit k: Write[A, _ >: J <: JsValue]) = Writes.seqToJsArray(k)
+  implicit def list[A](implicit k: Write[A, _ >: J <: JsValue]) = Writes.seqToJsArray(k).contramap(_.toSeq)
   implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: J <: JsValue]) = Writes.seqToJsArray(k).contramap(_.toSeq)
   implicit def map[A](implicit k: Write[A, _ >: J <: JsValue]) = Writes.mapW(k)
   implicit def traversable[A](implicit k: Write[A, _ >: J <: JsValue]) = Writes.seqToJsArray(k).contramap(_.toSeq)

@@ -66,6 +66,7 @@ object RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
   implicit def long = Rules.longR
   implicit def short = Rules.shortR
   implicit def seq[A](implicit k: Rule[_ >: JsValue <: JsValue, A]) = Rules.pickSeq(k)
+  implicit def list[A](implicit k: Rule[_ >: JsValue <: JsValue, A]) = Rules.pickList(k)
   implicit def array[A: scala.reflect.ClassTag](implicit k: Rule[_ >: J <: JsValue, A]) = Rules.pickArray
   implicit def map[A](implicit k: Rule[_ >: J <: JsValue, A]) = Rules.mapR
   implicit def traversable[A](implicit k: Rule[_ >: J <: JsValue, A]) = Rules.pickTraversable

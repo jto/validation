@@ -29,8 +29,7 @@ object Boilerplate {
   val templates: Seq[Template] = List(
     InvariantSyntax,
     FunctorSyntax,
-    ContravariantSyntax,
-    AsSyntax
+    ContravariantSyntax
   )
 
   /** Returns a seq of the generated files. As a side-effect, it actually generates them... */
@@ -189,61 +188,6 @@ object Boilerplate {
         -
         -    def tupled(implicit fu: Contravariant[M]): M[${`(A..N)`}] =
         -      apply[${`(A..N)`}]({ (a: ${`(A..N)`}) => (${`a._1..a._N`}) })
-        -  }
-        -
-        |}
-      """
-    }
-  }
-
-  object AsSyntax extends Template {
-    def filename(root: File) = root / "AsSyntax.scala"
-
-    def content(tv: TemplateVals) = {
-      import tv._
-
-      val `A..N` = synTypes.reduce[String] { case (acc, el) => s"$acc, $el" }
-      val `AH..NH` = synTypes.zipWithIndex.map{ case (t, i) => s"$t, H$i" }.mkString(", ")
-      val `AH..NH<:HList` = synTypes.zipWithIndex.map{ case (t, i) => s"$t, H$i <: HList" }.mkString(", ")
-      val `as..ns` = synTypes.zipWithIndex.map{ case (t, i) => s"as$i" }
-      val `F[A]..F[N]` = synTypes.map { t => s"F[I, $t]" }
-      val `f..n` = (0 until arity).map{ i => s"f$i" }
-      val `a:F[A]..n:F[N]` = `f..n`.zip(`F[A]..F[N]`).map { case (f, t) => s"${f}: $t"}.mkString(", ")
-      val `asA..nsN` = synTypes.zipWithIndex.map{ case (t, i) => s"as$i: As[$t, H$i]" }.mkString(", ")
-      val `A::N` = synTypes.map(t => s"$t").mkString(" :: ")
-
-      val appliedPaths =
-        (`as..ns`
-          .zip(`f..n`)
-          .map{ case (a, f) =>
-            s"c($f, l($a.path))"
-          } :+ "empty")
-          .reduceRight[String]{ case (r, f) =>
-            s"s($r, $f)"
-          }
-
-      val next = if (arity >= maxArity) "" else
-        s"""
-        |-    def ~[X, H <: HNil](fb: As[X, H]): AsSyntax${arity + 1}[${`AH..NH`}, X, H] =
-        |-      AsSyntax${arity + 1}(${`as..ns`.mkString(", ")}, fb)
-        |-
-        |-    def materialize[F[_, _], I](implicit l: At[F, I, I], ${`a:F[A]..n:F[N]`}, hsq0: HSequence0[F[I, ?]], C: Compose[F]): F[I, ${`A::N`} :: HNil] = {
-        |-      import hsq0.{ sequence => s, empty }
-        |-      import C.{ compose => c }
-        |-      ${appliedPaths}
-        |-    }
-        |-
-        """.trim.stripMargin
-
-      block"""
-        |package jto.validation
-        |package v3
-        |
-        |object AsSyntax {
-        |  import shapeless.{::, HNil, HList}
-        |  import cats.arrow.Compose
-        -  case class AsSyntax${arity}[${`AH..NH<:HList`}](${`asA..nsN`}) {
-        $next
         -  }
         -
         |}

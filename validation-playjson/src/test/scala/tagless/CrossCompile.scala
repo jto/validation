@@ -2,7 +2,7 @@ package jto.validation
 package v3.tagless
 package playjson
 
-import play.api.libs.json._
+import play.api.libs.json.{JsValue, Json}
 import org.scalatest._
 import cats.syntax.compose._
 
@@ -14,6 +14,8 @@ class CrossCompile extends WordSpec with Matchers {
   import types._
 
   "grammar" should {
+    case class Info(label: String, email: Option[String], phones: Seq[String])
+    val ex = Info("label", Option("fakecontact@gmail.com"), Seq("phone1", "phone2"))
 
     "compile to symetric rule and write" in {
       def info[K[_, _]](implicit g: Grammar[JsValue, K]) = {
@@ -23,9 +25,6 @@ class CrossCompile extends WordSpec with Matchers {
         at(Path \ "phones")(is[Seq[String]] andThen forall(notEmpty)) ~:
         knil
       }
-
-      case class Info(label: String, email: Option[String], phones: Seq[String])
-      val ex = Info("label", Option("fakecontact@gmail.com"), Seq("phone1", "phone2"))
 
       val write = info[flip[Write]#λ].from[Info]
       val rule = info[Rule].to[Info]
@@ -67,6 +66,30 @@ class CrossCompile extends WordSpec with Matchers {
       sym(10) shouldBe Valid(10)
       sym(-10) shouldBe Invalid(Seq((p) -> Seq(ValidationError("error.min", 0))))
       sym(200) shouldBe Invalid(Seq((p) -> Seq(ValidationError("error.max", 100))))
+    }
+
+    "change path" in {
+      def info[K[_, _]](g: Grammar[JsValue, K]) = {
+        import g._
+        at(Path \ "label")(is[String] andThen notEmpty) ~:
+        opt(Path \ "email")(is[String] andThen email) ~:
+        at(Path \ "phones")(is[Seq[String]] andThen forall(notEmpty)) ~:
+        knil
+      }
+
+      val f = { (p: Path) =>
+        val p2 =
+          p.path.collect { case KeyPathNode(x) =>
+            KeyPathNode(x.reverse)
+          }
+        Path(p2)
+      }
+
+      val write = info(WritesGrammar.mapPath(f)).from[Info]
+      val rule = info(RulesGrammar.mapPath(f)).to[Info]
+      val json = write.writes(ex)
+      json shouldBe Json.parse("""{"lebal":"label","liame":"fakecontact@gmail.com","senohp":["phone1","phone2"]}""")
+      rule.validate(json) shouldBe Valid(ex)
     }
   }
 

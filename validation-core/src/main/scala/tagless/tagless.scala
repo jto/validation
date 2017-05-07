@@ -25,11 +25,16 @@ trait Primitives[I, K[_, _]] {
 
   type J <: I
 
+  type P <: Primitives[I, K]
+
+  def mapPath(f: Path => Path): P
+
   def at[A](p: Path)(k:  => K[_ >: J <: I, A]): K[J, A]
   def opt[A](p: Path)(k: => K[_ >: J <: I, A]): K[J, Option[A]]
   def knil: K[J, HNil]
 
-  def is[A](implicit K: K[_ >: J <: I, A]): K[I, A] = K.asInstanceOf[K[I, A]]
+  def is[A](implicit K: K[_ >: J <: I, A]): K[I, A] =
+    K.asInstanceOf[K[I, A]]
 
   def toGoal[Repr, A]: K[J, Repr] => K[J, Goal[Repr, A]]
 

@@ -17,9 +17,20 @@ object WriteTypeAlias {
   type FWrite[A, B] = Write[B, A]
 }
 
-object WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstraints {
+trait WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstraints {
+  self =>
 
   type J = JsObject
+  type P = WritesGrammar
+
+  def mapPath(f: Path => Path): P =
+    new WritesGrammar {
+      override def at[A](p: Path)(k: => Write[A, _ >: J <: JsValue]): Write[A, JsObject] =
+        self.at(f(p))(k)
+
+      override def opt[A](p: Path)(k: => Write[A, _ >: J <: JsValue]): Write[Option[A], JsObject] =
+        self.opt(f(p))(k)
+    }
 
   //Extra wrapping in a Write to force lazy evaludation
   def at[A](p: Path)(k: => Write[A, _ >: J <: JsValue]): Write[A, JsObject] =
@@ -78,3 +89,5 @@ object WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstr
     }
 
 }
+
+object WritesGrammar extends WritesGrammar

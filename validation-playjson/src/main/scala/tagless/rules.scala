@@ -10,10 +10,20 @@ import cats.syntax.cartesian._
 
 import shapeless.tag.@@
 
-
-object RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
+trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
+  self =>
 
   type J = JsValue
+  type P = RulesGrammar
+
+  def mapPath(f: Path => Path): P =
+    new RulesGrammar {
+      override def at[A](p: Path)(k: => Rule[_ >: J <: JsValue, A]) =
+        self.at(f(p))(k)
+
+      override def opt[A](p: Path)(k: => Rule[_ >: J <: JsValue, A]) =
+        self.opt(f(p))(k)
+    }
 
   @inline private def search(path: Path, json: JsValue): Option[JsValue] =
     path.path match {
@@ -91,3 +101,5 @@ object RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
     Rule.ruleSemigroup
 
 }
+
+object RulesGrammar extends RulesGrammar

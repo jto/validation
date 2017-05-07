@@ -17,7 +17,7 @@ trait Merge[F[_]] {
 }
 
 case class MergeOps[F[_], B <: HList](fb: F[B])(implicit M: Merge[F]) {
-  def ~:[A](fa: F[A]) = M.merge(fa, fb)
+  def ~:[A](fa: F[A]): F[A :: B] = M.merge(fa, fb)
 }
 
 trait Primitives[I, K[_, _]] {
@@ -27,6 +27,7 @@ trait Primitives[I, K[_, _]] {
 
   def at[A](p: Path)(k:  => K[_ >: J <: I, A]): K[J, A]
   def opt[A](p: Path)(k: => K[_ >: J <: I, A]): K[J, Option[A]]
+  def knil: K[J, HNil]
 
   def is[A](implicit K: K[_ >: J <: I, A]): K[I, A] = K.asInstanceOf[K[I, A]]
 
@@ -37,8 +38,6 @@ trait Primitives[I, K[_, _]] {
   }
 
   def goal[A] = new Defered[A]{}
-
-  def knil: K[J, HNil]
 
   implicit def int: K[I, Int] @@ Root
   implicit def string: K[I, String] @@ Root
@@ -59,7 +58,7 @@ trait Primitives[I, K[_, _]] {
   implicit def semigroupTC[I0, O]: cats.Semigroup[K[I0, O] @@ Root]
   implicit def mergeTC: Merge[K[J, ?]]
 
-  implicit def toMergeOps[B <: HList](fb: K[J, B]) =
+  implicit def toMergeOps[B <: HList](fb: K[J, B]): MergeOps[K[J, ?], B] =
     MergeOps[K[J, ?], B](fb)(mergeTC)
 }
 

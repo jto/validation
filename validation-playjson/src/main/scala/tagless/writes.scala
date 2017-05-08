@@ -27,7 +27,6 @@ trait WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstra
     new WritesGrammar {
       override def at[A](p: Path)(k: => Write[A, _ >: J <: JsValue]): Write[A, JsObject] =
         self.at(f(p))(k)
-
       override def opt[A](p: Path)(k: => Write[A, _ >: J <: JsValue]): Write[Option[A], JsObject] =
         self.opt(f(p))(k)
     }

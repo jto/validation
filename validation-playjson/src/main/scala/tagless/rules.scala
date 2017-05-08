@@ -20,7 +20,6 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
     new RulesGrammar {
       override def at[A](p: Path)(k: => Rule[_ >: J <: JsValue, A]) =
         self.at(f(p))(k)
-
       override def opt[A](p: Path)(k: => Rule[_ >: J <: JsValue, A]) =
         self.opt(f(p))(k)
     }

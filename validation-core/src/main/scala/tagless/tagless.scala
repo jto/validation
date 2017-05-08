@@ -24,11 +24,26 @@ trait Primitives[I, K[_, _]] {
   self: Constraints[K] =>
 
   type J <: I
-
   type P <: Primitives[I, K]
 
-  def mapPath(f: Path => Path): P
+  @inline private def camelToUnderscores(name: String) =
+    "[A-Z]".r.replaceAllIn(name, {m =>
+      "_" + m.group(0).toLowerCase()
+    })
 
+  @inline protected def mapKeyPath(f: String => String) =
+     mapPath { p =>
+      val ns =
+        p.path.map {
+          case KeyPathNode(n) => KeyPathNode(f(n))
+          case i => i
+        }
+      Path(ns)
+    }
+
+  def underScoreCase = mapKeyPath(camelToUnderscores)
+
+  def mapPath(f: Path => Path): P
   def at[A](p: Path)(k:  => K[_ >: J <: I, A]): K[J, A]
   def opt[A](p: Path)(k: => K[_ >: J <: I, A]): K[J, Option[A]]
   def knil: K[J, HNil]

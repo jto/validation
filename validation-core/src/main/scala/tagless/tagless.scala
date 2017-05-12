@@ -91,10 +91,13 @@ trait Typeclasses[I, K[_, _]] {
 trait Constraints[K[_, _]] {
   type C[A] = K[A, A] @@ Root
 
+  // def valid[A]: C[A]
   def min[A](a: A)(implicit O: Ordering[A]): C[A]
   def max[A](a: A)(implicit O: Ordering[A]): C[A]
   def notEmpty: C[String]
   def minLength(l: Int): C[String]
+  def maxLength(l: Int): C[String]
+  def pattern(regex: scala.util.matching.Regex): C[String]
   def email: C[String]
   def forall[I, O](k: K[I, O]): K[Seq[I], Seq[O]]
   def equalTo[A](a: A): C[A]

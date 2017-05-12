@@ -149,9 +149,13 @@ object XMLTestCases extends TestCases[Node] {
       </root>
 
     def paf = <root><n>paf</n></root>
-    def mixed = ???
-
-  //   val mixed = JsObject(Seq("n" -> JsArray(Seq(JsString("foo"), JsNumber(2)))))
+    def mixed =
+      <root>
+        <n>
+          <node>foo</node>
+          <node>2</node>
+        </n>
+      </root>
   }
 
   val map = new map {

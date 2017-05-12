@@ -71,8 +71,9 @@ trait RulesGrammar extends XmlGrammar[Rule] with RuleConstraints with RulesTypec
   implicit def map[A](implicit k: Rule[_ >: Out <: Node, A]) = ???
   implicit def traversable[A](implicit k: Rule[_ >: Out <: Node, A]) = Rules.pickTraversable(k)
 
-  // TODO: attribute
   def toGoal[Repr, A] = _.map { Goal.apply }
+
+  def attr(name: String) = Rules.attributeR(name)(Rule.zero)
 }
 
 object RulesGrammar extends RulesGrammar

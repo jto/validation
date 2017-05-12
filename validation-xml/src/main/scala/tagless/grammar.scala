@@ -5,4 +5,5 @@ package xml
 import scala.xml.Node
 
 trait XmlGrammar[K[_, _]] extends Grammar[Node, K] {
+  def attr(name: String): K[Node, String]
 }

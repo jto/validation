@@ -10,4 +10,7 @@ trait RuleConstraints extends Constraints[Rule] {
   def email = R.email
   def forall[I, O](k: Rule[I,O]) = R.seqR(k)
   def equalTo[T](t: T) = R.equalTo(t)
+
+  def maxLength(l: Int) = R.maxLength(l)
+  def pattern(regex: scala.util.matching.Regex) = R.pattern(regex)
 }

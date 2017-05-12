@@ -44,12 +44,12 @@ trait Primitives[I, K[_, _]] {
   def underScoreCase = mapKeyPath(camelToUnderscores)
 
   def mapPath(f: Path => Path): P
-  def at[A](p: Path)(k:  => K[_ >: Out <: I, A]): K[Out, A]
-  def opt[A](p: Path)(k: => K[_ >: Out <: I, A]): K[Out, Option[A]]
+  def at[A](p: Path)(k:  => K[Option[_ >: Out <: I], A]): K[Out, A]
   def knil: K[Out, HNil]
 
-  def is[A](implicit K: K[_ >: Out <: I, A]): K[I, A] =
-    K.asInstanceOf[K[I, A]]
+  def is[A](implicit K: K[_ >: Out <: I, A]): K[_ >: Out <: I, A] = K
+  def req[A](implicit K: K[_ >: Out <: I, A]): K[Option[_ >: Out <: I], A]
+  def opt[A](implicit K: K[_ >: Out <: I, A]): K[Option[_ >: Out <: I], Option[A]]
 
   def toGoal[Repr, A]: K[Out, Repr] => K[Out, Goal[Repr, A]]
 

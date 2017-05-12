@@ -13,10 +13,8 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints with RulesType
 
   def mapPath(f: Path => Path): P =
     new RulesGrammar {
-      override def at[A](p: Path)(k: => Rule[_ >: Out <: JsValue, A]) =
+      override def at[A](p: Path)(k: => Rule[Option[_ >: JsValue <: JsValue], A]) =
         self.at(f(p))(k)
-      override def opt[A](p: Path)(k: => Rule[_ >: Out <: JsValue, A]) =
-        self.opt(f(p))(k)
     }
 
   @inline private def search(path: Path, json: JsValue): Option[JsValue] =
@@ -36,24 +34,23 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints with RulesType
         Some(json)
     }
 
-  def at[A](p: Path)(k: => Rule[_ >: Out <: JsValue, A]): Rule[JsValue, A] =
-    Rule(p) { js =>
-      search(p, js) match {
-        case None =>
-          Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
-        case Some(js) =>
-          k.validate(js)
-      }
+  def at[A](p: Path)(k: => Rule[Option[_ >: JsValue <: JsValue], A]): Rule[JsValue, A] =
+    Rule(p) { js => k.validate(search(p, js)) }
+
+  def opt[A](implicit K: Rule[_ >: JsValue <: JsValue, A]): Rule[Option[_ >: JsValue <: JsValue], Option[A]] =
+    Rule(Path) {
+      case Some(x) =>
+        K.validate(x).map(Option.apply)
+      case None =>
+        Valid(None)
     }
 
-  def opt[A](p: Path)(k: => Rule[_ >: Out <: JsValue, A]): Rule[JsValue, Option[A]] =
-    Rule(p) { js =>
-      search(p, js) match {
-        case None =>
-          Valid(None)
-        case Some(js) =>
-          k.validate(js).map(Option.apply)
-      }
+  def req[A](implicit K: Rule[_ >: JsValue <: JsValue, A]): Rule[Option[_ >: JsValue <: JsValue], A] =
+    Rule(Path) {
+      case Some(x) =>
+        K.validate(x)
+      case None =>
+        Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
     }
 
   import shapeless.HNil

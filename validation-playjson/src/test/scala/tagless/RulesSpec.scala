@@ -12,7 +12,7 @@ class JsonRulesSpec extends RulesSpec[JsValue] {
 
   "Specific JSON Rules" should {
     "support null" in {
-        val jn = at(Path \ "n")(is[JsNull.type])
+        val jn = at(Path \ "n")(req[JsNull.type])
 
         jn.validate(Json.obj("n" -> JsNull)) shouldBe Valid(JsNull)
 
@@ -26,11 +26,11 @@ class JsonRulesSpec extends RulesSpec[JsValue] {
       }
 
       "JsObject" in {
-        at(Path \ "o")(is[JsObject])
+        at(Path \ "o")(req[JsObject])
           .validate(Json.obj("o" -> Json.obj("n" -> "foo"))) shouldBe
             Valid(JsObject(Seq("n" -> JsString("foo"))))
 
-        def n = at(Path \ "n")(is[JsObject])
+        def n = at(Path \ "n")(req[JsObject])
 
         n.validate(Json.obj("n" -> 42)) shouldBe
           Invalid(Seq(Path \ "n" -> Seq(
@@ -46,7 +46,7 @@ class JsonRulesSpec extends RulesSpec[JsValue] {
       }
 
      "JsString" in {
-        def n = at(Path \ "n")(is[JsString])
+        def n = at(Path \ "n")(req[JsString])
         n.validate(Json.obj("n" -> "foo")) shouldBe Valid(JsString("foo"))
         n.validate(Json.obj("n" -> 42)) shouldBe
           Invalid(Seq(Path \ "n" -> Seq(
@@ -54,7 +54,7 @@ class JsonRulesSpec extends RulesSpec[JsValue] {
       }
 
       "JsNumber" in {
-        def n = at(Path \ "n")(is[JsNumber])
+        def n = at(Path \ "n")(req[JsNumber])
         n.validate(Json.obj("n" -> 4)) shouldBe Valid(JsNumber(4))
 
         n.validate(Json.obj("n" -> "foo")) shouldBe
@@ -65,7 +65,7 @@ class JsonRulesSpec extends RulesSpec[JsValue] {
       }
 
       "JsBoolean" in {
-        def n = at(Path \ "n")(is[JsBoolean])
+        def n = at(Path \ "n")(req[JsBoolean])
         n.validate(Json.obj("n" -> true)) shouldBe Valid(JsBoolean(true))
         n.validate(Json.obj("n" -> "foo")) shouldBe
           Invalid(Seq(Path \ "n" -> Seq(

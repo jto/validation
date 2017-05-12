@@ -25,20 +25,28 @@ trait WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstra
 
   def mapPath(f: Path => Path): P =
     new WritesGrammar {
-      override def at[A](p: Path)(k: => Write[A, _ >: Out <: JsValue]): Write[A, JsObject] =
+      override def at[A](p: Path)(k: => Write[A,Option[_ >: JsObject <: JsValue]]): Write[A,JsObject] =
         self.at(f(p))(k)
-      override def opt[A](p: Path)(k: => Write[A, _ >: Out <: JsValue]): Write[Option[A], JsObject] =
-        self.opt(f(p))(k)
     }
 
-  //Extra wrapping in a Write to force lazy evaludation
-  def at[A](p: Path)(k: => Write[A, _ >: Out <: JsValue]): Write[A, JsObject] =
-    Writes.writeJson(p)(Write{ t => k.writes(t) })
-
-  def opt[A](p: Path)(k: => Write[A, _ >: Out <: JsValue]): Write[Option[A], JsObject] =
-    Writes.optionW(p0 => Writes.writeJson(p0)(k))(p)
-
   def knil: Write[HNil, Out] = Write{ _ => JsObject(Nil) }
+
+  def at[A](p: Path)(k: => Write[A, Option[_ >: JsObject <: JsValue]]): Write[A, JsObject] =
+    Write { t =>
+      val js = k.writes(t)
+      val w2 = Writes.optionW(Write.zero[JsValue])(Writes.writeJson _)(p)
+      w2.writes(js)
+    }
+
+  def opt[A](implicit K: Write[A, _ >: JsObject <: JsValue]): Write[Option[A], Option[_ >: JsObject <: JsValue]] =
+    Write {
+      _.map(K.writes)
+    }
+
+  def req[A](implicit K: Write[A, _ >: JsObject <: JsValue]): Write[A, Option[_ >: JsObject <: JsValue]] =
+    Write { a =>
+      Option(K.writes(a))
+    }
 
   implicit def int = Writes.intW
   implicit def string = Writes.string

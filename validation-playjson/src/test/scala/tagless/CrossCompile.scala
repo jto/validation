@@ -2,8 +2,8 @@ package jto.validation
 package v3.tagless
 package playjson
 
-import play.api.libs.json.{JsValue, Json}
 import org.scalatest._
+import play.api.libs.json.{JsValue, Json}
 import cats.syntax.compose._
 
 class CrossCompile extends WordSpec with Matchers {
@@ -20,9 +20,9 @@ class CrossCompile extends WordSpec with Matchers {
     "compile to symetric rule and write" in {
       def info[K[_, _]](implicit g: Grammar[JsValue, K]) = {
         import g._
-        at(Path \ "label")(is[String] andThen notEmpty) ~:
-        opt(Path \ "email")(is[String] andThen email) ~:
-        at(Path \ "phones")(is[Seq[String]] andThen forall(notEmpty)) ~:
+        at(Path \ "label")(req[String] andThen notEmpty) ~:
+        at(Path \ "email")(opt(is[String] andThen email)) ~:
+        at(Path \ "phones")(req[Seq[String]] andThen forall(notEmpty)) ~:
         knil
       }
 
@@ -39,7 +39,7 @@ class CrossCompile extends WordSpec with Matchers {
 
       def id[K[_, _]](implicit g: Grammar[JsValue, K], valid: K[String, Id]) = {
         import g._
-        at(Path \ "id")(is[String] andThen valid)
+        at(Path \ "id")(req[String] andThen valid)
       }
 
       val ex = Id("value")
@@ -56,7 +56,7 @@ class CrossCompile extends WordSpec with Matchers {
       val p = Path \ "percent"
       def percent[K[_, _]](implicit g: Grammar[JsValue, K]) = {
         import g._
-        at(p)(is[Int] andThen min(0) |+| max(100))
+        at(p)(req[Int] andThen min(0) |+| max(100))
       }
 
       val write = percent[flip[Write]#λ]
@@ -71,9 +71,9 @@ class CrossCompile extends WordSpec with Matchers {
     "change path" in {
       def info[K[_, _]](g: Grammar[JsValue, K]) = {
         import g._
-        at(Path \ "label")(is[String] andThen notEmpty) ~:
-        opt(Path \ "email")(is[String] andThen email) ~:
-        at(Path \ "phones")(is[Seq[String]] andThen forall(notEmpty)) ~:
+        at(Path \ "label")(req[String] andThen notEmpty) ~:
+        at(Path \ "email")(opt(is[String] andThen email)) ~:
+        at(Path \ "phones")(req[Seq[String]] andThen forall(notEmpty)) ~:
         knil
       }
 

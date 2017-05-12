@@ -13,10 +13,8 @@ trait RulesGrammar extends XmlGrammar[Rule] with RuleConstraints with RulesTypec
 
   def mapPath(f: Path => Path): P =
     new RulesGrammar {
-      override def at[A](p: Path)(k: => Rule[_ >: Out <: Node, A]) =
+      override def at[A](p: Path)(k: => Rule[Option[_ >: Node <: Node],A]): Rule[Node, A] =
         self.at(f(p))(k)
-      override def opt[A](p: Path)(k: => Rule[_ >: Out <: Node, A]) =
-        self.opt(f(p))(k)
     }
 
   @inline private def search(path: Path, node: Node): Option[Node] = path.path match {
@@ -32,24 +30,23 @@ trait RulesGrammar extends XmlGrammar[Rule] with RuleConstraints with RulesTypec
       case Nil => Some(node)
     }
 
-  def at[A](p: Path)(k: => Rule[_ >: Out <: Node, A]): Rule[Node, A] =
-    Rule(p) { js =>
-      search(p, js) match {
-        case None =>
-          Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
-        case Some(js) =>
-          k.validate(js)
-      }
+  def at[A](p: Path)(k: => Rule[Option[_ >: Node <: Node], A]): Rule[Node, A] =
+    Rule(p) { i => k.validate(search(p, i)) }
+
+  def opt[A](implicit K: Rule[_ >: Node <: Node, A]): Rule[Option[_ >: Node <: Node], Option[A]] =
+    Rule(Path) {
+      case Some(x) =>
+        K.validate(x).map(Option.apply)
+      case None =>
+        Valid(None)
     }
 
-  def opt[A](p: Path)(k: => Rule[_ >: Out <: Node, A]): Rule[Node, Option[A]] =
-    Rule(p) { js =>
-      search(p, js) match {
-        case None =>
-          Valid(None)
-        case Some(js) =>
-          k.validate(js).map(Option.apply)
-      }
+  def req[A](implicit K: Rule[_ >: Node <: Node, A]): Rule[Option[_ >: Node <: Node], A] =
+    Rule(Path) {
+      case Some(x) =>
+        K.validate(x)
+      case None =>
+        Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
     }
 
   import shapeless.HNil

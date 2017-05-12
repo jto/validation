@@ -229,7 +229,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
 
       "using explicit notation" in {
         import testCases.rec._
-        lazy val w: Write[RecUser, J] =
+        lazy val w: Write[RecUser, Out] =
           {
             at(Path \ "name")(is[String]) ~:
             at(Path \ "friends")(seq(w)) ~:
@@ -238,7 +238,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
 
         w.writes(u) shouldBe bobAndFriends
 
-        lazy val w2: Write[User1, J] =
+        lazy val w2: Write[User1, Out] =
           {
             at(Path \ "name")(is[String]) ~:
             opt(Path \ "friend")(w2) ~:
@@ -250,7 +250,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
 
       "using implicit notation" in {
         import testCases.rec._
-        implicit lazy val w: Write[RecUser, J] =
+        implicit lazy val w: Write[RecUser, Out] =
           {
             at(Path \ "name")(is[String]) ~:
             at(Path \ "friends")(is[Seq[RecUser]]) ~:
@@ -259,7 +259,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
 
         w.writes(u) shouldBe bobAndFriends
 
-        implicit lazy val w2: Write[User1, J] =
+        implicit lazy val w2: Write[User1, Out] =
           {
             at(Path \ "name")(is[String]) ~:
             opt(Path \ "friend")(is[User1]) ~:

@@ -6,7 +6,7 @@ import org.scalatest._
 trait RulesSpec[T] extends WordSpec with Matchers {
 
   val grammar: Grammar[T, Rule]
-  val testCases: TestCases[grammar.J]
+  val testCases: TestCases[grammar.Out]
 
   import grammar._
 
@@ -414,13 +414,13 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       "by trying all possible Rules" in {
         import cats.syntax.cartesian._
 
-        val rb: Rule[grammar.J, A] =
+        val rb: Rule[grammar.Out, A] =
           (
             at(Path \ "name")(is[String] andThen equalTo("B")) *>
             at(Path \ "foo")(is[Int])
           ).map(B.apply)
 
-        val rc: Rule[grammar.J, A] =
+        val rc: Rule[grammar.Out, A] =
           (
             at(Path \ "name")(is[String] andThen equalTo("C")) *>
             at(Path \ "bar")(is[Int])
@@ -509,7 +509,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       val u1 = User1("bob", Some(User1("tom")))
 
       "using explicit notation" in {
-        lazy val w: Rule[grammar.J, RecUser] =
+        lazy val w: Rule[grammar.Out, RecUser] =
           (
             at(Path \ "name")(is[String]) ~:
             at(Path \ "friends")(seq(w)) ~:
@@ -518,7 +518,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
         w.validate(bobAndFriends) shouldBe Valid(u)
 
-        lazy val w2: Rule[grammar.J, RecUser] =
+        lazy val w2: Rule[grammar.Out, RecUser] =
           (
             at(Path \ "name")(is[String]) ~:
             at(Path \ "friends")(seq(w2)) ~:
@@ -527,7 +527,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
         w2.validate(bobAndFriends) shouldBe Valid(u)
 
-        lazy val w3: Rule[grammar.J, User1] =
+        lazy val w3: Rule[grammar.Out, User1] =
           (
             at(Path \ "name")(is[String]) ~:
             opt(Path \ "friend")(w3) ~:
@@ -538,7 +538,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       }
 
       "using implicit notation" in {
-        implicit lazy val w: Rule[grammar.J, RecUser] =
+        implicit lazy val w: Rule[grammar.Out, RecUser] =
           (
             at(Path \ "name")(is[String]) ~:
             at(Path \ "friends")(is[Seq[RecUser]]) ~:
@@ -547,7 +547,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
         w.validate(bobAndFriends) shouldBe Valid(u)
 
-        implicit lazy val w3: Rule[grammar.J, User1] =
+        implicit lazy val w3: Rule[grammar.Out, User1] =
           (
             at(Path \ "name")(is[String]) ~:
             opt(Path \ "friend")(is[User1]) ~:

@@ -13,14 +13,14 @@ import shapeless.tag.@@
 trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
   self =>
 
-  type J = JsValue
+  type Out = JsValue
   type P = RulesGrammar
 
   def mapPath(f: Path => Path): P =
     new RulesGrammar {
-      override def at[A](p: Path)(k: => Rule[_ >: J <: JsValue, A]) =
+      override def at[A](p: Path)(k: => Rule[_ >: Out <: JsValue, A]) =
         self.at(f(p))(k)
-      override def opt[A](p: Path)(k: => Rule[_ >: J <: JsValue, A]) =
+      override def opt[A](p: Path)(k: => Rule[_ >: Out <: JsValue, A]) =
         self.opt(f(p))(k)
     }
 
@@ -41,7 +41,7 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
         Some(json)
     }
 
-  def at[A](p: Path)(k: => Rule[_ >: J <: JsValue, A]): Rule[JsValue, A] =
+  def at[A](p: Path)(k: => Rule[_ >: Out <: JsValue, A]): Rule[JsValue, A] =
     Rule(p) { js =>
       search(p, js) match {
         case None =>
@@ -51,7 +51,7 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
       }
     }
 
-  def opt[A](p: Path)(k: => Rule[_ >: J <: JsValue, A]): Rule[JsValue, Option[A]] =
+  def opt[A](p: Path)(k: => Rule[_ >: Out <: JsValue, A]): Rule[JsValue, Option[A]] =
     Rule(p) { js =>
       search(p, js) match {
         case None =>
@@ -76,9 +76,9 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
   implicit def short = Rules.shortR
   implicit def seq[A](implicit k: Rule[_ >: JsValue <: JsValue, A]) = Rules.pickSeq(k)
   implicit def list[A](implicit k: Rule[_ >: JsValue <: JsValue, A]) = Rules.pickList(k)
-  implicit def array[A: scala.reflect.ClassTag](implicit k: Rule[_ >: J <: JsValue, A]) = Rules.pickArray
-  implicit def map[A](implicit k: Rule[_ >: J <: JsValue, A]) = Rules.mapR
-  implicit def traversable[A](implicit k: Rule[_ >: J <: JsValue, A]) = Rules.pickTraversable
+  implicit def array[A: scala.reflect.ClassTag](implicit k: Rule[_ >: Out <: JsValue, A]) = Rules.pickArray
+  implicit def map[A](implicit k: Rule[_ >: Out <: JsValue, A]) = Rules.mapR
+  implicit def traversable[A](implicit k: Rule[_ >: Out <: JsValue, A]) = Rules.pickTraversable
 
   implicit def jsNull = Rules.jsNullR
   implicit def jsObject = Rules.jsObjectR
@@ -90,9 +90,9 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
 
   implicit def composeTC = Rule.ruleCompose
 
-  implicit def mergeTC: Merge[Rule[J, ?]] =
-    new Merge[Rule[J, ?]] {
-      def merge[A, B <: HList](fa: Rule[J, A], fb: Rule[J, B]): Rule[J, A :: B] =
+  implicit def mergeTC: Merge[Rule[Out, ?]] =
+    new Merge[Rule[Out, ?]] {
+      def merge[A, B <: HList](fa: Rule[Out, A], fb: Rule[Out, B]): Rule[Out, A :: B] =
         (fa |@| fb).map(_ :: _)
     }
 

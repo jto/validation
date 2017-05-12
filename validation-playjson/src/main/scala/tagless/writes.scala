@@ -20,25 +20,25 @@ object WriteTypeAlias {
 trait WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstraints {
   self =>
 
-  type J = JsObject
+  type Out = JsObject
   type P = WritesGrammar
 
   def mapPath(f: Path => Path): P =
     new WritesGrammar {
-      override def at[A](p: Path)(k: => Write[A, _ >: J <: JsValue]): Write[A, JsObject] =
+      override def at[A](p: Path)(k: => Write[A, _ >: Out <: JsValue]): Write[A, JsObject] =
         self.at(f(p))(k)
-      override def opt[A](p: Path)(k: => Write[A, _ >: J <: JsValue]): Write[Option[A], JsObject] =
+      override def opt[A](p: Path)(k: => Write[A, _ >: Out <: JsValue]): Write[Option[A], JsObject] =
         self.opt(f(p))(k)
     }
 
   //Extra wrapping in a Write to force lazy evaludation
-  def at[A](p: Path)(k: => Write[A, _ >: J <: JsValue]): Write[A, JsObject] =
+  def at[A](p: Path)(k: => Write[A, _ >: Out <: JsValue]): Write[A, JsObject] =
     Writes.writeJson(p)(Write{ t => k.writes(t) })
 
-  def opt[A](p: Path)(k: => Write[A, _ >: J <: JsValue]): Write[Option[A], JsObject] =
+  def opt[A](p: Path)(k: => Write[A, _ >: Out <: JsValue]): Write[Option[A], JsObject] =
     Writes.optionW(p0 => Writes.writeJson(p0)(k))(p)
 
-  def knil: Write[HNil, J] = Write{ _ => JsObject(Nil) }
+  def knil: Write[HNil, Out] = Write{ _ => JsObject(Nil) }
 
   implicit def int = Writes.intW
   implicit def string = Writes.string
@@ -49,11 +49,11 @@ trait WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstra
   implicit def jBigDecimal = Write { (j: java.math.BigDecimal) => JsNumber(j) }
   implicit def long = Writes.longW
   implicit def short = Writes.shortW
-  implicit def seq[A](implicit k: Write[A, _ >: J <: JsValue]) = Writes.seqToJsArray(k)
-  implicit def list[A](implicit k: Write[A, _ >: J <: JsValue]) = Writes.seqToJsArray(k).contramap(_.toSeq)
-  implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: J <: JsValue]) = Writes.seqToJsArray(k).contramap(_.toSeq)
-  implicit def map[A](implicit k: Write[A, _ >: J <: JsValue]) = Writes.mapW(k)
-  implicit def traversable[A](implicit k: Write[A, _ >: J <: JsValue]) = Writes.seqToJsArray(k).contramap(_.toSeq)
+  implicit def seq[A](implicit k: Write[A, _ >: Out <: JsValue]) = Writes.seqToJsArray(k)
+  implicit def list[A](implicit k: Write[A, _ >: Out <: JsValue]) = Writes.seqToJsArray(k).contramap(_.toSeq)
+  implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: JsValue]) = Writes.seqToJsArray(k).contramap(_.toSeq)
+  implicit def map[A](implicit k: Write[A, _ >: Out <: JsValue]) = Writes.mapW(k)
+  implicit def traversable[A](implicit k: Write[A, _ >: Out <: JsValue]) = Writes.seqToJsArray(k).contramap(_.toSeq)
 
   implicit def jsNull = Write.zero
   implicit def jsObject = Write.zero
@@ -61,7 +61,7 @@ trait WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstra
   implicit def jsNumber = Write.zero
   implicit def jsBoolean = Write.zero
 
-  def toGoal[Repr, A]: Write[Repr, J] => Write[Goal[Repr, A], J] =
+  def toGoal[Repr, A]: Write[Repr, Out] => Write[Goal[Repr, A], Out] =
     _.contramap{ _.value }
 
   implicit def composeTC =
@@ -73,8 +73,8 @@ trait WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstra
   import shapeless.{::, HList}
 
   implicit def mergeTC =
-    new Merge[Write[?, J]] {
-      def merge[A, B <: HList](fa: Write[A, J], fb: Write[B, J]): Write[A :: B, J] =
+    new Merge[Write[?, Out]] {
+      def merge[A, B <: HList](fa: Write[A, Out], fb: Write[B, Out]): Write[A :: B, Out] =
         Write { case a :: b =>
           val wa = fa.writes(a)
           val wb = fb.writes(b)

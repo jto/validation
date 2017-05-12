@@ -337,7 +337,7 @@ class RulesSpec extends WordSpec with Matchers {
               .map(C.apply)
           }
 
-          val rule = rb orElse rc orElse Rule(_ => typeInvalid)
+          val rule = rb orElse rc orElse Rule(Path)(_ => typeInvalid)
 
           rule.validate(b) shouldBe (Valid(B(4)))
           rule.validate(c) shouldBe (Valid(C(6)))
@@ -352,7 +352,7 @@ class RulesSpec extends WordSpec with Matchers {
             (__ \ "name").read[String].flatMap[A] {
               case "B" => (__ \ "foo").read[Int].map(B.apply)
               case "C" => (__ \ "bar").read[Int].map(C.apply)
-              case _ => Rule(_ => typeInvalid)
+              case _ => Rule(Path)(_ => typeInvalid)
             }
           }
 
@@ -360,7 +360,7 @@ class RulesSpec extends WordSpec with Matchers {
           rule.validate(c) shouldBe (Valid(C(6)))
           rule.validate(e) shouldBe
           (Invalid(
-                  Seq(Path -> Seq(ValidationError("validation.unknownType")))))
+                  Seq(Path \ "name" -> Seq(ValidationError("validation.unknownType")))))
         }
       }
 

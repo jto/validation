@@ -2,55 +2,77 @@ package jto.validation
 package v3.tagless
 package xml
 
-import cats.Semigroup
-
-// import cats.syntax.cartesian._
-
-import shapeless.tag.@@
-
+import jto.validation.xml.Rules
 import scala.xml._
 
-trait RulesGrammar extends XmlGrammar[Rule] with RuleConstraints {
+trait RulesGrammar extends XmlGrammar[Rule] with RuleConstraints with RulesTypeclasses[Node] {
   self =>
 
   type Out = Node
   type P = RulesGrammar
 
-  def mapPath(f: Path => Path): P = ???
+  def mapPath(f: Path => Path): P =
+    new RulesGrammar {
+      override def at[A](p: Path)(k: => Rule[_ >: Out <: Node, A]) =
+        self.at(f(p))(k)
+      override def opt[A](p: Path)(k: => Rule[_ >: Out <: Node, A]) =
+        self.opt(f(p))(k)
+    }
 
+  @inline private def search(path: Path, node: Node): Option[Node] = path.path match {
+      case KeyPathNode(key) :: tail =>
+        (node \ key).headOption.flatMap(childNode =>
+              search(Path(tail), childNode))
 
-  def at[A](p: Path)(k: => Rule[_ >: Out <: Node, A]): Rule[Node, A] = ???
+      case IdxPathNode(idx) :: tail =>
+        (node \ "_")
+          .lift(idx)
+          .flatMap(childNode => search(Path(tail), childNode))
 
-  def opt[A](p: Path)(k: => Rule[_ >: Out <: Node, A]): Rule[Node, Option[A]] = ???
+      case Nil => Some(node)
+    }
 
-  // import shapeless.{::, HNil, HList}
+  def at[A](p: Path)(k: => Rule[_ >: Out <: Node, A]): Rule[Node, A] =
+    Rule(p) { js =>
+      search(p, js) match {
+        case None =>
+          Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
+        case Some(js) =>
+          k.validate(js)
+      }
+    }
+
+  def opt[A](p: Path)(k: => Rule[_ >: Out <: Node, A]): Rule[Node, Option[A]] =
+    Rule(p) { js =>
+      search(p, js) match {
+        case None =>
+          Valid(None)
+        case Some(js) =>
+          k.validate(js).map(Option.apply)
+      }
+    }
+
   import shapeless.HNil
 
   def knil = Rule.pure(HNil)
 
-  implicit def int = ???
-  implicit def string = ???
-  implicit def bigDecimal = ???
-  implicit def boolean = ???
-  implicit def double = ???
-  implicit def float = ???
-  implicit def jBigDecimal = ???
-  implicit def long = ???
-  implicit def short = ???
-  implicit def seq[A](implicit k: Rule[_ >: Out <: Node, A]) = ???
-  implicit def list[A](implicit k: Rule[_ >: Out <: Node, A]) = ???
-  implicit def array[A: scala.reflect.ClassTag](implicit k: Rule[_ >: Out <: Node, A]) = ???
+  implicit def int = Rules.nodeR(Rules.intR)
+  implicit def string = Rules.nodeR(Rule.zero)
+  implicit def bigDecimal = Rules.nodeR(Rules.bigDecimal)
+  implicit def boolean = Rules.nodeR(Rules.booleanR)
+  implicit def double = Rules.nodeR(Rules.doubleR)
+  implicit def float = Rules.nodeR(Rules.floatR)
+  implicit def jBigDecimal = Rules.nodeR(Rules.javaBigDecimalR)
+  implicit def long = Rules.nodeR(Rules.longR)
+  implicit def short = Rules.nodeR(Rules.shortR)
+  implicit def seq[A](implicit k: Rule[_ >: Out <: Node, A]) = Rules.pickSeq(k)
+  implicit def list[A](implicit k: Rule[_ >: Out <: Node, A]) = Rules.pickList(k)
+  implicit def array[A: scala.reflect.ClassTag](implicit k: Rule[_ >: Out <: Node, A]) = Rules.pickList(k).map(_.toArray)
   implicit def map[A](implicit k: Rule[_ >: Out <: Node, A]) = ???
-  implicit def traversable[A](implicit k: Rule[_ >: Out <: Node, A]) = ???
+  implicit def traversable[A](implicit k: Rule[_ >: Out <: Node, A]) = Rules.pickTraversable(k)
 
+  // TODO: attribute
   def toGoal[Repr, A] = _.map { Goal.apply }
-
-  implicit def composeTC = ???
-
-  implicit def mergeTC: Merge[Rule[Out, ?]] = ???
-
-  implicit def semigroupTC[I0, O]: Semigroup[Rule[I0, O] @@ Root] = ???
-
 }
 
 object RulesGrammar extends RulesGrammar

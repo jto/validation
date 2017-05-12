@@ -3,14 +3,9 @@ package v3.tagless
 package playjson
 
 import play.api.libs.json.{JsValue, JsObject, JsArray}
-import cats.Semigroup
-
 import jto.validation.playjson.Rules
-import cats.syntax.cartesian._
 
-import shapeless.tag.@@
-
-trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
+trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints with RulesTypeclasses[JsValue] {
   self =>
 
   type Out = JsValue
@@ -61,7 +56,7 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
       }
     }
 
-  import shapeless.{::, HNil, HList}
+  import shapeless.HNil
 
   def knil = Rule.pure(HNil)
 
@@ -87,18 +82,6 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints {
   implicit def jsBoolean = Rules.jsBooleanR
 
   def toGoal[Repr, A] = _.map { Goal.apply }
-
-  implicit def composeTC = Rule.ruleCompose
-
-  implicit def mergeTC: Merge[Rule[Out, ?]] =
-    new Merge[Rule[Out, ?]] {
-      def merge[A, B <: HList](fa: Rule[Out, A], fb: Rule[Out, B]): Rule[Out, A :: B] =
-        (fa |@| fb).map(_ :: _)
-    }
-
-  implicit def semigroupTC[I, O]: Semigroup[Rule[I, O] @@ Root] =
-    Rule.ruleSemigroup
-
 }
 
 object RulesGrammar extends RulesGrammar

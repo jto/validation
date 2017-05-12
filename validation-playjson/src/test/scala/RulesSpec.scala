@@ -511,7 +511,7 @@ class RulesSpec extends WordSpec with Matchers {
         rule.validate(b) shouldBe (Valid(B(4)))
         rule.validate(c) shouldBe (Valid(C(6)))
         rule.validate(e) shouldBe
-        (Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType")))))
+        (Invalid(Seq(Path \ "name" -> Seq(ValidationError("validation.unknownType")))))
       }
     }
 

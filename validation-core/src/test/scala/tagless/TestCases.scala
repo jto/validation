@@ -60,20 +60,20 @@ trait TestCases[T] {
   }
 
   trait password {
-    val ok: T
-    val empty: T
-    val err: T
+    def ok: T
+    def empty: T
+    def err: T
   }
 
   trait subclasses {
-    val b: T
-    val c: T
-    val e: T
+    def b: T
+    def c: T
+    def e: T
   }
 
   trait rec {
-    val bobAndFriends: T
-    val bobAndFriend: T
+    def bobAndFriends: T
+    def bobAndFriend: T
   }
 
   val base: base

@@ -2,19 +2,22 @@ package jto.validation
 package xml
 
 import scala.xml._
+import shapeless.tag, tag.@@
 
 trait Rules extends DefaultRules[Node] with ParsingRules {
-  implicit def nodeR[O](implicit r: RuleLike[String, O]): Rule[Node, O] =
-    Rule
-      .fromMapping[Node, String] { node =>
-        val children = (node \ "_")
-        if (children.isEmpty) Valid(node.text)
-        else
-          Invalid(Seq(ValidationError(
-                      "error.invalid",
-                      "a non-leaf node can not be validated to String")))
-      }
+  implicit def nodeR[O](implicit r: RuleLike[String, O]): Rule[Node, O] @@ Root =
+    tag[Root] {
+      Rule
+        .fromMapping[Node, String] { node =>
+          val children = (node \ "_")
+          if (children.isEmpty) Valid(node.text)
+          else
+            Invalid(Seq(ValidationError(
+                        "error.invalid",
+                        "a non-leaf node can not be validated to String")))
+        }
       .andThen(r)
+    }
 
   def attributeR[O](key: String)(
       implicit r: RuleLike[String, O]): Rule[Node, O] =

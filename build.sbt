@@ -67,6 +67,7 @@ lazy val `validation-xml` = project
   .settings(libraryDependencies +=
     "org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion)
   .dependsOn(coreJVM)
+  .dependsOn(coreJVM % "test->test")
 
 lazy val `validation-jsjson` = project
   .enablePlugins(ScalaJSPlugin)

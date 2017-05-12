@@ -74,6 +74,11 @@ trait Primitives[I, K[_, _]] {
   implicit def map[A](implicit k: K[_ >: Out <: I, A]): K[I, Map[String, A]]
   implicit def traversable[A](implicit k: K[_ >: Out <: I, A]): K[I, Traversable[A]]
 
+}
+
+trait Typeclasses[I, K[_, _]] {
+  self: Primitives[I, K] =>
+
   import cats.arrow.Compose
   implicit def composeTC: Compose[K]
   implicit def semigroupTC[I0, O]: cats.Semigroup[K[I0, O] @@ Root]
@@ -97,4 +102,5 @@ trait Constraints[K[_, _]] {
 
 trait Grammar[I, K[_, _]]
   extends Primitives[I, K]
+  with Typeclasses[I, K]
   with Constraints[K]

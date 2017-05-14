@@ -70,7 +70,15 @@ trait RulesGrammar extends XmlGrammar[Rule] with RuleConstraints with RulesTypec
 
   def toGoal[Repr, A] = _.map { Goal.apply }
 
-  def attr(name: String) = Rules.attributeR(name)(Rule.zero)
+  def attr[A](key: String)(K: Rule[Option[_ >: Out <: Node], A]): Rule[Option[_ >: Out <: Node], A] =
+    Rule(Path) { on =>
+      val oa =
+        for {
+          n <- on
+          a <- n.attribute(key).flatMap(_.headOption)
+        } yield a
+      K.repath(_ \ s"@$key").validate(oa)
+    }
 }
 
 object RulesGrammar extends RulesGrammar

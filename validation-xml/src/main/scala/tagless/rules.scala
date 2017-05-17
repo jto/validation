@@ -5,7 +5,10 @@ package xml
 import jto.validation.xml.Rules
 import scala.xml._
 
-trait RulesGrammar extends XmlGrammar[Rule] with RuleConstraints with RulesTypeclasses[Node] {
+trait RulesGrammar
+  extends XmlGrammar[Node, Rule]
+  with RuleConstraints
+  with RulesTypeclasses[Node] {
   self =>
 
   type Out = Node
@@ -70,6 +73,7 @@ trait RulesGrammar extends XmlGrammar[Rule] with RuleConstraints with RulesTypec
 
   def toGoal[Repr, A] = _.map { Goal.apply }
 
+  /*
   def attr[A](key: String)(K: Rule[Option[_ >: Out <: Node], A]): Rule[Option[_ >: Out <: Node], A] =
     Rule(Path) { on =>
       val oa =
@@ -79,6 +83,8 @@ trait RulesGrammar extends XmlGrammar[Rule] with RuleConstraints with RulesTypec
         } yield a
       K.repath(_ \ s"@$key").validate(oa)
     }
+  */
+
 }
 
 object RulesGrammar extends RulesGrammar

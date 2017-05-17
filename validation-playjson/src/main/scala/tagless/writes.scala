@@ -3,12 +3,7 @@ package v3.tagless
 package playjson
 
 import play.api.libs.json.{JsValue, JsObject, JsNumber}
-import cats.Semigroup
-
 import jto.validation.playjson.Writes
-import cats.arrow.Compose
-
-import shapeless.tag, tag.@@
 import shapeless.HNil
 
 object WriteTypeAlias {
@@ -17,15 +12,17 @@ object WriteTypeAlias {
   type FWrite[A, B] = Write[B, A]
 }
 
-trait WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstraints {
+trait WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstraints with WritesTypeclasses[JsValue] {
   self =>
 
   type Out = JsObject
   type P = WritesGrammar
 
+  protected def outMonoid = Writes.jsonMonoid
+
   def mapPath(f: Path => Path): P =
     new WritesGrammar {
-      override def at[A](p: Path)(k: => Write[A,Option[_ >: JsObject <: JsValue]]): Write[A,JsObject] =
+      override def at[A](p: Path)(k: => Write[A, Option[_ >: JsObject <: JsValue]]): Write[A,JsObject] =
         self.at(f(p))(k)
     }
 
@@ -71,30 +68,6 @@ trait WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstra
 
   def toGoal[Repr, A]: Write[Repr, Out] => Write[Goal[Repr, A], Out] =
     _.contramap{ _.value }
-
-  implicit def composeTC =
-    new Compose[types.flip[Write]#λ] {
-      def compose[A, B, C0](f: Write[C0, B], g: Write[B, A]): Write[C0, A] =
-        f andThen g
-    }
-
-  import shapeless.{::, HList}
-
-  implicit def mergeTC =
-    new Merge[Write[?, Out]] {
-      def merge[A, B <: HList](fa: Write[A, Out], fb: Write[B, Out]): Write[A :: B, Out] =
-        Write { case a :: b =>
-          val wa = fa.writes(a)
-          val wb = fb.writes(b)
-          Writes.jsonMonoid.combine(fa.writes(a), fb.writes(b))
-        }
-    }
-
-  implicit def semigroupTC[I, O]: Semigroup[Write[O, I] @@ Root] =
-    new Semigroup[Write[O, I] @@ Root] {
-      def combine(x: Write[O, I] @@ Root, y: Write[O, I] @@ Root): Write[O, I] @@ Root = x
-    }
-
 }
 
 object WritesGrammar extends WritesGrammar

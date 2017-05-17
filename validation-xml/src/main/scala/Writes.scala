@@ -1,6 +1,7 @@
 package jto.validation
 package xml
 
+import shapeless.tag, tag.@@
 import cats.Monoid
 import scala.xml._
 
@@ -19,8 +20,7 @@ trait Writes
     with DefaultMonoids
     with GenericWrites[XmlWriter] {
 
-  implicit def nodeW[I](
-      implicit w: WriteLike[I, String]): Write[I, XmlWriter] = Write {
+  implicit def nodeW[I](implicit w: WriteLike[I, String]): Write[I, XmlWriter] @@ Root = Write {
     i => node =>
       node.copy(child = node.child :+ new Text(w.writes(i)))
   }

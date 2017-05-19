@@ -340,15 +340,20 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
       def names =
         at(Path \ "firstname")(ne) ~:
-        at(Path \ "lastname")(ne) ~:
-        knil
+        at(Path \ "lastname")(ne)
 
       names.map(_.tupled).validate(valid) shouldBe Valid("Julien" -> "Tournay")
 
       def full =
         names ~:
-        at(Path \ "informations" \ "label")(ne) ~:
-        knil
+        at(Path \ "informations" \ "label")(ne)
+
+      full.validate(emptyObj) shouldBe
+        Invalid(Seq(
+          (Path \ "firstname") -> Seq(ValidationError("error.required")),
+          (Path \ "lastname") -> Seq(ValidationError("error.required")),
+          (Path \ "informations" \ "label") -> Seq(ValidationError("error.required"))
+        ))
 
       full.map(_.tupled).validate(invalid) shouldBe
         Invalid(Seq((Path \ "informations" \ "label") -> Seq(
@@ -380,15 +385,13 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       val passRule =
         (
           at(Path \ "password")(req[String] andThen notEmpty) ~:
-          at(Path \ "verify")(req[String] andThen notEmpty) ~:
-          knil
+          at(Path \ "verify")(req[String] andThen notEmpty)
         ).map(_.tupled) andThen Rule.uncurry(Rules.equalTo[String]).repath(_ => (Path \ "verify"))
 
       val rule =
         (
           at(Path \ "login")(req[String] andThen notEmpty) ~:
-          passRule ~:
-          knil
+          passRule
         ).map(_.tupled)
 
       rule.validate(ok) shouldBe Valid("Alice" -> "s3cr3t")
@@ -469,8 +472,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         goal[ContactInformation] {
           at(Path \ "label")(req[String] andThen notEmpty) ~:
           at(Path \ "email")(opt(is[String] andThen email)) ~:
-          at(Path \ "phones")(req[Seq[String]] andThen forall(notEmpty)) ~:
-          knil
+          at(Path \ "phones")(req[Seq[String]] andThen forall(notEmpty))
         }
 
       def contact =
@@ -478,8 +480,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
           at(Path \ "firstname")(req[String] andThen notEmpty) ~:
           at(Path \ "lastname")(req[String] andThen notEmpty) ~:
           at(Path \ "company")(opt[String]) ~:
-          at(Path \ "contacts")(req(seq(info))) ~:
-          knil
+          at(Path \ "contacts")(req(seq(info)))
         }
 
       val expected = Contact(
@@ -513,8 +514,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         lazy val w: Rule[grammar.Out, RecUser] =
           (
             at(Path \ "name")(req[String]) ~:
-            at(Path \ "friends")(req(seq(w))) ~:
-            knil
+            at(Path \ "friends")(req(seq(w)))
           ).to[RecUser]
 
         w.validate(bobAndFriends) shouldBe Valid(u)
@@ -522,8 +522,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         lazy val w2: Rule[grammar.Out, RecUser] =
           (
             at(Path \ "name")(req[String]) ~:
-            at(Path \ "friends")(req(seq(w2))) ~:
-            knil
+            at(Path \ "friends")(req(seq(w2)))
           ).to[RecUser]
 
         w2.validate(bobAndFriends) shouldBe Valid(u)
@@ -531,8 +530,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         lazy val w3: Rule[grammar.Out, User1] =
           (
             at(Path \ "name")(req[String]) ~:
-            at(Path \ "friend")(opt(w3)) ~:
-            knil
+            at(Path \ "friend")(opt(w3))
           ).to[User1]
 
         w3.validate(bobAndFriend) shouldBe Valid(u1)
@@ -542,8 +540,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         implicit lazy val w: Rule[grammar.Out, RecUser] =
           (
             at(Path \ "name")(req[String]) ~:
-            at(Path \ "friends")(req[Seq[RecUser]]) ~:
-            knil
+            at(Path \ "friends")(req[Seq[RecUser]])
           ).to[RecUser]
 
         w.validate(bobAndFriends) shouldBe Valid(u)
@@ -551,8 +548,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         implicit lazy val w3: Rule[grammar.Out, User1] =
           (
             at(Path \ "name")(req[String]) ~:
-            at(Path \ "friend")(opt[User1]) ~:
-            knil
+            at(Path \ "friend")(opt[User1])
           ).to[User1]
 
         w3.validate(bobAndFriend) shouldBe Valid(u1)

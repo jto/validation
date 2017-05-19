@@ -2,66 +2,76 @@ package jto.validation
 package v3.tagless
 package xml
 
-import jto.validation.xml.{XmlWriter, Writes => W}
 import types.flip
-import scala.xml.Node
+import scala.xml._
+import jto.validation.xml.{Writes => W}
 
 trait WritesGrammar
-  extends XmlGrammar[XmlWriter, flip[Write]#λ]
+  extends XmlGrammar[Node, flip[Write]#λ]
   with WriteConstraints
-  with WritesTypeclasses[XmlWriter] {
+  with WritesTypeclasses[Node] {
 
   self =>
 
-  type Out = XmlWriter
+  type Out = Elem
   type P = WritesGrammar
 
   def mapPath(f: Path => Path): P =
     new WritesGrammar {
-      override def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: XmlWriter]]): Write[A, Out] =
+      override def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: Node]]): Write[A, Out] =
         self.at(f(p))(k)
     }
 
-  def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: XmlWriter]]): Write[A, Out] =
+  def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: Node]]): Write[A, Out] =
     Write { t =>
+      val KeyPathNode(root) = p.path.head // XXX: will fail on empty path
+      val rest = Path(p.path.tail)
       val js = k.writes(t)
-      val w2 = W.optionW(Write.zero[XmlWriter])(W.writeXml _)(p)
-      w2.writes(js)
+      val w2 = W.optionW(Write.zero[Node])(W.writeXml _)(p)
+      w2.writes(js)(Elem(null, root, Null, TopScope, true))
     }
 
-  def opt[A](implicit K: Write[A, _ >: Out <: XmlWriter]): Write[Option[A], Option[_ >: Out <: XmlWriter]] =
+  def opt[A](implicit K: Write[A, _ >: Out <: Node]): Write[Option[A], Option[_ >: Out <: Node]] =
     Write { _.map(K.writes) }
 
-  def req[A](implicit K: Write[A, _ >: Out <: XmlWriter]): Write[A, Option[_ >: Out <: XmlWriter]] =
+  def req[A](implicit K: Write[A, _ >: Out <: Node]): Write[A, Option[_ >: Out <: Node]] =
     Write { a =>
       Option(K.writes(a))
     }
 
-  def knil: Write[shapeless.HNil,Out] =
-    Write { _ => W.xmlMonoid.empty }
-
-  def toGoal[Repr, A]: Write[Repr,Out] => Write[Goal[Repr, A], Out] =
+  def toGoal[Repr, A]: Write[Repr, Out] => Write[Goal[Repr, A], Out] =
     _.contramap{ _.value }
 
-  implicit def bigDecimal = W.nodeW(W.bigDecimalW)
-  implicit def boolean = W.nodeW(W.booleanW)
-  implicit def double = W.nodeW(W.doubleW)
-  implicit def float = W.nodeW(W.floatW)
-  implicit def int = W.nodeW(W.intW)
+  private def txt[A](w: Write[A, String]) = Write[A, Node] { i => Text(w.writes(i)) }
+
+  implicit def bigDecimal = txt(W.bigDecimalW)
+  implicit def boolean = txt(W.booleanW)
+  implicit def double = txt(W.doubleW)
+  implicit def float = txt(W.floatW)
+  implicit def int = txt(W.intW)
   implicit def jBigDecimal = ???
-  implicit def long = W.nodeW(W.longW)
-  implicit def short = W.nodeW(W.shortW)
-  implicit def string = W.nodeW(Write.zero)
+  implicit def long = txt(W.longW)
+  implicit def short = txt(W.shortW)
+  implicit def string = txt(Write.zero)
 
-  implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: XmlWriter]): Write[Array[A], XmlWriter] = seq(k).contramap(_.toSeq)
-  implicit def list[A](implicit k: Write[A, _ >: Out <: XmlWriter]): Write[List[A], XmlWriter] = seq(k).contramap(_.toSeq)
-  implicit def map[A](implicit k: Write[A, _ >: Out <: XmlWriter]): Write[Map[String, A], XmlWriter] = ???
-  implicit def seq[A](implicit k: Write[A, _ >: Out <: XmlWriter]): Write[Seq[A], XmlWriter] = W.seqToNodeSeq(k)
-  implicit def traversable[A](implicit k: Write[A, _ >: Out <: XmlWriter]): Write[Traversable[A], XmlWriter] = seq(k).contramap(_.toSeq)
+  implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: Node]): Write[Array[A], Node] = ???
+  implicit def list[A](implicit k: Write[A, _ >: Out <: Node]): Write[List[A], Node] = ???
+  implicit def map[A](implicit k: Write[A, _ >: Out <: Node]): Write[Map[String, A], Node] = ???
+  implicit def seq[A](implicit k: Write[A, _ >: Out <: Node]): Write[Seq[A], Node] = ???
+  implicit def traversable[A](implicit k: Write[A, _ >: Out <: Node]): Write[Traversable[A], Node] = ???
 
-  protected def outMonoid = W.xmlMonoid
+  protected def outSemigroup =
+    new cats.Semigroup[Out] {
+      def combine(x: Out, y: Out): Out = x ++ y
+    }
 
-  def attr[A, B](key: String, K: Write[B, Option[_ >: Out <: Node]])(atK: Write[A, Option[Out]]): Write[(A, B), Option[Out]] = ???
+  def withAttr[A, B](key: String, attrK: Write[B, Option[_ >: Out <: Node]])(K: Write[A, Option[Out]]): Write[(A, B), Option[Out]] =
+    Write { case (a, b) =>
+      for {
+        elem <- K.writes(a)
+        elem2 = elem.copy(attributes = elem.attributes.append(new UnprefixedAttribute(key, attrK.writes(b), Null)))
+      } yield elem2
+    }
 }
 
 object WritesGrammar extends WritesGrammar

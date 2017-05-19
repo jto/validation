@@ -2,9 +2,9 @@ package jto.validation
 package v3.tagless
 package xml
 
-import jto.validation.xml._
+import scala.xml.Node
 
-class XMLWritesSpec extends WritesSpec[XmlWriter] {
+class XMLWritesSpec extends WritesSpec[Node] {
   val grammar = WritesGrammar
   val testCases = XMLTestCases
 }

@@ -69,7 +69,7 @@ trait Rule[I, O] extends RuleLike[I, O] {
     Rule(f(path))(d => validateNoRoot(d))
 
   def map[B](f: O => B): Rule[I, B] =
-    Rule(path)(d => this.validate(d).map(f))
+    Rule(path)(d => this.validateNoRoot(d).map(f))
 
   def ap[A](mf: Rule[I, O => A]): Rule[I, A] =
     Rule(Path) { d =>

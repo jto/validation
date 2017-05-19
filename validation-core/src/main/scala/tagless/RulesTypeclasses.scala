@@ -1,13 +1,16 @@
 package jto.validation
 package v3.tagless
 
-import shapeless.{::, HList}
+import shapeless.{::, HList, HNil}
 import shapeless.tag.@@
 import cats.Semigroup
 import cats.syntax.cartesian._
 
 trait RulesTypeclasses[I] extends Typeclasses[I, Rule]{
   self: Primitives[I, Rule] =>
+
+  def liftHList[B](fb: Rule[Out, B]): Rule[Out, B :: HNil] =
+    fb.map(_ :: HNil)
 
   implicit def composeTC = Rule.ruleCompose
 

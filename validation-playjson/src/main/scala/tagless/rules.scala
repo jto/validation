@@ -53,10 +53,6 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints with RulesType
         Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
     }
 
-  import shapeless.HNil
-
-  def knil = Rule.pure(HNil)
-
   implicit def int = Rules.intR
   implicit def string = Rules.stringR
   implicit def bigDecimal = Rules.bigDecimal

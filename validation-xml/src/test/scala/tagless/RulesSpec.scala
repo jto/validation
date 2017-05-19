@@ -16,12 +16,12 @@ class XMLRulesSpec extends RulesSpec[Node] {
     // TODO: Add test case for index path node in RuleSpec
     "validate required attributes" in {
       import testCases.base
-      def r = at(Path \ "phones" \ "phone")(attr("label")(req[String]))
+      def r = at(Path \ "phones" \ "phone")(req[String].attr("label", req[String]))
       r.validate(base.info) shouldBe Valid("mobile")
     }
 
     "validate required attributes as Int" in {
-      def r = at(Path \ "test")(attr("label")(req[Int]))
+      def r = at(Path \ "test")(req[String].attr("label", req[Int]))
       val xml = <root><test label="42"></test></root>
       r.validate(xml) shouldBe Valid(42)
       val xml2 = <root><test label="bar"></test></root>
@@ -32,7 +32,7 @@ class XMLRulesSpec extends RulesSpec[Node] {
 
     "validate optional attributes" in {
       import testCases.base
-      def r = at(Path \ "phones" \ "fake")(attr("label")(opt[String]))
+      def r = at(Path \ "phones" \ "phone")(req[String].attr("fake", opt[String]))
       r.validate(base.info) shouldBe Valid(None)
     }
 

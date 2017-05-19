@@ -4,7 +4,6 @@ package playjson
 
 import play.api.libs.json.{JsValue, JsObject, JsNumber}
 import jto.validation.playjson.Writes
-import shapeless.HNil
 
 object WriteTypeAlias {
   // I should be able to use flip[Write]#λ instead of creating this ugly
@@ -18,15 +17,13 @@ trait WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstra
   type Out = JsObject
   type P = WritesGrammar
 
-  protected def outMonoid = Writes.jsonMonoid
+  protected def outSemigroup = Writes.jsonMonoid
 
   def mapPath(f: Path => Path): P =
     new WritesGrammar {
       override def at[A](p: Path)(k: => Write[A, Option[_ >: JsObject <: JsValue]]): Write[A,JsObject] =
         self.at(f(p))(k)
     }
-
-  def knil: Write[HNil, Out] = Write{ _ => JsObject(Nil) }
 
   def at[A](p: Path)(k: => Write[A, Option[_ >: JsObject <: JsValue]]): Write[A, JsObject] =
     Write { t =>

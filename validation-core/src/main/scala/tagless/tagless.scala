@@ -45,7 +45,6 @@ trait Primitives[I, K[_, _]] {
 
   def mapPath(f: Path => Path): P
   def at[A](p: Path)(k:  => K[Option[_ >: Out <: I], A]): K[Out, A]
-  def knil: K[Out, HNil]
 
   def is[A](implicit K: K[_ >: Out <: I, A]): K[_ >: Out <: I, A] = K
   def req[A](implicit K: K[_ >: Out <: I, A]): K[Option[_ >: Out <: I], A]
@@ -76,7 +75,16 @@ trait Primitives[I, K[_, _]] {
 
 }
 
-trait Typeclasses[I, K[_, _]] {
+trait LowPriorityTypeClasses[I, K[_, _]] {
+  self: Typeclasses[I, K] with Primitives[I, K] =>
+
+  def liftHList[B](fb: K[Out, B]): K[Out, B :: HNil]
+
+  implicit def toMergeOpsBase[B](fb: K[Out, B]): MergeOps[K[Out, ?], B :: HNil] =
+    MergeOps[K[Out, ?], B :: HNil](liftHList(fb))(mergeTC)
+}
+
+trait Typeclasses[I, K[_, _]] extends LowPriorityTypeClasses[I, K] {
   self: Primitives[I, K] =>
 
   import cats.arrow.Compose
@@ -91,7 +99,6 @@ trait Typeclasses[I, K[_, _]] {
 trait Constraints[K[_, _]] {
   type C[A] = K[A, A] @@ Root
 
-  // def valid[A]: C[A]
   def min[A](a: A)(implicit O: Ordering[A]): C[A]
   def max[A](a: A)(implicit O: Ordering[A]): C[A]
   def notEmpty: C[String]

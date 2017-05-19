@@ -2,6 +2,15 @@ package jto.validation
 package v3.tagless
 package xml
 
+
 trait XmlGrammar[I, K[_, _]] extends Grammar[I, K] {
-  // def attr[A](key: String)(K: K[Option[_ >: Out <: I], A]): K[Option[_ >: Out <: I], A]
+
+  final class AttributeOps[A](K: K[Option[Out], A]) {
+    def attr[B](key: String, attrK: K[Option[_ >: Out <: I], B]): K[Option[Out], (A, B)] =
+      withAttr(key, attrK)(K)
+  }
+
+  implicit def toAttributeOps[A](K: K[Option[Out], A]) = new AttributeOps(K)
+
+  def withAttr[A, B](key: String, attrK: K[Option[_ >: Out <: I], B])(K: K[Option[Out], A]): K[Option[Out], (A, B)]
 }

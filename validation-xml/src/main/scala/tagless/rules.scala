@@ -4,6 +4,7 @@ package xml
 
 import jto.validation.xml.Rules
 import scala.xml._
+import cats.syntax.cartesian._
 
 trait RulesGrammar
   extends XmlGrammar[Node, Rule]
@@ -52,10 +53,6 @@ trait RulesGrammar
         Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
     }
 
-  import shapeless.HNil
-
-  def knil = Rule.pure(HNil)
-
   implicit def int = Rules.nodeR(Rules.intR)
   implicit def string = Rules.nodeR(Rule.zero)
   implicit def bigDecimal = Rules.nodeR(Rules.bigDecimal)
@@ -73,17 +70,17 @@ trait RulesGrammar
 
   def toGoal[Repr, A] = _.map { Goal.apply }
 
-  /*
-  def attr[A](key: String)(K: Rule[Option[_ >: Out <: Node], A]): Rule[Option[_ >: Out <: Node], A] =
-    Rule(Path) { on =>
-      val oa =
+  def withAttr[A, B](key: String, attrK: Rule[Option[_ >: Out <: Node], B])(K: Rule[Option[Out], A]): Rule[Option[Out], (A, B)] =
+    Rule(Path) { js =>
+      val a =
         for {
-          n <- on
+          n <- js
           a <- n.attribute(key).flatMap(_.headOption)
         } yield a
-      K.repath(_ \ s"@$key").validate(oa)
+      val attrValidated = attrK.repath(_ \ s"@$key").validate(a)
+      val nodeValidated = K.validate(js)
+      (nodeValidated |@| attrValidated).tupled
     }
-  */
 
 }
 

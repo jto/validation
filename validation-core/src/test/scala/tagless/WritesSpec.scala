@@ -170,8 +170,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
       val w =
         (
           at(Path \ "email")(opt[String]) ~:
-          at(Path \ "phones")(req[Seq[String]]) ~:
-          knil
+          at(Path \ "phones")(req[Seq[String]])
         ).tupled
 
       val v = Some("fakecontact@gmail.com") -> Seq("01.23.45.67.89", "98.76.54.32.10")
@@ -203,8 +202,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
         {
           at(Path \ "label")(req[String]) ~:
           at(Path \ "email")(opt[String]) ~:
-          at(Path \ "phones")(req[Seq[String]]) ~:
-          knil
+          at(Path \ "phones")(req[Seq[String]])
         }.from[ContactInformation]
 
       val contactWrite =
@@ -212,8 +210,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
           at(Path \ "firstname")(req[String]) ~:
           at(Path \ "lastname")(req[String]) ~:
           at(Path \ "company")(opt[String]) ~:
-          at(Path \ "informations")(req[Seq[ContactInformation]]) ~:
-          knil
+          at(Path \ "informations")(req[Seq[ContactInformation]])
         }.from[Contact]
 
       // TODO: use solver ?
@@ -232,8 +229,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
         lazy val w: Write[RecUser, Out] =
           {
             at(Path \ "name")(req[String]) ~:
-            at(Path \ "friends")(req(seq(w))) ~:
-            knil
+            at(Path \ "friends")(req(seq(w)))
           }.from[RecUser]
 
         w.writes(u) shouldBe bobAndFriends
@@ -241,8 +237,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
         lazy val w2: Write[User1, Out] =
           {
             at(Path \ "name")(req[String]) ~:
-            at(Path \ "friend")(opt(w2)) ~:
-            knil
+            at(Path \ "friend")(opt(w2))
           }.from[User1]
 
         w2.writes(u1) shouldBe bobAndFriend
@@ -253,8 +248,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
         implicit lazy val w: Write[RecUser, Out] =
           {
             at(Path \ "name")(req[String]) ~:
-            at(Path \ "friends")(req[Seq[RecUser]]) ~:
-            knil
+            at(Path \ "friends")(req[Seq[RecUser]])
           }.from[RecUser]
 
         w.writes(u) shouldBe bobAndFriends
@@ -262,8 +256,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
         implicit lazy val w2: Write[User1, Out] =
           {
             at(Path \ "name")(req[String]) ~:
-            at(Path \ "friend")(opt[User1]) ~:
-            knil
+            at(Path \ "friend")(opt[User1])
           }.from[User1]
 
         w2.writes(u1) shouldBe bobAndFriend

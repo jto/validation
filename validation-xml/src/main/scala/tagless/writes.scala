@@ -23,13 +23,14 @@ trait WritesGrammar
     }
 
   def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: Node]]): Write[A, Out] =
-    Write { t =>
-      val KeyPathNode(root) = p.path.head // XXX: will fail on empty path
-      val rest = Path(p.path.tail)
-      val js = k.writes(t)
-      val w2 = W.optionW(Write.zero[Node])(W.writeXml _)(p)
-      w2.writes(js)(Elem(null, root, Null, TopScope, true))
-    }
+    ???
+    // Write { t =>
+    //   val KeyPathNode(root) = p.path.head // XXX: will fail on empty path
+    //   val rest = Path(p.path.tail)
+    //   val js = k.writes(t)
+    //   val w2 = W.optionW(Write.zero[Node])(W.writeXml _)(p)
+    //   w2.writes(js)(Elem(null, root, Null, TopScope, true))
+    // }
 
   def opt[A](implicit K: Write[A, _ >: Out <: Node]): Write[Option[A], Option[_ >: Out <: Node]] =
     Write { _.map(K.writes) }
@@ -49,20 +50,20 @@ trait WritesGrammar
   implicit def double = txt(W.doubleW)
   implicit def float = txt(W.floatW)
   implicit def int = txt(W.intW)
-  implicit def jBigDecimal = ???
+  implicit def jBigDecimal = txt(Write(_.toString))
   implicit def long = txt(W.longW)
   implicit def short = txt(W.shortW)
   implicit def string = txt(Write.zero)
 
-  implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: Node]): Write[Array[A], Node] = ???
-  implicit def list[A](implicit k: Write[A, _ >: Out <: Node]): Write[List[A], Node] = ???
+  implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: Node]): Write[Array[A], Node] = seq(k).contramap(_.toSeq)
+  implicit def list[A](implicit k: Write[A, _ >: Out <: Node]): Write[List[A], Node] = seq(k).contramap(_.toSeq)
   implicit def map[A](implicit k: Write[A, _ >: Out <: Node]): Write[Map[String, A], Node] = ???
-  implicit def seq[A](implicit k: Write[A, _ >: Out <: Node]): Write[Seq[A], Node] = ???
-  implicit def traversable[A](implicit k: Write[A, _ >: Out <: Node]): Write[Traversable[A], Node] = ???
+  implicit def seq[A](implicit k: Write[A, _ >: Out <: Node]): Write[Seq[A], Node] = Write { as => Group(as.map(k.writes)) }
+  implicit def traversable[A](implicit k: Write[A, _ >: Out <: Node]): Write[Traversable[A], Node] = seq(k).contramap(_.toSeq)
 
   protected def outSemigroup =
     new cats.Semigroup[Out] {
-      def combine(x: Out, y: Out): Out = x ++ y
+      def combine(x: Out, y: Out): Out = ??? // x ++ y
     }
 
   def withAttr[A, B](key: String, attrK: Write[B, Option[_ >: Out <: Node]])(K: Write[A, Option[Out]]): Write[(A, B), Option[Out]] =

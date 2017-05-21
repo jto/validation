@@ -150,17 +150,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         import testCases.string._
         def n = at(Path \ "n")(req[String])
         def o = at(Path \ "o")(req[String])
-
         n.validate(foo) shouldBe (Valid("foo"))
-        n.validate(_42) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(
-            ValidationError("error.invalid", "String")))))
-        n.validate(foos) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(
-            ValidationError("error.invalid", "String")))))
-        o.validate(onFoo) shouldBe
-          (Invalid(Seq(Path \ "o" -> Seq(
-            ValidationError("error.invalid", "String")))))
       }
 
       "Option" in {
@@ -202,16 +192,6 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
         at(Path \ "n")(req[Traversable[Int]])
           .validate(ints) shouldBe Valid(Seq(1, 2, 3))
-
-        at(Path \ "n")(req[Traversable[String]])
-          .validate(paf) shouldBe
-            (Invalid(Seq(Path \ "n" -> Seq(
-              ValidationError("error.invalid", "Array")))))
-
-        at(Path \ "n")(req[Traversable[String]])
-          .validate(mixed) shouldBe
-            (Invalid(Seq(Path \ "n" \ 1 -> Seq(
-              ValidationError("error.invalid", "String")))))
       }
 
       "Array" in {

@@ -10,7 +10,41 @@ class JsonRulesSpec extends RulesSpec[JsValue] {
 
   import grammar._
 
+
   "Specific JSON Rules" should {
+
+    "check json types" when {
+      "string" in {
+        import testCases.string._
+        def n = at(Path \ "n")(req[String])
+        def o = at(Path \ "o")(req[String])
+
+        n.validate(_42) shouldBe
+          (Invalid(Seq(Path \ "n" -> Seq(
+            ValidationError("error.invalid", "String")))))
+        n.validate(foos) shouldBe
+          (Invalid(Seq(Path \ "n" -> Seq(
+            ValidationError("error.invalid", "String")))))
+        o.validate(onFoo) shouldBe
+          (Invalid(Seq(Path \ "o" -> Seq(
+            ValidationError("error.invalid", "String")))))
+      }
+
+      "Traversable" in {
+        import testCases.seq._
+
+        at(Path \ "n")(req[Traversable[String]])
+          .validate(paf) shouldBe
+            (Invalid(Seq(Path \ "n" -> Seq(
+              ValidationError("error.invalid", "Array")))))
+
+        at(Path \ "n")(req[Traversable[String]])
+          .validate(mixed) shouldBe
+            (Invalid(Seq(Path \ "n" \ 1 -> Seq(
+              ValidationError("error.invalid", "String")))))
+      }
+    }
+
     "support null" in {
         val jn = at(Path \ "n")(req[JsNull.type])
 

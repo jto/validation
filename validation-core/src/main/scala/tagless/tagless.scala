@@ -21,7 +21,7 @@ case class MergeOps[F[_], B <: HList](fb: F[B])(implicit M: Merge[F]) {
 }
 
 trait Primitives[I, K[_, _]] {
-  self: Constraints[K] =>
+  self: Constraints[K] with Typeclasses[I, K] =>
 
   type Out <: I
   type P <: Primitives[I, K]
@@ -45,6 +45,7 @@ trait Primitives[I, K[_, _]] {
 
   def mapPath(f: Path => Path): P
   def at[A](p: Path)(k:  => K[Option[_ >: Out <: I], A]): K[Out, A]
+  def knil: K[Out, HNil]
 
   def is[A](implicit K: K[_ >: Out <: I, A]): K[_ >: Out <: I, A] = K
   def req[A](implicit K: K[_ >: Out <: I, A]): K[Option[_ >: Out <: I], A]
@@ -67,6 +68,7 @@ trait Primitives[I, K[_, _]] {
   implicit def jBigDecimal: K[I, java.math.BigDecimal] @@ Root
   implicit def bigDecimal: K[I, BigDecimal] @@ Root
   implicit def boolean: K[I, Boolean] @@ Root
+
   implicit def seq[A](implicit k: K[_ >: Out <: I, A]): K[I, Seq[A]]
   implicit def list[A](implicit k: K[_ >: Out <: I, A]): K[I, List[A]]
   implicit def array[A: scala.reflect.ClassTag](implicit k: K[_ >: Out <: I, A]): K[I, Array[A]]
@@ -77,11 +79,6 @@ trait Primitives[I, K[_, _]] {
 
 trait LowPriorityTypeClasses[I, K[_, _]] {
   self: Typeclasses[I, K] with Primitives[I, K] =>
-
-  def liftHList[B](fb: K[Out, B]): K[Out, B :: HNil]
-
-  implicit def toMergeOpsBase[B](fb: K[Out, B]): MergeOps[K[Out, ?], B :: HNil] =
-    MergeOps[K[Out, ?], B :: HNil](liftHList(fb))(mergeTC)
 }
 
 trait Typeclasses[I, K[_, _]] extends LowPriorityTypeClasses[I, K] {

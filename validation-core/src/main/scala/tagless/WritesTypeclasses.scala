@@ -2,7 +2,7 @@ package jto.validation
 package v3.tagless
 
 
-import cats.Semigroup
+import cats.{Semigroup, Monoid}
 import cats.arrow.Compose
 import shapeless.{::, HNil}
 import shapeless.tag.@@
@@ -11,10 +11,12 @@ import types.flip
 trait WritesTypeclasses[I] extends Typeclasses[I, flip[Write]#λ]{
   self: Primitives[I, flip[Write]#λ] =>
 
-  def liftHList[B](fb: Write[B, Out]): Write[B :: HNil, Out] =
+  def knil = Write[HNil, Out] { _ => iMonoid.empty }
+
+  def liftHList[B](fb: Write[B, I]): Write[B :: HNil, I] =
     fb.contramap { _.head }
 
-  protected def outSemigroup: Semigroup[Out]
+  protected def iMonoid: Monoid[Out]
 
   implicit def composeTC =
     new Compose[types.flip[Write]#λ] {
@@ -30,7 +32,7 @@ trait WritesTypeclasses[I] extends Typeclasses[I, flip[Write]#λ]{
         Write { case a :: b =>
           val wa = fa.writes(a)
           val wb = fb.writes(b)
-          outSemigroup.combine(fa.writes(a), fb.writes(b))
+          iMonoid.combine(wa, wb)
         }
     }
 

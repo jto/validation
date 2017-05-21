@@ -9,6 +9,8 @@ import cats.syntax.cartesian._
 trait RulesTypeclasses[I] extends Typeclasses[I, Rule]{
   self: Primitives[I, Rule] =>
 
+  def knil: Rule[Out, HNil] = Rule.zero[Out].map { _ => HNil }
+
   def liftHList[B](fb: Rule[Out, B]): Rule[Out, B :: HNil] =
     fb.map(_ :: HNil)
 

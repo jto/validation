@@ -340,13 +340,16 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
       def names =
         at(Path \ "firstname")(ne) ~:
-        at(Path \ "lastname")(ne)
+        at(Path \ "lastname")(ne) ~:
+        knil
 
       names.map(_.tupled).validate(valid) shouldBe Valid("Julien" -> "Tournay")
 
       def full =
         names ~:
-        at(Path \ "informations" \ "label")(ne)
+        at(Path \ "informations" \ "label")(ne) ~:
+        knil
+
 
       full.validate(emptyObj) shouldBe
         Invalid(Seq(
@@ -385,13 +388,15 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       val passRule =
         (
           at(Path \ "password")(req[String] andThen notEmpty) ~:
-          at(Path \ "verify")(req[String] andThen notEmpty)
+          at(Path \ "verify")(req[String] andThen notEmpty) ~:
+          knil
         ).map(_.tupled) andThen Rule.uncurry(Rules.equalTo[String]).repath(_ => (Path \ "verify"))
 
       val rule =
         (
           at(Path \ "login")(req[String] andThen notEmpty) ~:
-          passRule
+          passRule ~:
+          knil
         ).map(_.tupled)
 
       rule.validate(ok) shouldBe Valid("Alice" -> "s3cr3t")
@@ -472,7 +477,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         goal[ContactInformation] {
           at(Path \ "label")(req[String] andThen notEmpty) ~:
           at(Path \ "email")(opt(is[String] andThen email)) ~:
-          at(Path \ "phones")(req[Seq[String]] andThen forall(notEmpty))
+          at(Path \ "phones")(req[Seq[String]] andThen forall(notEmpty)) ~:
+          knil
         }
 
       def contact =
@@ -480,7 +486,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
           at(Path \ "firstname")(req[String] andThen notEmpty) ~:
           at(Path \ "lastname")(req[String] andThen notEmpty) ~:
           at(Path \ "company")(opt[String]) ~:
-          at(Path \ "contacts")(req(seq(info)))
+          at(Path \ "contacts")(req(seq(info))) ~:
+          knil
         }
 
       val expected = Contact(
@@ -514,7 +521,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         lazy val w: Rule[grammar.Out, RecUser] =
           (
             at(Path \ "name")(req[String]) ~:
-            at(Path \ "friends")(req(seq(w)))
+            at(Path \ "friends")(req(seq(w))) ~:
+            knil
           ).to[RecUser]
 
         w.validate(bobAndFriends) shouldBe Valid(u)
@@ -522,7 +530,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         lazy val w2: Rule[grammar.Out, RecUser] =
           (
             at(Path \ "name")(req[String]) ~:
-            at(Path \ "friends")(req(seq(w2)))
+            at(Path \ "friends")(req(seq(w2))) ~:
+            knil
           ).to[RecUser]
 
         w2.validate(bobAndFriends) shouldBe Valid(u)
@@ -530,7 +539,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         lazy val w3: Rule[grammar.Out, User1] =
           (
             at(Path \ "name")(req[String]) ~:
-            at(Path \ "friend")(opt(w3))
+            at(Path \ "friend")(opt(w3)) ~:
+            knil
           ).to[User1]
 
         w3.validate(bobAndFriend) shouldBe Valid(u1)
@@ -540,7 +550,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         implicit lazy val w: Rule[grammar.Out, RecUser] =
           (
             at(Path \ "name")(req[String]) ~:
-            at(Path \ "friends")(req[Seq[RecUser]])
+            at(Path \ "friends")(req[Seq[RecUser]]) ~:
+            knil
           ).to[RecUser]
 
         w.validate(bobAndFriends) shouldBe Valid(u)
@@ -548,7 +559,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         implicit lazy val w3: Rule[grammar.Out, User1] =
           (
             at(Path \ "name")(req[String]) ~:
-            at(Path \ "friend")(opt[User1])
+            at(Path \ "friend")(opt[User1]) ~:
+            knil
           ).to[User1]
 
         w3.validate(bobAndFriend) shouldBe Valid(u1)

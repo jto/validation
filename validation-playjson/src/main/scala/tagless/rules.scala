@@ -13,7 +13,7 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints with RulesType
 
   def mapPath(f: Path => Path): P =
     new RulesGrammar {
-      override def at[A](p: Path)(k: => Rule[Option[_ >: JsValue <: JsValue], A]) =
+      override def at[A](p: Path)(k: => Rule[Option[_ >: Out <: JsValue], A]) =
         self.at(f(p))(k)
     }
 
@@ -34,10 +34,10 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints with RulesType
         Some(json)
     }
 
-  def at[A](p: Path)(k: => Rule[Option[_ >: JsValue <: JsValue], A]): Rule[JsValue, A] =
+  def at[A](p: Path)(k: => Rule[Option[_ >: Out <: JsValue], A]): Rule[JsValue, A] =
     Rule(p) { js => k.validate(search(p, js)) }
 
-  def opt[A](implicit K: Rule[_ >: JsValue <: JsValue, A]): Rule[Option[_ >: JsValue <: JsValue], Option[A]] =
+  def opt[A](implicit K: Rule[_ >: Out <: JsValue, A]): Rule[Option[JsValue], Option[A]] =
     Rule(Path) {
       case Some(x) =>
         K.validate(x).map(Option.apply)
@@ -45,7 +45,7 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints with RulesType
         Valid(None)
     }
 
-  def req[A](implicit K: Rule[_ >: JsValue <: JsValue, A]): Rule[Option[_ >: JsValue <: JsValue], A] =
+  def req[A](implicit K: Rule[_ >: Out <: JsValue, A]): Rule[Option[JsValue], A] =
     Rule(Path) {
       case Some(x) =>
         K.validate(x)
@@ -62,11 +62,12 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints with RulesType
   implicit def jBigDecimal = Rules.javaBigDecimal
   implicit def long = Rules.longR
   implicit def short = Rules.shortR
-  implicit def seq[A](implicit k: Rule[_ >: JsValue <: JsValue, A]) = Rules.pickSeq(k)
-  implicit def list[A](implicit k: Rule[_ >: JsValue <: JsValue, A]) = Rules.pickList(k)
+
+  implicit def seq[A](implicit k: Rule[_ >: Out <: JsValue, A]) = Rules.pickSeq(k)
+  implicit def list[A](implicit k: Rule[_ >: Out <: JsValue, A]) = Rules.pickList(k)
   implicit def array[A: scala.reflect.ClassTag](implicit k: Rule[_ >: Out <: JsValue, A]) = Rules.pickArray
   implicit def map[A](implicit k: Rule[_ >: Out <: JsValue, A]) = Rules.mapR
-  implicit def traversable[A](implicit k: Rule[_ >: Out <: JsValue, A]) = Rules.pickTraversable
+  implicit def traversable[A](implicit k: Rule[_ >: Out <: JsValue, A]) = Rules.pickTraversable(k)
 
   implicit def jsNull = Rules.jsNullR
   implicit def jsObject = Rules.jsObjectR

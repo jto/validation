@@ -11,33 +11,36 @@ object WriteTypeAlias {
   type FWrite[A, B] = Write[B, A]
 }
 
-trait WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstraints with WritesTypeclasses[JsValue] {
+trait WritesGrammar
+  extends JsonGrammar[WriteTypeAlias.FWrite]
+  with WriteConstraints
+  with WritesTypeclasses[JsValue] {
   self =>
 
   type Out = JsObject
   type P = WritesGrammar
 
-  protected def outSemigroup = Writes.jsonMonoid
+  protected def iMonoid = Writes.jsonMonoid
 
   def mapPath(f: Path => Path): P =
     new WritesGrammar {
-      override def at[A](p: Path)(k: => Write[A, Option[_ >: JsObject <: JsValue]]): Write[A,JsObject] =
+      override def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: JsValue]]): Write[A,JsObject] =
         self.at(f(p))(k)
     }
 
-  def at[A](p: Path)(k: => Write[A, Option[_ >: JsObject <: JsValue]]): Write[A, JsObject] =
+  def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: JsValue]]): Write[A, JsObject] =
     Write { t =>
       val js = k.writes(t)
       val w2 = Writes.optionW(Write.zero[JsValue])(Writes.writeJson _)(p)
       w2.writes(js)
     }
 
-  def opt[A](implicit K: Write[A, _ >: JsObject <: JsValue]): Write[Option[A], Option[_ >: JsObject <: JsValue]] =
+  def opt[A](implicit K: Write[A, _ >: Out <: JsValue]): Write[Option[A], Option[JsValue]] =
     Write {
       _.map(K.writes)
     }
 
-  def req[A](implicit K: Write[A, _ >: JsObject <: JsValue]): Write[A, Option[_ >: JsObject <: JsValue]] =
+  def req[A](implicit K: Write[A, _ >: Out <: JsValue]): Write[A, Option[JsValue]] =
     Write { a =>
       Option(K.writes(a))
     }
@@ -51,6 +54,7 @@ trait WritesGrammar extends JsonGrammar[WriteTypeAlias.FWrite] with WriteConstra
   implicit def jBigDecimal = Write { (j: java.math.BigDecimal) => JsNumber(j) }
   implicit def long = Writes.longW
   implicit def short = Writes.shortW
+
   implicit def seq[A](implicit k: Write[A, _ >: Out <: JsValue]) = Writes.seqToJsArray(k)
   implicit def list[A](implicit k: Write[A, _ >: Out <: JsValue]) = Writes.seqToJsArray(k).contramap(_.toSeq)
   implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: JsValue]) = Writes.seqToJsArray(k).contramap(_.toSeq)

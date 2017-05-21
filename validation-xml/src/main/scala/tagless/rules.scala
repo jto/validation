@@ -17,7 +17,7 @@ trait RulesGrammar
 
   def mapPath(f: Path => Path): P =
     new RulesGrammar {
-      override def at[A](p: Path)(k: => Rule[Option[_ >: Node <: Node],A]): Rule[Node, A] =
+      override def at[A](p: Path)(k: => Rule[Option[_ >: Out <: Node],A]): Rule[Node, A] =
         self.at(f(p))(k)
     }
 
@@ -34,10 +34,10 @@ trait RulesGrammar
       case Nil => Some(node)
     }
 
-  def at[A](p: Path)(k: => Rule[Option[_ >: Node <: Node], A]): Rule[Node, A] =
+  def at[A](p: Path)(k: => Rule[Option[_ >: Out <: Node], A]): Rule[Node, A] =
     Rule(p) { i => k.validate(search(p, i)) }
 
-  def opt[A](implicit K: Rule[_ >: Node <: Node, A]): Rule[Option[_ >: Node <: Node], Option[A]] =
+  def opt[A](implicit K: Rule[_ >: Out <: Node, A]): Rule[Option[Node], Option[A]] =
     Rule(Path) {
       case Some(x) =>
         K.validate(x).map(Option.apply)
@@ -45,7 +45,7 @@ trait RulesGrammar
         Valid(None)
     }
 
-  def req[A](implicit K: Rule[_ >: Node <: Node, A]): Rule[Option[_ >: Node <: Node], A] =
+  def req[A](implicit K: Rule[_ >: Out <: Node, A]): Rule[Option[Node], A] =
     Rule(Path) {
       case Some(x) =>
         K.validate(x)
@@ -62,6 +62,7 @@ trait RulesGrammar
   implicit def jBigDecimal = Rules.nodeR(Rules.javaBigDecimalR)
   implicit def long = Rules.nodeR(Rules.longR)
   implicit def short = Rules.nodeR(Rules.shortR)
+
   implicit def seq[A](implicit k: Rule[_ >: Out <: Node, A]) = Rules.pickSeq(k)
   implicit def list[A](implicit k: Rule[_ >: Out <: Node, A]) = Rules.pickList(k)
   implicit def array[A: scala.reflect.ClassTag](implicit k: Rule[_ >: Out <: Node, A]) = Rules.pickList(k).map(_.toArray)
@@ -70,7 +71,7 @@ trait RulesGrammar
 
   def toGoal[Repr, A] = _.map { Goal.apply }
 
-  def withAttr[A, B](key: String, attrK: Rule[Option[_ >: Out <: Node], B])(K: Rule[Option[Out], A]): Rule[Option[Out], (A, B)] =
+  def withAttr[A, B](key: String, attrK: Rule[Option[Node], B])(K: Rule[Option[Out], A]): Rule[Option[Out], (A, B)] =
     Rule(Path) { js =>
       val a =
         for {

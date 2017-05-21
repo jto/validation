@@ -22,7 +22,8 @@ class CrossCompile extends WordSpec with Matchers {
         import g._
         at(Path \ "label")(req[String] andThen notEmpty) ~:
         at(Path \ "email")(opt(is[String] andThen email)) ~:
-        at(Path \ "phones")(req[Seq[String]] andThen forall(notEmpty))
+        at(Path \ "phones")(req[Seq[String]] andThen forall(notEmpty)) ~:
+        knil
       }
 
       val write = info[flip[Write]#λ].from[Info]
@@ -72,7 +73,8 @@ class CrossCompile extends WordSpec with Matchers {
         import g._
         at(Path \ "label")(req[String] andThen notEmpty) ~:
         at(Path \ "email")(opt(is[String] andThen email)) ~:
-        at(Path \ "phones")(req[Seq[String]] andThen forall(notEmpty))
+        at(Path \ "phones")(req[Seq[String]] andThen forall(notEmpty)) ~:
+        knil
       }
 
       val f = { (p: Path) =>

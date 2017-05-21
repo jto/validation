@@ -66,7 +66,18 @@ trait RulesGrammar
   implicit def seq[A](implicit k: Rule[_ >: Out <: Node, A]) = Rules.pickSeq(k)
   implicit def list[A](implicit k: Rule[_ >: Out <: Node, A]) = Rules.pickList(k)
   implicit def array[A: scala.reflect.ClassTag](implicit k: Rule[_ >: Out <: Node, A]) = Rules.pickList(k).map(_.toArray)
-  implicit def map[A](implicit k: Rule[_ >: Out <: Node, A]) = ???
+  implicit def map[A](implicit k: Rule[_ >: Out <: Node, A]) =
+    Rule(Path) { n =>
+      import cats.instances.list._
+      import cats.syntax.traverse._
+      val ns =
+        for {
+          c <- n.child
+          l = c.label
+        } yield k.repath(_ \ l).validate(c).map(l -> _)
+      ns.toList.sequenceU.map(_.toMap)
+    }
+
   implicit def traversable[A](implicit k: Rule[_ >: Out <: Node, A]) = Rules.pickTraversable(k)
 
   def toGoal[Repr, A] = _.map { Goal.apply }

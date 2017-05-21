@@ -201,16 +201,6 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
         at(Path \ "n")(req[Seq[Int]])
           .validate(ints) shouldBe Valid(Seq(1, 2, 3))
-
-        at(Path \ "n")(req[Seq[String]])
-          .validate(paf) shouldBe
-            (Invalid(Seq(Path \ "n" -> Seq(
-              ValidationError("error.invalid", "Array")))))
-
-        at(Path \ "n")(req[Seq[String]])
-          .validate(mixed) shouldBe
-            (Invalid(Seq(Path \ "n" \ 1 -> Seq(
-              ValidationError("error.invalid", "String")))))
       }
 
       "Seq" in {
@@ -220,15 +210,6 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
         at(Path \ "n")(req[Seq[Int]])
           .validate(ints) shouldBe Valid(Seq(1, 2, 3))
-
-        at(Path \ "n")(req[Seq[String]])
-          .validate(paf) shouldBe
-            (Invalid(Seq(Path \ "n" -> Seq(
-              ValidationError("error.invalid", "Array")))))
-
-        at(Path \ "n")(req[Seq[String]]).validate(mixed) shouldBe
-          (Invalid(Seq(Path \ "n" \ 1 -> Seq(
-            ValidationError("error.invalid", "String")))))
       }
 
     }

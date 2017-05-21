@@ -43,6 +43,18 @@ class JsonRulesSpec extends RulesSpec[JsValue] {
             (Invalid(Seq(Path \ "n" \ 1 -> Seq(
               ValidationError("error.invalid", "String")))))
       }
+
+      "Seq" in {
+        import testCases.seq._
+        at(Path \ "n")(req[Seq[String]])
+          .validate(paf) shouldBe
+            (Invalid(Seq(Path \ "n" -> Seq(
+              ValidationError("error.invalid", "Array")))))
+
+        at(Path \ "n")(req[Seq[String]]).validate(mixed) shouldBe
+          (Invalid(Seq(Path \ "n" \ 1 -> Seq(
+            ValidationError("error.invalid", "String")))))
+      }
     }
 
     "support null" in {

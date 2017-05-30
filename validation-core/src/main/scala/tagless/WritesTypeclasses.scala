@@ -27,7 +27,7 @@ trait WritesTypeclasses[I] extends Typeclasses[I, flip[Write]#λ]{
   import shapeless.{::, HList}
 
   implicit def mergeTC =
-    new Merge[Write[?, Out]] {
+    new Merge[flip[Write]#λ, Out] {
       def merge[A, B <: HList](fa: Write[A, Out], fb: Write[B, Out]): Write[A :: B, Out] =
         Write { case a :: b =>
           val wa = fa.writes(a)

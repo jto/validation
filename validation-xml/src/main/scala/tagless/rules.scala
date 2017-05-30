@@ -13,6 +13,7 @@ trait RulesGrammar
   self =>
 
   type Out = Node
+  type Sub = Node
   type P = RulesGrammar
 
   def mapPath(f: Path => Path): P =
@@ -82,14 +83,11 @@ trait RulesGrammar
 
   def toGoal[Repr, A] = _.map { Goal.apply }
 
-  def withAttr[A, B](key: String, attrK: Rule[Option[Node], B])(K: Rule[Option[Out], A]): Rule[Option[Out], (A, B)] =
+  def withAttr[A, B](key: String, attrK: Rule[Option[Node], B])(K: Rule[Out, A]): Rule[Out, (A, B)] =
     Rule(Path) { js =>
-      val a =
-        for {
-          n <- js
-          a <- n.attribute(key).flatMap(_.headOption)
-        } yield a
+      val a = js.attribute(key).headOption
       val attrValidated = attrK.repath(_ \ s"@$key").validate(a)
+
       val nodeValidated = K.validate(js)
       (nodeValidated |@| attrValidated).tupled
     }

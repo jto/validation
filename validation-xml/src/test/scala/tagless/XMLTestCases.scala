@@ -19,8 +19,8 @@ object XMLTestCases extends TestCases[Node] {
         <label>Personal</label>
         <email>fakecontact@gmail.com</email>
         <phones>
-          <phone label="mobile">01.02</phone>
-          <phone label="home">02.03</phone>
+          <phone label="mobile">01.23.45.67.89</phone>
+          <phone label="home">98.76.54.32.10</phone>
         </phones>
       </informations>
 

@@ -11,14 +11,14 @@ class XMLRulesSpec extends RulesSpec[Node] {
 
   "Specific XML Rules" should {
 
-    // import grammar.{ map => _, _ }
+    import grammar.{ map => _, _ }
 
     // TODO: Add test case for index path node in RuleSpec
-    // "validate required attributes" in {
-    //   import testCases.base
-    //   def r = at(Path \ "phones" \ "phone")(req[String].attr("label", req[String]))
-    //   r.validate(base.info) shouldBe Valid("mobile")
-    // }
+    "validate required attributes" in {
+      import testCases.base
+      def r = at(Path \ "phones" \ "phone")(req[String].attr("label", req[String]))
+      r.validate(base.info) shouldBe Valid(("01.23.45.67.89", "mobile"))
+    }
 
     // "validate required attributes as Int" in {
     //   def r = at(Path \ "test")(req[String].attr("label", req[Int]))

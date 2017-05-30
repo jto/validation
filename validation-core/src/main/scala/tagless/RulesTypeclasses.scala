@@ -16,8 +16,8 @@ trait RulesTypeclasses[I] extends Typeclasses[I, Rule]{
 
   implicit def composeTC = Rule.ruleCompose
 
-  implicit def mergeTC: Merge[Rule[Out, ?]] =
-    new Merge[Rule[Out, ?]] {
+  implicit def mergeTC: Merge[Rule, Out] =
+    new Merge[Rule, Out] {
       def merge[A, B <: HList](fa: Rule[Out, A], fb: Rule[Out, B]): Rule[Out, A :: B] =
         (fa |@| fb).map(_ :: _)
     }

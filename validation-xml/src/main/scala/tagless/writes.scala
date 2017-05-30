@@ -14,18 +14,21 @@ trait WritesGrammar
   self =>
 
   type Out = Node
+  type Sub = Elem
   type P = WritesGrammar
 
   def mapPath(f: Path => Path): P =
     new WritesGrammar {
-      override def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: Node]]): Write[A, Out] =
+      override def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: Node]]): Write[A, Elem] =
         self.at(f(p))(k)
     }
 
-  def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: Node]]): Write[A, Out] =
+  override def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: Node]]): Write[A, Elem] =
     Write { i =>
+      val in = k.writes(i).getOrElse(Group(Nil))
+
       @annotation.tailrec
-      def go(child: Node, path: List[PathNode]): Node =
+      def go(child: Elem, path: List[PathNode]): Elem =
         path match {
           case Nil =>
             child
@@ -35,10 +38,11 @@ trait WritesGrammar
             throw new RuntimeException("cannot write an attribute to a node with an index path")
         }
 
-      k.writes(i).map { node =>
-        val reversedPath = p.path.reverse
-        go(node, reversedPath)
-      }.getOrElse(Group(Nil))
+      if(p.path.isEmpty)
+        throw new RuntimeException("cannot write a node at no path")
+
+      val KeyPathNode(root) :: tail = p.path.reverse
+      go(Elem(null, root, Null, TopScope, false, in), tail)
     }
 
   def opt[A](implicit K: Write[A, _ >: Out <: Node]): Write[Option[A], Option[Node]] =
@@ -71,19 +75,15 @@ trait WritesGrammar
   implicit def traversable[A](implicit k: Write[A, _ >: Out <: Node]): Write[Traversable[A], Node] = seq(k).contramap(_.toSeq)
 
   protected def iMonoid =
-    new cats.Monoid[Node] {
-      def combine(x: Node, y: Node): Node = Group(x ++ y)
+    new cats.Monoid[Out] {
+      def combine(x: Out, y: Out): Out = Group(x ++ y)
       def empty = Group(Nil)
     }
 
-  def withAttr[A, B](key: String, attrK: Write[B, Option[Node]])(K: Write[A, Option[Out]]): Write[(A, B), Option[Out]] =
+  def withAttr[A, B](key: String, attrK: Write[B, Option[Node]])(K: Write[A, Elem]): Write[(A, B), Elem] =
     Write { case (a, b) =>
-      for {
-        // XXX: partial match + cast because scala.xml is terrible
-        _elem @ Elem(_, _, _, _) <- K.writes(a)
-        elem = _elem.asInstanceOf[Elem]
-        elem2 = elem.copy(attributes = elem.attributes.append(new UnprefixedAttribute(key, attrK.writes(b), Null)))
-      } yield elem2
+      val elem = K.writes(a)
+      elem.copy(attributes = elem.attributes.append(new UnprefixedAttribute(key, attrK.writes(b), Null)))
     }
 }
 

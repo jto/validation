@@ -12,12 +12,12 @@ case class Goal[A, B](value: A) {
   def trivial(implicit ev: A =:= (B :: HNil)): B = value.head
 }
 
-trait Merge[F[_]] {
-  def merge[A, B <: HList](fa: F[A], fb: F[B]): F[A :: B]
+trait Merge[K[_, _], Out] {
+  def merge[A, B <: HList](fa: K[Out, A], fb: K[Out, B]): K[Out, A :: B]
 }
 
-case class MergeOps[F[_], B <: HList](fb: F[B])(implicit M: Merge[F]) {
-  def ~:[A](fa: F[A]): F[A :: B] = M.merge(fa, fb)
+case class MergeOps[K[_, _], Out, B <: HList](fb: K[Out, B])(implicit M: Merge[K, Out]) {
+  def ~:[A](fa: K[Out, A]): K[Out, A :: B] = M.merge(fa, fb)
 }
 
 trait Primitives[I, K[_, _]] {
@@ -27,7 +27,7 @@ trait Primitives[I, K[_, _]] {
   type P <: Primitives[I, K]
 
   @inline private def camelToUnderscores(name: String) =
-    "[A-Z]".r.replaceAllIn(name, {m =>
+    "[A-Z]".r.replaceAllIn(name, { m =>
       "_" + m.group(0).toLowerCase()
     })
 
@@ -44,6 +44,8 @@ trait Primitives[I, K[_, _]] {
   def underScoreCase = mapKeyPath(camelToUnderscores)
 
   def mapPath(f: Path => Path): P
+
+  // TODO: Introduce NonEmptyPath
   def at[A](p: Path)(k:  => K[Option[_ >: Out <: I], A]): K[Out, A]
   def knil: K[Out, HNil]
 
@@ -87,10 +89,10 @@ trait Typeclasses[I, K[_, _]] extends LowPriorityTypeClasses[I, K] {
   import cats.arrow.Compose
   implicit def composeTC: Compose[K]
   implicit def semigroupTC[I0, O]: cats.Semigroup[K[I0, O] @@ Root]
-  implicit def mergeTC: Merge[K[Out, ?]]
+  implicit def mergeTC: Merge[K, Out]
 
-  implicit def toMergeOps[B <: HList](fb: K[Out, B]): MergeOps[K[Out, ?], B] =
-    MergeOps[K[Out, ?], B](fb)(mergeTC)
+  implicit def toMergeOps[B <: HList](fb: K[Out, B]): MergeOps[K, Out, B] =
+    MergeOps[K, Out, B](fb)(mergeTC)
 }
 
 trait Constraints[K[_, _]] {

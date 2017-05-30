@@ -18,6 +18,7 @@ trait WritesGrammar
   self =>
 
   type Out = JsObject
+  type Sup = Out
   type P = WritesGrammar
 
   protected def iMonoid = Writes.jsonMonoid

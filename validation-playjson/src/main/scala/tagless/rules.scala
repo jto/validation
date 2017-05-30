@@ -8,6 +8,7 @@ import jto.validation.playjson.Rules
 trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints with RulesTypeclasses[JsValue] {
   self =>
 
+  type Sup = JsValue
   type Out = JsValue
   type P = RulesGrammar
 

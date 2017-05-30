@@ -5,12 +5,14 @@ package xml
 
 trait XmlGrammar[I, K[_, _]] extends Grammar[I, K] {
 
-  final class AttributeOps[A](K: K[Option[Out], A]) {
-    def attr[B](key: String, attrK: K[Option[I], B]): K[Option[Out], (A, B)] =
+  type Sub <: Out
+
+  final class AttributeOps[A](K: K[Sub, A]) {
+    def attr[B](key: String, attrK: K[Option[I], B]): K[Sub, (A, B)] =
       withAttr(key, attrK)(K)
   }
 
-  implicit def toAttributeOps[A](K: K[Option[Out], A]) = new AttributeOps(K)
+  implicit def toAttributeOps[A](K: K[Sub, A]) = new AttributeOps(K)
 
-  def withAttr[A, B](key: String, attrK: K[Option[I], B])(K: K[Option[Out], A]): K[Option[Out], (A, B)]
+  def withAttr[A, B](key: String, attrK: K[Option[I], B])(K: K[Sub, A]): K[Sub, (A, B)]
 }

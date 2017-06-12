@@ -4,7 +4,7 @@ package xml
 
 import jto.validation.xml.Rules
 import scala.xml._
-import cats.syntax.cartesian._
+// import cats.syntax.cartesian._
 
 trait RulesGrammar
   extends XmlGrammar[Node, Rule]
@@ -83,14 +83,14 @@ trait RulesGrammar
 
   def toGoal[Repr, A] = _.map { Goal.apply }
 
-  def withAttr[A, B](key: String, attrK: Rule[Option[Node], B])(K: Rule[Out, A]): Rule[Out, (A, B)] =
-    Rule(Path) { js =>
-      val a = js.attribute(key).headOption
-      val attrValidated = attrK.repath(_ \ s"@$key").validate(a)
+  // def withAttr[A, B](key: String, attrK: Rule[Option[Node], B])(K: Rule[Out, A]): Rule[Out, (A, B)] =
+  //   Rule(Path) { js =>
+  //     val a = js.attribute(key).headOption
+  //     val attrValidated = attrK.repath(_ \ s"@$key").validate(a)
 
-      val nodeValidated = K.validate(js)
-      (nodeValidated |@| attrValidated).tupled
-    }
+  //     val nodeValidated = K.validate(js)
+  //     (nodeValidated |@| attrValidated).tupled
+  //   }
 
 }
 

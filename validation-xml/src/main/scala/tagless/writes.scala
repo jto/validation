@@ -80,11 +80,21 @@ trait WritesGrammar
       def empty = Group(Nil)
     }
 
-  def withAttr[A, B](key: String, attrK: Write[B, Option[Node]])(K: Write[A, Elem]): Write[(A, B), Elem] =
-    Write { case (a, b) =>
-      val elem = K.writes(a)
-      elem.copy(attributes = elem.attributes.append(new UnprefixedAttribute(key, attrK.writes(b), Null)))
-    }
+  // def withAttr[A, B](key: String, attrK: Write[B, Option[Node]])(K: Write[A, Elem]): Write[(A, B), Elem] =
+  //   Write { case (a, b) =>
+  //     val elem = K.writes(a)
+  //     elem.copy(attributes = elem.attributes.append(new UnprefixedAttribute(key, attrK.writes(b), Null)))
+  //   }
 }
 
 object WritesGrammar extends WritesGrammar
+
+
+sealed trait XML
+case class Group(values: List[XML]) extends XML
+case class Just(value: Node) extends XML
+case class Text(value: String) extends XML
+case class Attr(name: String, value: String) extends XML
+case class At(location: Path, value: XML)
+
+trait WritesGrammar2 extends Grammar[XML, flip[Write]#λ]

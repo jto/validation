@@ -46,12 +46,14 @@ trait Primitives[I, K[_, _]] {
   def mapPath(f: Path => Path): P
 
   // TODO: Introduce NonEmptyPath
-  def at[A](p: Path)(k:  => K[Option[_ >: Out <: I], A]): K[Out, A]
+  def at[A](p: Path)(k: => K[Option[_ >: Out <: I], A]): K[Out, A]
   def knil: K[Out, HNil]
 
   def is[A](implicit K: K[_ >: Out <: I, A]): K[_ >: Out <: I, A] = K
   def req[A](implicit K: K[_ >: Out <: I, A]): K[Option[_ >: Out <: I], A]
   def opt[A](implicit K: K[_ >: Out <: I, A]): K[Option[_ >: Out <: I], Option[A]]
+
+  // at(Path \ "foo")(req[Int], attr("bar")(req[String]))
 
   def toGoal[Repr, A]: K[Out, Repr] => K[Out, Goal[Repr, A]]
 

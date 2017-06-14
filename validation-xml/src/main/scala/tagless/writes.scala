@@ -90,11 +90,146 @@ trait WritesGrammar
 object WritesGrammar extends WritesGrammar
 
 
-sealed trait XML
-case class Group(values: List[XML]) extends XML
-case class Just(value: Node) extends XML
-case class Text(value: String) extends XML
-case class Attr(name: String, value: String) extends XML
-case class At(location: Path, value: XML)
+sealed trait XML {
+  def apply(n: NodeSeq): XML = XML.Just(n)
+
+  def toFun: Elem => Elem =
+    this match {
+      case XML.Group(xs) =>
+        xs.map(_.toFun).foldLeft[Elem => Elem](identity)(_ andThen _)
+      case XML.Just(xml) =>
+        el => el.copy(child = el.child ++ xml)
+      case XML.Text(txt) =>
+        el => el.copy(child = el.child ++ Text(txt))
+      case XML.Attr(name, value) =>
+        el => el.copy(attributes = el.attributes.append(new UnprefixedAttribute(name, value, Null)))
+      case XML.At(location, value) => el =>
+        val f = value.toFun
+        val es =
+          location.path.map {
+            case KeyPathNode(key) =>
+              Elem(null, key, Null, TopScope, false)
+            case IdxPathNode(_) =>
+              throw new RuntimeException("cannot write an attribute to a node with an index path")
+          }
+
+        val xml =
+          es.lastOption.map { e =>
+            val last = f(e)
+            es.init.reverse.foldLeft(last){ (e, els) => els.copy(child = els.child ++ e) }
+          }.getOrElse(NodeSeq.Empty)
+
+        el.copy(child = el.child ++ xml)
+    }
+}
+
+object XML {
+  final case class Group(values: List[XML.At]) extends XML {
+    def build: NodeSeq =
+      values.map(_.build).foldLeft(NodeSeq.Empty)(_ ++ _)
+  }
+
+  final case class Just(value: NodeSeq) extends XML
+  final case class Text(value: String) extends XML
+  final case class Attr(name: String, value: String) extends XML
+  final case class At(location: Path, value: XML) extends XML {
+    def build: NodeSeq =
+      location.path match {
+        case Nil =>
+          ??? // should be impossible
+        case KeyPathNode(key) :: Nil =>
+          val root = Elem(null, key, Null, TopScope, false)
+          value.toFun(root)
+        case KeyPathNode(key) :: p =>
+          val root = Elem(null, key, Null, TopScope, false)
+          At(Path(p), value).toFun(root)
+        case IdxPathNode(_) :: _ =>
+          throw new RuntimeException("cannot write an attribute to a node with an index path")
+      }
+  }
+}
 
 trait WritesGrammar2 extends Grammar[XML, flip[Write]#λ]
+  with WriteConstraints
+  with WritesTypeclasses[XML] {
+
+  self =>
+
+  type Out = XML.Group
+  type P = WritesGrammar2
+
+  import shapeless.tag.@@
+  def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: XML]]): Write[A, XML.Group] =
+    Write { a =>
+      val xml = k.writes(a).getOrElse(XML.Group(Nil))
+      XML.Group(XML.At(p, xml) :: Nil)
+    }
+
+  def opt[A](implicit K: Write[A, _ >: Out <: XML]): Write[Option[A], Option[_ >: Out <: XML]] =
+    Write { _.map(K.writes) }
+
+  def req[A](implicit K: Write[A, _ >: Out <: XML]): Write[A, Option[_ >: Out <: XML]] =
+    Write { a => Option(K.writes(a)) }
+
+  def mapPath(f: Path => Path): P =
+    new WritesGrammar2 {
+      override def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: XML]]): Write[A, XML.Group] =
+        self.at(f(p))(k)
+    }
+
+  private def txt[A](w: Write[A, String]): Write[A, XML.Text] @@ Root =
+    Write { i => XML.Text(w.writes(i)) }
+
+  implicit def bigDecimal = txt(W.bigDecimalW)
+  implicit def boolean = txt(W.booleanW)
+  implicit def double = txt(W.doubleW)
+  implicit def float = txt(W.floatW)
+  implicit def int = txt(W.intW)
+  implicit def jBigDecimal = txt(Write(_.toString))
+  implicit def long = txt(W.longW)
+  implicit def short = txt(W.shortW)
+  implicit def string = txt(Write.zero)
+
+  implicit def map[A](implicit k: Write[A, _ >: Out <: XML]): Write[Map[String, A], XML] = ???
+  implicit def seq[A](implicit k: Write[A, _ >: Out <: XML]): Write[Seq[A], XML] = ???
+  implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: XML]): Write[Array[A], XML] = seq(k).contramap(_.toSeq)
+  implicit def list[A](implicit k: Write[A, _ >: Out <: XML]): Write[List[A], XML] = seq(k).contramap(_.toSeq)
+  implicit def traversable[A](implicit k: Write[A, _ >: Out <: XML]): Write[Traversable[A], XML] = seq(k).contramap(_.toSeq)
+
+  def toGoal[Repr, A]: Write[Repr,Out] => Write[Goal[Repr, A], Out] =
+    _.contramap{ _.value }
+
+  protected def iMonoid: cats.Monoid[Out] =
+    new cats.Monoid[Out] {
+      def combine(x: Out, y: Out): Out =
+        XML.Group(x.values ++ y.values)
+      def empty =
+        XML.Group(Nil)
+    }
+
+  def attr[A](label: String)(implicit w: Write[A, XML.Text]): Write[A, XML] =
+    Write{ a =>
+      XML.Attr(label, w.writes(a).value)
+    }
+}
+
+object WritesGrammar2 extends WritesGrammar2 {
+  def test1 = at(Path \ "foo" \ "bar")(req[String])
+
+  def test2 = at(Path \ "foo" \ "bar")(opt[String])
+
+  def test3 =
+    at(Path \ "bar")(req[String]) ~:
+    at(Path \ "foo")(opt[String]) ~:
+    knil
+
+  def test4 =
+    at(Path \ "foo" \ "bar")(req(attr[Int]("id"))) ~:
+    at(Path \ "baz")(req[String]) ~:
+    knil
+
+  def test5 =
+    at(Path \ "foo" \ "bar"){
+      req(attr[Int]("id")) ~: knil
+    }
+}

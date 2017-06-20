@@ -16,7 +16,7 @@ trait WritesTypeclasses[I] extends Typeclasses[I, flip[Write]#λ]{
   def liftHList[B](fb: Write[B, I]): Write[B :: HNil, I] =
     fb.contramap { _.head }
 
-  protected def iMonoid: Monoid[Out]
+  def iMonoid: Monoid[Out]
 
   implicit def composeTC =
     new Compose[types.flip[Write]#λ] {

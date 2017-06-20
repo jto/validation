@@ -74,7 +74,7 @@ trait WritesGrammar
   implicit def seq[A](implicit k: Write[A, _ >: Out <: Node]): Write[Seq[A], Node] = Write[Seq[A], Node] { as => Group(as.map(k.writes)) }
   implicit def traversable[A](implicit k: Write[A, _ >: Out <: Node]): Write[Traversable[A], Node] = seq(k).contramap(_.toSeq)
 
-  protected def iMonoid =
+  def iMonoid =
     new cats.Monoid[Out] {
       def combine(x: Out, y: Out): Out = Group(x ++ y)
       def empty = Group(Nil)
@@ -124,8 +124,8 @@ sealed trait XML {
 }
 
 object XML {
-  final case class Group(values: List[XML.At]) extends XML {
-    def build: NodeSeq =
+  final case class Group[X <: XML](values: List[X]) extends XML {
+    def build(implicit ev: X =:= XML.At): NodeSeq =
       values.map(_.build).foldLeft(NodeSeq.Empty)(_ ++ _)
   }
 
@@ -155,11 +155,11 @@ trait WritesGrammar2 extends Grammar[XML, flip[Write]#λ]
 
   self =>
 
-  type Out = XML.Group
+  type Out = XML
   type P = WritesGrammar2
 
   import shapeless.tag.@@
-  def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: XML]]): Write[A, XML.Group] =
+  def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: XML]]): Write[A, XML.Group[XML.At]] =
     Write { a =>
       val xml = k.writes(a).getOrElse(XML.Group(Nil))
       XML.Group(XML.At(p, xml) :: Nil)
@@ -173,7 +173,7 @@ trait WritesGrammar2 extends Grammar[XML, flip[Write]#λ]
 
   def mapPath(f: Path => Path): P =
     new WritesGrammar2 {
-      override def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: XML]]): Write[A, XML.Group] =
+      override def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: XML]]): Write[A, XML.Group[XML.At]] =
         self.at(f(p))(k)
     }
 
@@ -191,7 +191,7 @@ trait WritesGrammar2 extends Grammar[XML, flip[Write]#λ]
   implicit def string = txt(Write.zero)
 
   implicit def map[A](implicit k: Write[A, _ >: Out <: XML]): Write[Map[String, A], XML] = ???
-  implicit def seq[A](implicit k: Write[A, _ >: Out <: XML]): Write[Seq[A], XML] = ???
+  implicit def seq[A](implicit k: Write[A, _ >: Out <: XML]): Write[Seq[A], XML] = Write { as => XML.Group[XML](as.map(k.writes).toList) }
   implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: XML]): Write[Array[A], XML] = seq(k).contramap(_.toSeq)
   implicit def list[A](implicit k: Write[A, _ >: Out <: XML]): Write[List[A], XML] = seq(k).contramap(_.toSeq)
   implicit def traversable[A](implicit k: Write[A, _ >: Out <: XML]): Write[Traversable[A], XML] = seq(k).contramap(_.toSeq)
@@ -199,10 +199,10 @@ trait WritesGrammar2 extends Grammar[XML, flip[Write]#λ]
   def toGoal[Repr, A]: Write[Repr,Out] => Write[Goal[Repr, A], Out] =
     _.contramap{ _.value }
 
-  protected def iMonoid: cats.Monoid[Out] =
+  def iMonoid: cats.Monoid[Out] =
     new cats.Monoid[Out] {
       def combine(x: Out, y: Out): Out =
-        XML.Group(x.values ++ y.values)
+        XML.Group(List(x, y))
       def empty =
         XML.Group(Nil)
     }
@@ -213,23 +213,4 @@ trait WritesGrammar2 extends Grammar[XML, flip[Write]#λ]
     }
 }
 
-object WritesGrammar2 extends WritesGrammar2 {
-  def test1 = at(Path \ "foo" \ "bar")(req[String])
-
-  def test2 = at(Path \ "foo" \ "bar")(opt[String])
-
-  def test3 =
-    at(Path \ "bar")(req[String]) ~:
-    at(Path \ "foo")(opt[String]) ~:
-    knil
-
-  def test4 =
-    at(Path \ "foo" \ "bar")(req(attr[Int]("id"))) ~:
-    at(Path \ "baz")(req[String]) ~:
-    knil
-
-  def test5 =
-    at(Path \ "foo" \ "bar"){
-      req(attr[Int]("id")) ~: knil
-    }
-}
+object WritesGrammar2 extends WritesGrammar2

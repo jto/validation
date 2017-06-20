@@ -53,8 +53,6 @@ trait Primitives[I, K[_, _]] {
   def req[A](implicit K: K[_ >: Out <: I, A]): K[Option[_ >: Out <: I], A]
   def opt[A](implicit K: K[_ >: Out <: I, A]): K[Option[_ >: Out <: I], Option[A]]
 
-  // at(Path \ "foo")(req[Int], attr("bar")(req[String]))
-
   def toGoal[Repr, A]: K[Out, Repr] => K[Out, Goal[Repr, A]]
 
   sealed trait Defered[A] {
@@ -78,7 +76,6 @@ trait Primitives[I, K[_, _]] {
   implicit def array[A: scala.reflect.ClassTag](implicit k: K[_ >: Out <: I, A]): K[I, Array[A]]
   implicit def map[A](implicit k: K[_ >: Out <: I, A]): K[I, Map[String, A]]
   implicit def traversable[A](implicit k: K[_ >: Out <: I, A]): K[I, Traversable[A]]
-
 }
 
 trait LowPriorityTypeClasses[I, K[_, _]] {
@@ -92,9 +89,8 @@ trait Typeclasses[I, K[_, _]] extends LowPriorityTypeClasses[I, K] {
   implicit def composeTC: Compose[K]
   implicit def semigroupTC[I0, O]: cats.Semigroup[K[I0, O] @@ Root]
   implicit def mergeTC: Merge[K, Out]
-
-  implicit def toMergeOps[B <: HList](fb: K[Out, B]): MergeOps[K, Out, B] =
-    MergeOps[K, Out, B](fb)(mergeTC)
+  implicit def toMergeOps[B <: HList, O: Merge[K, ?]](fb: K[O, B]): MergeOps[K, O, B] =
+    MergeOps[K, O, B](fb)
 }
 
 trait Constraints[K[_, _]] {

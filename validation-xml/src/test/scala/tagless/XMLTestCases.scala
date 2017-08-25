@@ -4,7 +4,7 @@ package xml
 
 import scala.xml._
 
-object XMLTestCases extends TestCases[NodeSeq] {
+object XMLTestCases extends TestCases[Node] {
 
   override val base = new base {
     def id = <id>1</id>

@@ -2,13 +2,13 @@ package jto.validation
 package v3.tagless
 package xml
 
-import scala.xml.NodeSeq
+import scala.xml.Node
 
 class XMLWritesSpec extends WritesSpec[XML] {
   val grammar = WritesGrammar
   val testCases = XMLTestCases
 
-  type To = NodeSeq
+  type To = Node
   def transform = _.asInstanceOf[XML.Group[XML.At]].build
 
   import grammar._

@@ -2,9 +2,10 @@ package jto.validation
 package v3.tagless
 package xml
 
-import scala.xml._
+import scala.xml.{Group => SGroup, _}
 
 sealed trait XML {
+
   def toFun: Elem => Elem =
     this match {
       case XML.Group(xs) =>
@@ -27,7 +28,7 @@ sealed trait XML {
           es.lastOption.map { e =>
             val last = f(e)
             es.init.reverse.foldLeft(last){ (e, els) => els.copy(child = els.child ++ e) }
-          }.getOrElse(NodeSeq.Empty)
+          }.getOrElse(SGroup(Nil))
 
         el.copy(child = el.child ++ xml)
     }
@@ -35,15 +36,16 @@ sealed trait XML {
 
 object XML {
   final case class Group[X <: XML](values: List[X]) extends XML {
-    def build(implicit ev: X =:= XML.At): NodeSeq =
-      values.map(_.build).foldLeft(NodeSeq.Empty)(_ ++ _)
+    def build(implicit ev: X =:= XML.At): Node =
+      values.map(_.build)
+        .foldLeft(SGroup(Nil))((a, b) => SGroup(a ++ b))
   }
 
   final case class Text(value: String) extends XML
   final case class Attr(name: String, value: String) extends XML
 
   final case class At(location: Path, value: XML) extends XML {
-    def build: NodeSeq =
+    def build: Node =
       location.path match {
         case Nil =>
           ??? // should be impossible

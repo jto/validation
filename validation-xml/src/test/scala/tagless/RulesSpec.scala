@@ -2,12 +2,14 @@ package jto.validation
 package v3.tagless
 package xml
 
-// import scala.xml.NodeSeq
-/*
+import scala.xml.Node
+
 class XMLRulesSpec extends RulesSpec[Node] {
 
   val grammar = RulesGrammar
   val testCases = XMLTestCases
+
+  type To = Node
 
   "Specific XML Rules" should {
 
@@ -38,4 +40,4 @@ class XMLRulesSpec extends RulesSpec[Node] {
 
   }
 }
-*/
+

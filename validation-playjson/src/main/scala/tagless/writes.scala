@@ -21,7 +21,7 @@ trait WritesGrammar
   type Sup = Out
   type P = WritesGrammar
 
-  protected def iMonoid = Writes.jsonMonoid
+  def iMonoid = Writes.jsonMonoid
 
   def mapPath(f: Path => Path): P =
     new WritesGrammar {

@@ -4,7 +4,7 @@ package xml
 
 import scala.xml._
 
-object XMLTestCases extends TestCases[Node] {
+object XMLTestCases extends TestCases[NodeSeq] {
 
   override val base = new base {
     def id = <id>1</id>
@@ -79,13 +79,13 @@ object XMLTestCases extends TestCases[Node] {
   }
 
   val int = new int {
-    def ok = <root><n>4</n></root>
-    def foo = <root><n>foo</n></root>
-    def float = <root><n>4.5</n></root>
-    def noOK = <root><n><o>4</o></n></root>
-    def noFoo = <root><n><o>foo</o></n></root>
-    def nopOK = <root><n><o><p>4</p></o></n></root>
-    def nopFoo = <root><n><o><p>foo</p></o></n></root>
+    def ok = <n>4</n>
+    def foo = <n>foo</n>
+    def float = <n>4.5</n>
+    def noOK = <n><o>4</o></n>
+    def noFoo = <n><o>foo</o></n>
+    def nopOK = <n><o><p>4</p></o></n>
+    def nopFoo = <n><o><p>foo</p></o></n>
   }
 
   val boolean = new boolean {

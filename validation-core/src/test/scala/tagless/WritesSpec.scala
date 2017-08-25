@@ -4,8 +4,13 @@ package v3.tagless
 import org.scalatest._
 
 trait WritesSpec[T] extends WordSpec with Matchers {
-  val testCases: TestCases[T]
+
+  type To
+  def transform: T => To
+
+  val testCases: TestCases[To]
   val grammar: Grammar[T, types.flip[Write]#λ]
+
 
   import grammar._
 
@@ -31,62 +36,65 @@ trait WritesSpec[T] extends WordSpec with Matchers {
     "support primitives types" when {
       "Int" in {
         import testCases.int._
-        at(Path \ "n")(req[Int]).writes(4) shouldBe ok
-        at(Path \ "n" \ "o")(req[Int]).writes(4) shouldBe noOK
-        at(Path \ "n" \ "o" \ "p")(req[Int]).writes(4) shouldBe nopOK
+
+        println(transform(at(Path \ "n")(req[Int]).writes(4)) == ok)
+
+        transform(at(Path \ "n")(req[Int]).writes(4)) shouldBe ok
+        transform(at(Path \ "n" \ "o")(req[Int]).writes(4)) shouldBe noOK
+        transform(at(Path \ "n" \ "o" \ "p")(req[Int]).writes(4)) shouldBe nopOK
       }
 
       "Short" in {
         import testCases.int._
-        at(Path \ "n")(req[Short]).writes(4) shouldBe ok
-        at(Path \ "n" \ "o")(req[Short]).writes(4) shouldBe noOK
-        at(Path \ "n" \ "o" \ "p")(req[Short]).writes(4) shouldBe nopOK
+        transform(at(Path \ "n")(req[Short]).writes(4)) shouldBe ok
+        transform(at(Path \ "n" \ "o")(req[Short]).writes(4)) shouldBe noOK
+        transform(at(Path \ "n" \ "o" \ "p")(req[Short]).writes(4)) shouldBe nopOK
       }
 
       "Long" in {
         import testCases.int._
-        at(Path \ "n")(req[Long]).writes(4) shouldBe ok
-        at(Path \ "n" \ "o")(req[Long]).writes(4) shouldBe noOK
-        at(Path \ "n" \ "o" \ "p")(req[Long]).writes(4) shouldBe nopOK
+        transform(at(Path \ "n")(req[Long]).writes(4)) shouldBe ok
+        transform(at(Path \ "n" \ "o")(req[Long]).writes(4)) shouldBe noOK
+        transform(at(Path \ "n" \ "o" \ "p")(req[Long]).writes(4)) shouldBe nopOK
       }
 
       "Float" in {
         import testCases.int.{float => f}
-        at(Path \ "n")(req[Float]).writes(4.5f) shouldBe f
+        transform(at(Path \ "n")(req[Float]).writes(4.5f)) shouldBe f
       }
 
       "Double" in {
         import testCases.int.{float => f}
-        at(Path \ "n")(req[Double]).writes(4.5d) shouldBe f
+        transform(at(Path \ "n")(req[Double]).writes(4.5d)) shouldBe f
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => JBigDecimal}
         import testCases.int.{float => f}
-        at(Path \ "n")(req[JBigDecimal]).writes(new JBigDecimal("4.5")) shouldBe f
+        transform(at(Path \ "n")(req[JBigDecimal]).writes(new JBigDecimal("4.5"))) shouldBe f
       }
 
       "scala BigDecimal" in {
         import testCases.int.{float => f}
-        at(Path \ "n")(req[BigDecimal]).writes(BigDecimal("4.5")) shouldBe f
+        transform(at(Path \ "n")(req[BigDecimal]).writes(BigDecimal("4.5"))) shouldBe f
       }
 
       "Boolean" in {
         import testCases.boolean._
-        at(Path \ "n")(req[Boolean]).writes(true) shouldBe ok
+        transform(at(Path \ "n")(req[Boolean]).writes(true)) shouldBe ok
       }
 
       "String" in {
         import testCases.string._
-        at(Path \ "n")(req[String]).writes("foo") shouldBe foo
-        at(Path \ "o" \ "n")(req[String]).writes("foo") shouldBe onFoo
+        transform(at(Path \ "n")(req[String]).writes("foo")) shouldBe foo
+        transform(at(Path \ "o" \ "n")(req[String]).writes("foo")) shouldBe onFoo
       }
 
       "Option" in {
         import testCases.option._
-        at(Path \ "foo")(opt[String]).writes(Option("bar")) shouldBe fooBar
-        at(Path \ "foo")(opt[String]).writes(None) shouldBe none
-        at(Path \ "foo" \ "bar")(opt[String]).writes(None) shouldBe none
+        transform(at(Path \ "foo")(opt[String]).writes(Option("bar"))) shouldBe fooBar
+        transform(at(Path \ "foo")(opt[String]).writes(None)) shouldBe none
+        transform(at(Path \ "foo" \ "bar")(opt[String]).writes(None)) shouldBe none
       }
 
     //   "Map[String, Seq[V]]" in {
@@ -159,9 +167,9 @@ trait WritesSpec[T] extends WordSpec with Matchers {
 
       "Seq" in {
         import testCases.seq._
-        at(Path \ "n")(req[Seq[String]]).writes(Seq("foo")) shouldBe foos
-        at(Path \ "foo" \ "foo")(req[Seq[String]]).writes(Seq("bar")) shouldBe foofoobars
-        at(Path \ "n")(req[Seq[Int]]).writes(Seq(1, 2, 3)) shouldBe ints
+        transform(at(Path \ "n")(req[Seq[String]]).writes(Seq("foo"))) shouldBe foos
+        transform(at(Path \ "foo" \ "foo")(req[Seq[String]]).writes(Seq("bar"))) shouldBe foofoobars
+        transform(at(Path \ "n")(req[Seq[Int]]).writes(Seq(1, 2, 3))) shouldBe ints
       }
     }
 
@@ -175,8 +183,8 @@ trait WritesSpec[T] extends WordSpec with Matchers {
         ).tupled
 
       val v = Some("fakecontact@gmail.com") -> Seq("01.23.45.67.89", "98.76.54.32.10")
-      w.writes(v) shouldBe testCases.base.info
-      w.writes(None -> Nil) shouldBe noInfo
+      transform(w.writes(v)) shouldBe testCases.base.info
+      transform(w.writes(None -> Nil)) shouldBe noInfo
     }
 
     // "write Invalid" in {
@@ -217,7 +225,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
         }.from[Contact]
 
       // TODO: use solver ?
-      contactWrite.writes(contact) shouldBe jto
+      transform(contactWrite.writes(contact)) shouldBe jto
     }
 
     "write recursive" when {
@@ -236,7 +244,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
             knil
           }.from[RecUser]
 
-        w.writes(u) shouldBe bobAndFriends
+        transform(w.writes(u)) shouldBe bobAndFriends
 
         lazy val w2: Write[User1, Out] =
           {
@@ -245,7 +253,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
             knil
           }.from[User1]
 
-        w2.writes(u1) shouldBe bobAndFriend
+        transform(w2.writes(u1)) shouldBe bobAndFriend
       }
 
       "using implicit notation" in {
@@ -257,7 +265,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
             knil
           }.from[RecUser]
 
-        w.writes(u) shouldBe bobAndFriends
+        transform(w.writes(u)) shouldBe bobAndFriends
 
         implicit lazy val w2: Write[User1, Out] =
           {
@@ -266,7 +274,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
             knil
           }.from[User1]
 
-        w2.writes(u1) shouldBe bobAndFriend
+        transform(w2.writes(u1)) shouldBe bobAndFriend
       }
     }
 
@@ -275,7 +283,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
       import TestValueClass._
 
       val w = at(Path \ "id")(Id.writes andThen req[String])
-      w.writes(Id("1")) shouldBe id
+      transform(w.writes(Id("1"))) shouldBe id
     }
   }
 

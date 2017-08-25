@@ -48,6 +48,7 @@ trait Primitives[I, K[_, _]] {
   // TODO: Introduce NonEmptyPath
   def at[A](p: Path)(k: => K[Option[_ >: Out <: I], A]): K[Out, A]
   def knil: K[Out, HNil]
+  def kopt: K[Option[Out], HNil]
 
   def is[A](implicit K: K[_ >: Out <: I, A]): K[_ >: Out <: I, A] = K
   def req[A](implicit K: K[_ >: Out <: I, A]): K[Option[_ >: Out <: I], A]
@@ -89,6 +90,7 @@ trait Typeclasses[I, K[_, _]] extends LowPriorityTypeClasses[I, K] {
   implicit def composeTC: Compose[K]
   implicit def semigroupTC[I0, O]: cats.Semigroup[K[I0, O] @@ Root]
   implicit def mergeTC: Merge[K, Out]
+  implicit def mergeTCOpt: Merge[K, Option[Out]]
   implicit def toMergeOps[B <: HList, O: Merge[K, ?]](fb: K[O, B]): MergeOps[K, O, B] =
     MergeOps[K, O, B](fb)
 }

@@ -4,6 +4,7 @@ package xml
 
 import jto.validation.xml.Rules
 import scala.xml._
+// import shapeless.tag.@@
 // import cats.syntax.cartesian._
 
 trait RulesGrammar
@@ -83,14 +84,13 @@ trait RulesGrammar
 
   def toGoal[Repr, A] = _.map { Goal.apply }
 
-  // def withAttr[A, B](key: String, attrK: Rule[Option[Node], B])(K: Rule[Out, A]): Rule[Out, (A, B)] =
-  //   Rule(Path) { js =>
-  //     val a = js.attribute(key).headOption
-  //     val attrValidated = attrK.repath(_ \ s"@$key").validate(a)
-
-  //     val nodeValidated = K.validate(js)
-  //     (nodeValidated |@| attrValidated).tupled
-  //   }
+  def attr[A](key: String)(implicit r: Rule[Node, A]): Rule[Node, A] =
+     Rule.fromMapping[Node, Node] { node =>
+        node.attribute(key).flatMap(_.headOption) match {
+          case Some(value) => Valid(value)
+          case None => Invalid(Seq(ValidationError("error.required")))
+        }
+      }.andThen(r)
 
 }
 

@@ -12,6 +12,7 @@ trait WritesTypeclasses[I] extends Typeclasses[I, flip[Write]#λ]{
   self: Primitives[I, flip[Write]#λ] =>
 
   def knil = Write[HNil, Out] { _ => iMonoid.empty }
+  def kopt = Write[HNil, Option[Out]] { _ => None }
 
   def liftHList[B](fb: Write[B, I]): Write[B :: HNil, I] =
     fb.contramap { _.head }
@@ -33,6 +34,21 @@ trait WritesTypeclasses[I] extends Typeclasses[I, flip[Write]#λ]{
           val wa = fa.writes(a)
           val wb = fb.writes(b)
           iMonoid.combine(wa, wb)
+        }
+    }
+
+  implicit def mergeTCOpt: Merge[types.flip[Write]#λ, Option[Out]] =
+    new Merge[types.flip[Write]#λ, Option[Out]] {
+      def merge[A, B <: HList](fa: Write[A, Option[Out]], fb: Write[B, Option[Out]]): Write[A :: B, Option[Out]] =
+        Write { case a :: b =>
+          val wa = fa.writes(a)
+          val wb = fb.writes(b)
+          (wa, wb) match {
+            case (None, None) => None
+            case (None, b) => b
+            case (a, None) => a
+            case (Some(a), Some(b)) => Some(iMonoid.combine(a, b))
+          }
         }
     }
 

@@ -2,58 +2,42 @@ package jto.validation
 package v3.tagless
 package xml
 
-import scala.xml.Node
+import scala.xml.NodeSeq
 
-class XMLWritesSpec extends WritesSpec[Node] {
+class XMLWritesSpec extends WritesSpec[XML] {
   val grammar = WritesGrammar
   val testCases = XMLTestCases
 
-  object Yolo {
-    import WritesGrammar2._
-    def test1 = at(Path \ "foo" \ "bar")(req[String])
+  type To = NodeSeq
+  def transform = _.asInstanceOf[XML.Group[XML.At]].build
 
-    def test2 = at(Path \ "foo" \ "bar")(opt[String])
+  import grammar._
 
-    def test3 =
-      at(Path \ "bar")(req[String]) ~:
-      at(Path \ "foo")(opt[String]) ~:
-      knil
+  def test1 = at(Path \ "foo" \ "bar")(req[String])
 
-    def test4 =
-      at(Path \ "foo" \ "bar")(req(attr[Int]("id"))) ~:
-      at(Path \ "baz")(req[String]) ~:
-      knil
+  def test2 = at(Path \ "foo" \ "bar")(opt[String])
 
-    def test5 =
-      at(Path \ "foos"){
-        req(list(at(Path \ "foo")(req[Int])))
-      }
+  def test3 =
+    at(Path \ "bar")(req[String]) ~:
+    at(Path \ "foo")(opt[String]) ~:
+    knil
 
-    import shapeless.{::, HList}
-    implicit def mergeTC2: Merge[types.flip[Write]#λ, Option[XML]] =
-      new Merge[types.flip[Write]#λ, Option[XML]] {
-        def merge[A, B <: HList](fa: Write[A, Option[XML]], fb: Write[B, Option[XML]]): Write[A :: B, Option[XML]] =
-          Write { case a :: b =>
-            val wa = fa.writes(a)
-            val wb = fb.writes(b)
-            (wa, wb) match {
-              case (None, None) => None
-              case (None, b) => b
-              case (a, None) => a
-              case (Some(a), Some(b)) => Some(XML.Group(List(a, b)))
-            }
-          }
-      }
+  def test4 =
+    at(Path \ "foo" \ "bar")(req(attr[Int]("id"))) ~:
+    at(Path \ "baz")(req[String]) ~:
+    knil
 
-    def kopt: Write[shapeless.HNil, Option[XML]] =
-      Write { _ => None }
+  def test5 =
+    at(Path \ "foos"){
+      req(list(at(Path \ "foo")(req[Int])))
+    }
 
-    def test6: Write[(String, Option[Int]), XML.Group[XML.At]] =
-      at(Path \ "foo" \ "bar")(
-        req[String] ~:
-        opt(attr[Int]("id")) ~:
-        kopt
-      ).tupled
+  def test6: Write[(String, Option[Int]), XML.Group[XML.At]] =
+    at(Path \ "foo" \ "bar")(
+      req[String] ~:
+      opt(attr[Int]("id")) ~:
+      kopt
+    ).tupled
 
-  }
+
 }

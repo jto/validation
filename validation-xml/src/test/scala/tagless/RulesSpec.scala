@@ -2,8 +2,8 @@ package jto.validation
 package v3.tagless
 package xml
 
-import scala.xml.Node
-
+// import scala.xml.NodeSeq
+/*
 class XMLRulesSpec extends RulesSpec[Node] {
 
   val grammar = RulesGrammar
@@ -38,3 +38,4 @@ class XMLRulesSpec extends RulesSpec[Node] {
 
   }
 }
+*/

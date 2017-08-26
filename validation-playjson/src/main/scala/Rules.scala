@@ -137,7 +137,7 @@ trait Rules extends DefaultRules[JsValue] {
 
   private def pickInS[T](
       implicit r: RuleLike[Seq[JsValue], T]): Rule[JsValue, T] =
-    jsArrayR.map { case JsArray(fs) => fs }.andThen(r)
+    jsArrayR.map { case JsArray(fs) => fs.toSeq }.andThen(r)
   implicit def pickSeq[O](implicit r: RuleLike[JsValue, O]) =
     pickInS(seqR[JsValue, O])
   implicit def pickSet[O](implicit r: RuleLike[JsValue, O]) =

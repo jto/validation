@@ -5,7 +5,7 @@ resolvers += Resolver.url(
 
 addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.4.8")
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.14")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.19")
 
 addSbtPlugin("com.geirsson" %% "sbt-scalafmt" % "0.5.5")
 

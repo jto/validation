@@ -6,10 +6,10 @@ import org.scalatest._
 trait WritesSpec[T] extends WordSpec with Matchers {
 
   type To
-  def transform: T => To
 
   val testCases: TestCases[To]
   val grammar: Grammar[T, types.flip[Write]#λ]
+  def transform: grammar.Out => To
 
 
   import grammar._
@@ -36,9 +36,6 @@ trait WritesSpec[T] extends WordSpec with Matchers {
     "support primitives types" when {
       "Int" in {
         import testCases.int._
-
-        println(transform(at(Path \ "n")(req[Int]).writes(4)) == ok)
-
         transform(at(Path \ "n")(req[Int]).writes(4)) shouldBe ok
         transform(at(Path \ "n" \ "o")(req[Int]).writes(4)) shouldBe noOK
         transform(at(Path \ "n" \ "o" \ "p")(req[Int]).writes(4)) shouldBe nopOK

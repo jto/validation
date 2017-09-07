@@ -11,14 +11,28 @@ trait WritesGrammar extends Grammar[XML, flip[Write]#λ]
 
   self =>
 
-  type Out = XML
+  type Out = XML.Group
   type P = WritesGrammar
 
   import shapeless.tag.@@
-  def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: XML]]): Write[A, XML.Group[XML.At]] =
+  def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: XML]]): Write[A, XML.Group] =
     Write { a =>
       val xml = k.writes(a).getOrElse(XML.Group(Nil))
-      XML.Group(XML.At(p, xml) :: Nil)
+
+      // TODO: handle case when ps is empty
+      val ps = p.path.reverse.map {
+        case k @ KeyPathNode(_) =>
+          k
+        case _ =>
+          throw new RuntimeException("cannot write an attribute to a node with an index path")
+      }
+      val h = XML.At(ps.head, xml)
+      val at =
+        ps.tail.foldLeft(h) { (ats, kpn) =>
+          XML.At(kpn, ats)
+        }
+
+      XML.Group(at :: Nil)
     }
 
   def opt[A](implicit K: Write[A, _ >: Out <: XML]): Write[Option[A], Option[_ >: Out <: XML]] =
@@ -29,7 +43,7 @@ trait WritesGrammar extends Grammar[XML, flip[Write]#λ]
 
   def mapPath(f: Path => Path): P =
     new WritesGrammar {
-      override def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: XML]]): Write[A, XML.Group[XML.At]] =
+      override def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: XML]]): Write[A, XML.Group] =
         self.at(f(p))(k)
     }
 
@@ -47,7 +61,11 @@ trait WritesGrammar extends Grammar[XML, flip[Write]#λ]
   implicit def string = txt(Write.zero)
 
   implicit def map[A](implicit k: Write[A, _ >: Out <: XML]): Write[Map[String, A], XML] = ???
-  implicit def seq[A](implicit k: Write[A, _ >: Out <: XML]): Write[Seq[A], XML] = Write { as => XML.Group[XML](as.map(k.writes).toList) }
+
+  implicit def seq[A](implicit k: Write[A, _ >: Out <: XML]): Write[Seq[A], XML] =
+    Write { as =>
+      XML.XList(as.map(k.writes).toList)
+    }
   implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: XML]): Write[Array[A], XML] = seq(k).contramap(_.toSeq)
   implicit def list[A](implicit k: Write[A, _ >: Out <: XML]): Write[List[A], XML] = seq(k).contramap(_.toSeq)
   implicit def traversable[A](implicit k: Write[A, _ >: Out <: XML]): Write[Traversable[A], XML] = seq(k).contramap(_.toSeq)
@@ -58,7 +76,7 @@ trait WritesGrammar extends Grammar[XML, flip[Write]#λ]
   def iMonoid: cats.Monoid[Out] =
     new cats.Monoid[Out] {
       def combine(x: Out, y: Out): Out =
-        XML.Group(List(x, y))
+        XML.Group(x.values ++ y.values)
       def empty =
         XML.Group(Nil)
     }

@@ -4,25 +4,20 @@ package xml
 
 import scala.xml._
 
-object XMLTestCases extends TestCases[Node] {
+object XMLTestCases extends TestCases[NodeSeq] {
 
   override val base = new base {
     def id = <id>1</id>
 
     def emptyObj = <root></root>
-    def noInfo = <phones></phones>
+    def noInfo = NodeSeq.Empty
     def smthFalse = <issmth>true</issmth>
     def smthTrue = <issmth>false</issmth>
 
     def info =
-      <informations label="Personal">
-        <label>Personal</label>
         <email>fakecontact@gmail.com</email>
-        <phones>
-          <phone label="mobile">01.23.45.67.89</phone>
-          <phone label="home">98.76.54.32.10</phone>
-        </phones>
-      </informations>
+        <phones>01.23.45.67.89</phones>
+        <phones>98.76.54.32.10</phones>
 
     def contacts =
       <contacts label="Personal">
@@ -79,41 +74,36 @@ object XMLTestCases extends TestCases[Node] {
   }
 
   val int = new int {
-    def ok = <n>4</n>
-    def foo = <n>foo</n>
-    def float = <n>4.5</n>
-    def noOK = <n><o>4</o></n>
-    def noFoo = <n><o>foo</o></n>
-    def nopOK = <n><o><p>4</p></o></n>
-    def nopFoo = <n><o><p>foo</p></o></n>
+    def ok = <n>4</n> ++ NodeSeq.Empty
+    def foo = <n>foo</n> ++ NodeSeq.Empty
+    def float = <n>4.5</n> ++ NodeSeq.Empty
+    def noOK = <n><o>4</o></n> ++ NodeSeq.Empty
+    def noFoo = <n><o>foo</o></n> ++ NodeSeq.Empty
+    def nopOK = <n><o><p>4</p></o></n> ++ NodeSeq.Empty
+    def nopFoo = <n><o><p>foo</p></o></n> ++ NodeSeq.Empty
   }
 
   val boolean = new boolean {
-    def ok = <root><n>true</n></root>
+    def ok = <n>true</n> ++ NodeSeq.Empty
     val foo = int.foo
   }
 
   val string = new string {
     val foo = int.foo
     def foos = int.foo
-    def _42 = <root><n>42</n></root>
-    def onFoo = <root><o><n>foo</n></o></root>
+    def _42 = <n>42</n> ++ NodeSeq.Empty
+    def onFoo = <o><n>foo</n></o> ++ NodeSeq.Empty
   }
 
   val option = new option {
-    def nNull = <root><n/></root>
-    def fooBar = <root><foo>bar</foo></root>
-    def nBar = <root><n>bar</n></root>
-    def none = <root><n/></root>
+    def nNull = <root><n/></root> ++ NodeSeq.Empty
+    def fooBar = <foo>bar</foo> ++ NodeSeq.Empty
+    def nBar = <root><n>bar</n></root> ++ NodeSeq.Empty
+    def none = NodeSeq.Empty
   }
 
   val seq = new seq {
-    def foos =
-      <root>
-        <n>
-          <node>foo</node>
-        </n>
-      </root>
+    def foos = <n>foo</n> ++ NodeSeq.Empty
 
     def fooBars =
       <root>
@@ -123,13 +113,7 @@ object XMLTestCases extends TestCases[Node] {
       </root>
 
     def foofoobars =
-      <root>
-        <foo>
-          <foo>
-            <node>bar</node>
-          </foo>
-        </foo>
-      </root>
+        <foo><foo>bar</foo></foo> ++ NodeSeq.Empty
 
     def ns =
       <root>
@@ -140,13 +124,9 @@ object XMLTestCases extends TestCases[Node] {
       </root>
 
     def ints =
-      <root>
-        <n>
-          <node>1</node>
-          <node>2</node>
-          <node>3</node>
-        </n>
-      </root>
+      <n>1</n>
+      <n>2</n>
+      <n>3</n>
 
     def paf = <root><n>paf</n></root>
     def mixed =

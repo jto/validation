@@ -190,7 +190,17 @@ trait DateRules {
     */
   implicit def sqlDateR: Rule[String, java.sql.Date] =
     sqlDateR("yyyy-MM-dd")
+
+  implicit def finiteDurationR: Rule[String, scala.concurrent.duration.FiniteDuration] = {
+    import scala.concurrent.duration.{Duration, FiniteDuration}
+    Rule.fromMapping[String, FiniteDuration] { s =>
+      scala.util.Try(Duration.fromNanos(Duration.create(s).toNanos))
+        .map(Valid.apply)
+        .getOrElse(Invalid(Seq(ValidationError("error.expected.duration.format"))))
+    }
+  }
 }
+
 
 /**
   * GenericRules provides basic constraints, utility methods on Rules, and completely generic Rules.

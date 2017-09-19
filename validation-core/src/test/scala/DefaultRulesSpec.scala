@@ -1,10 +1,11 @@
 import jto.validation._
 
 import org.scalatest._
+import scala.concurrent.duration.FiniteDuration
 
 class DefaultRulesSpec extends WordSpec with Matchers {
 
-  object R extends GenericRules
+  object R extends GenericRules with DateRules
   import R._
 
   "DefaultRules" should {
@@ -31,6 +32,10 @@ class DefaultRulesSpec extends WordSpec with Matchers {
       max(5).validate(5) shouldBe (Valid(5))
       max(0).validate(1) shouldBe (failure("error.max", 0))
       max(-30).validate(-10) shouldBe (failure("error.max", -30))
+    }
+
+    "validate duration" in {
+      finiteDurationR.validate("12min") shouldBe (Valid(FiniteDuration(12, scala.concurrent.duration.MINUTES)))
     }
   }
 }

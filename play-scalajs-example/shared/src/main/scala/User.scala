@@ -8,7 +8,7 @@ case class User(
   name: String,
   age: Int,
   email: Option[String],
-  isAlive: Boolean
+  isAlive: Boolean,
 )
 
 object User {

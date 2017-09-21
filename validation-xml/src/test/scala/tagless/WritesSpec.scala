@@ -2,8 +2,9 @@ package jto.validation
 package v3.tagless
 package xml
 
-import scala.xml.NodeSeq
+// import scala.xml.NodeSeq
 
+/*
 class XMLWritesSpec extends WritesSpec[XML] {
   val grammar = WritesGrammar
   val testCases = XMLTestCases
@@ -41,3 +42,4 @@ class XMLWritesSpec extends WritesSpec[XML] {
 
 
 }
+*/

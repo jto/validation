@@ -15,9 +15,12 @@ object XMLTestCases extends TestCases[NodeSeq] {
     def smthTrue = <issmth>false</issmth>
 
     def info =
+        <label>Personal</label>
         <email>fakecontact@gmail.com</email>
-        <phones>01.23.45.67.89</phones>
-        <phones>98.76.54.32.10</phones>
+        <phones>
+          <phone label="mobile">01.23.45.67.89</phone>
+          <phone label="home">98.76.54.32.10</phone>
+        </phones>
 
     def contacts =
       <contacts label="Personal">
@@ -35,20 +38,16 @@ object XMLTestCases extends TestCases[NodeSeq] {
       <person>
         <firstname>Julien</firstname>
         <lastname>Tournay</lastname>
-        ${info}
+        {info}
       </person>
 
     def valid =
-      <person>
         <firstname>Julien</firstname>
         <lastname>Tournay</lastname>
         <age>27</age>
-        ${info}
-        ${contacts}
-      </person>
+        <informations>{info}</informations> ++ {contacts}
 
     def invalid =
-      <person>
         <firstname>Julien</firstname>
         <lastname>Tournay</lastname>
         <age>27</age>
@@ -70,7 +69,6 @@ object XMLTestCases extends TestCases[NodeSeq] {
           </phones>
         </contact>
       </contacts>
-      </person>
   }
 
   val int = new int {
@@ -98,7 +96,7 @@ object XMLTestCases extends TestCases[NodeSeq] {
   val option = new option {
     def nNull = <root><n/></root> ++ NodeSeq.Empty
     def fooBar = <foo>bar</foo> ++ NodeSeq.Empty
-    def nBar = <root><n>bar</n></root> ++ NodeSeq.Empty
+    def nBar = <n>bar</n> ++ NodeSeq.Empty
     def none = NodeSeq.Empty
   }
 
@@ -106,22 +104,15 @@ object XMLTestCases extends TestCases[NodeSeq] {
     def foos = <n>foo</n> ++ NodeSeq.Empty
 
     def fooBars =
-      <root>
-        <foo>
-          <node>bar</node>
-        </foo>
-      </root>
+        <foo>bar</foo>
 
     def foofoobars =
         <foo><foo>bar</foo></foo> ++ NodeSeq.Empty
 
     def ns =
-      <root>
-        <n>
-          <node>foo</node>
-          <node></node>
-        </n>
-      </root>
+      <n>foo</n>
+      <n></n>
+
 
     def ints =
       <n>1</n>
@@ -139,38 +130,35 @@ object XMLTestCases extends TestCases[NodeSeq] {
   }
 
   val map = new map {
-    def foobar = <root><n><foo>bar</foo></n></root>
-    def ints = <root><n><foo>4</foo><bar>5</bar></n></root>
-    def mixed = <root><n><foo>4</foo><bar>frack</bar></n></root>
+    def foobar = <n><foo>bar</foo></n>
+    def ints = <n><foo>4</foo><bar>5</bar></n>
+    def mixed = <n><foo>4</foo><bar>frack</bar></n>
   }
 
   val password = new password {
     def ok =
-      <root>
-        <login>Alice</login>
-        <password>s3cr3t</password>
-        <verify>s3cr3t</verify>
-      </root>
+      <login>Alice</login>
+      <password>s3cr3t</password>
+      <verify>s3cr3t</verify>
+
 
     def empty =
-      <root>
-        <login>Alice</login>
-        <password>s3cr3t</password>
-        <verify/>
-      </root>
+      <login>Alice</login>
+      <password>s3cr3t</password>
+      <verify/>
+
 
     def err =
-      <root>
-        <login>Alice</login>
-        <password>s3cr3t</password>
-        <verify>bam</verify>
-      </root>
+      <login>Alice</login>
+      <password>s3cr3t</password>
+      <verify>bam</verify>
+
   }
 
   val subclasses = new subclasses {
-    def b = <root><name>B</name><foo>4</foo></root>
-    def c = <root><name>C</name><bar>6</bar></root>
-    def e = <root><name>E</name><eee>6</eee></root>
+    def b = <name>B</name><foo>4</foo>
+    def c = <name>C</name><bar>6</bar>
+    def e = <name>E</name><eee>6</eee>
   }
 
   val rec = new rec {

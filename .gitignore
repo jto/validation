@@ -26,3 +26,4 @@ node_modules
 npm-debug.log
 docs/tut*
 .ensime_cache
+.ensime

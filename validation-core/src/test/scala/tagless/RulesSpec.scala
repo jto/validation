@@ -7,7 +7,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
   type From
 
-  val grammar: Grammar[T, Rule]
+  val grammar: v3.tagless.Grammar[T, Rule]
   val testCases: TestCases[From]
   def transform: From => grammar.Out
 

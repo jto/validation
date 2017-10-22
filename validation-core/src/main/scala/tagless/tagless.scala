@@ -5,8 +5,35 @@ import shapeless.{ ::, HNil, HList }
 import shapeless.tag.@@
 
 trait At[K[_, _], S, A] {
-  def underlying: S => (Path, Option[A])
-  def apply[O](r: K[Option[A], O]): K[S, O]
+  self =>
+
+  import At._
+
+  def run: S => G[S] // Oh Look! a Kleisli!
+  def apply[O](r: K[Option[S], O]): K[A, O]
+
+  import cats.data.Kleisli
+  def |->[B](other: At[K, S, B]): At[K, S, B] =
+    new At[K, S, B]{
+      def run: S => G[S] =
+        Kleisli[G, S, S](self.run)
+          .flatMapF(other.run)(instancesG)
+          .run
+
+      def apply[O](r: K[Option[S], O]): K[B, O] =
+        ???
+    }
+}
+
+object At {
+  import cats.FlatMap
+
+  type G[A0] = (Path, Option[A0])
+  implicit def instancesG = new FlatMap[G] {
+    def flatMap[A, B](fa: G[A])(f: A => G[B]): G[B] = ???
+    def tailRecM[A, B](a: A)(f: A => G[Either[A,B]]): G[B] = ???
+    def map[A, B](fa: G[A])(f: A => B): G[B] = ???
+  }
 }
 
 object types {
@@ -51,13 +78,14 @@ trait Primitives[I, K[_, _]] {
   def mapPath(f: Path => Path): P
 
   // TODO: Introduce NonEmptyPath
-  def at[A](p: Path)(k: => K[Option[_ >: Out <: I], A]): K[Out, A]
+  // def at[A](p: Path)(k: => K[Option[_ >: Out <: I], A]): K[Out, A]
+  def at(p: Path): At[K, I, Out]
   def knil: K[Out, HNil]
   def kopt: K[Option[Out], HNil]
 
-  def is[A](implicit K: K[_ >: Out <: I, A]): K[_ >: Out <: I, A] = K
-  def req[A](implicit K: K[_ >: Out <: I, A]): K[Option[_ >: Out <: I], A]
-  def opt[A](implicit K: K[_ >: Out <: I, A]): K[Option[_ >: Out <: I], Option[A]]
+  def is[A](implicit K: K[_ >: Out <: I, A]): K[I, A]
+  def req[A](implicit K: K[_ >: Out <: I, A]): K[Option[I], A]
+  def opt[A](implicit K: K[_ >: Out <: I, A]): K[Option[I], Option[A]]
 
   def toGoal[Repr, A]: K[Out, Repr] => K[Out, Goal[Repr, A]]
 

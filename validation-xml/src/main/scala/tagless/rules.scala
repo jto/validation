@@ -4,36 +4,33 @@ package xml
 
 import jto.validation.xml.Rules
 import shapeless.tag, tag.@@
-import scala.xml.{Attribute, Node}
+import scala.xml.NodeSeq
 // import cats.syntax.cartesian._
 
 trait RulesGrammar
-  extends XmlGrammar[XML.T, Rule]
+  extends XmlGrammar[NodeSeq, Rule]
   with RuleConstraints
-  with RulesTypeclasses[XML.T] {
+  with RulesTypeclasses[NodeSeq] {
   self =>
 
-  type N = XML.T
+  type N = NodeSeq
   type Out = N
   type Sub = N
   type P = RulesGrammar
 
   def mapPath(f: Path => Path): P =
     new RulesGrammar {
-      override def at[A](p: Path)(k: => Rule[Option[_ >: Out <: N],A]): Rule[N, A] =
-        self.at(f(p))(k)
+      override def at(p: Path) =
+        self.at(f(p))
     }
 
-  @inline private def lookup(key: String, n: N): N =
+  /**
+  * Find the node with a given name
+  */
+  @inline private def lookup(key: String, nodes: N): N =
     for {
-      (_, nodes) <- n
       node <- nodes if node.label == key
-    } yield {
-      val attr = node.attributes.toList.collect {
-        case a @ Attribute(_, _, _) => a
-      }
-      (attr, node.child.toList)
-    }
+    } yield node
 
 
   @inline private def search(path: Path, n: N): Option[N] =
@@ -43,7 +40,7 @@ trait RulesGrammar
         ns.headOption.map { _ => ns }
 
       case KeyPathNode(key) :: tail =>
-        val ns = lookup(key, n)
+        val ns = lookup(key, n).flatMap(_.child)
         ns.headOption.flatMap { _ =>
           search(Path(tail), ns)
         }
@@ -59,11 +56,31 @@ trait RulesGrammar
         Some(n)
     }
 
-  def at[A](p: Path)(k: => Rule[Option[_ >: Out <: N], A]): Rule[N, A] =
-    Rule(p) { i =>
-      val validated = k.validate(search(p, i))
-      validated
+  def at(p: Path): At[Rule, N, Out] =
+    new At[Rule, N, Out] {
+      def apply[O](r: Rule[Option[N], O]): Rule[Out, O] =
+        Rule(Path) { out =>
+          val (p, m) = run(out)
+          val c = m.map(_.flatMap(_.child))
+          r.repath(p ++ _).validate(c)
+        }
+      def run: N => (Path, Option[N]) =
+        out => (p, search(p, out))
     }
+
+  def attr(key: String): At[Rule, N, Out] =
+    new At[Rule, N, Out] {
+      def apply[O](r: Rule[Option[N], O]): Rule[Out, O] =
+        Rule(Path) { out =>
+          val (p, m) = run(out)
+          val c = m.map(_.flatMap(_.attributes.filter(_.key == key).flatMap(_.value)))
+          r.repath(_ \ s"@$key").validate(c)
+        }
+      def run: N => (Path, Option[N]) =
+        out => (Path, search(Path, out))
+    }
+
+  def is[A](implicit K: Rule[_ >: Out <: N, A]): Rule[N, A] = K
 
   def opt[A](implicit K: Rule[_ >: Out <: N, A]): Rule[Option[N], Option[A]] =
     Rule(Path) {
@@ -87,12 +104,7 @@ trait RulesGrammar
         Invalid(Seq(ValidationError(
                         "error.invalid",
                         "a non-leaf node can not be validated to a primitive type")))
-
-      Rule.fromMapping[N, (List[Attribute], List[Node])] { xs =>
-        Valid(xs.head) // TODO: is this safe ?
-      } andThen
-      Rule
-        .fromMapping[(List[Attribute], List[Node]), String] { case (_, ns) =>
+      Rule.fromMapping[NodeSeq, String] { case ns =>
           val children = (ns \ "_")
           if (children.isEmpty) Valid(ns.text)
           else err
@@ -119,14 +131,15 @@ trait RulesGrammar
   def toGoal[Repr, A] = _.map { Goal.apply }
 
   def attr[A](key: String)(implicit r: Rule[N, A]): Rule[N, A] =
-    Rule.fromMapping[N, N] { ns =>
-      val vs =
-        for {
-          (attrs, _) <- ns
-          filtered = attrs.filter(_.key == key).flatMap(_.value)
-        } yield { (Nil, filtered) }
-      Valid(vs)
-    }.andThen(r.repath(_ \ s"@$key"))
+    ???
+    // Rule.fromMapping[N, N] { ns =>
+    //   val vs =
+    //     for {
+    //       (attrs, _) <- ns
+    //       filtered = attrs.filter(_.key == key).flatMap(_.value)
+    //     } yield { (Nil, filtered) }
+    //   Valid(vs)
+    // }.andThen(r.repath(_ \ s"@$key"))
 
 }
 

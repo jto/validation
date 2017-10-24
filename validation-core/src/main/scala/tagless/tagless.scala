@@ -4,36 +4,29 @@ package v3.tagless
 import shapeless.{ ::, HNil, HList }
 import shapeless.tag.@@
 
-trait At[K[_, _], S, A] {
-  self =>
-
-  import At._
-
-  def run: S => G[S] // Oh Look! a Kleisli!
-  def apply[O](r: K[Option[S], O]): K[A, O]
-
-  import cats.data.Kleisli
-  def |->[B](other: At[K, S, B]): At[K, S, B] =
-    new At[K, S, B]{
-      def run: S => G[S] =
-        Kleisli[G, S, S](self.run)
-          .flatMapF(other.run)(instancesG)
-          .run
-
-      def apply[O](r: K[Option[S], O]): K[B, O] =
-        ???
-    }
+trait ApplyAt[K[_, _], I, O] {
+  def apply[A](at: At[K, I, O])(r: K[Option[O], A]): K[I, A]
 }
 
-object At {
-  import cats.FlatMap
+trait At[K[_, _], I, O] {
+  self =>
 
-  type G[A0] = (Path, Option[A0])
-  implicit def instancesG = new FlatMap[G] {
-    def flatMap[A, B](fa: G[A])(f: A => G[B]): G[B] = ???
-    def tailRecM[A, B](a: A)(f: A => G[Either[A,B]]): G[B] = ???
-    def map[A, B](fa: G[A])(f: A => B): G[B] = ???
-  }
+  val path: Path
+
+  def run: I => Option[O] // Oh Look! a Kleisli!
+  def apply[A](k: K[Option[O], A])(implicit AA: ApplyAt[K, I, O]): K[I, A] =
+    AA.apply(this)(k)
+
+  import cats.data.Kleisli
+  import cats.instances.option._
+  def |->[P](other: At[K, O, P]): At[K, I, P] =
+    new At[K, I, P] {
+      val path = self.path ++ other.path
+      def run: I => Option[P] =
+        Kleisli[Option, I, O](self.run)
+          .flatMapF(other.run)
+          .run
+    }
 }
 
 object types {
@@ -79,7 +72,7 @@ trait Primitives[I, K[_, _]] {
 
   // TODO: Introduce NonEmptyPath
   // def at[A](p: Path)(k: => K[Option[_ >: Out <: I], A]): K[Out, A]
-  def at(p: Path): At[K, I, Out]
+  def at(p: Path): At[K, Out, I]
   def knil: K[Out, HNil]
   def kopt: K[Option[Out], HNil]
 
@@ -122,6 +115,8 @@ trait Typeclasses[I, K[_, _]] extends LowPriorityTypeClasses[I, K] {
   implicit def mergeTCOpt: Merge[K, Option[Out]]
   implicit def toMergeOps[B <: HList, O: Merge[K, ?]](fb: K[O, B]): MergeOps[K, O, B] =
     MergeOps[K, O, B](fb)
+
+  implicit def applyAt: ApplyAt[K, Out, I]
 }
 
 trait Constraints[K[_, _]] {

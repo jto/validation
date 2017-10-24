@@ -36,4 +36,13 @@ trait RulesTypeclasses[I] extends Typeclasses[I, Rule]{
 
   implicit def semigroupTC[I0, O]: Semigroup[Rule[I0, O] @@ Root] =
     Rule.ruleSemigroup
+
+  implicit def applyAt: ApplyAt[Rule, Out, I] =
+    new ApplyAt[Rule, Out, I] {
+      def apply[A](at: At[Rule, Out, I])(r: Rule[Option[I], A]) =
+        Rule[Out, A](Path) { out =>
+          val mi = at.run(out)
+          r.repath(at.path ++ _).validate(mi)
+        }
+    }
 }

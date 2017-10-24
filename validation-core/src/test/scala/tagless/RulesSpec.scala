@@ -215,8 +215,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       //   at(Path \ "n")(req[Seq[Int]])
       //     .validate(ints) shouldBe Valid(Seq(1, 2, 3))
       // }
-
     }
+
     "validate data" in {
       import testCases.base._
       def firstname = at(Path \ "firstname")(req[String] andThen notEmpty)

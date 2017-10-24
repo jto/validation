@@ -58,26 +58,24 @@ trait RulesGrammar
 
   def at(p: Path): At[Rule, N, Out] =
     new At[Rule, N, Out] {
-      def apply[O](r: Rule[Option[N], O]): Rule[Out, O] =
-        Rule(Path) { out =>
-          val (p, m) = run(out)
-          val c = m.map(_.flatMap(_.child))
-          r.repath(p ++ _).validate(c)
-        }
-      def run: N => (Path, Option[N]) =
-        out => (p, search(p, out))
+      val path = p
+      // def apply[O](r: Rule[Option[N], O]): Rule[Out, O] =
+      //   Rule(Path) { out =>
+      //     val (p, m) = run(out)
+      //     val c = m.map(_.flatMap(_.child))
+      //     r.repath(p ++ _).validate(c)
+      //   }
+      def run: N => Option[N] =
+        out => search(p, out)
     }
 
   def attr(key: String): At[Rule, N, Out] =
     new At[Rule, N, Out] {
-      def apply[O](r: Rule[Option[N], O]): Rule[Out, O] =
-        Rule(Path) { out =>
-          val (p, m) = run(out)
-          val c = m.map(_.flatMap(_.attributes.filter(_.key == key).flatMap(_.value)))
-          r.repath(_ \ s"@$key").validate(c)
-        }
-      def run: N => (Path, Option[N]) =
-        out => (Path, search(Path, out))
+      val path = Path(s"@$key")
+      def run: N => Option[Out] = { out =>
+         val ns = out.flatMap(_.attributes.filter(_.key == key).flatMap(_.value))
+         ns.headOption.map { _ => ns }
+      }
     }
 
   def is[A](implicit K: Rule[_ >: Out <: N, A]): Rule[N, A] = K
@@ -122,25 +120,19 @@ trait RulesGrammar
   implicit def long = nodeR(Rules.longR)
   implicit def short = nodeR(Rules.shortR)
 
-  implicit def list[A](key: String)(implicit k: Rule[_ >: Out <: N, A]) =
-    ???
+  implicit def list[A](implicit k: Rule[_ >: Out <: N, A]) =
+    Rule[NodeSeq, List[A]](Path) { ns =>
+      import cats.instances.list._
+        import cats.syntax.traverse._
+      ns.theSeq.toList.zipWithIndex.map { case (n, i) =>
+        k.repath(_ \ i).validate(n)
+      }.sequenceU
+    }
 
   implicit def map[A](implicit k: Rule[_ >: Out <: N, A]) =
     ???
 
   def toGoal[Repr, A] = _.map { Goal.apply }
-
-  def attr[A](key: String)(implicit r: Rule[N, A]): Rule[N, A] =
-    ???
-    // Rule.fromMapping[N, N] { ns =>
-    //   val vs =
-    //     for {
-    //       (attrs, _) <- ns
-    //       filtered = attrs.filter(_.key == key).flatMap(_.value)
-    //     } yield { (Nil, filtered) }
-    //   Valid(vs)
-    // }.andThen(r.repath(_ \ s"@$key"))
-
 }
 
 object RulesGrammar extends RulesGrammar

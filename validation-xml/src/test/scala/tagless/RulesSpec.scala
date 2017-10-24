@@ -33,8 +33,9 @@ class XMLRulesSpec extends RulesSpec[NodeSeq] {
       val p = Path \ "phones" \ "phone"
       def r0 = at(p) |-> attr("label")
       def r1 = at(p) |-> attr("fake")
-      r0(req(list[String])).validate(transform(base.info)) shouldBe Valid(List("mobile", "home"))
-      r1(req(list[String])).validate(transform(base.info)) shouldBe
+      val rs = req(list[String])
+      r0(rs).validate(transform(base.info)) shouldBe Valid(List("mobile", "home"))
+      r1(rs).validate(transform(base.info)) shouldBe
         Invalid(Seq(p \ "@fake" ->
           Seq(ValidationError("error.required"))))
     }
@@ -43,6 +44,7 @@ class XMLRulesSpec extends RulesSpec[NodeSeq] {
       def r = (at(Path \ "test") |-> attr("label"))(req[Int])
       val xml = <test label="42"></test>
       r.validate(transform(xml)) shouldBe Valid(42)
+
       val xml2 = <test label="bar"></test>
       r.validate(transform(xml2)) shouldBe
         Invalid(Seq(Path \ "test" \ "@label" ->

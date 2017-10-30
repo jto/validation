@@ -65,9 +65,10 @@ trait RulesGrammar
   def attr(key: String): At[Rule, Out, N] =
     new At[Rule, Out, N] {
       def run: Rule[Out, Option[N]] =
-        Rule(Path(s"@$key")) { out =>
-          val ns = out.flatMap(_.attributes.filter(_.key == key).flatMap(_.value))
-          Valid(ns.headOption.map { _ => ns })
+        Rule { out =>
+          val path = Path(s"@$key")
+          val ns: Out = out.flatMap(_.attributes.filter(_.key == key).flatMap(_.value))
+          Valid(path -> ns.headOption.map { _ => ns })
         }
 
     }
@@ -75,17 +76,17 @@ trait RulesGrammar
   def is[A](implicit K: Rule[_ >: Out <: N, A]): Rule[N, A] = K
 
   def opt[A](implicit K: Rule[_ >: Out <: N, A]): Rule[Option[N], Option[A]] =
-    Rule(Path) {
+    Rule {
       case Some(x) =>
-        K.validate(x).map(Option.apply)
+        K.validateWithPath(x).map{ case (p, o) => (p, Option(o)) }
       case None =>
-        Valid(None)
+        Valid(Path -> None)
     }
 
   def req[A](implicit K: Rule[_ >: Out <: N, A]): Rule[Option[N], A] =
-    Rule(Path) {
+    Rule {
       case Some(x) =>
-        K.validate(x)
+        K.validateWithPath(x)
       case None =>
         Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
     }
@@ -115,12 +116,12 @@ trait RulesGrammar
   implicit def short = nodeR(Rules.shortR)
 
   implicit def list[A](implicit k: Rule[_ >: Out <: N, A]) =
-    Rule[NodeSeq, List[A]](Path) { ns =>
+    Rule[NodeSeq, List[A]] { ns =>
       import cats.instances.list._
-        import cats.syntax.traverse._
+      import cats.syntax.traverse._
       ns.theSeq.toList.zipWithIndex.map { case (n, i) =>
         k.repath(_ \ i).validate(n)
-      }.sequenceU
+      }.sequenceU.map(Path -> _)
     }
 
   implicit def map[A](implicit k: Rule[_ >: Out <: N, A]) =

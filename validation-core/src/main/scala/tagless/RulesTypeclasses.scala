@@ -26,10 +26,10 @@ trait RulesTypeclasses[I] extends Typeclasses[I, Rule]{
   implicit def mergeTCOpt: Merge[Rule, Option[Out]] =
     new Merge[Rule, Option[Out]] {
       def merge[A, B <: HList](fa: Rule[Option[Out], A],fb: Rule[Option[Out], B]): Rule[Option[Out], A :: B] =
-        Rule(Path) { mx =>
+        Rule { mx =>
           import cats.syntax.cartesian._
           (fa.validate(mx) |@| fb.validate(mx)).map { (a, b) =>
-            a :: b
+            (Path, a :: b)
           }
         }
     }

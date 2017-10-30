@@ -337,7 +337,7 @@ class RulesSpec extends WordSpec with Matchers {
               .map(C.apply)
           }
 
-          val rule = rb orElse rc orElse Rule(Path)(_ => typeInvalid)
+          val rule = rb orElse rc orElse Rule(_ => typeInvalid)
 
           rule.validate(b) shouldBe (Valid(B(4)))
           rule.validate(c) shouldBe (Valid(C(6)))
@@ -352,7 +352,7 @@ class RulesSpec extends WordSpec with Matchers {
             (__ \ "name").read[String].flatMap[A] {
               case "B" => (__ \ "foo").read[Int].map(B.apply)
               case "C" => (__ \ "bar").read[Int].map(C.apply)
-              case _ => Rule(Path)(_ => typeInvalid)
+              case _ => Rule(_ => typeInvalid)
             }
           }
 

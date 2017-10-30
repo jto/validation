@@ -18,15 +18,6 @@ class XMLRulesSpec extends RulesSpec[NodeSeq] {
 
     import grammar.{ map => _, _ }
 
-    "keep track of attributes path" in {
-      val p = Path \ "phones" \ "phone"
-      val attrPath = Path("@label")
-      at(p).run.path shouldBe p
-      attr("label").run.path shouldBe attrPath
-      def a = at(p) |-> attr("label")
-      a.run.path shouldBe (p ++ attrPath)
-    }
-
     "List" in {
       import testCases.seq._
       at(Path \ "n")(req[List[String]])
@@ -34,6 +25,17 @@ class XMLRulesSpec extends RulesSpec[NodeSeq] {
 
       at(Path \ "n")(req[List[Int]])
         .validate(ints) shouldBe Valid(List(1, 2, 3))
+    }
+
+    "validate required attributes at root level" in {
+      val xml = <test label="bar"></test>
+      def r0 = attr("label")
+      def r1 = attr("fake")
+      val rs = req[String]
+      r0(rs).validate(xml) shouldBe Valid("bar")
+      r1(rs).validate(xml) shouldBe
+        Invalid(Seq(Path \ "@fake" ->
+          Seq(ValidationError("error.required"))))
     }
 
     // TODO: Add test case for index path node in RuleSpec
@@ -51,8 +53,8 @@ class XMLRulesSpec extends RulesSpec[NodeSeq] {
 
     "validate required attributes as Int" in {
       def r = (at(Path \ "test") |-> attr("label")).apply(req[Int])
-      val xml = <test label="42"></test>
-      r.validate(transform(xml)) shouldBe Valid(42)
+      // val xml = <test label="42"></test>
+      // r.validate(transform(xml)) shouldBe Valid(42)
 
       val xml2 = <test label="bar"></test>
       r.validate(transform(xml2)) shouldBe

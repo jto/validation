@@ -401,7 +401,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
             at(Path \ "bar")(req[Int])
           ).map(C.apply)
 
-        val rule = rb orElse rc orElse Rule(Path)(_ => typeInvalid)
+        val rule = rb orElse rc orElse Rule(_ => typeInvalid)
 
         rule.validate(transform(b)) shouldBe Valid(B(4))
         rule.validate(transform(c)) shouldBe Valid(C(6))
@@ -415,7 +415,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
           at(Path \ "name")(req[String]).flatMap[A] {
             case "B" => at(Path \ "foo")(req[Int]).map(B.apply)
             case "C" => at(Path \ "bar")(req[Int]).map(C.apply)
-            case _ => Rule(Path)(_ => typeInvalid)
+            case _ => Rule(_ => typeInvalid)
           }
 
         rule.validate(transform(b)) shouldBe Valid(B(4))

@@ -32,10 +32,12 @@ trait Rules extends DefaultRules[Node] with ParsingRules {
 
   def optAttributeR[O](key: String)(
       implicit r: RuleLike[String, O]): Rule[Node, Option[O]] =
-    Rule[Node, Option[O]](Path) { node =>
+    Rule[Node, Option[O]] { node =>
       node.attribute(key).flatMap(_.headOption).map(_.text) match {
-        case Some(str) => r.validate(str).map(Some(_))
-        case None => Valid(None)
+        case Some(str) =>
+          r.validateWithPath(str).map{ case (p, o) => (p, Some(o)) } // TODO: test this
+        case None =>
+          Valid(Path -> None)
       }
     }
 
@@ -54,11 +56,12 @@ trait Rules extends DefaultRules[Node] with ParsingRules {
       case Nil => Some(node)
     }
 
-    Rule[II, Node](p) { node =>
+    Rule[II, Node] { node =>
       search(p, node) match {
         case None =>
-          Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
-        case Some(resNode) => Valid(resNode)
+          Invalid(Seq(p -> Seq(ValidationError("error.required"))))
+        case Some(resNode) =>
+          Valid(p -> resNode)
       }
     }.andThen(r)
   }

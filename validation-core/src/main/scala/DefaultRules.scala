@@ -200,15 +200,16 @@ trait GenericRules {
     * @return A new Rule
     */
   implicit def seqR[I, O](implicit r: RuleLike[I, O]): Rule[Seq[I], Seq[O]] =
-    Rule(Path) {
-      case is =>
-        val withI = is.zipWithIndex.map {
+    Rule { is =>
+      val rule = Rule.toRule(r)
+      val withI: Seq[VA[O]] =
+        is.zipWithIndex.map {
           case (v, i) =>
-            Rule.toRule(r).repath((Path \ i) ++ _).validate(v)
+            rule.repath((Path \ i) ++ _).validate(v)
         }
-        import cats.instances.list._
-        import cats.syntax.traverse._
-        withI.toList.sequenceU
+      import cats.instances.list._
+      import cats.syntax.traverse._
+      withI.toList.sequenceU.map(Path -> _)
     }
 
   /**
@@ -238,18 +239,19 @@ trait GenericRules {
       }
       .andThen(c)
 
-  def not[I, O](r: RuleLike[I, O]) = Rule[I, I](Path) { d =>
-    r.validate(d) match {
-      case Valid(_) => Invalid(Nil)
-      case Invalid(_) => Valid(d)
+  def not[I, O](r: RuleLike[I, O]) =
+    Rule[I, I] { d =>
+      r.validateWithPath(d) match {
+        case Valid((p, _)) => Invalid(Nil)
+        case Invalid(_) => Valid(Path -> d)
+      }
     }
-  }
 
   /**
     * Create a "constant" Rule which is always a success returning value `o`
     * (Path \ "x").read(ignored(42))
     */
-  def ignored[I, O](o: O) = (_: Path) => Rule[I, O](Path)(_ => Valid(o))
+  def ignored[I, O](o: O) = (_: Path) => Rule[I, O](_ => Valid(Path -> o))
 
   /**
     * Create a Rule of equality
@@ -409,21 +411,24 @@ trait DefaultRules[I] extends GenericRules with DateRules {
   protected def opt[J, O](r: => RuleLike[J, O], noneValues: RuleLike[I, I]*)(
       implicit pick: Path => RuleLike[I, I], coerce: RuleLike[I, J]) =
     (path: Path) =>
-      Rule[I, Option[O]](path) { (d: I) =>
-        val isNone =
-          not(noneValues.foldLeft(Rule.zero[I])(_ andThen not(_))).map(_ =>
-                None)
-        val v = (pick(path).validate(d).map(Some.apply) orElse Valid(None))
+      Rule[I, Option[O]] { (d: I) =>
+        val isNone: Rule[I, None.type] =
+          not(noneValues.foldLeft(Rule.zero[I])(_ andThen not(_))).map(_ => None)
+
+        val v: Validated[Nothing, Option[I]] =
+          (pick(path).validate(d).map(Some.apply) orElse Valid(None))
+
         Validated.fromEither(
             v.toEither.right.flatMap {
-              case None => Right(None)
+              case None => Right(path -> None)
               case Some(i) =>
                 isNone
                   .orElse(Rule
-                        .toRule(coerce)
-                        .andThen(r)
-                        .map[Option[O]](Some.apply))
+                    .toRule(coerce)
+                    .andThen(r)
+                    .map[Option[O]](Some.apply))
                   .validate(i)
+                  .map(path -> _)
                   .toEither
             }
         )
@@ -432,7 +437,7 @@ trait DefaultRules[I] extends GenericRules with DateRules {
   def mapR[K, O](r: RuleLike[K, O],
                  p: RuleLike[I, Seq[(String, K)]]): Rule[I, Map[String, O]] = {
     val next: Rule[Seq[(String, K)], Map[String, O]] =
-      Rule(Path) { fs =>
+      Rule { fs =>
         val validations = fs.map { f =>
           Rule
             .toRule(r)
@@ -442,7 +447,7 @@ trait DefaultRules[I] extends GenericRules with DateRules {
         }
         import cats.instances.list._
         import cats.syntax.traverse._
-        validations.toList.sequenceU.map(_.toMap)
+        validations.toList.sequenceU.map(Path -> _.toMap)
       }
     Rule.toRule(p).andThen(next)
   }

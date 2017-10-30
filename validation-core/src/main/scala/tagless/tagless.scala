@@ -3,30 +3,27 @@ package v3.tagless
 
 import shapeless.{ ::, HNil, HList }
 import shapeless.tag.@@
+import cats.arrow.{FunctionK, Compose}
 
-trait ApplyAt[K[_, _], I, O] {
-  def apply[A](at: At[K, I, O])(r: K[Option[O], A]): K[I, A]
-}
-
-trait At[K[_, _], I, O] {
+trait At[K[_, _], O, T] {
   self =>
+  def run: K[O, Option[T]]
 
-  val path: Path
+  def apply[A](next: K[Option[T], A])(implicit C: Compose[K]): K[O, A] =
+    C.andThen(run, next)
 
-  def run: I => Option[O] // Oh Look! a Kleisli!
-  def apply[A](k: K[Option[O], A])(implicit AA: ApplyAt[K, I, O]): K[I, A] =
-    AA.apply(this)(k)
-
-  import cats.data.Kleisli
-  import cats.instances.option._
-  def |->[P](other: At[K, O, P]): At[K, I, P] =
-    new At[K, I, P] {
-      val path = self.path ++ other.path
-      def run: I => Option[P] =
-        Kleisli[Option, I, O](self.run)
-          .flatMapF(other.run)
-          .run
-    }
+  def |->[P]
+    (other: At[K, T, P])
+    (implicit
+      F: FunctionK[K[?, Option[P]], λ[α => K[Option[α], Option[P]]]],
+      C: Compose[K]
+    ): At[K, O, P] =
+      new At[K, O, P] {
+        def run = {
+          val next = F.apply(other.run)
+          C.andThen(self.run, next)
+        }
+      }
 }
 
 object types {
@@ -115,8 +112,6 @@ trait Typeclasses[I, K[_, _]] extends LowPriorityTypeClasses[I, K] {
   implicit def mergeTCOpt: Merge[K, Option[Out]]
   implicit def toMergeOps[B <: HList, O: Merge[K, ?]](fb: K[O, B]): MergeOps[K, O, B] =
     MergeOps[K, O, B](fb)
-
-  implicit def applyAt: ApplyAt[K, Out, I]
 }
 
 trait Constraints[K[_, _]] {

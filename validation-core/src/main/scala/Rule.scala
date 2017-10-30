@@ -28,10 +28,11 @@ object RuleLike {
 
 trait Rule[I, O] extends RuleLike[I, O] {
 
+  // TODO: deprecate flatMap ??
+  // In case of deprecation, how de we handle subtyping ?
   def flatMap[B](f: O => Rule[I, B]): Rule[I, B] =
     Rule(path) { d =>
-      val res = validateNoRoot(d).map(f).fold(es => Invalid(es), r => r.validate(d))
-      res
+      validateNoRoot(d).map(f).fold(es => Invalid(es), r => r.validate(d))
     }
 
   /**
@@ -53,10 +54,8 @@ trait Rule[I, O] extends RuleLike[I, O] {
     Rule(Path)(d => this.validate(d) orElse t.validate(d))
 
   def andThen[P](sub: => RuleLike[O, P]): Rule[I, P] =
-    flatMap { o =>
-      Rule[I, P](Path){ _ =>
-        sub.validate(o)
-      }
+    Rule(path ++ sub.path) { d =>
+      validateNoRoot(d).fold(es => Invalid(es), n => sub.validateNoRoot(n))
     }
 
   def andThen[P](m: Mapping[ValidationError, O, P]): Rule[I, P] =
@@ -169,6 +168,17 @@ object Rule {
       r: Rule[I, O])(implicit fcb: SyntaxCombine[Rule[I, ?]])
     : FunctorSyntaxObs[Rule[I, ?], O] =
     new FunctorSyntaxObs[Rule[I, ?], O](r)(fcb)
+
+  import cats.arrow.FunctionK
+  implicit def ruleLiftFunctionK[Out]: FunctionK[Rule[?, Option[Out]], λ[α => Rule[Option[α],Option[Out]]]] =
+    new FunctionK[Rule[?, Option[Out]], λ[α => Rule[Option[α],Option[Out]]]] {
+      def apply[A](fa: Rule[A, Option[Out]]): Rule[Option[A], Option[Out]] =
+        Rule(fa.path) { ma =>
+          import cats.instances.option._
+          import cats.syntax.traverse._
+          ma.map(fa.validate).sequenceU.map(_.flatten)
+        }
+    }
 }
 
 object Read {

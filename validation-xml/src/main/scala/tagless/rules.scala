@@ -56,26 +56,20 @@ trait RulesGrammar
         Some(n)
     }
 
-  def at(p: Path): At[Rule, N, Out] =
-    new At[Rule, N, Out] {
-      val path = p
-      // def apply[O](r: Rule[Option[N], O]): Rule[Out, O] =
-      //   Rule(Path) { out =>
-      //     val (p, m) = run(out)
-      //     val c = m.map(_.flatMap(_.child))
-      //     r.repath(p ++ _).validate(c)
-      //   }
-      def run: N => Option[N] =
-        out => search(p, out)
+  def at(p: Path): At[Rule, Out, NodeSeq] =
+    new At[Rule, Out, NodeSeq] {
+      def run: Rule[Out, Option[NodeSeq]] =
+        Rule.zero[Out].repath(_ => p).map{ search(p, _) }
     }
 
-  def attr(key: String): At[Rule, N, Out] =
-    new At[Rule, N, Out] {
-      val path = Path(s"@$key")
-      def run: N => Option[Out] = { out =>
-         val ns = out.flatMap(_.attributes.filter(_.key == key).flatMap(_.value))
-         ns.headOption.map { _ => ns }
-      }
+  def attr(key: String): At[Rule, Out, N] =
+    new At[Rule, Out, N] {
+      def run: Rule[Out, Option[N]] =
+        Rule(Path(s"@$key")) { out =>
+          val ns = out.flatMap(_.attributes.filter(_.key == key).flatMap(_.value))
+          Valid(ns.headOption.map { _ => ns })
+        }
+
     }
 
   def is[A](implicit K: Rule[_ >: Out <: N, A]): Rule[N, A] = K

@@ -18,6 +18,15 @@ class XMLRulesSpec extends RulesSpec[NodeSeq] {
 
     import grammar.{ map => _, _ }
 
+    "keep track of attributes path" in {
+      val p = Path \ "phones" \ "phone"
+      val attrPath = Path("@label")
+      at(p).run.path shouldBe p
+      attr("label").run.path shouldBe attrPath
+      def a = at(p) |-> attr("label")
+      a.run.path shouldBe (p ++ attrPath)
+    }
+
     "List" in {
       import testCases.seq._
       at(Path \ "n")(req[List[String]])
@@ -41,7 +50,7 @@ class XMLRulesSpec extends RulesSpec[NodeSeq] {
     }
 
     "validate required attributes as Int" in {
-      def r = (at(Path \ "test") |-> attr("label"))(req[Int])
+      def r = (at(Path \ "test") |-> attr("label")).apply(req[Int])
       val xml = <test label="42"></test>
       r.validate(transform(xml)) shouldBe Valid(42)
 
@@ -53,8 +62,8 @@ class XMLRulesSpec extends RulesSpec[NodeSeq] {
 
     "validate optional attributes" in {
       import testCases.base
-      def r0 = (at(Path \ "phones" \ "phone") |-> attr("label"))(opt[String])
-      def r1 = (at(Path \ "phones" \ "phone") |-> attr("fake"))(opt[String])
+      def r0 = (at(Path \ "phones" \ "phone") |-> attr("label")).apply(opt[String])
+      def r1 = (at(Path \ "phones" \ "phone") |-> attr("fake")).apply(opt[String])
       r0.validate(transform(base.info)) shouldBe Valid(Option("mobile"))
       r1.validate(transform(base.info)) shouldBe Valid(None)
     }

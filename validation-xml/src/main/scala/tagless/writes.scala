@@ -2,71 +2,62 @@ package jto.validation
 package v3.tagless
 package xml
 
-import types.flip
-// import jto.validation.xml.{Writes => W}
+// import types.flip
+// // import jto.validation.xml.{Writes => W}
 
-import shapeless.tag, tag.@@
-import scala.xml.NodeSeq
-import cats.Monoid
+// import shapeless.tag, tag.@@
+// import scala.xml.NodeSeq
+// import cats.Monoid
 
-trait WritesGrammar extends Grammar[NodeSeq, flip[Write]#λ]
-  with WriteConstraints
-  with WritesTypeclasses[NodeSeq] {
+// trait WritesGrammar extends Grammar[NodeSeq, flip[Write]#λ]
+//   with WriteConstraints
+//   with WritesTypeclasses[NodeSeq] {
 
-self =>
+// self =>
 
-type Out = NodeSeq
+// type Out = NodeSeq
 
-def at(p: Path): At[flip[Write]#λ, Out, NodeSeq] =
-  new At[flip[Write]#λ, Out, NodeSeq] { a =>
-    val path = p
-    def run: Out => Option[NodeSeq] = ???
-  }
+// def at(p: Path): At[flip[Write]#λ, Out, NodeSeq] =
+//   new At[flip[Write]#λ, Out, NodeSeq] { a =>
+//     val path = p
+//     def run: Out => Option[NodeSeq] = ???
+//   }
 
-implicit def bigDecimal: @@[Write[BigDecimal,NodeSeq], Root] = ???
+// implicit def bigDecimal: @@[Write[BigDecimal,NodeSeq], Root] = ???
 
-implicit def boolean: @@[Write[Boolean,NodeSeq], Root] = ???
+// implicit def boolean: @@[Write[Boolean,NodeSeq], Root] = ???
 
-implicit def double: @@[Write[Double,NodeSeq], Root] = ???
+// implicit def double: @@[Write[Double,NodeSeq], Root] = ???
 
-implicit def float: @@[Write[Float,NodeSeq], Root] = ???
+// implicit def float: @@[Write[Float,NodeSeq], Root] = ???
 
-implicit def int: @@[Write[Int,NodeSeq], Root] = ???
+// implicit def int: @@[Write[Int,NodeSeq], Root] = ???
 
-def is[A](implicit K: Write[A, _ >: Out <: NodeSeq]): Write[A,NodeSeq] = ???
+// def is[A](implicit K: Write[A, _ >: Out <: NodeSeq]): Write[A,NodeSeq] = ???
 
-implicit def jBigDecimal: @@[Write[java.math.BigDecimal,NodeSeq], Root] = ???
+// implicit def jBigDecimal: @@[Write[java.math.BigDecimal,NodeSeq], Root] = ???
 
-implicit def long: @@[Write[Long,NodeSeq], Root] = ???
+// implicit def long: @@[Write[Long,NodeSeq], Root] = ???
 
-implicit def map[A](implicit k: Write[A, _ >: Out <: NodeSeq]): Write[Map[String,A],NodeSeq] = ???
+// implicit def map[A](implicit k: Write[A, _ >: Out <: NodeSeq]): Write[Map[String,A],NodeSeq] = ???
 
-def mapPath(f: Path => Path): P = ???
+// def mapPath(f: Path => Path): P = ???
 
-def opt[A](implicit K: Write[A, _ >: Out <: NodeSeq]): Write[Option[A],Option[NodeSeq]] = ???
+// def opt[A](implicit K: Write[A, _ >: Out <: NodeSeq]): Write[Option[A],Option[NodeSeq]] = ???
 
-def req[A](implicit K: Write[A, _ >: Out <: NodeSeq]): Write[A,Option[NodeSeq]] = ???
+// def req[A](implicit K: Write[A, _ >: Out <: NodeSeq]): Write[A,Option[NodeSeq]] = ???
 
-implicit def short: @@[Write[Short,NodeSeq], Root] = ???
+// implicit def short: @@[Write[Short,NodeSeq], Root] = ???
 
-implicit def string: @@[Write[String,NodeSeq], Root] = ???
+// implicit def string: @@[Write[String,NodeSeq], Root] = ???
 
-def toGoal[Repr, A]: Write[Repr,Out] => Write[Goal[Repr,A], Out] = ???
+// def toGoal[Repr, A]: Write[Repr,Out] => Write[Goal[Repr,A], Out] = ???
 
-implicit def applyAt: ApplyAt[flip[Write]#λ, Out, NodeSeq] =
-  new ApplyAt[flip[Write]#λ, Out, NodeSeq]{
-    def apply[A](at: At[flip[Write]#λ, Out, NodeSeq])(r: Write[A, Option[NodeSeq]]) =
-      Write[A, Out] { a =>
+// def iMonoid: Monoid[Out] = ???
 
-        ???
-      }
-  }
+// }
 
-def iMonoid: Monoid[Out] = ???
-
-}
-
-object WritesGrammar extends WritesGrammar
+// object WritesGrammar extends WritesGrammar
 
 // trait WritesGrammar extends Grammar[XML, flip[Write]#λ]
 //   with WriteConstraints

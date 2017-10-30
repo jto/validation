@@ -56,8 +56,16 @@ trait RulesGrammar
         Some(n)
     }
 
+  import cats.arrow.Compose
   def at(p: Path): At[Rule, Out, NodeSeq] =
     new At[Rule, Out, NodeSeq] {
+      // XXX: override apply so that {next}
+      // gets apply on the child nodes and not on the parent node
+      override def apply[A](next: Rule[Option[NodeSeq], A])(implicit C: Compose[Rule]): Rule[Out, A] = {
+        val run2 = run.map(_.map(_.flatMap { _.child }))
+        C.andThen(run2, next)
+      }
+
       def run: Rule[Out, Option[NodeSeq]] =
         Rule.zero[Out].repath(_ => p).map{ search(p, _) }
     }
@@ -93,15 +101,13 @@ trait RulesGrammar
 
   private def nodeR[O](implicit r: RuleLike[String, O]): Rule[N, O] @@ Root =
     tag[Root] {
-      val err =
-        Invalid(Seq(ValidationError(
-                        "error.invalid",
-                        "a non-leaf node can not be validated to a primitive type")))
       Rule.fromMapping[NodeSeq, String] { case ns =>
-          val children = (ns \ "_")
-          if (children.isEmpty) Valid(ns.head.text)
-          else err
+        ns.headOption.map { n =>
+          Valid(n.text)
+        }.getOrElse {
+          Valid("") // XXX: really hackish
         }
+      }
       .andThen(r)
     }
 

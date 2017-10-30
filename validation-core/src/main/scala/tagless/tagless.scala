@@ -45,7 +45,7 @@ case class MergeOps[K[_, _], Out, B <: HList](fb: K[Out, B])(implicit M: Merge[K
 trait Primitives[I, K[_, _]] {
   self: Constraints[K] with Typeclasses[I, K] =>
 
-  type Out <: I
+  type Out <: I // XXX: This is dubious
   type P <: Primitives[I, K]
 
   @inline private def camelToUnderscores(name: String) =

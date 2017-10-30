@@ -53,8 +53,8 @@ class XMLRulesSpec extends RulesSpec[NodeSeq] {
 
     "validate required attributes as Int" in {
       def r = (at(Path \ "test") |-> attr("label")).apply(req[Int])
-      // val xml = <test label="42"></test>
-      // r.validate(transform(xml)) shouldBe Valid(42)
+      val xml = <test label="42"></test>
+      r.validate(transform(xml)) shouldBe Valid(42)
 
       val xml2 = <test label="bar"></test>
       r.validate(transform(xml2)) shouldBe

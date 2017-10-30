@@ -67,7 +67,7 @@ trait RulesGrammar
       def run: Rule[Out, Option[N]] =
         Rule { out =>
           val path = Path(s"@$key")
-          val ns: Out = out.flatMap(_.attributes.filter(_.key == key).flatMap(_.value))
+          val ns = out.flatMap(_.attributes.filter(_.key == key).flatMap(_.value))
           Valid(path -> ns.headOption.map { _ => ns })
         }
 
@@ -99,7 +99,7 @@ trait RulesGrammar
                         "a non-leaf node can not be validated to a primitive type")))
       Rule.fromMapping[NodeSeq, String] { case ns =>
           val children = (ns \ "_")
-          if (children.isEmpty) Valid(ns.text)
+          if (children.isEmpty) Valid(ns.head.text)
           else err
         }
       .andThen(r)

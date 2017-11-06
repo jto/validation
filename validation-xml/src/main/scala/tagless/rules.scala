@@ -27,10 +27,16 @@ trait RulesGrammar
   /**
   * Find the node with a given name
   */
-  @inline private def lookup(key: String, nodes: N): N =
+  @inline private def lookup(key: String, nodes: N): N = {
+    val ns =
+      nodes.flatMap {
+        case scala.xml.Group(cs) => cs
+        case c => List(c)
+      }
     for {
-      node <- nodes if node.label == key
+      node <- ns if node.label == key
     } yield node
+  }
 
 
   @inline private def search(path: Path, n: N): Option[N] =
@@ -56,15 +62,23 @@ trait RulesGrammar
         Some(n)
     }
 
-  import cats.arrow.Compose
   def at(p: Path): At[Rule, Out, NodeSeq] =
     new At[Rule, Out, NodeSeq] {
-      // XXX: override apply so that {next}
-      // gets apply on the child nodes and not on the parent node
-      override def apply[A](next: Rule[Option[NodeSeq], A])(implicit C: Compose[Rule]): Rule[Out, A] = {
-        val run2 = run.map(_.map(_.flatMap { _.child }))
-        C.andThen(run2, next)
-      }
+      def prepare =
+        Rule.zero[Option[NodeSeq]]
+          .map( _.map(_.flatMap{ n =>
+            if(n.child.isEmpty) {
+              // XXX: represent the absence of text node
+              // by a text node containing an empty String
+              // so that this node does not simply disappear
+              // while flatMaping
+              scala.xml.Text("")
+            } else {
+              // Store child elements in a Group so that
+              // we can build a proper list validation
+              List(scala.xml.Group(n.child))
+            }
+          }))
 
       def run: Rule[Out, Option[NodeSeq]] =
         Rule.zero[Out].repath(_ => p).map{ search(p, _) }
@@ -72,13 +86,12 @@ trait RulesGrammar
 
   def attr(key: String): At[Rule, Out, N] =
     new At[Rule, Out, N] {
+      def prepare = Rule.zero[Option[NodeSeq]]
       def run: Rule[Out, Option[N]] =
         Rule { out =>
-          val path = Path(s"@$key")
-          val ns = out.flatMap(_.attributes.filter(_.key == key).flatMap(_.value))
-          Valid(path -> ns.headOption.map { _ => ns })
-        }
-
+         val ns = out.flatMap(_.attributes.filter(_.key == key).flatMap(_.value))
+         Valid(Path(s"@$key") -> ns.headOption.map { _ => ns })
+       }
     }
 
   def is[A](implicit K: Rule[_ >: Out <: N, A]): Rule[N, A] = K
@@ -86,7 +99,7 @@ trait RulesGrammar
   def opt[A](implicit K: Rule[_ >: Out <: N, A]): Rule[Option[N], Option[A]] =
     Rule {
       case Some(x) =>
-        K.validateWithPath(x).map{ case (p, o) => (p, Option(o)) }
+        K.validateWithPath(x).map { case (p, o) => (p, Option(o)) }
       case None =>
         Valid(Path -> None)
     }
@@ -121,17 +134,26 @@ trait RulesGrammar
   implicit def long = nodeR(Rules.longR)
   implicit def short = nodeR(Rules.shortR)
 
-  implicit def list[A](implicit k: Rule[_ >: Out <: N, A]) =
+  implicit def list[A](implicit k: Rule[_ >: Out <: N, A]): Rule[NodeSeq, List[A]] =
     Rule[NodeSeq, List[A]] { ns =>
       import cats.instances.list._
       import cats.syntax.traverse._
-      ns.theSeq.toList.zipWithIndex.map { case (n, i) =>
-        k.repath(_ \ i).validate(n)
-      }.sequenceU.map(Path -> _)
+      ns.theSeq.toList.zipWithIndex
+        .map { case (n, i) =>
+          k.repath((Path \ i) ++  _).validate(n)
+        }.sequenceU.map(Path -> _)
     }
 
-  implicit def map[A](implicit k: Rule[_ >: Out <: N, A]) =
-    ???
+  implicit def array[A: scala.reflect.ClassTag](implicit k: Rule[_ >: Out <: N, A]): Rule[NodeSeq, Array[A]] =
+    list(k).map(_.toArray)
+
+  implicit def seq[A](implicit k: Rule[_ >: Out <: N, A]): Rule[NodeSeq, Seq[A]] =
+    list[A](k).map(_.toSeq)
+
+  implicit def traversable[A](implicit k: Rule[_ >: Out <: N, A]): Rule[NodeSeq, Traversable[A]] =
+    list(k).map(_.toTraversable)
+
+  implicit def map[A](implicit k: Rule[_ >: Out <: N, A]): Rule[NodeSeq, Map[String, A]] = ???
 
   def toGoal[Repr, A] = _.map { Goal.apply }
 }

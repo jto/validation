@@ -29,10 +29,10 @@ class XMLRulesSpec extends RulesSpec[NodeSeq] {
 
     "validate required attributes at root level" in {
       val xml = <test label="bar"></test>
-      def r0 = attr("label")
+      // def r0 = attr("label")
       def r1 = attr("fake")
       val rs = req[String]
-      r0(rs).validate(xml) shouldBe Valid("bar")
+      // r0(rs).validate(xml) shouldBe Valid("bar")
       r1(rs).validate(xml) shouldBe
         Invalid(Seq(Path \ "@fake" ->
           Seq(ValidationError("error.required"))))

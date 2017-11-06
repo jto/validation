@@ -15,23 +15,19 @@ object XMLTestCases extends TestCases[NodeSeq] {
     def smthTrue = <issmth>false</issmth>
 
     def info =
-        <label>Personal</label>
-        <email>fakecontact@gmail.com</email>
-        <phones>
-          <phone label="mobile">01.23.45.67.89</phone>
-          <phone label="home">98.76.54.32.10</phone>
-        </phones>
+      <label>Personal</label>
+      <email>fakecontact@gmail.com</email>
+      <phones>
+        <phone label="mobile">01.23.45.67.89</phone>
+        <phone label="home">98.76.54.32.10</phone>
+      </phones>
 
     def contacts =
       <contacts label="Personal">
-        <contact>
-          <label>Personal</label>
-          <email>fakecontact@gmail.com</email>
-          <phones>
-            <phone label="mobile">01.23.45.67.89</phone>
-            <phone label="home">98.76.54.32.10</phone>
-          </phones>
-        </contact>
+        <label>Personal</label>
+        <email>fakecontact@gmail.com</email>
+        <phones label="mobile">01.23.45.67.89</phones>
+        <phones label="home">98.76.54.32.10</phones>
       </contacts>
 
     def jto =
@@ -59,16 +55,14 @@ object XMLTestCases extends TestCases[NodeSeq] {
             <phone label="home">01.02</phone>
           </phones>
         </informations>
-        <contacts label="">
-        <contact>
+        <contacts>
           <label/>
           <email>fakecontact@gmail.com</email>
           <phones>
             <phone label="mobile">01.23.45.67.89</phone>
             <phone label="home">98.76.54.32.10</phone>
           </phones>
-        </contact>
-      </contacts>
+        </contacts>
   }
 
   val int = new int {

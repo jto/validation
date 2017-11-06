@@ -9,8 +9,10 @@ trait At[K[_, _], O, T] {
   self =>
   def run: K[O, Option[T]]
 
+  def prepare: K[Option[T], Option[T]]
+
   def apply[A](next: K[Option[T], A])(implicit C: Compose[K]): K[O, A] =
-    C.andThen(run, next)
+    C.andThen(C.andThen(run, prepare), next)
 
   def |->[P]
     (other: At[K, T, P])
@@ -19,6 +21,7 @@ trait At[K[_, _], O, T] {
       C: Compose[K]
     ): At[K, O, P] =
       new At[K, O, P] {
+        def prepare = other.prepare
         def run = {
           val next = F.apply(other.run)
           C.andThen(self.run, next)
@@ -95,8 +98,14 @@ trait Primitives[I, K[_, _]] {
   implicit def bigDecimal: K[I, BigDecimal] @@ Root
   implicit def boolean: K[I, Boolean] @@ Root
 
+  // TODO: add non empty list
+  implicit def seq[A](implicit k: K[_ >: Out <: I, A]): K[I, Seq[A]]
+  implicit def list[A](implicit k: K[_ >: Out <: I, A]): K[I, List[A]]
+  implicit def array[A: scala.reflect.ClassTag](implicit k: K[_ >: Out <: I, A]): K[I, Array[A]]
   implicit def map[A](implicit k: K[_ >: Out <: I, A]): K[I, Map[String, A]]
+  implicit def traversable[A](implicit k: K[_ >: Out <: I, A]): K[I, Traversable[A]]
 }
+
 
 trait LowPriorityTypeClasses[I, K[_, _]] {
   self: Typeclasses[I, K] with Primitives[I, K] =>
@@ -124,6 +133,7 @@ trait Constraints[K[_, _]] {
   def maxLength(l: Int): C[String]
   def pattern(regex: scala.util.matching.Regex): C[String]
   def email: C[String]
+  // TODO: make is work for any S <: Seq
   def forall[I, O](k: K[I, O]): K[Seq[I], Seq[O]]
   def equalTo[A](a: A): C[A]
 }

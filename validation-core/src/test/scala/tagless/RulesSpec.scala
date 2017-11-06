@@ -328,24 +328,29 @@ trait RulesSpec[T] extends WordSpec with Matchers {
           ValidationError("error.required"))))
     }
 
-    // TODO: PORT THOSE TESTS
-    // "lift validations to seq validations" in {
-    //   import testCases.seq._
+    "lift validations to seq validations" in {
+      import testCases.seq._
 
-    //   def foo = at(Path \ "foo")(req[Seq[String]] andThen forall(notEmpty))
-    //   foo.validate(fooBars) shouldBe Valid(Seq("bar"))
+      // def fooList = at(Path \ "foo")(req(list(string)))
+      // fooList.validate(transform(fooBars)) shouldBe Valid(Seq("bar"))
 
-    //   def foofoo =
-    //     at(Path \ "foo"){
-    //       req(at(Path \ "foo")(req(is[Seq[String]] andThen forall(notEmpty))))
-    //     }
-    //   foofoo.validate(foofoobars) shouldBe Valid(Seq("bar"))
+      // def fooSeq = at(Path \ "foo")(req(seq(string)))
+      // fooSeq.validate(transform(fooBars)) shouldBe Valid(Seq("bar"))
 
-    //   def n = at(Path \ "n")(req[Seq[String]] andThen forall(notEmpty))
-    //   n.validate(ns) shouldBe
-    //     (Invalid(Seq(Path \ "n" \ 1 ->
-    //       Seq(ValidationError("error.required")))))
-    // }
+      // def foo = at(Path \ "foo")(req[Seq[String]] andThen forall(notEmpty))
+      // foo.validate(transform(fooBars)) shouldBe Valid(Seq("bar"))
+
+      // def foofoo =
+      //   at(Path \ "foo"){
+      //     req(at(Path \ "foo")(req(is[Seq[String]] andThen forall(notEmpty))))
+      //   }
+      // foofoo.validate(transform(foofoobars)) shouldBe Valid(Seq("bar"))
+
+      def n = at(Path \ "n")(req[Seq[String]] andThen forall(notEmpty))
+      n.validate(transform(ns)) shouldBe
+        (Invalid(Seq(Path \ "n" \ 1 ->
+          Seq(ValidationError("error.required")))))
+    }
 
     "validate dependent fields" in {
       import testCases.password._
@@ -426,54 +431,54 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       }
     }
 
-    // TODO: PORT THOSE TESTS
-    // "perform complex validation" in {
+    "perform complex validation" in {
 
-    //   case class Contact(
-    //     firstname: String,
-    //     lastname: String,
-    //     company: Option[String],
-    //     informations: Seq[ContactInformation])
+      case class Contact(
+        firstname: String,
+        lastname: String,
+        company: Option[String],
+        informations: Seq[ContactInformation])
 
-    //   case class ContactInformation(
-    //     label: String,
-    //     email: Option[String],
-    //     phones: Seq[String])
+      case class ContactInformation(
+        label: String,
+        email: Option[String],
+        phones: Seq[String])
 
-    //   def info =
-    //     goal[ContactInformation] {
-    //       at(Path \ "label")(req[String] andThen notEmpty) ~:
-    //       at(Path \ "email")(opt(is[String] andThen email)) ~:
-    //       at(Path \ "phones")(req[Seq[String]] andThen forall(notEmpty)) ~:
-    //       knil
-    //     }
+      def info =
+        goal[ContactInformation] {
+          at(Path \ "label")(req[String] andThen notEmpty) ~:
+          at(Path \ "email")(opt(is[String] andThen email)) ~:
+          at(Path \ "phones")(req[Seq[String]] andThen forall(notEmpty)) ~:
+          knil
+        }
 
-    //   def contact =
-    //     goal[Contact]{
-    //       at(Path \ "firstname")(req[String] andThen notEmpty) ~:
-    //       at(Path \ "lastname")(req[String] andThen notEmpty) ~:
-    //       at(Path \ "company")(opt[String]) ~:
-    //       at(Path \ "contacts")(req(seq(info))) ~:
-    //       knil
-    //     }
+      def contact =
+        goal[Contact]{
+          at(Path \ "firstname")(req[String] andThen notEmpty) ~:
+          at(Path \ "lastname")(req[String] andThen notEmpty) ~:
+          at(Path \ "company")(opt[String]) ~:
+          at(Path \ "contacts")(req(seq(info))) ~:
+          knil
+        }
 
-    //   val expected = Contact(
-    //       "Julien",
-    //       "Tournay",
-    //       None,
-    //       Seq(
-    //         ContactInformation("Personal",
-    //          Some("fakecontact@gmail.com"),
-    //          List("01.23.45.67.89", "98.76.54.32.10"))))
+      val expected = Contact(
+          "Julien",
+          "Tournay",
+          None,
+          Seq(
+            ContactInformation("Personal",
+             Some("fakecontact@gmail.com"),
+             List("01.23.45.67.89", "98.76.54.32.10"))))
 
-    //   val rule = contact.map(h => solve(h))
+      val rule = contact.map(h => solve(h))
 
-    //   import testCases.base._
-    //   rule.validate(valid) shouldBe (Valid(expected))
-    //   rule.validate(invalid) shouldBe
-    //     (Invalid(Seq((Path \ "contacts" \ 0 \ "label") -> Seq(
-    //       ValidationError("error.required")))))
-    // }
+      import testCases.base._
+      rule.validate(transform(valid)) shouldBe (Valid(expected))
+      rule.validate(transform(invalid)) shouldBe
+        (Invalid(Seq((Path \ "contacts" \ 0 \ "label") -> Seq(
+          ValidationError("error.required")))))
+    }
+
 
     // "read recursive" when {
     //   import testCases.rec._
@@ -492,7 +497,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
     //         knil
     //       ).to[RecUser]
 
-    //     w.validate(bobAndFriends) shouldBe Valid(u)
+    //     w.validate(transform(bobAndFriends)) shouldBe Valid(u)
 
     //     lazy val w2: Rule[grammar.Out, RecUser] =
     //       (
@@ -501,7 +506,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
     //         knil
     //       ).to[RecUser]
 
-    //     w2.validate(bobAndFriends) shouldBe Valid(u)
+    //     w2.validate(transform(bobAndFriends)) shouldBe Valid(u)
 
     //     lazy val w3: Rule[grammar.Out, User1] =
     //       (
@@ -510,7 +515,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
     //         knil
     //       ).to[User1]
 
-    //     w3.validate(bobAndFriend) shouldBe Valid(u1)
+    //     w3.validate(transform(bobAndFriend)) shouldBe Valid(u1)
     //   }
 
     //   "using implicit notation" in {
@@ -521,7 +526,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
     //         knil
     //       ).to[RecUser]
 
-    //     w.validate(bobAndFriends) shouldBe Valid(u)
+    //     w.validate(transform(bobAndFriends)) shouldBe Valid(u)
 
     //     implicit lazy val w3: Rule[grammar.Out, User1] =
     //       (
@@ -530,7 +535,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
     //         knil
     //       ).to[User1]
 
-    //     w3.validate(bobAndFriend) shouldBe Valid(u1)
+    //     w3.validate(transform(bobAndFriend)) shouldBe Valid(u1)
     //   }
     // }
 

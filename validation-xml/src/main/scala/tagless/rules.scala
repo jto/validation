@@ -153,7 +153,23 @@ trait RulesGrammar
   implicit def traversable[A](implicit k: Rule[_ >: Out <: N, A]): Rule[NodeSeq, Traversable[A]] =
     list(k).map(_.toTraversable)
 
-  implicit def map[A](implicit k: Rule[_ >: Out <: N, A]): Rule[NodeSeq, Map[String, A]] = ???
+  implicit def map[A](implicit k: Rule[_ >: Out <: N, A]): Rule[NodeSeq, Map[String, A]] =
+    Rule[NodeSeq, Map[String, A]] { in =>
+      val ns =
+        in.flatMap {
+          case scala.xml.Group(cs) => cs
+          case c => List(c)
+        }
+      import cats.instances.list._
+      import cats.syntax.traverse._
+      ns.theSeq.toList
+        .map { n =>
+          k.repath((Path \ n.label) ++  _)
+           .validate(n.child)
+           .map(n.label -> _)
+        }.sequenceU.map(Path -> _.toMap)
+
+    }
 
   def toGoal[Repr, A] = _.map { Goal.apply }
 }

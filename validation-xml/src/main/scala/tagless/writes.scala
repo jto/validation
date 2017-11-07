@@ -2,143 +2,110 @@ package jto.validation
 package v3.tagless
 package xml
 
-// import types.flip
-// // import jto.validation.xml.{Writes => W}
+import types.flip
+import jto.validation.xml.{Writes => W}
 
-// import shapeless.tag, tag.@@
-// import scala.xml.NodeSeq
-// import cats.Monoid
+import shapeless.tag, tag.@@
+import scala.xml.{NodeSeq, MetaData, Elem, Null, TopScope, Text}
+import cats.Monoid
 
-// trait WritesGrammar extends Grammar[NodeSeq, flip[Write]#λ]
-//   with WriteConstraints
-//   with WritesTypeclasses[NodeSeq] {
 
-// self =>
+trait WritesGrammar
+  extends XmlGrammar[Either[MetaData, NodeSeq], flip[Write]#λ]
+  with WriteConstraints
+  with WritesTypeclasses[Either[MetaData, NodeSeq]] {
 
-// type Out = NodeSeq
+  // Emulate union types support using Either
+  type _I = Either[MetaData, NodeSeq]
+  type Out = Either[Nothing, NodeSeq]
+  type OutAttr = Either[MetaData, Nothing]
 
-// def at(p: Path): At[flip[Write]#λ, Out, NodeSeq] =
-//   new At[flip[Write]#λ, Out, NodeSeq] { a =>
-//     val path = p
-//     def run: Out => Option[NodeSeq] = ???
-//   }
+  private def writeAt(p: Path)(ns: NodeSeq): NodeSeq =
+    p.path match {
+      case Nil => ns
+      case KeyPathNode(key) :: tail =>
+        writeAt(Path(tail))(new Elem(null, key, Null, TopScope, false, ns:_*))
+      case IdxPathNode(_) :: _ =>
+        throw new RuntimeException("cannot write an attribute to a node with an index path")
+    }
 
-// implicit def bigDecimal: @@[Write[BigDecimal,NodeSeq], Root] = ???
+  // TODO: Non empty Path only
+  def at(p: Path): At[flip[Write]#λ, Out, _I] =
+    new At[flip[Write]#λ, Out, _I] {
+      def prepare: Write[Option[_I], Option[_I]] = Write.zero
+      def run: Write[Option[_I], Out] =
+        Write { x =>
 
-// implicit def boolean: @@[Write[Boolean,NodeSeq], Root] = ???
+          x.map { in =>
+            val rev = p.path.reverse
+            val key =
+              rev match {
+                case Nil =>
+                  throw new RuntimeException("cannot write an attribute to a node with an empty path")
+                case KeyPathNode(key) :: _ =>
+                  key
+                case IdxPathNode(_) :: _ =>
+                  throw new RuntimeException("cannot write an attribute to a node with an index path")
+              }
 
-// implicit def double: @@[Write[Double,NodeSeq], Root] = ???
+            @inline def writeMeta(m: MetaData): Elem =
+              new Elem(null, key, m, TopScope, false)
 
-// implicit def float: @@[Write[Float,NodeSeq], Root] = ???
+            @inline def writeChild(ns: NodeSeq): Elem =
+              new Elem(null, key, Null, TopScope, false, ns:_*)
 
-// implicit def int: @@[Write[Int,NodeSeq], Root] = ???
+            val node = in.fold(writeMeta, writeChild)
+            val tree = writeAt(Path(rev.tail))(node)
+            Right(tree)
+          }.getOrElse(Right(NodeSeq.Empty))
 
-// def is[A](implicit K: Write[A, _ >: Out <: NodeSeq]): Write[A,NodeSeq] = ???
+        }
+    }
 
-// implicit def jBigDecimal: @@[Write[java.math.BigDecimal,NodeSeq], Root] = ???
+  def attr(key: String): At[flip[Write]#λ, OutAttr, _I] =
+    new At[flip[Write]#λ, OutAttr, _I] {
+      def prepare: Write[Option[_I], Option[_I]] = Write.zero
+      def run: Write[Option[_I], OutAttr] = ???
+    }
 
-// implicit def long: @@[Write[Long,NodeSeq], Root] = ???
+  def is[A](implicit K: Write[A, _ >: Out <: _I]): Write[A,_I] = K
+  def mapPath(f: jto.validation.Path => jto.validation.Path): P = ???
 
-// implicit def map[A](implicit k: Write[A, _ >: Out <: NodeSeq]): Write[Map[String,A],NodeSeq] = ???
+  def opt[A](implicit K: Write[A, _ >: Out <: _I]): Write[Option[A], Option[_I]] =
+    Write {
+      _.map(K.writes)
+    }
 
-// def mapPath(f: Path => Path): P = ???
+  def req[A](implicit K: Write[A, _ >: Out <: _I]): Write[A, Option[_I]] =
+    Write { a =>
+      Option(K.writes(a))
+    }
 
-// def opt[A](implicit K: Write[A, _ >: Out <: NodeSeq]): Write[Option[A],Option[NodeSeq]] = ???
+  private def txt[A](w: Write[A, String]): Write[A, _I] @@ Root =
+    Write { a =>
+      Right(Text(w.writes(a)))
+    }
 
-// def req[A](implicit K: Write[A, _ >: Out <: NodeSeq]): Write[A,Option[NodeSeq]] = ???
+  implicit def string: Write[String, _I] @@ Root = txt(Write.zero)
+  implicit def bigDecimal: Write[BigDecimal, _I] @@ Root = txt(W.bigDecimalW)
+  implicit def boolean: Write[Boolean, _I] @@ Root = txt(W.booleanW)
+  implicit def double: Write[Double, _I] @@ Root = txt(W.doubleW)
+  implicit def float: Write[Float, _I] @@ Root = txt(W.floatW)
+  implicit def int: Write[Int, _I] @@ Root = txt(W.intW)
+  implicit def jBigDecimal: Write[java.math.BigDecimal, _I] @@ Root = txt(Write(_.toString))
+  implicit def long: Write[Long, _I] @@ Root = txt(W.longW)
+  implicit def short: Write[Short, _I] @@ Root = txt(W.shortW)
 
-// implicit def short: @@[Write[Short,NodeSeq], Root] = ???
+  implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: _I]): Write[Array[A], _I] = ???
+  implicit def list[A](implicit k: Write[A, _ >: Out <: _I]): Write[List[A], _I] = ???
+  implicit def map[A](implicit k: Write[A, _ >: Out <: _I]): Write[Map[String,A], _I] = ???
+  implicit def seq[A](implicit k: Write[A, _ >: Out <: _I]): Write[Seq[A], _I] = ???
 
-// implicit def string: @@[Write[String,NodeSeq], Root] = ???
+  def toGoal[Repr, A]: Write[Repr,Out] => Write[Goal[Repr, A], Out] = ???
+  implicit def traversable[A](implicit k: Write[A, _ >: Out <: _I]): Write[Traversable[A], _I] = ???
 
-// def toGoal[Repr, A]: Write[Repr,Out] => Write[Goal[Repr,A], Out] = ???
+  def iMonoid: Monoid[Out] = ???
 
-// def iMonoid: Monoid[Out] = ???
+}
 
-// }
-
-// object WritesGrammar extends WritesGrammar
-
-// trait WritesGrammar extends Grammar[XML, flip[Write]#λ]
-//   with WriteConstraints
-//   with WritesTypeclasses[XML] {
-
-//   self =>
-
-//   type Out = XML.Group
-//   type P = WritesGrammar
-
-//   import shapeless.tag.@@
-//   def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: XML]]): Write[A, XML.Group] =
-//     Write { a =>
-//       val xml = k.writes(a).getOrElse(XML.Group(Nil))
-
-//       // TODO: handle case when ps is empty
-//       val ps = p.path.reverse.map {
-//         case k @ KeyPathNode(_) =>
-//           k
-//         case _ =>
-//           throw new RuntimeException("cannot write an attribute to a node with an index path")
-//       }
-//       val h = XML.At(ps.head, xml)
-//       val at =
-//         ps.tail.foldLeft(h) { (ats, kpn) =>
-//           XML.At(kpn, ats)
-//         }
-
-//       XML.Group(at :: Nil)
-//     }
-
-//   def opt[A](implicit K: Write[A, _ >: Out <: XML]): Write[Option[A], Option[_ >: Out <: XML]] =
-//     Write { _.map(K.writes) }
-
-//   def req[A](implicit K: Write[A, _ >: Out <: XML]): Write[A, Option[_ >: Out <: XML]] =
-//     Write { a => Option(K.writes(a)) }
-
-//   def mapPath(f: Path => Path): P =
-//     new WritesGrammar {
-//       override def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: XML]]): Write[A, XML.Group] =
-//         self.at(f(p))(k)
-//     }
-
-//   private def txt[A](w: Write[A, String]): Write[A, XML.Text] @@ Root =
-//     Write { i => XML.Text(w.writes(i)) }
-
-//   implicit def bigDecimal = txt(W.bigDecimalW)
-//   implicit def boolean = txt(W.booleanW)
-//   implicit def double = txt(W.doubleW)
-//   implicit def float = txt(W.floatW)
-//   implicit def int = txt(W.intW)
-//   implicit def jBigDecimal = txt(Write(_.toString))
-//   implicit def long = txt(W.longW)
-//   implicit def short = txt(W.shortW)
-//   implicit def string = txt(Write.zero)
-
-//   implicit def map[A](implicit k: Write[A, _ >: Out <: XML]): Write[Map[String, A], XML] = ???
-
-//   implicit def seq[A](implicit k: Write[A, _ >: Out <: XML]): Write[Seq[A], XML] =
-//     Write { as =>
-//       XML.XList(as.map(k.writes).toList)
-//     }
-//   implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: XML]): Write[Array[A], XML] = seq(k).contramap(_.toSeq)
-//   implicit def list[A](implicit k: Write[A, _ >: Out <: XML]): Write[List[A], XML] = seq(k).contramap(_.toSeq)
-//   implicit def traversable[A](implicit k: Write[A, _ >: Out <: XML]): Write[Traversable[A], XML] = seq(k).contramap(_.toSeq)
-
-//   def toGoal[Repr, A]: Write[Repr,Out] => Write[Goal[Repr, A], Out] =
-//     _.contramap{ _.value }
-
-//   def iMonoid: cats.Monoid[Out] =
-//     new cats.Monoid[Out] {
-//       def combine(x: Out, y: Out): Out =
-//         XML.Group(x.values ++ y.values)
-//       def empty =
-//         XML.Group(Nil)
-//     }
-
-//   def attr[A](label: String)(implicit w: Write[A, XML.Text]): Write[A, XML] =
-//     Write{ a =>
-//       XML.Attr(label, w.writes(a).value)
-//     }
-// }
-
-// object WritesGrammar extends WritesGrammar
+object WritesGrammar extends WritesGrammar

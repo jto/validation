@@ -5,7 +5,6 @@ package xml
 import jto.validation.xml.Rules
 import shapeless.tag, tag.@@
 import scala.xml.NodeSeq
-// import cats.syntax.cartesian._
 
 trait RulesGrammar
   extends XmlGrammar[NodeSeq, Rule]
@@ -15,6 +14,7 @@ trait RulesGrammar
 
   type N = NodeSeq
   type Out = N
+  type OutAttr = Out
   type Sub = N
   type P = RulesGrammar
 
@@ -84,10 +84,10 @@ trait RulesGrammar
         Rule.zero[Out].repath(_ => p).map{ search(p, _) }
     }
 
-  def attr(key: String): At[Rule, Out, N] =
-    new At[Rule, Out, N] {
+  def attr(key: String): At[Rule, OutAttr, N] =
+    new At[Rule, OutAttr, N] {
       def prepare = Rule.zero[Option[NodeSeq]]
-      def run: Rule[Out, Option[N]] =
+      def run: Rule[OutAttr, Option[N]] =
         Rule { out =>
          val ns = out.flatMap(_.attributes.filter(_.key == key).flatMap(_.value))
          Valid(Path(s"@$key") -> ns.headOption.map { _ => ns })

@@ -2,16 +2,16 @@ package jto.validation
 package v3.tagless
 package xml
 
-// import scala.xml.NodeSeq
+import scala.xml.{NodeSeq, MetaData}
 
-/*
-class XMLWritesSpec extends WritesSpec[XML] {
+class XMLWritesSpec extends WritesSpec[Either[MetaData, NodeSeq]] {
   val grammar = WritesGrammar
   val testCases = XMLTestCases
 
   type To = NodeSeq
-  def transform = _.build
+  def transform = _.right.get ++ NodeSeq.Empty
 
+/*
   import grammar._
 
   def test1 = at(Path \ "foo" \ "bar")(req[String])
@@ -39,7 +39,6 @@ class XMLWritesSpec extends WritesSpec[XML] {
   //     opt(attr[Int]("id")) ~:
   //     kopt
   //   ).tupled
-
-
-}
 */
+}
+

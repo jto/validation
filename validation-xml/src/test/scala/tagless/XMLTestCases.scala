@@ -7,7 +7,7 @@ import scala.xml._
 object XMLTestCases extends TestCases[NodeSeq] {
 
   override val base = new base {
-    def id = <id>1</id>
+    def id = <id>1</id> ++ NodeSeq.Empty
 
     def emptyObj = <root></root>
     def noInfo = NodeSeq.Empty

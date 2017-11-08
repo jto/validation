@@ -6,7 +6,7 @@ import types.flip
 import jto.validation.xml.{Writes => W}
 
 import shapeless.tag, tag.@@
-import scala.xml.{NodeSeq, MetaData, Elem, Null, TopScope, Text}
+import scala.xml.{NodeSeq, MetaData, Elem, Null, TopScope, Text, Attribute}
 import cats.Monoid
 
 
@@ -35,8 +35,13 @@ trait WritesGrammar
       def prepare: Write[Option[_I], Option[_I]] = Write.zero
       def run: Write[Option[_I], Out] =
         Write { x =>
+          @inline def writeMeta(key: String)(m: MetaData): Elem =
+            new Elem(null, key, m, TopScope, false)
 
-          x.map { in =>
+          @inline def writeChild(key: String)(ns: NodeSeq): Elem =
+            new Elem(null, key, Null, TopScope, false, ns:_*)
+
+          @inline def go(in: _I): NodeSeq = {
             val rev = p.path.reverse
             val key =
               rev match {
@@ -48,24 +53,23 @@ trait WritesGrammar
                   throw new RuntimeException("cannot write an attribute to a node with an index path")
               }
 
-            @inline def writeMeta(m: MetaData): Elem =
-              new Elem(null, key, m, TopScope, false)
+            val node = in.fold(writeMeta(key) _, writeChild(key) _)
+            writeAt(Path(rev.tail))(node)
+          }
 
-            @inline def writeChild(ns: NodeSeq): Elem =
-              new Elem(null, key, Null, TopScope, false, ns:_*)
-
-            val node = in.fold(writeMeta, writeChild)
-            val tree = writeAt(Path(rev.tail))(node)
-            Right(tree)
-          }.getOrElse(Right(NodeSeq.Empty))
-
+          Right(x.map(go).getOrElse(NodeSeq.Empty))
         }
     }
 
   def attr(key: String): At[flip[Write]#λ, OutAttr, _I] =
     new At[flip[Write]#λ, OutAttr, _I] {
       def prepare: Write[Option[_I], Option[_I]] = Write.zero
-      def run: Write[Option[_I], OutAttr] = ???
+      def run: Write[Option[_I], OutAttr] =
+        Write {
+          case Some(Left(i)) => Left(i)
+          case Some(Right(ns)) => Left(Attribute(key, ns, Null))
+          case None => Left(Null)
+        }
     }
 
   def is[A](implicit K: Write[A, _ >: Out <: _I]): Write[A,_I] = K
@@ -77,14 +81,10 @@ trait WritesGrammar
     }
 
   def req[A](implicit K: Write[A, _ >: Out <: _I]): Write[A, Option[_I]] =
-    Write { a =>
-      Option(K.writes(a))
-    }
+    Write { a => Option(K.writes(a)) }
 
   private def txt[A](w: Write[A, String]): Write[A, _I] @@ Root =
-    Write { a =>
-      Right(Text(w.writes(a)))
-    }
+    Write { a => Right(Text(w.writes(a))) }
 
   implicit def string: Write[String, _I] @@ Root = txt(Write.zero)
   implicit def bigDecimal: Write[BigDecimal, _I] @@ Root = txt(W.bigDecimalW)
@@ -96,15 +96,20 @@ trait WritesGrammar
   implicit def long: Write[Long, _I] @@ Root = txt(W.longW)
   implicit def short: Write[Short, _I] @@ Root = txt(W.shortW)
 
-  implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: _I]): Write[Array[A], _I] = ???
   implicit def list[A](implicit k: Write[A, _ >: Out <: _I]): Write[List[A], _I] = ???
+  implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: _I]): Write[Array[A], _I] = ???
+  implicit def seq[A](implicit k: Write[A, _ >: Out <: _I]): Write[Seq[A], _I] =
+    list[A](k).contramap(_.toList)
+  implicit def traversable[A](implicit k: Write[A, _ >: Out <: _I]): Write[Traversable[A], _I] = ???
   implicit def map[A](implicit k: Write[A, _ >: Out <: _I]): Write[Map[String,A], _I] = ???
-  implicit def seq[A](implicit k: Write[A, _ >: Out <: _I]): Write[Seq[A], _I] = ???
 
   def toGoal[Repr, A]: Write[Repr,Out] => Write[Goal[Repr, A], Out] = ???
-  implicit def traversable[A](implicit k: Write[A, _ >: Out <: _I]): Write[Traversable[A], _I] = ???
 
-  def iMonoid: Monoid[Out] = ???
+  def iMonoid: Monoid[Out] =
+    new Monoid[Out] {
+      def empty: Out = Right(NodeSeq.Empty)
+      def combine(x: Out, y: Out): Out = Right(x.right.get ++ y.right.get)
+    }
 
 }
 

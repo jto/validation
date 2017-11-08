@@ -18,21 +18,12 @@ class XMLRulesSpec extends RulesSpec[NodeSeq] {
 
     import grammar.{ map => _, _ }
 
-    "List" in {
-      import testCases.seq._
-      at(Path \ "n")(req[List[String]])
-        .validate(foos) shouldBe Valid(List("foo"))
-
-      at(Path \ "n")(req[List[Int]])
-        .validate(ints) shouldBe Valid(List(1, 2, 3))
-    }
-
     "validate required attributes at root level" in {
       val xml = <test label="bar"></test>
-      // def r0 = attr("label")
+      def r0 = attr("label")
       def r1 = attr("fake")
       val rs = req[String]
-      // r0(rs).validate(xml) shouldBe Valid("bar")
+      r0(rs).validate(xml) shouldBe Valid("bar")
       r1(rs).validate(xml) shouldBe
         Invalid(Seq(Path \ "@fake" ->
           Seq(ValidationError("error.required"))))

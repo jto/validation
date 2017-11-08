@@ -95,7 +95,7 @@ lazy val validationSettings = settings ++ dependencies ++ doPublish ++ scoverage
 
 lazy val settings = Seq(
   scalaVersion := scalacVersion,
-  crossScalaVersions := Seq("2.11.8"),
+  crossScalaVersions := Seq(scalacVersion, "2.11.11"),
   organization := org,
   scalacOptions ++= commonScalacOptions,
   scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Ywarn-unused-import")),

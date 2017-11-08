@@ -21,15 +21,15 @@ class XMLWritesSpec extends WritesSpec[Either[MetaData, NodeSeq]] {
       r0(rs).writes("bar") shouldBe Left(Attribute("label", Text("bar"), Null))
     }
 
-    // TODO: Add test case for index path node in RuleSpec
-    // "validate required attributes" in {
-    //   import testCases.base
-    //   val p = Path \ "phones" \ "phone"
-    //   def r0 = at(p) |-> attr("label")
-    //   def r1 = at(p) |-> attr("fake")
-    //   val rs = req(list[String])
-    //   r0(rs).writes(List("mobile", "home")) shouldBe transform(base.info)
-    // }
+    "write required attributes" in {
+      import testCases.base
+      val p = Path \ "phones" \ "phone"
+      // val y: At[W, Out, _I] = at(p)
+      // val x: At[W, OutAttr, _I] = attr("label")
+      def r0 = at(p) |-> attr("label")
+      val rs = req(list[String])
+      r0(rs).writes(List("mobile", "home")) shouldBe transform(base.info)
+    }
 
     // "validate required attributes as Int" in {
     //   def r = (at(Path \ "test") |-> attr("label")).apply(req[Int])

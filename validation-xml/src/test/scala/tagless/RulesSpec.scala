@@ -44,6 +44,7 @@ class XMLRulesSpec extends RulesSpec[NodeSeq] {
 
     "validate required attributes AND node" in {
       import testCases.base
+
       val p = Path \ "phones" \ "phone"
 
       def r0 = at(p) |+> attr("label")

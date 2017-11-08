@@ -1,7 +1,7 @@
 package jto.validation
 
 import cats.Applicative
-import cats.functor.Strong
+import cats.arrow.Arrow
 import cats.syntax.cartesian._
 import shapeless.tag, tag.@@
 
@@ -169,12 +169,6 @@ object Rule {
       }
     }
 
-  implicit def ruleCompose =
-    new cats.arrow.Compose[Rule] {
-      def compose[A, B, C](f: Rule[B,C], g: Rule[A,B]): Rule[A,C] =
-        g andThen f
-    }
-
   implicit def ruleFunctorSyntaxObs[I, O](
       r: Rule[I, O])(implicit fcb: SyntaxCombine[Rule[I, ?]])
     : FunctorSyntaxObs[Rule[I, ?], O] =
@@ -193,22 +187,20 @@ object Rule {
         }
     }
 
-  implicit def ruleStrong =
-    new Strong[Rule] {
-      def dimap[A, B, C, D](fab: Rule[A, B])(f: C => A)(g: B => D): Rule[C, D] =
-        Rule { c =>
-          fab.map(g).validateWithPath(f(c))
-        }
-
+  implicit def ruleArrow =
+    new Arrow[Rule] {
       def first[A, B, C](fa: Rule[A, B]): Rule[(A, C), (B, C)] =
         Rule { case (a, c) =>
           fa.map{ (_, c) }.validateWithPath(a)
         }
 
-      def second[A, B, C](fa: Rule[A, B]): Rule[(C, A) ,(C, B)] =
-        Rule { case (c, a) =>
-          fa.map{ (c, _) }.validateWithPath(a)
-        }
+      def lift[A, B](f: A => B): Rule[A, B] =
+        Rule.fromMapping(a => Valid(f(a)))
+
+      def id[A]: Rule[A, A] = Rule.zero
+
+      def compose[A, B, C](f: Rule[B, C],g: Rule[A,B]): Rule[A, C] =
+        g andThen f
     }
 }
 

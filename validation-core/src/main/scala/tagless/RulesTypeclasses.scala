@@ -15,7 +15,7 @@ trait RulesTypeclasses[I] extends Typeclasses[I, Rule]{
   def liftHList[B](fb: Rule[Out, B]): Rule[Out, B :: HNil] =
     fb.map(_ :: HNil)
 
-  implicit def composeTC = Rule.ruleCompose
+  implicit def composeTC = Rule.ruleArrow
 
   implicit def mergeTC: Merge[Rule, Out] =
     new Merge[Rule, Out] {

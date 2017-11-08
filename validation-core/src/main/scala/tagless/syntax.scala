@@ -9,22 +9,15 @@ package object tagless {
       solve(Goal[I, T](i))
   }
 
-  import cats.functor.Strong
-  import cats.arrow.Compose
-  import cats.syntax.strong._
-  import cats.syntax.profunctor._
-  import cats.syntax.compose._
+  import cats.arrow.Arrow
 
-  def zip[K[_, _], A, B, C, D](k1: K[Option[A], B], k2: K[Option[C], D])(implicit P: Strong[K], C: Compose[K]): K[Option[(A, C)], (B, D)] = {
-    @inline def split[X, Y](o: Option[(X, Y)]): (Option[X], Option[Y]) =
-      o.map{ case (a, b) =>
+  def zip[K[_, _], A, B, C, D](k1: K[Option[A], B], k2: K[Option[C], D])(implicit A: Arrow[K]): K[Option[(A, C)], (B, D)] = {
+    val split = A.split(k1, k2)
+    A.lmap(split){
+      _.map{ case (a, b) =>
         (Option(a), Option(b))
       }.getOrElse((None, None))
-
-    val rnode: K[Option[(A, C)], (B, Option[C])] =
-      k1.first[Option[C]].lmap(split)
-
-    val rattr: K[(B, Option[C]), (B, D)] = k2.second[B]
-    (rnode andThen rattr)
+    }
   }
+
 }

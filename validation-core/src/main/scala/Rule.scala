@@ -1,6 +1,7 @@
 package jto.validation
 
 import cats.Applicative
+import cats.functor.Strong
 import cats.syntax.cartesian._
 import shapeless.tag, tag.@@
 
@@ -189,6 +190,24 @@ object Rule {
           }.getOrElse {
             Valid((Path, None))
           }
+        }
+    }
+
+  implicit def ruleStrong =
+    new Strong[Rule] {
+      def dimap[A, B, C, D](fab: Rule[A, B])(f: C => A)(g: B => D): Rule[C, D] =
+        Rule { c =>
+          fab.map(g).validateWithPath(f(c))
+        }
+
+      def first[A, B, C](fa: Rule[A, B]): Rule[(A, C), (B, C)] =
+        Rule { case (a, c) =>
+          fa.map{ (_, c) }.validateWithPath(a)
+        }
+
+      def second[A, B, C](fa: Rule[A, B]): Rule[(C, A) ,(C, B)] =
+        Rule { case (c, a) =>
+          fa.map{ (c, _) }.validateWithPath(a)
         }
     }
 }

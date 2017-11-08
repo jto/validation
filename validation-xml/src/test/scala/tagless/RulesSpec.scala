@@ -42,6 +42,32 @@ class XMLRulesSpec extends RulesSpec[NodeSeq] {
           Seq(ValidationError("error.required"))))
     }
 
+    "validate required attributes AND node" in {
+      import cats.syntax.strong._
+      import cats.syntax.profunctor._
+      import testCases.base
+      val p = Path \ "phones" \ "phone"
+      def r0: At[Rule, Out, (NodeSeq, N)] = at(p) |+> attr("label")
+
+      def split[A, B](o: Option[(A, B)]): (Option[A], Option[B]) =
+          o.map{ case (a, b) =>
+            (Option(a), Option(b))
+          }.getOrElse((None, None))
+
+      val rs: Rule[Option[(NodeSeq, N)], (String, String)] = {
+        val rnode = req[String].first[Option[N]]
+        val rattr = req[String].second[String]
+        (rnode andThen rattr).lmap(split)
+      }
+
+      r0(rs).validate(transform(base.info)) shouldBe Valid(("01.23.45.67.89", "mobile"))
+
+      // def r1 = at(p) |-> attr("fake")
+      // r1(rs).validate(transform(base.info)) shouldBe
+      //   Invalid(Seq(p \ "@fake" ->
+      //     Seq(ValidationError("error.required"))))
+    }
+
     "validate required attributes as Int" in {
       def r = (at(Path \ "test") |-> attr("label")).apply(req[Int])
       val xml = <test label="42"></test>

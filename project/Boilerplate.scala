@@ -21,10 +21,7 @@ object Boilerplate {
     }
   }
 
-  val header = """
-    // Auto-generated boilerplate
-    // $COVERAGE-OFF$Disabling coverage for generated code
-  """
+  val header = "// $COVERAGE-OFF$Disabling coverage for auto-generated boilerplate"
 
   val minArity = 2
   val maxArity = 22
@@ -109,14 +106,20 @@ object Boilerplate {
         -  class InvariantSyntax$arity[${`A..N`}](m1: M[${`A~N-1`}], m2: M[A${arity-1}]) {
         -    $next
         -
-        -    def apply[B](f1: (${`A..N`}) => B, f2: B => (${`A..N`}))(implicit fu: Invariant[M]): M[B] =
+        -    def apply[B](f1: ${`(A..N)`} => B, f2: B => ${`(A..N)`})(implicit fu: Invariant[M]): M[B] =
         -      fu.imap[${`A~N`}, B](
         -        combine(m1, m2))({ case ${`a~n`} => f1(${`a..n`}) })(
         -        (b: B) => { val (${`a..n`}) = f2(b); ${`new ~(.., n)`} }
         -      )
         -
-        -    def tupled(implicit fu: Invariant[M]): M[(${`A..N`})] =
-        -      apply[(${`A..N`})]({ (${`a:A..n:N`}) => (${`a..n`}) }, { (a: (${`A..N`})) => (${`a._1..a._N`}) })
+        -    def as[B](implicit t: CaseClassTupler.Aux[B, ${`(A..N)`}], fu: Invariant[M]): M[B] =
+        -      fu.imap[${`A~N`}, B](
+        -        combine(m1, m2))({ case ${`a~n`} => t.from(${`(a..n)`}) })(
+        -        (b: B) => { val (${`a..n`}) = t.to(b); ${`new ~(.., n)`} }
+        -      )
+        -
+        -    def tupled(implicit fu: Invariant[M]): M[${`(A..N)`}] =
+        -      apply[${`(A..N)`}]({ (${`a:A..n:N`}) => (${`a..n`}) }, { (a: ${`(A..N)`}) => (${`a._1..a._N`}) })
         -  }
         -
         |}
@@ -143,11 +146,14 @@ object Boilerplate {
         -  class FunctorSyntax${arity}[${`A..N`}](m1: M[${`A~N-1`}], m2: M[A${arity-1}]) {
         -    $next
         -
-        -    def apply[B](f: (${`A..N`}) => B)(implicit fu: Functor[M]): M[B] =
-        -      fu.map[${`A~N`}, B](combine(m1, m2))({ case ${`a~n`} => f(${`a..n`}) })
+        -    def apply[B](f: ${`(A..N)`} => B)(implicit fu: Functor[M]): M[B] =
+        -      fu.map[${`A~N`}, B](combine(m1, m2))({ case ${`a~n`} => f(${`a..n` }) })
         -
-        -    def tupled(implicit fu: Functor[M]): M[(${`A..N`})] =
-        -      apply[(${`A..N`})]({ (${`a:A..n:N`}) => (${`a..n`}) })
+        -    def as[B](implicit t: CaseClassTupler.Aux[B, ${`(A..N)`}], fu: Functor[M]): M[B] =
+        -      fu.map[${`A~N`}, B](combine(m1, m2))({ case ${`a~n`} => t.from(${`(a..n)`}) })
+        -
+        -    def tupled(implicit fu: Functor[M]): M[${`(A..N)`}] =
+        -      apply[${`(A..N)`}]({ (${`a:A..n:N`}) => (${`a..n`}) })
         -  }
         -
         |}
@@ -174,11 +180,14 @@ object Boilerplate {
         -  class ContravariantSyntax${arity}[${`A..N`}](m1: M[${`A~N-1`}], m2: M[A${arity-1}]) {
         -    $next
         -
-        -    def apply[B](f: B => (${`A..N`}))(implicit fu: Contravariant[M]): M[B] =
-        -      fu.contramap(combine(m1, m2))((b: B) => { val (${`a..n`}) = f(b); ${`new ~(.., n)`} })
+        -    def apply[B](f: B => ${`(A..N)`})(implicit fu: Contravariant[M]): M[B] =
+        -      fu.contramap[${`A~N`}, B](combine(m1, m2))((b: B) => { val (${`a..n`}) = f(b); ${`new ~(.., n)`} })
         -
-        -    def tupled(implicit fu: Contravariant[M]): M[(${`A..N`})] =
-        -      apply[(${`A..N`})]({ (a: (${`A..N`})) => (${`a._1..a._N`}) })
+        -    def as[B](implicit t: CaseClassTupler.Aux[B, ${`(A..N)`}], fu: Contravariant[M]): M[B] =
+        -      fu.contramap[${`A~N`}, B](combine(m1, m2))((b: B) => { val (${`a..n`}) = t.to(b); ${`new ~(.., n)`} })
+        -
+        -    def tupled(implicit fu: Contravariant[M]): M[${`(A..N)`}] =
+        -      apply[${`(A..N)`}]({ (a: ${`(A..N)`}) => (${`a._1..a._N`}) })
         -  }
         -
         |}

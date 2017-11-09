@@ -112,9 +112,33 @@ object Write {
     : ContravariantSyntaxObs[Write[?, O], I] =
     new ContravariantSyntaxObs[Write[?, O], I](w)(fcb)
 
-  implicit def writeCompose =
-    new cats.arrow.Compose[Write] {
+  import cats.arrow.FunctionK
+  implicit def writeLiftFunctionK[Out]: FunctionK[Write[Option[Out], ?], λ[α => Write[Option[Out],Option[α]]]] =
+    new FunctionK[Write[Option[Out], ?], λ[α => Write[Option[Out],Option[α]]]] {
+      def apply[A](fa: Write[Option[Out], A]): Write[Option[Out], Option[A]] =
+        Write { mo =>
+          Option(fa.writes(mo))
+        }
+    }
+
+  import cats.arrow.Arrow
+  implicit def writeArrow =
+    new Arrow[Write] {
+      def lift[A, B](f: A => B): Write[A, B] =
+        Write(f)
+
+      def id[A]: Write[A, A] =
+        Write.zero
+
       def compose[A, B, C](f: Write[B, C], g: Write[A, B]): Write[A, C] =
         g andThen f
+
+      def first[A, B, C](fa: Write[A, B]): Write[(A, C), (B, C)] =
+        Write { case (a, c) =>
+          (fa.writes(a), c)
+        }
     }
+
+  import v3.tagless.types.flip
+  implicit def invertedWriteArrow: Arrow[flip[Write]#λ] = ???
 }

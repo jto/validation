@@ -18,7 +18,6 @@ trait WritesGrammar
   // Emulate union types support using Either
   type _I = Either[MetaData, NodeSeq]
   type Out = Either[Nothing, NodeSeq]
-  type OutAttr = Either[MetaData, Nothing]
 
   private def writeAt(p: Path)(ns: NodeSeq): NodeSeq =
     p.path match {
@@ -61,10 +60,10 @@ trait WritesGrammar
         }
     }
 
-  def attr(key: String): At[flip[Write]#λ, OutAttr, _I] =
-    new At[flip[Write]#λ, OutAttr, _I] {
+  def attr(key: String): At[flip[Write]#λ, _I, _I] =
+    new At[flip[Write]#λ, _I, _I] {
       def prepare: Write[Option[_I], Option[_I]] = Write.zero
-      def run: Write[Option[_I], OutAttr] =
+      def run: Write[Option[_I], _I] =
         Write {
           case Some(Left(i)) => Left(i)
           case Some(Right(ns)) => Left(Attribute(key, ns, Null))

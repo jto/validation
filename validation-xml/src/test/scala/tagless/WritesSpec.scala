@@ -24,23 +24,24 @@ class XMLWritesSpec extends WritesSpec[Either[MetaData, NodeSeq]] {
     "write required attributes" in {
       import testCases.base
       val p = Path \ "phones" \ "phone"
-      // val y: At[W, Out, _I] = at(p)
-      // val x: At[W, OutAttr, _I] = attr("label")
       def r0 = at(p) |-> attr("label")
       val rs = req(list[String])
-      r0(rs).writes(List("mobile", "home")) shouldBe transform(base.info)
+      transform(r0(rs).writes(List("mobile", "home"))) shouldBe base.info
     }
 
-    // "validate required attributes as Int" in {
-    //   def r = (at(Path \ "test") |-> attr("label")).apply(req[Int])
-    //   val xml = <test label="42"></test>
-    //   r.validate(transform(xml)) shouldBe Valid(42)
+    "write required attributes AND node" in {
+      import testCases.base
+      val p = Path \ "phones" \ "phone"
+      def w0 = at(p) |+> attr("label")
+      val ws = zip(req[String], req[String])
+      transform(w0(ws).writes(("01.23.45.67.89", "mobile"))) shouldBe base.info
+    }
 
-    //   val xml2 = <test label="bar"></test>
-    //   r.validate(transform(xml2)) shouldBe
-    //     Invalid(Seq(Path \ "test" \ "@label" ->
-    //       Seq(ValidationError("error.number", "Int"))))
-    // }
+    "write required attributes as Int" in {
+      def w = (at(Path \ "test") |-> attr("label")).apply(req[Int])
+      val xml = <test label="42"></test> ++ NodeSeq.Empty
+      transform(w.writes(42)) shouldBe xml
+    }
 
     // "validate optional attributes" in {
     //   import testCases.base

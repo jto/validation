@@ -51,9 +51,11 @@ trait At[K[_, _], O, T] {
       @inline private def join[A, B](t: (Option[A], Option[B])): Option[(A, B)] =
         (t._1 |@| t._2).tupled
 
-      def prepare = {
-        val k1 = self.prepare.first.lmap(x => split[T, P](x))
-        val k2 = other.prepare.second.rmap(join[T, P] _)
+      def prepare: K[Option[(T, P)], Option[(T, P)]] = {
+        val k1: K[Option[(T, P)], (Option[T], Option[P])] =
+          self.prepare.first.lmap(x => split[T, P](x))
+        val k2: K[(Option[T], Option[P]), Option[(T, P)]] =
+          other.prepare.second.rmap(join[T, P] _)
         C.andThen(k1, k2)
       }
 
@@ -141,6 +143,17 @@ trait Primitives[I, K[_, _]] {
   implicit def array[A: scala.reflect.ClassTag](implicit k: K[_ >: Out <: I, A]): K[I, Array[A]]
   implicit def map[A](implicit k: K[_ >: Out <: I, A]): K[I, Map[String, A]]
   implicit def traversable[A](implicit k: K[_ >: Out <: I, A]): K[I, Traversable[A]]
+
+  import cats.arrow.Arrow
+
+  def zip[A, B, C0, D](k1: K[Option[A], B], k2: K[Option[C0], D])(implicit A: Arrow[K]): K[Option[(A, C0)], (B, D)] = {
+    val split = A.split(k1, k2)
+    A.lmap(split){
+      _.map{ case (a, b) =>
+        (Option(a), Option(b))
+      }.getOrElse((None, None))
+    }
+  }
 }
 
 

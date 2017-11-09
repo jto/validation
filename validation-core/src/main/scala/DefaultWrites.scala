@@ -64,6 +64,9 @@ trait DateWrites {
 
   implicit def sqlDateW: Write[java.sql.Date, String] =
     sqlDateW("yyyy-MM-dd")
+
+  implicit def durationW: Write[scala.concurrent.duration.FiniteDuration, String] =
+    Write[scala.concurrent.duration.FiniteDuration, String](_.toString)
 }
 
 trait DefaultWrites extends DateWrites {

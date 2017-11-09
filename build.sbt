@@ -12,6 +12,7 @@ val playVersion = "2.6.3"
 val scalacVersion = "2.12.3"
 val scalatestVersion = "3.2.0-SNAP3"
 val scalaXmlVersion = "1.0.6"
+val typesafeconfigVersio0n = "1.3.1"
 
 lazy val root = aggregate("validation", validationJVM, validationJS, docs).in(file("."))
 lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, jsonAstJVM, `validation-playjson`, `validation-xml`, `date-tests`)
@@ -59,6 +60,12 @@ lazy val `validation-playjson` = project
   .settings(validationSettings: _*)
   .settings(libraryDependencies +=
     "com.typesafe.play" %% "play-json" % playVersion)
+  .dependsOn(coreJVM)
+
+lazy val `validation-typesafeconfig` = project
+  .settings(validationSettings: _*)
+  .settings(libraryDependencies +=
+    "com.typesafe" % "config" % typesafeconfigVersio0n)
   .dependsOn(coreJVM)
 
 lazy val `validation-xml` = project
@@ -116,7 +123,7 @@ val commonScalacOptions = Seq(
   "-language:experimental.macros",
   "-language:postfixOps",
   "-unchecked",
-  "-Xfatal-warnings",
+  // "-Xfatal-warnings",
   "-Xlint",
   // "-Yinline-warnings",
   "-Yno-adapted-args",

@@ -243,9 +243,11 @@ trait RulesSpec[T] extends WordSpec with Matchers {
     "validate deep" in {
       import testCases.base._
 
+      val v = is[String] andThen notEmpty
+
       def label =
         at(Path \ "informations")(
-          req(at(Path \ "label")(req(is[String] andThen notEmpty)))
+          req(at(Path \ "label")(req(v)))
         )
 
       label.validate(transform(valid)) shouldBe (Valid("Personal"))
@@ -254,6 +256,14 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       label.validate(transform(invalid)) shouldBe
         (Invalid(Seq(p ->
           Seq(ValidationError("error.required")))))
+
+      def maybeLabel =
+        at(Path \ "informations")(
+          opt(at(Path \ "label")(req(v)))
+        )
+
+      maybeLabel.validate(transform(valid)) shouldBe (Valid(Option("Personal")))
+      maybeLabel.validate(transform(invalid)) shouldBe (Valid(None))
     }
 
     "coerce type" in {

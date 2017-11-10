@@ -263,7 +263,15 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         )
 
       maybeLabel.validate(transform(valid)) shouldBe (Valid(Option("Personal")))
-      maybeLabel.validate(transform(invalid)) shouldBe (Valid(None))
+      maybeLabel.validate(transform(invalid)) shouldBe
+        (Invalid(Seq(p ->
+          Seq(ValidationError("error.required")))))
+
+      def maybeLabel2 =
+        at(Path \ "foo")(
+          opt(at(Path \ "bar")(req(v)))
+        )
+      maybeLabel2.validate(transform(invalid)) shouldBe (Valid(None))
     }
 
     "coerce type" in {

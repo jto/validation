@@ -56,6 +56,9 @@ class XMLRulesSpec extends RulesSpec[NodeSeq] {
       r1(rs).validate(transform(base.info)) shouldBe
         Invalid(Seq(p \ "@fake" ->
           Seq(ValidationError("error.required"))))
+
+      r0(rs).validate(NodeSeq.Empty) shouldBe
+        Invalid(Seq(p -> Seq(ValidationError("error.required"))))
     }
 
     "validate required attributes as Int" in {

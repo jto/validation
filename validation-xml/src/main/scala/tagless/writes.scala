@@ -6,18 +6,16 @@ import types.flip
 import jto.validation.xml.{Writes => W}
 
 import shapeless.tag, tag.@@
-import scala.xml.{NodeSeq, MetaData, Elem, Null, TopScope, Text, Attribute}
+import scala.xml.{Null, Text, Attribute, NodeSeq, MetaData, Elem, TopScope}
 import cats.Monoid
 
-
 trait WritesGrammar
-  extends XmlGrammar[Either[MetaData, NodeSeq], flip[Write]#λ]
+  extends XmlGrammar[List[XML], flip[Write]#λ]
   with WriteConstraints
-  with WritesTypeclasses[Either[MetaData, NodeSeq]] {
+  with WritesTypeclasses[List[XML]] {
 
-  // Emulate union types support using Either
-  type _I = Either[MetaData, NodeSeq]
-  type Out = Either[Nothing, NodeSeq]
+  type _I = List[XML]
+  type Out = List[XML]
 
   private def writeAt(p: Path)(ns: NodeSeq): NodeSeq =
     p.path match {
@@ -32,15 +30,10 @@ trait WritesGrammar
   def at(p: Path): At[flip[Write]#λ, Out, _I] =
     new At[flip[Write]#λ, Out, _I] {
       def prepare: Write[Option[_I], Option[_I]] = Write.zero
+
       def run: Write[Option[_I], Out] =
-        Write { x =>
-          @inline def writeMeta(key: String)(m: MetaData): Elem =
-            new Elem(null, key, m, TopScope, false)
-
-          @inline def writeChild(key: String)(ns: NodeSeq): Elem =
-            new Elem(null, key, Null, TopScope, false, ns:_*)
-
-          @inline def go(in: _I): NodeSeq = {
+        Write {
+          _.map { i =>
             val rev = p.path.reverse
             val key =
               rev match {
@@ -52,22 +45,20 @@ trait WritesGrammar
                   throw new RuntimeException("cannot write an attribute to a node with an index path")
               }
 
-            val node = in.fold(writeMeta(key) _, writeChild(key) _)
-            writeAt(Path(rev.tail))(node)
-          }
+            val child =
+              i.map { case (as, ns) =>
+                new Elem(null, key, as, TopScope, false, ns:_*)
+              }
 
-          Right(x.map(go).getOrElse(NodeSeq.Empty))
-        }
-    }
+            // if i is empty, we're in the case where the node is required but it's content
+            // is optional AND is None. In that case, write the empty node.
+            val cs =
+              child.headOption.map { _ =>
+                child
+              }.getOrElse(new Elem(null, key, Null, TopScope, false))
 
-  def attr(key: String): At[flip[Write]#λ, _I, _I] =
-    new At[flip[Write]#λ, _I, _I] {
-      def prepare: Write[Option[_I], Option[_I]] = Write.zero
-      def run: Write[Option[_I], _I] =
-        Write {
-          case Some(Left(i)) => Left(i)
-          case Some(Right(ns)) => Left(Attribute(key, ns, Null))
-          case None => Left(Null)
+            List((Null, writeAt(Path(rev.tail))(NodeSeq.fromSeq(cs))))
+          }.getOrElse(Nil)
         }
     }
 
@@ -75,15 +66,13 @@ trait WritesGrammar
   def mapPath(f: jto.validation.Path => jto.validation.Path): P = ???
 
   def opt[A](implicit K: Write[A, _ >: Out <: _I]): Write[Option[A], Option[_I]] =
-    Write {
-      _.map(K.writes)
-    }
+    Write { _.map(K.writes) }
 
   def req[A](implicit K: Write[A, _ >: Out <: _I]): Write[A, Option[_I]] =
     Write { a => Option(K.writes(a)) }
 
   private def txt[A](w: Write[A, String]): Write[A, _I] @@ Root =
-    Write { a => Right(Text(w.writes(a))) }
+    Write { a => List(Null -> Text(w.writes(a))) }
 
   implicit def string: Write[String, _I] @@ Root = txt(Write.zero)
   implicit def bigDecimal: Write[BigDecimal, _I] @@ Root = txt(W.bigDecimalW)
@@ -95,21 +84,47 @@ trait WritesGrammar
   implicit def long: Write[Long, _I] @@ Root = txt(W.longW)
   implicit def short: Write[Short, _I] @@ Root = txt(W.shortW)
 
-  implicit def list[A](implicit k: Write[A, _ >: Out <: _I]): Write[List[A], _I] = ???
-  implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: _I]): Write[Array[A], _I] = ???
+  implicit def list[A](implicit k: Write[A, _ >: Out <: _I]): Write[List[A], _I] =
+    Write { as =>
+      as.map(k.writes).foldLeft(iMonoid.empty)(iMonoid.combine)
+    }
+
+  implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: _I]): Write[Array[A], _I] =
+    list[A](k).contramap(_.toList)
+
   implicit def seq[A](implicit k: Write[A, _ >: Out <: _I]): Write[Seq[A], _I] =
     list[A](k).contramap(_.toList)
-  implicit def traversable[A](implicit k: Write[A, _ >: Out <: _I]): Write[Traversable[A], _I] = ???
+
+  implicit def traversable[A](implicit k: Write[A, _ >: Out <: _I]): Write[Traversable[A], _I] =
+    list[A](k).contramap(_.toList)
+
   implicit def map[A](implicit k: Write[A, _ >: Out <: _I]): Write[Map[String,A], _I] = ???
 
-  def toGoal[Repr, A]: Write[Repr,Out] => Write[Goal[Repr, A], Out] = ???
+  def attr[A](key: String): At[flip[Write]#λ, _I, _I] =
+    new At[flip[Write]#λ, _I, _I] {
+      def run: Write[Option[_I], _I] =
+        Write { mi =>
+          val is: _I = mi.getOrElse(Nil)
+          is.map { case(as, ns) =>
+            val meta: MetaData = as.append(Attribute(key, ns, Null))
+            (meta, NodeSeq.Empty)
+          }
+        }
+    }
+
+  def toGoal[Repr, A]: Write[Repr, Out] => Write[Goal[Repr, A], Out] = ???
 
   def iMonoid: Monoid[Out] =
     new Monoid[Out] {
-      def empty: Out = Right(NodeSeq.Empty)
-      def combine(x: Out, y: Out): Out = Right(x.right.get ++ y.right.get)
+      def empty: Out = Nil
+      def combine(x: Out, y: Out): Out = {
+        val xml =
+          (x ++ y).foldLeft((Null, NodeSeq.Empty): XML) { (a, b) =>
+            (a._1.append(b._1), a._2 ++ b._2)
+          }
+        List(xml)
+      }
     }
-
 }
 
 object WritesGrammar extends WritesGrammar

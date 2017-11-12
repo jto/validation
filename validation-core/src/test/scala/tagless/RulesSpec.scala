@@ -19,13 +19,13 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       import testCases.base._
 
       def firstname =
-        at(Path \ "firstname")(req[String])
+        at(Path \ "firstname").is(req[String])
 
       firstname.validate(transform(valid)) shouldBe (Valid("Julien"))
 
       val errPath = Path \ "foo"
       val error = Invalid(Seq(errPath -> Seq(ValidationError("error.required"))))
-      def err = at(errPath)(req[String])
+      def err = at(errPath).is(req[String])
       err.validate(transform(invalid)) shouldBe (error)
     }
 
@@ -34,7 +34,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       "Int" in {
         import testCases.int._
 
-        def n = at(Path \ "n")(req[Int])
+        def n = at(Path \ "n").is(req[Int])
 
         n.validate(transform(ok)) shouldBe (Valid(4))
         n.validate(transform(foo)) shouldBe
@@ -44,14 +44,14 @@ trait RulesSpec[T] extends WordSpec with Matchers {
           (Invalid(Seq(Path \ "n" -> Seq(
             ValidationError("error.number", "Int")))))
 
-        def no = at(Path \ "n" \ "o")(req[Int])
+        def no = at(Path \ "n" \ "o").is(req[Int])
 
         no.validate(transform(noOK)) shouldBe (Valid(4))
         no.validate(transform(noFoo)) shouldBe
           (Invalid(Seq(Path \ "n" \ "o" -> Seq(
             ValidationError("error.number", "Int")))))
 
-        def nop = at(Path \ "n" \ "o" \ "p")(req[Int])
+        def nop = at(Path \ "n" \ "o" \ "p").is(req[Int])
 
         nop.validate(transform(nopOK)) shouldBe (Valid(4))
         nop.validate(transform(nopFoo)) shouldBe
@@ -61,14 +61,14 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         val errPath = Path \ "foo"
         val error = Invalid(Seq(errPath -> Seq(ValidationError("error.required"))))
 
-        def fooErr = at(errPath)(req[Int])
+        def fooErr = at(errPath).is(req[Int])
         fooErr.validate(transform(ok)) shouldBe (error)
       }
 
       "Short" in {
         import testCases.int._
 
-        def n = at(Path \ "n")(req[Short])
+        def n = at(Path \ "n").is(req[Short])
 
         n.validate(transform(ok)) shouldBe(Valid(4))
         n.validate(transform(foo)) shouldBe
@@ -81,7 +81,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
       "Long" in {
         import testCases.int._
-        def n = at(Path \ "n")(req[Long])
+        def n = at(Path \ "n").is(req[Long])
 
         n.validate(transform(ok)) shouldBe (Valid(4))
         n.validate(transform(foo)) shouldBe
@@ -94,7 +94,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
       "Float" in {
         import testCases.int.{float => f, _}
-        def n = at(Path \ "n")(req[Float])
+        def n = at(Path \ "n").is(req[Float])
 
         n.validate(transform(ok)) shouldBe
         (Valid(4))
@@ -106,7 +106,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
       "Double" in {
         import testCases.int._
-        def n = at(Path \ "n")(req[Double])
+        def n = at(Path \ "n").is(req[Double])
 
         n.validate(transform(ok)) shouldBe (Valid(4))
         n.validate(transform(foo)) shouldBe
@@ -118,7 +118,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       "java BigDecimal" in {
         import java.math.{BigDecimal => JBigDecimal}
         import testCases.int._
-        def n = at(Path \ "n")(req[JBigDecimal])
+        def n = at(Path \ "n").is(req[JBigDecimal])
 
         n.validate(transform(ok)) shouldBe
         (Valid(new JBigDecimal("4")))
@@ -130,7 +130,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
       "scala BigDecimal" in {
         import testCases.int._
-        def n = at(Path \ "n")(req[BigDecimal])
+        def n = at(Path \ "n").is(req[BigDecimal])
 
         n.validate(transform(ok)) shouldBe (Valid(BigDecimal(4)))
         n.validate(transform(foo)) shouldBe
@@ -141,7 +141,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
       "Boolean" in {
         import testCases.boolean._
-        def n = at(Path \ "n")(req[Boolean])
+        def n = at(Path \ "n").is(req[Boolean])
 
         n.validate(transform(ok)) shouldBe (Valid(true))
         n.validate(transform(foo)) shouldBe
@@ -151,8 +151,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
       "String" in {
         import testCases.string._
-        def n = at(Path \ "n")(req[String])
-        def o = at(Path \ "o")(req[String])
+        def n = at(Path \ "n").is(req[String])
+        def o = at(Path \ "o").is(req[String])
         n.validate(transform(foo)) shouldBe (Valid("foo"))
       }
 
@@ -160,7 +160,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         import testCases.boolean._
         import testCases.option._
 
-        def n = at(Path \ "n")(opt[Boolean])
+        def n = at(Path \ "n").is(opt[Boolean])
 
         n.validate(transform(ok)) shouldBe (Valid(Some(true)))
         n.validate(transform(fooBar)) shouldBe (Valid(None))
@@ -172,17 +172,17 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       "Map[String, V]" in {
         import testCases.map._
 
-        at(Path \ "n")(req[Map[String, String]])
+        at(Path \ "n").is(req[Map[String, String]])
           .validate(transform(foobar)) shouldBe Valid(Map("foo" -> "bar"))
 
-        at(Path \ "n")(req[Map[String, Int]])
+        at(Path \ "n").is(req[Map[String, Int]])
           .validate(transform(ints)) shouldBe Valid(Map("foo" -> 4, "bar" -> 5))
 
-        at(Path \ "x")(req[Map[String, Int]])
+        at(Path \ "x").is(req[Map[String, Int]])
           .validate(transform(mixed)) shouldBe
             Invalid(Seq(Path \ "x" -> Seq(ValidationError("error.required"))))
 
-        at(Path \ "n")(req[Map[String, Int]])
+        at(Path \ "n").is(req[Map[String, Int]])
           .validate(transform(mixed)) shouldBe
             Invalid(Seq(Path \ "n" \ "bar" -> Seq(
               ValidationError("error.number", "Int"))))
@@ -191,39 +191,39 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       // TODO TODO TODO: PORT THOSES TESTS
       // "Traversable" in {
       //   import testCases.seq._
-      //   at(Path \ "n")(req[Traversable[String]])
+      //   at(Path \ "n").is(req[Traversable[String]])
       //     .validate(foos) shouldBe Valid(Seq("foo"))
 
-      //   at(Path \ "n")(req[Traversable[Int]])
+      //   at(Path \ "n").is(req[Traversable[Int]])
       //     .validate(ints) shouldBe Valid(Seq(1, 2, 3))
       // }
 
       // "Array" in {
       //   import testCases.seq._
-      //   at(Path \ "n")(req[Seq[String]])
+      //   at(Path \ "n").is(req[Seq[String]])
       //     .validate(foos) shouldBe Valid(Seq("foo"))
 
-      //   at(Path \ "n")(req[Seq[Int]])
+      //   at(Path \ "n").is(req[Seq[Int]])
       //     .validate(ints) shouldBe Valid(Seq(1, 2, 3))
       // }
 
       // "Seq" in {
       //   import testCases.seq._
-      //   at(Path \ "n")(req[Seq[String]])
+      //   at(Path \ "n").is(req[Seq[String]])
       //     .validate(foos) shouldBe Valid(Seq("foo"))
 
-      //   at(Path \ "n")(req[Seq[Int]])
+      //   at(Path \ "n").is(req[Seq[Int]])
       //     .validate(ints) shouldBe Valid(Seq(1, 2, 3))
       // }
     }
 
     "validate data" in {
       import testCases.base._
-      def firstname = at(Path \ "firstname")(req[String] andThen notEmpty)
+      def firstname = at(Path \ "firstname").is(req[String] andThen notEmpty)
 
       firstname.validate(transform(valid)) shouldBe (Valid("Julien"))
 
-      def label = at(Path \ "informations" \ "label")(req[String] andThen notEmpty)
+      def label = at(Path \ "informations" \ "label").is(req[String] andThen notEmpty)
 
       label.validate(transform(valid)) shouldBe (Valid("Personal"))
       label.validate(transform(invalid)) shouldBe
@@ -233,10 +233,10 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
     "validate optional" in {
       import testCases.base._
-      def firstname = at(Path \ "firstname")(opt(is[String] andThen notEmpty))
+      def firstname = at(Path \ "firstname").is(opt(is[String] andThen notEmpty))
       firstname.validate(transform(valid)) shouldBe (Valid(Some("Julien")))
 
-      def foobar = at(Path \ "foobar")(opt(is[String] andThen notEmpty))
+      def foobar = at(Path \ "foobar").is(opt(is[String] andThen notEmpty))
       foobar.validate(transform(valid)) shouldBe (Valid(None))
     }
 
@@ -246,8 +246,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       val v = is[String] andThen notEmpty
 
       def label =
-        at(Path \ "informations")(
-          req(at(Path \ "label")(req(v)))
+        at(Path \ "informations").is(
+          req(at(Path \ "label").is(req(v)))
         )
 
       label.validate(transform(valid)) shouldBe (Valid("Personal"))
@@ -258,8 +258,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
           Seq(ValidationError("error.required")))))
 
       def maybeLabel =
-        at(Path \ "informations")(
-          opt(at(Path \ "label")(req(v)))
+        at(Path \ "informations").is(
+          opt(at(Path \ "label").is(req(v)))
         )
 
       maybeLabel.validate(transform(valid)) shouldBe (Valid(Option("Personal")))
@@ -268,34 +268,34 @@ trait RulesSpec[T] extends WordSpec with Matchers {
           Seq(ValidationError("error.required")))))
 
       def maybeLabel2 =
-        at(Path \ "foo")(
-          opt(at(Path \ "bar")(req(v)))
+        at(Path \ "foo").is(
+          opt(at(Path \ "bar").is(req(v)))
         )
       maybeLabel2.validate(transform(invalid)) shouldBe (Valid(None))
     }
 
     "coerce type" in {
       import testCases.base._
-      def age = at(Path \ "age")(req[Int])
+      def age = at(Path \ "age").is(req[Int])
       age.validate(transform(valid)) shouldBe (Valid(27))
 
-      def ageMin = at(Path \ "age")(req[Int] andThen min(20))
+      def ageMin = at(Path \ "age").is(req[Int] andThen min(20))
       ageMin.validate(transform(valid)) shouldBe (Valid(27))
 
-      def ageMax = at(Path \ "age")(req[Int] andThen max(50))
+      def ageMax = at(Path \ "age").is(req[Int] andThen max(50))
       ageMax.validate(transform(valid)) shouldBe (Valid(27))
 
-      def ageMin50 = at(Path \ "age")(req[Int] andThen min(50))
+      def ageMin50 = at(Path \ "age").is(req[Int] andThen min(50))
       ageMin50.validate(transform(valid)) shouldBe
         (Invalid(Seq((Path \ "age") ->
           Seq(ValidationError("error.min", 50)))))
 
-      def ageMax0 = at(Path \ "age")(req[Int] andThen max(0))
+      def ageMax0 = at(Path \ "age").is(req[Int] andThen max(0))
       ageMax0.validate(transform(valid)) shouldBe
         (Invalid(Seq((Path \ "age") ->
             Seq(ValidationError("error.max", 0)))))
 
-      def firstname = at(Path \ "firstname")(req[Int])
+      def firstname = at(Path \ "firstname").is(req[Int])
       firstname.validate(transform(valid)) shouldBe
         (Invalid(Seq((Path \ "firstname") -> Seq(
                       ValidationError("error.number", "Int")))))
@@ -306,13 +306,13 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       import cats.syntax.semigroup._
 
       val composed = notEmpty |+| minLength(3)
-      def firstname = at(Path \ "firstname")(req[String] andThen composed)
+      def firstname = at(Path \ "firstname").is(req[String] andThen composed)
       firstname.validate(transform(valid)) shouldBe (Valid("Julien"))
 
       val p = Path \ "informations" \ "label"
       val err = Invalid(Seq(p -> Seq(ValidationError("error.required"),
                                      ValidationError("error.minLength", 3))))
-      val label = at(p)(req[String] andThen composed)
+      val label = at(p).is(req[String] andThen composed)
       label.validate(transform(invalid)) shouldBe (err)
     }
 
@@ -322,15 +322,15 @@ trait RulesSpec[T] extends WordSpec with Matchers {
       val ne = req[String] andThen notEmpty
 
       def names =
-        at(Path \ "firstname")(ne) ~:
-        at(Path \ "lastname")(ne) ~:
+        at(Path \ "firstname").is(ne) ~:
+        at(Path \ "lastname").is(ne) ~:
         knil
 
       names.map(_.tupled).validate(transform(valid)) shouldBe Valid("Julien" -> "Tournay")
 
       def full =
         names ~:
-        at(Path \ "informations" \ "label")(ne) ~:
+        at(Path \ "informations" \ "label").is(ne) ~:
         knil
 
 
@@ -349,22 +349,22 @@ trait RulesSpec[T] extends WordSpec with Matchers {
     "lift validations to seq validations" in {
       import testCases.seq._
 
-      // def fooList = at(Path \ "foo")(req(list(string)))
+      // def fooList = at(Path \ "foo").is(req(list(string)))
       // fooList.validate(transform(fooBars)) shouldBe Valid(Seq("bar"))
 
-      // def fooSeq = at(Path \ "foo")(req(seq(string)))
+      // def fooSeq = at(Path \ "foo").is(req(seq(string)))
       // fooSeq.validate(transform(fooBars)) shouldBe Valid(Seq("bar"))
 
-      // def foo = at(Path \ "foo")(req[Seq[String]] andThen forall(notEmpty))
+      // def foo = at(Path \ "foo").is(req[Seq[String]] andThen forall(notEmpty))
       // foo.validate(transform(fooBars)) shouldBe Valid(Seq("bar"))
 
       // def foofoo =
       //   at(Path \ "foo"){
-      //     req(at(Path \ "foo")(req(is[Seq[String]] andThen forall(notEmpty))))
+      //     req(at(Path \ "foo").is(req(is[Seq[String]] andThen forall(notEmpty))))
       //   }
       // foofoo.validate(transform(foofoobars)) shouldBe Valid(Seq("bar"))
 
-      def n = at(Path \ "n")(req[Seq[String]] andThen forall(notEmpty))
+      def n = at(Path \ "n").is(req[Seq[String]] andThen forall(notEmpty))
       n.validate(transform(ns)) shouldBe
         (Invalid(Seq(Path \ "n" \ 1 ->
           Seq(ValidationError("error.required")))))
@@ -376,14 +376,14 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
       val passRule =
         (
-          at(Path \ "password")(req[String] andThen notEmpty) ~:
-          at(Path \ "verify")(req[String] andThen notEmpty) ~:
+          at(Path \ "password").is(req[String] andThen notEmpty) ~:
+          at(Path \ "verify").is(req[String] andThen notEmpty) ~:
           knil
         ).map(_.tupled) andThen Rule.uncurry(Rules.equalTo[String]).repath(_ => (Path \ "verify"))
 
       val rule =
         (
-          at(Path \ "login")(req[String] andThen notEmpty) ~:
+          at(Path \ "login").is(req[String] andThen notEmpty) ~:
           passRule ~:
           knil
         ).map(_.tupled)
@@ -414,14 +414,14 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
         val rb: Rule[grammar.Out, A] =
           (
-            at(Path \ "name")(req[String] andThen equalTo("B")) *>
-            at(Path \ "foo")(req[Int])
+            at(Path \ "name").is(req[String] andThen equalTo("B")) *>
+            at(Path \ "foo").is(req[Int])
           ).map(B.apply)
 
         val rc: Rule[grammar.Out, A] =
           (
-            at(Path \ "name")(req[String] andThen equalTo("C")) *>
-            at(Path \ "bar")(req[Int])
+            at(Path \ "name").is(req[String] andThen equalTo("C")) *>
+            at(Path \ "bar").is(req[Int])
           ).map(C.apply)
 
         val rule = rb orElse rc orElse Rule(_ => typeInvalid)
@@ -435,9 +435,9 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
       "by dicriminating on fields" in {
         val rule =
-          at(Path \ "name")(req[String]).flatMap[A] {
-            case "B" => at(Path \ "foo")(req[Int]).map(B.apply)
-            case "C" => at(Path \ "bar")(req[Int]).map(C.apply)
+          at(Path \ "name").is(req[String]).flatMap[A] {
+            case "B" => at(Path \ "foo").is(req[Int]).map(B.apply)
+            case "C" => at(Path \ "bar").is(req[Int]).map(C.apply)
             case _ => Rule(_ => typeInvalid)
           }
 
@@ -464,18 +464,18 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
       def info =
         goal[ContactInformation] {
-          at(Path \ "label")(req[String] andThen notEmpty) ~:
-          at(Path \ "email")(opt(is[String] andThen email)) ~:
-          at(Path \ "phones")(req[Seq[String]] andThen forall(notEmpty)) ~:
+          at(Path \ "label").is(req[String] andThen notEmpty) ~:
+          at(Path \ "email").is(opt(is[String] andThen email)) ~:
+          at(Path \ "phones").is(req[Seq[String]] andThen forall(notEmpty)) ~:
           knil
         }
 
       def contact =
         goal[Contact]{
-          at(Path \ "firstname")(req[String] andThen notEmpty) ~:
-          at(Path \ "lastname")(req[String] andThen notEmpty) ~:
-          at(Path \ "company")(opt[String]) ~:
-          at(Path \ "contacts")(req(seq(info))) ~:
+          at(Path \ "firstname").is(req[String] andThen notEmpty) ~:
+          at(Path \ "lastname").is(req[String] andThen notEmpty) ~:
+          at(Path \ "company").is(opt[String]) ~:
+          at(Path \ "contacts").is(req(seq(info))) ~:
           knil
         }
 
@@ -510,8 +510,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
     //   "using explicit notation" in {
     //     lazy val w: Rule[grammar.Out, RecUser] =
     //       (
-    //         at(Path \ "name")(req[String]) ~:
-    //         at(Path \ "friends")(req(seq(w))) ~:
+    //         at(Path \ "name").is(req[String]) ~:
+    //         at(Path \ "friends").is(req(seq(w))) ~:
     //         knil
     //       ).to[RecUser]
 
@@ -519,8 +519,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
     //     lazy val w2: Rule[grammar.Out, RecUser] =
     //       (
-    //         at(Path \ "name")(req[String]) ~:
-    //         at(Path \ "friends")(req(seq(w2))) ~:
+    //         at(Path \ "name").is(req[String]) ~:
+    //         at(Path \ "friends").is(req(seq(w2))) ~:
     //         knil
     //       ).to[RecUser]
 
@@ -528,8 +528,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
     //     lazy val w3: Rule[grammar.Out, User1] =
     //       (
-    //         at(Path \ "name")(req[String]) ~:
-    //         at(Path \ "friend")(opt(w3)) ~:
+    //         at(Path \ "name").is(req[String]) ~:
+    //         at(Path \ "friend").is(opt(w3)) ~:
     //         knil
     //       ).to[User1]
 
@@ -539,8 +539,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
     //   "using implicit notation" in {
     //     implicit lazy val w: Rule[grammar.Out, RecUser] =
     //       (
-    //         at(Path \ "name")(req[String]) ~:
-    //         at(Path \ "friends")(req[Seq[RecUser]]) ~:
+    //         at(Path \ "name").is(req[String]) ~:
+    //         at(Path \ "friends").is(req[Seq[RecUser]]) ~:
     //         knil
     //       ).to[RecUser]
 
@@ -548,8 +548,8 @@ trait RulesSpec[T] extends WordSpec with Matchers {
 
     //     implicit lazy val w3: Rule[grammar.Out, User1] =
     //       (
-    //         at(Path \ "name")(req[String]) ~:
-    //         at(Path \ "friend")(opt[User1]) ~:
+    //         at(Path \ "name").is(req[String]) ~:
+    //         at(Path \ "friend").is(opt[User1]) ~:
     //         knil
     //       ).to[User1]
 

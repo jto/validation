@@ -86,7 +86,7 @@ trait WritesGrammar
 
   implicit def list[A](implicit k: Write[A, _ >: Out <: _I]): Write[List[A], _I] =
     Write { as =>
-      as.map(k.writes).foldLeft(iMonoid.empty)(iMonoid.combine)
+      as.flatMap(k.writes)
     }
 
   implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: _I]): Write[Array[A], _I] =

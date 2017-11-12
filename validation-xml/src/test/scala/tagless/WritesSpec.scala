@@ -24,34 +24,36 @@ class XMLWritesSpec extends WritesSpec[List[XML]] {
         <root label="bar"></root> ++ NodeSeq.Empty
     }
 
-    "write required attributes" in {
-      val rs = req(attr("label").is(req[String]))
+    "write list of required attributes" in {
+      val ws = attr("label").is(req[String])
       val w =
         at(Path \ "phones").is(req(
-          list(at(Path \ "phone").is(rs))
+          at(Path \ "phone").is(req(list(ws)))
         ))
       transform(w.writes(List("mobile", "home"))) shouldBe
         <phones><phone label="mobile"></phone><phone label="home"></phone></phones> ++ NodeSeq.Empty
     }
 
     "write required attributes AND node" in {
-      val p = Path \ "phones" \ "phone"
-      def w = at(p)
       val ws =
         is[String] ~:
         attr("label").is(req[String]) ~:
         knil
 
+      val w =
+        at(Path \ "phones").is(req(
+          at(Path \ "phone").is(req(ws.tupled))
+        ))
+
       val d = List(("01.23.45.67.89", "mobile"), ("98.76.54.32.10", "home"))
 
-      transform(w.is(req(ws)).tupled.writes(d.head)) shouldBe
+      transform(w.writes(d.head)) shouldBe
         <phones><phone label="mobile">01.23.45.67.89</phone></phones> ++ NodeSeq.Empty
 
       val w2 =
         at(Path \ "phones").is(req(
-          list(at(Path \ "phone").is(req(ws)).tupled)
+          at(Path \ "phone").is(req(list(ws.tupled)))
         ))
-
 
       transform(w2.writes(d)) shouldBe
         <phones><phone label="mobile">01.23.45.67.89</phone><phone label="home">98.76.54.32.10</phone></phones> ++ NodeSeq.Empty

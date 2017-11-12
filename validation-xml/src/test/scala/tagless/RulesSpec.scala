@@ -27,19 +27,25 @@ class XMLRulesSpec extends RulesSpec[List[XML]] {
     }
 
     // TODO: Add test case for index path node in RuleSpec
-    "validate required attributes" in {
+    "validate list of required attributes" in {
       import testCases.base
       def r = at(Path \ "phones")
 
       def phone(s: String) =
         req(
-          at(Path \ "phone").is(req(attr(s).is(req(list[String]))))
+          at(Path \ "phone").is(req(
+            list(attr(s).is(req[String]))
+          ))
         )
 
-      r.is(phone("label")).validate(transform(base.info)) shouldBe Valid(List("mobile", "home"))
+      r.is(phone("label")).validate(transform(base.info)) shouldBe
+        Valid(List("mobile", "home"))
+
       r.is(phone("fake")).validate(transform(base.info)) shouldBe
-        Invalid(Seq(Path \ "phones" \ "phone" \ "@fake" ->
-          Seq(ValidationError("error.required"))))
+        Invalid(Seq(
+          (Path \ "phones" \ "phone" \ 0 \ "@fake") -> Seq(ValidationError("error.required")),
+          (Path \ "phones" \ "phone" \ 1 \ "@fake") -> Seq(ValidationError("error.required"))
+        ))
     }
 
     "validate required attributes AND node" in {
@@ -47,15 +53,17 @@ class XMLRulesSpec extends RulesSpec[List[XML]] {
 
       val p = Path \ "phones" \ "phone"
 
-      def r = at(p)
       val rs0 =
         is[String] ~:
         attr("label").is(req[String]) ~:
         knil
 
-      val rule = r.is(req(rs0)).tupled
+      val ruleOK =
+        at(Path \ "phones").is(req(
+          at(Path \ "phone").is(req(rs0.tupled))
+        ))
 
-      rule.validate(transform(base.info)) shouldBe
+      ruleOK.validate(transform(base.info)) shouldBe
         Valid(("01.23.45.67.89", "mobile"))
 
       val rs1 =
@@ -63,15 +71,21 @@ class XMLRulesSpec extends RulesSpec[List[XML]] {
         attr("fake").is(req[String]) ~:
         knil
 
+      val ruleNOK =
+        at(Path \ "phones").is(req(
+          at(Path \ "phone").is(req(rs1.tupled))
+        ))
+
       val attrErr =
         (p \ "@fake") -> Seq(ValidationError("error.required"))
-      val nodeErr =
-        p -> Seq(ValidationError("error.required"))
 
-      r.is(req(rs1)).validate(transform(base.info)) shouldBe
+      val nodeErr =
+        Path \ "phones" -> Seq(ValidationError("error.required"))
+
+      ruleNOK.validate(transform(base.info)) shouldBe
         Invalid(Seq(attrErr))
 
-      r.is(req(rs1)).validate(transform(NodeSeq.Empty)) shouldBe
+      ruleNOK.validate(transform(NodeSeq.Empty)) shouldBe
         Invalid(Seq(nodeErr))
     }
 

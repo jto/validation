@@ -188,33 +188,32 @@ trait RulesSpec[T] extends WordSpec with Matchers {
               ValidationError("error.number", "Int"))))
       }
 
-      // TODO TODO TODO: PORT THOSES TESTS
-      // "Traversable" in {
-      //   import testCases.seq._
-      //   at(Path \ "n").is(req[Traversable[String]])
-      //     .validate(foos) shouldBe Valid(Seq("foo"))
+      "Traversable" in {
+        import testCases.seq._
+        at(Path \ "n").is(req[Traversable[String]])
+          .validate(transform(foos)) shouldBe Valid(Seq("foo"))
 
-      //   at(Path \ "n").is(req[Traversable[Int]])
-      //     .validate(ints) shouldBe Valid(Seq(1, 2, 3))
-      // }
+        at(Path \ "n").is(req[Traversable[Int]])
+          .validate(transform(ints)) shouldBe Valid(Seq(1, 2, 3))
+      }
 
-      // "Array" in {
-      //   import testCases.seq._
-      //   at(Path \ "n").is(req[Seq[String]])
-      //     .validate(foos) shouldBe Valid(Seq("foo"))
+      "Array" in {
+        import testCases.seq._
+        at(Path \ "n").is(req[Seq[String]])
+          .validate(transform(foos)) shouldBe Valid(Seq("foo"))
 
-      //   at(Path \ "n").is(req[Seq[Int]])
-      //     .validate(ints) shouldBe Valid(Seq(1, 2, 3))
-      // }
+        at(Path \ "n").is(req[Seq[Int]])
+          .validate(transform(ints)) shouldBe Valid(Seq(1, 2, 3))
+      }
 
-      // "Seq" in {
-      //   import testCases.seq._
-      //   at(Path \ "n").is(req[Seq[String]])
-      //     .validate(foos) shouldBe Valid(Seq("foo"))
+      "Seq" in {
+        import testCases.seq._
+        at(Path \ "n").is(req[Seq[String]])
+          .validate(transform(foos)) shouldBe Valid(Seq("foo"))
 
-      //   at(Path \ "n").is(req[Seq[Int]])
-      //     .validate(ints) shouldBe Valid(Seq(1, 2, 3))
-      // }
+        at(Path \ "n").is(req[Seq[Int]])
+          .validate(transform(ints)) shouldBe Valid(Seq(1, 2, 3))
+      }
     }
 
     "validate data" in {
@@ -349,20 +348,20 @@ trait RulesSpec[T] extends WordSpec with Matchers {
     "lift validations to seq validations" in {
       import testCases.seq._
 
-      // def fooList = at(Path \ "foo").is(req(list(string)))
-      // fooList.validate(transform(fooBars)) shouldBe Valid(Seq("bar"))
+      def fooList = at(Path \ "foo").is(req(list(string)))
+      fooList.validate(transform(fooBars)) shouldBe Valid(Seq("bar"))
 
-      // def fooSeq = at(Path \ "foo").is(req(seq(string)))
-      // fooSeq.validate(transform(fooBars)) shouldBe Valid(Seq("bar"))
+      def fooSeq = at(Path \ "foo").is(req(seq(string)))
+      fooSeq.validate(transform(fooBars)) shouldBe Valid(Seq("bar"))
 
-      // def foo = at(Path \ "foo").is(req[Seq[String]] andThen forall(notEmpty))
-      // foo.validate(transform(fooBars)) shouldBe Valid(Seq("bar"))
+      def foo = at(Path \ "foo").is(req[Seq[String]] andThen forall(notEmpty))
+      foo.validate(transform(fooBars)) shouldBe Valid(Seq("bar"))
 
-      // def foofoo =
-      //   at(Path \ "foo"){
-      //     req(at(Path \ "foo").is(req(is[Seq[String]] andThen forall(notEmpty))))
-      //   }
-      // foofoo.validate(transform(foofoobars)) shouldBe Valid(Seq("bar"))
+      def foofoo =
+        at(Path \ "foo").is{
+          req(at(Path \ "foo").is(req(is[Seq[String]] andThen forall(notEmpty))))
+        }
+      foofoo.validate(transform(foofoobars)) shouldBe Valid(Seq("bar"))
 
       def n = at(Path \ "n").is(req[Seq[String]] andThen forall(notEmpty))
       n.validate(transform(ns)) shouldBe
@@ -498,64 +497,64 @@ trait RulesSpec[T] extends WordSpec with Matchers {
     }
 
 
-    // "read recursive" when {
-    //   import testCases.rec._
+    "read recursive" when {
+      import testCases.rec._
 
-    //   case class RecUser(name: String, friends: Seq[RecUser] = Nil)
-    //   val u = RecUser("bob", Seq(RecUser("tom")))
+      case class RecUser(name: String, friends: Seq[RecUser] = Nil)
+      val u = RecUser("bob", Seq(RecUser("tom")))
 
-    //   case class User1(name: String, friend: Option[User1] = None)
-    //   val u1 = User1("bob", Some(User1("tom")))
+      case class User1(name: String, friend: Option[User1] = None)
+      val u1 = User1("bob", Some(User1("tom")))
 
-    //   "using explicit notation" in {
-    //     lazy val w: Rule[grammar.Out, RecUser] =
-    //       (
-    //         at(Path \ "name").is(req[String]) ~:
-    //         at(Path \ "friends").is(req(seq(w))) ~:
-    //         knil
-    //       ).to[RecUser]
+      "using explicit notation" in {
+        lazy val w: Rule[grammar.Out, RecUser] =
+          (
+            at(Path \ "name").is(req[String]) ~:
+            at(Path \ "friends").is(req(seq(w))) ~:
+            knil
+          ).to[RecUser]
 
-    //     w.validate(transform(bobAndFriends)) shouldBe Valid(u)
+        w.validate(transform(bobAndFriends)) shouldBe Valid(u)
 
-    //     lazy val w2: Rule[grammar.Out, RecUser] =
-    //       (
-    //         at(Path \ "name").is(req[String]) ~:
-    //         at(Path \ "friends").is(req(seq(w2))) ~:
-    //         knil
-    //       ).to[RecUser]
+        // lazy val w2: Rule[grammar.Out, RecUser] =
+        //   (
+        //     at(Path \ "name").is(req[String]) ~:
+        //     at(Path \ "friends").is(req(seq(w2))) ~:
+        //     knil
+        //   ).to[RecUser]
 
-    //     w2.validate(transform(bobAndFriends)) shouldBe Valid(u)
+        // w2.validate(transform(bobAndFriends)) shouldBe Valid(u)
 
-    //     lazy val w3: Rule[grammar.Out, User1] =
-    //       (
-    //         at(Path \ "name").is(req[String]) ~:
-    //         at(Path \ "friend").is(opt(w3)) ~:
-    //         knil
-    //       ).to[User1]
+        // lazy val w3: Rule[grammar.Out, User1] =
+        //   (
+        //     at(Path \ "name").is(req[String]) ~:
+        //     at(Path \ "friend").is(opt(w3)) ~:
+        //     knil
+        //   ).to[User1]
 
-    //     w3.validate(transform(bobAndFriend)) shouldBe Valid(u1)
-    //   }
+        // w3.validate(transform(bobAndFriend)) shouldBe Valid(u1)
+      }
 
-    //   "using implicit notation" in {
-    //     implicit lazy val w: Rule[grammar.Out, RecUser] =
-    //       (
-    //         at(Path \ "name").is(req[String]) ~:
-    //         at(Path \ "friends").is(req[Seq[RecUser]]) ~:
-    //         knil
-    //       ).to[RecUser]
+      // "using implicit notation" in {
+      //   implicit lazy val w: Rule[grammar.Out, RecUser] =
+      //     (
+      //       at(Path \ "name").is(req[String]) ~:
+      //       at(Path \ "friends").is(req[Seq[RecUser]]) ~:
+      //       knil
+      //     ).to[RecUser]
 
-    //     w.validate(transform(bobAndFriends)) shouldBe Valid(u)
+      //   w.validate(transform(bobAndFriends)) shouldBe Valid(u)
 
-    //     implicit lazy val w3: Rule[grammar.Out, User1] =
-    //       (
-    //         at(Path \ "name").is(req[String]) ~:
-    //         at(Path \ "friend").is(opt[User1]) ~:
-    //         knil
-    //       ).to[User1]
+      //   implicit lazy val w3: Rule[grammar.Out, User1] =
+      //     (
+      //       at(Path \ "name").is(req[String]) ~:
+      //       at(Path \ "friend").is(opt[User1]) ~:
+      //       knil
+      //     ).to[User1]
 
-    //     w3.validate(transform(bobAndFriend)) shouldBe Valid(u1)
-    //   }
-    // }
+      //   w3.validate(transform(bobAndFriend)) shouldBe Valid(u1)
+      // }
+    }
 
   }
 }

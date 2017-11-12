@@ -157,23 +157,16 @@ object XMLTestCases extends TestCases[NodeSeq] {
 
   val rec = new rec {
     def bobAndFriends =
-      <person>
-        <name>bob</name>
-        <friends>
-          <friend>
-            <name>tom</name>
-            <friends/>
-          </friend>
-        </friends>
-      </person>
+      <name>bob</name>
+      <friends>
+        <name>tom</name>
+      </friends>
 
     def bobAndFriend =
-      <person>
-        <name>bob</name>
-        <friend>
-          <name>tom</name>
-        </friend>
-      </person>
+      <name>bob</name>
+      <friend>
+        <name>tom</name>
+      </friend>
   }
 
 }

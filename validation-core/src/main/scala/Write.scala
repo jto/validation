@@ -140,5 +140,5 @@ object Write {
     }
 
   import v3.tagless.types.flip
-  implicit def invertedWriteArrow: Arrow[flip[Write]#λ] = ???
+  implicit def prout: v3.tagless.MkLazy[flip[Write]#λ] = ???
 }

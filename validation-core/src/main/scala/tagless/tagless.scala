@@ -12,6 +12,10 @@ case class Goal[A, B](value: A) {
   def trivial(implicit ev: A =:= (B :: HNil)): B = value.head
 }
 
+trait MkLazy[K[_, _]] {
+  def apply[A, B](k: => K[A, B]): K[A, B]
+}
+
 trait Merge[K[_, _], Out] {
   def merge[A, B <: HList](fa: K[Out, A], fb: K[Out, B]): K[Out, A :: B]
 }

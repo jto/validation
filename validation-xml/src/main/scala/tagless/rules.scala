@@ -107,7 +107,6 @@ trait RulesGrammar
     Rule[N, List[A]] { case ns =>
       import cats.instances.list._
       import cats.syntax.traverse._
-      println(ns)
       ns.zipWithIndex
         .map { case (n, i) =>
           k.repath((Path \ i) ++  _).validate(List(n))

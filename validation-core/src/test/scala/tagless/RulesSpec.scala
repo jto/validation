@@ -510,50 +510,50 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         lazy val w: Rule[grammar.Out, RecUser] =
           (
             at(Path \ "name").is(req[String]) ~:
-            at(Path \ "friends").is(req(seq(w))) ~:
+            at(Path \ "friends").is(opt(seq(w)).map(_.toSeq.flatten)) ~:
             knil
           ).to[RecUser]
 
         w.validate(transform(bobAndFriends)) shouldBe Valid(u)
 
-        // lazy val w2: Rule[grammar.Out, RecUser] =
-        //   (
-        //     at(Path \ "name").is(req[String]) ~:
-        //     at(Path \ "friends").is(req(seq(w2))) ~:
-        //     knil
-        //   ).to[RecUser]
+        lazy val w2: Rule[grammar.Out, RecUser] =
+          (
+            at(Path \ "name").is(req[String]) ~:
+            at(Path \ "friends").is(opt(seq(w2)).map(_.toSeq.flatten)) ~:
+            knil
+          ).to[RecUser]
 
-        // w2.validate(transform(bobAndFriends)) shouldBe Valid(u)
+        w2.validate(transform(bobAndFriends)) shouldBe Valid(u)
 
-        // lazy val w3: Rule[grammar.Out, User1] =
-        //   (
-        //     at(Path \ "name").is(req[String]) ~:
-        //     at(Path \ "friend").is(opt(w3)) ~:
-        //     knil
-        //   ).to[User1]
+        lazy val w3: Rule[grammar.Out, User1] =
+          (
+            at(Path \ "name").is(req[String]) ~:
+            at(Path \ "friend").is(opt(w3)) ~:
+            knil
+          ).to[User1]
 
-        // w3.validate(transform(bobAndFriend)) shouldBe Valid(u1)
+        w3.validate(transform(bobAndFriend)) shouldBe Valid(u1)
       }
 
-      // "using implicit notation" in {
-      //   implicit lazy val w: Rule[grammar.Out, RecUser] =
-      //     (
-      //       at(Path \ "name").is(req[String]) ~:
-      //       at(Path \ "friends").is(req[Seq[RecUser]]) ~:
-      //       knil
-      //     ).to[RecUser]
+      "using implicit notation" in {
+        implicit lazy val w: Rule[grammar.Out, RecUser] =
+          (
+            at(Path \ "name").is(req[String]) ~:
+            at(Path \ "friends").is(opt[Seq[RecUser]].map(_.toSeq.flatten)) ~:
+            knil
+          ).to[RecUser]
 
-      //   w.validate(transform(bobAndFriends)) shouldBe Valid(u)
+        w.validate(transform(bobAndFriends)) shouldBe Valid(u)
 
-      //   implicit lazy val w3: Rule[grammar.Out, User1] =
-      //     (
-      //       at(Path \ "name").is(req[String]) ~:
-      //       at(Path \ "friend").is(opt[User1]) ~:
-      //       knil
-      //     ).to[User1]
+        implicit lazy val w3: Rule[grammar.Out, User1] =
+          (
+            at(Path \ "name").is(req[String]) ~:
+            at(Path \ "friend").is(opt[User1]) ~:
+            knil
+          ).to[User1]
 
-      //   w3.validate(transform(bobAndFriend)) shouldBe Valid(u1)
-      // }
+        w3.validate(transform(bobAndFriend)) shouldBe Valid(u1)
+      }
     }
 
   }

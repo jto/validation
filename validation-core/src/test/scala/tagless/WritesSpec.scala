@@ -94,95 +94,54 @@ trait WritesSpec[T] extends WordSpec with Matchers {
         transform(at(Path \ "foo" \ "bar").is(opt[String]).writes(None)) shouldBe none
       }
 
-    //   "Map[String, Seq[V]]" in {
-    //     (Path \ "n")
-    //       .write[Map[String, Seq[String]], JsObject]
-    //       .writes(Map("foo" -> Seq("bar"))) shouldBe
-    //     (Json.obj("n" -> Json.obj("foo" -> Seq("bar"))))
-    //     (Path \ "n")
-    //       .write[Map[String, Seq[Int]], JsObject]
-    //       .writes(Map("foo" -> Seq(4))) shouldBe
-    //     (Json.obj("n" -> Json.obj("foo" -> Seq(4))))
-    //     (Path \ "n" \ "o")
-    //       .write[Map[String, Seq[Int]], JsObject]
-    //       .writes(Map("foo" -> Seq(4))) shouldBe
-    //     (Json.obj("n" -> Json.obj("o" -> Json.obj("foo" -> Seq(4)))))
-    //     (Path \ "n" \ "o")
-    //       .write[Map[String, Int], JsObject]
-    //       .writes(Map("foo" -> 4)) shouldBe
-    //     (Json.obj("n" -> Json.obj("o" -> Json.obj("foo" -> 4))))
-    //     (Path \ "n" \ "o").write[Map[String, Int], JsObject].writes(Map.empty) shouldBe
-    //     (Json.obj("n" -> Json.obj("o" -> Json.obj())))
-    //   }
+      "Map[String, Seq[V]]" in {
+        import testCases.map._
+        transform(at(Path \ "n").is(req[Map[String, Seq[String]]])
+          .writes(Map("foo" -> Seq("bar")))) shouldBe foobar
 
-    //   "Traversable" in {
-    //     (Path \ "n")
-    //       .write[Traversable[String], JsObject]
-    //       .writes(Array("foo", "bar")) shouldBe
-    //     (Json.obj("n" -> Seq("foo", "bar")))
-    //     (Path \ "n" \ "o")
-    //       .write[Traversable[String], JsObject]
-    //       .writes(Array("foo", "bar")) shouldBe
-    //     (Json.obj("n" -> Json.obj("o" -> Seq("foo", "bar"))))
-    //     (Path \ "n" \ "o" \ "p")
-    //       .write[Traversable[String], JsObject]
-    //       .writes(Array("foo", "bar")) shouldBe
-    //     (Json.obj("n" -> Json.obj("o" -> Json.obj("p" -> Seq("foo", "bar")))))
+        transform(at(Path \ "n").is(req[Map[String, Seq[Int]]])
+          .writes(Map("foo" -> Seq(4), "bar" -> Seq(5)))) shouldBe ints
 
-    //     (Path \ "n")
-    //       .write[Traversable[String], JsObject]
-    //       .writes(Array[String]()) shouldBe (Json.obj("n" -> Seq[String]()))
-    //     (Path \ "n" \ "o")
-    //       .write[Traversable[String], JsObject]
-    //       .writes(Array[String]()) shouldBe
-    //     (Json.obj("n" -> Json.obj("o" -> Seq[String]())))
-    //     (Path \ "n" \ "o" \ "p")
-    //       .write[Traversable[String], JsObject]
-    //       .writes(Array[String]()) shouldBe
-    //     (Json.obj("n" -> Json.obj("o" -> Json.obj("p" -> Seq[String]()))))
-    //   }
+        transform(at(Path \ "n").is(req[Map[String, Seq[String]]])
+          .writes(Map("foo" -> Seq("4"), "bar" -> Seq("frack")))) shouldBe mixed
+      }
 
-    //   "Array" in {
-    //     (Path \ "n").write[Array[String], JsObject].writes(Array("foo", "bar")) shouldBe
-    //     (Json.obj("n" -> Seq("foo", "bar")))
-    //     (Path \ "n" \ "o")
-    //       .write[Array[String], JsObject]
-    //       .writes(Array("foo", "bar")) shouldBe
-    //     (Json.obj("n" -> Json.obj("o" -> Seq("foo", "bar"))))
-    //     (Path \ "n" \ "o" \ "p")
-    //       .write[Array[String], JsObject]
-    //       .writes(Array("foo", "bar")) shouldBe
-    //     (Json.obj("n" -> Json.obj("o" -> Json.obj("p" -> Seq("foo", "bar")))))
 
-    //     (Path \ "n").write[Array[String], JsObject].writes(Array()) shouldBe
-    //     (Json.obj("n" -> Seq[String]()))
-    //     (Path \ "n" \ "o").write[Array[String], JsObject].writes(Array()) shouldBe
-    //     (Json.obj("n" -> Json.obj("o" -> Seq[String]())))
-    //     (Path \ "n" \ "o" \ "p").write[Array[String], JsObject].writes(Array()) shouldBe
-    //     (Json.obj("n" -> Json.obj("o" -> Json.obj("p" -> Seq[String]()))))
-    //   }
+      "Seq" in {
+        import testCases.seq._
+        transform(at(Path \ "n").is(req[Seq[String]]).writes(Seq("foo"))) shouldBe foos
+        transform(at(Path \ "foo" \ "foo").is(req[Seq[String]]).writes(Seq("bar"))) shouldBe foofoobars
+        transform(at(Path \ "n").is(req[Seq[Int]]).writes(Seq(1, 2, 3))) shouldBe ints
+      }
 
-      // "Seq" in {
-      //   import testCases.seq._
-      //   transform(at(Path \ "n").is(req[Seq[String]]).writes(Seq("foo"))) shouldBe foos
-      //   transform(at(Path \ "foo" \ "foo").is(req[Seq[String]]).writes(Seq("bar"))) shouldBe foofoobars
-      //   transform(at(Path \ "n").is(req[Seq[Int]]).writes(Seq(1, 2, 3))) shouldBe ints
-      // }
+      "List" in {
+        import testCases.seq._
+        transform(at(Path \ "n").is(req[List[String]]).writes(List("foo"))) shouldBe foos
+        transform(at(Path \ "foo" \ "foo").is(req[List[String]]).writes(List("bar"))) shouldBe foofoobars
+        transform(at(Path \ "n").is(req[List[Int]]).writes(List(1, 2, 3))) shouldBe ints
+      }
+
+      "Array" in {
+        import testCases.seq._
+        transform(at(Path \ "n").is(req[Array[String]]).writes(Array("foo"))) shouldBe foos
+        transform(at(Path \ "foo" \ "foo").is(req[Array[String]]).writes(Array("bar"))) shouldBe foofoobars
+        transform(at(Path \ "n").is(req[Array[Int]]).writes(Array(1, 2, 3))) shouldBe ints
+      }
     }
 
-    // "compose" in {
-    //   import testCases.base._
-    //   val w =
-    //     (
-    //       at(Path \ "email").is(opt[String]) ~:
-    //       at(Path \ "phones").is(req[Seq[String]]) ~:
-    //       knil
-    //     ).tupled
+    "compose" in {
+      import testCases.base._
+      val w =
+        (
+          at(Path \ "email").is(opt[String]) ~:
+          at(Path \ "phones").is(opt[Seq[String]].contramap[Seq[String]]{ ss => ss.headOption.map(_ => ss) }) ~:
+          knil
+        ).tupled
 
-    //   val v = Some("fakecontact@gmail.com") -> Seq("01.23.45.67.89", "98.76.54.32.10")
-    //   transform(w.writes(v)) shouldBe testCases.base.info
-    //   transform(w.writes(None -> Nil)) shouldBe noInfo
-    // }
+      val v = Some("fakecontact@gmail.com") -> Seq("01.23.45.67.89", "98.76.54.32.10")
+      transform(w.writes(v)) shouldBe testCases.base.info
+      transform(w.writes(None -> Nil)) shouldBe noInfo
+    }
 
     // "write Invalid" in {
     //   val f = Invalid[(Path, Seq[ValidationError]), String](Seq(Path \ "n" -> Seq(ValidationError("validation.type-mismatch", "Int"))))
@@ -201,79 +160,79 @@ trait WritesSpec[T] extends WordSpec with Matchers {
     //     .writes(f) shouldBe(error)
     // }
 
-    // "write Map" in {
-    //   import testCases.base._
+    "write Map" in {
+      import testCases.base._
 
-    //   implicit val contactInformation =
-    //     {
-    //       at(Path \ "label").is(req[String]) ~:
-    //       at(Path \ "email").is(opt[String]) ~:
-    //       at(Path \ "phones").is(req[Seq[String]]) ~:
-    //       knil
-    //     }.from[ContactInformation]
+      implicit val contactInformation =
+        {
+          at(Path \ "label").is(req[String]) ~:
+          at(Path \ "email").is(opt[String]) ~:
+          at(Path \ "phones").is(req[Seq[String]]) ~:
+          knil
+        }.from[ContactInformation]
 
-    //   val contactWrite =
-    //     {
-    //       at(Path \ "firstname").is(req[String]) ~:
-    //       at(Path \ "lastname").is(req[String]) ~:
-    //       at(Path \ "company").is(opt[String]) ~:
-    //       at(Path \ "informations").is(req[Seq[ContactInformation]]) ~:
-    //       knil
-    //     }.from[Contact]
+      val contactWrite =
+        {
+          at(Path \ "firstname").is(req[String]) ~:
+          at(Path \ "lastname").is(req[String]) ~:
+          at(Path \ "company").is(opt[String]) ~:
+          at(Path \ "informations").is(req[Seq[ContactInformation]]) ~:
+          knil
+        }.from[Contact]
 
-    //   // TODO: use solver ?
-    //   transform(contactWrite.writes(contact)) shouldBe jto
-    // }
+      // TODO: use solver ?
+      transform(contactWrite.writes(contact)) shouldBe jto
+    }
 
-    // "write recursive" when {
-    //   case class RecUser(name: String, friends: Seq[RecUser] = Nil)
-    //   val u = RecUser("bob", Seq(RecUser("tom")))
+    "write recursive" when {
+      case class RecUser(name: String, friends: Seq[RecUser] = Nil)
+      val u = RecUser("bob", Seq(RecUser("tom")))
 
-    //   case class User1(name: String, friend: Option[User1] = None)
-    //   val u1 = User1("bob", Some(User1("tom")))
+      case class User1(name: String, friend: Option[User1] = None)
+      val u1 = User1("bob", Some(User1("tom")))
 
-    //   "using explicit notation" in {
-    //     import testCases.rec._
-    //     lazy val w: Write[RecUser, Out] =
-    //       {
-    //         at(Path \ "name").is(req[String]) ~:
-    //         at(Path \ "friends").is(req(seq(w))) ~:
-    //         knil
-    //       }.from[RecUser]
+      "using explicit notation" in {
+        import testCases.rec._
+        lazy val w: Write[RecUser, Out] =
+          {
+            at(Path \ "name").is(req[String]) ~:
+            at(Path \ "friends").is(opt(seq(w)).contramap{ (ns: Seq[RecUser]) => ns.headOption.map(_ => ns) }) ~:
+            knil
+          }.from[RecUser]
 
-    //     transform(w.writes(u)) shouldBe bobAndFriends
+        transform(w.writes(u)) shouldBe bobAndFriends
 
-    //     lazy val w2: Write[User1, Out] =
-    //       {
-    //         at(Path \ "name").is(req[String]) ~:
-    //         at(Path \ "friend").is(opt(w2)) ~:
-    //         knil
-    //       }.from[User1]
+        lazy val w2: Write[User1, Out] =
+          {
+            at(Path \ "name").is(req[String]) ~:
+            at(Path \ "friend").is(opt(w2)) ~:
+            knil
+          }.from[User1]
 
-    //     transform(w2.writes(u1)) shouldBe bobAndFriend
-    //   }
+        transform(w2.writes(u1)) shouldBe bobAndFriend
+      }
 
-    //   "using implicit notation" in {
-    //     import testCases.rec._
-    //     implicit lazy val w: Write[RecUser, Out] =
-    //       {
-    //         at(Path \ "name").is(req[String]) ~:
-    //         at(Path \ "friends").is(req[Seq[RecUser]]) ~:
-    //         knil
-    //       }.from[RecUser]
+      "using implicit notation" in {
+        import testCases.rec._
+        implicit lazy val w: Write[RecUser, Out] =
+          {
+            at(Path \ "name").is(req[String]) ~:
+            at(Path \ "friends").is(opt[Seq[RecUser]].contramap{ (ns: Seq[RecUser]) => ns.headOption.map(_ => ns) }) ~:
+            knil
+          }.from[RecUser]
 
-    //     transform(w.writes(u)) shouldBe bobAndFriends
+        transform(w.writes(u)) shouldBe bobAndFriends
 
-    //     implicit lazy val w2: Write[User1, Out] =
-    //       {
-    //         at(Path \ "name").is(req[String]) ~:
-    //         at(Path \ "friend").is(opt[User1]) ~:
-    //         knil
-    //       }.from[User1]
+        implicit lazy val w2: Write[User1, Out] =
+          {
+            at(Path \ "name").is(req[String]) ~:
+            at(Path \ "friend").is(opt[User1]) ~:
+            knil
+          }.from[User1]
 
-    //     transform(w2.writes(u1)) shouldBe bobAndFriend
-    //   }
-    // }
+        transform(w2.writes(u1)) shouldBe bobAndFriend
+      }
+    }
 
     "support write of value class" in {
       import testCases.base._

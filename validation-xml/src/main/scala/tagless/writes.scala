@@ -98,7 +98,14 @@ trait WritesGrammar
   implicit def traversable[A](implicit k: Write[A, _ >: Out <: _I]): Write[Traversable[A], _I] =
     list[A](k).contramap(_.toList)
 
-  implicit def map[A](implicit k: Write[A, _ >: Out <: _I]): Write[Map[String,A], _I] = ???
+  implicit def map[A](implicit k: Write[A, _ >: Out <: _I]): Write[Map[String, A], _I] =
+    Write[Map[String, A], _I] { m =>
+      m.toList.foldLeft(iMonoid.empty) { (is, el) =>
+        val (key, a) = el
+        val ns = at(Path \ key).is(req(k)).writes(a)
+        iMonoid.combine(is, ns)
+      }
+    }
 
   def attr[A](key: String): At[flip[Write]#λ, _I, _I] =
     new At[flip[Write]#λ, _I, _I] {

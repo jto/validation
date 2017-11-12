@@ -2,7 +2,7 @@ package jto.validation
 package v3.tagless
 package xml
 
-import scala.xml._
+import scala.xml._, Utility.trim
 
 object XMLTestCases extends TestCases[NodeSeq] {
 
@@ -15,27 +15,29 @@ object XMLTestCases extends TestCases[NodeSeq] {
     def smthTrue = <issmth>false</issmth>
 
     def info =
-      <label>Personal</label>
       <email>fakecontact@gmail.com</email>
-      <phones>
-        <phone label="mobile">01.23.45.67.89</phone>
-        <phone label="home">98.76.54.32.10</phone>
-      </phones>
+      <phones>01.23.45.67.89</phones>
+      <phones>98.76.54.32.10</phones>
 
     def contacts =
-      <contacts label="Personal">
-        <label>Personal</label>
-        <email>fakecontact@gmail.com</email>
-        <phones label="mobile">01.23.45.67.89</phones>
-        <phones label="home">98.76.54.32.10</phones>
-      </contacts>
+      trim {
+        <contacts label="Personal">
+          <label>Personal</label>
+          <email>fakecontact@gmail.com</email>
+          <phones label="mobile">01.23.45.67.89</phones>
+          <phones label="home">98.76.54.32.10</phones>
+        </contacts>
+      }
 
     def jto =
-      <person>
-        <firstname>Julien</firstname>
-        <lastname>Tournay</lastname>
-        {info}
-      </person>
+      <firstname>Julien</firstname>
+      <lastname>Tournay</lastname> ++
+      trim {
+        <informations>
+          <label>Personal</label>
+          {info}
+        </informations>
+      }
 
     def valid =
         <firstname>Julien</firstname>
@@ -124,9 +126,9 @@ object XMLTestCases extends TestCases[NodeSeq] {
   }
 
   val map = new map {
-    def foobar = <n><foo>bar</foo></n>
-    def ints = <n><foo>4</foo><bar>5</bar></n>
-    def mixed = <n><foo>4</foo><bar>frack</bar></n>
+    def foobar = <n><foo>bar</foo></n> ++ NodeSeq.Empty
+    def ints = <n><foo>4</foo><bar>5</bar></n> ++ NodeSeq.Empty
+    def mixed = <n><foo>4</foo><bar>frack</bar></n> ++ NodeSeq.Empty
   }
 
   val password = new password {
@@ -157,16 +159,10 @@ object XMLTestCases extends TestCases[NodeSeq] {
 
   val rec = new rec {
     def bobAndFriends =
-      <name>bob</name>
-      <friends>
-        <name>tom</name>
-      </friends>
+      <name>bob</name><friends><name>tom</name></friends>
 
     def bobAndFriend =
-      <name>bob</name>
-      <friend>
-        <name>tom</name>
-      </friend>
+      <name>bob</name><friend><name>tom</name></friend>
   }
 
 }

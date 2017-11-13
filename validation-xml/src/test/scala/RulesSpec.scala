@@ -290,8 +290,7 @@ class RulesSpec extends WordSpec with Matchers {
         val passRule = From[Node] { __ =>
           ((__ \ "password").read(notEmpty) ~ (__ \ "verify").read(notEmpty)).tupled
             .andThen(Rule
-                .uncurry(Rules.equalTo[String])
-                .repath(_ => (Path \ "verify")))
+                .uncurry(Rules.equalTo[String]))
         }
 
         val rule = From[Node] { __ =>

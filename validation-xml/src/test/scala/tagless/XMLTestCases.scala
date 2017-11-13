@@ -15,6 +15,7 @@ object XMLTestCases extends TestCases[NodeSeq] {
     def smthTrue = <issmth>false</issmth>
 
     def info =
+      <label>Personal</label>
       <email>fakecontact@gmail.com</email>
       <phones>01.23.45.67.89</phones>
       <phones>98.76.54.32.10</phones>
@@ -22,10 +23,7 @@ object XMLTestCases extends TestCases[NodeSeq] {
     def contacts =
       trim {
         <contacts label="Personal">
-          <label>Personal</label>
-          <email>fakecontact@gmail.com</email>
-          <phones label="mobile">01.23.45.67.89</phones>
-          <phones label="home">98.76.54.32.10</phones>
+          {info}
         </contacts>
       }
 
@@ -34,7 +32,6 @@ object XMLTestCases extends TestCases[NodeSeq] {
       <lastname>Tournay</lastname> ++
       trim {
         <informations>
-          <label>Personal</label>
           {info}
         </informations>
       }

@@ -14,6 +14,14 @@ class XMLRulesSpec extends RulesSpec[List[XML]] {
 
   "Specific XML Rules" should {
 
+    val info =
+      <label>Personal</label>
+      <email>fakecontact@gmail.com</email>
+      <phones>
+        <phone label="mobile">01.23.45.67.89</phone>
+        <phone label="home">98.76.54.32.10</phone>
+      </phones>
+
     import grammar.{ map => _, _ }
 
     "validate required attributes at root level" in {
@@ -28,20 +36,18 @@ class XMLRulesSpec extends RulesSpec[List[XML]] {
 
     // TODO: Add test case for index path node in RuleSpec
     "validate list of required attributes" in {
-      import testCases.base
-      def r = at(Path \ "phones")
 
       def phone(s: String) =
-        req(
+        at(Path \ "phones").is(req(
           at(Path \ "phone").is(req(
             list(attr(s).is(req[String]))
           ))
-        )
+        ))
 
-      r.is(phone("label")).validate(transform(base.info)) shouldBe
+      phone("label").validate(transform(info)) shouldBe
         Valid(List("mobile", "home"))
 
-      r.is(phone("fake")).validate(transform(base.info)) shouldBe
+      phone("fake").validate(transform(info)) shouldBe
         Invalid(Seq(
           (Path \ "phones" \ "phone" \ 0 \ "@fake") -> Seq(ValidationError("error.required")),
           (Path \ "phones" \ "phone" \ 1 \ "@fake") -> Seq(ValidationError("error.required"))
@@ -49,7 +55,6 @@ class XMLRulesSpec extends RulesSpec[List[XML]] {
     }
 
     "validate required attributes AND node" in {
-      import testCases.base
 
       val p = Path \ "phones" \ "phone"
 
@@ -63,7 +68,7 @@ class XMLRulesSpec extends RulesSpec[List[XML]] {
           at(Path \ "phone").is(req(rs0.tupled))
         ))
 
-      ruleOK.validate(transform(base.info)) shouldBe
+      ruleOK.validate(transform(info)) shouldBe
         Valid(("01.23.45.67.89", "mobile"))
 
       val rs1 =
@@ -82,7 +87,7 @@ class XMLRulesSpec extends RulesSpec[List[XML]] {
       val nodeErr =
         Path \ "phones" -> Seq(ValidationError("error.required"))
 
-      ruleNOK.validate(transform(base.info)) shouldBe
+      ruleNOK.validate(transform(info)) shouldBe
         Invalid(Seq(attrErr))
 
       ruleNOK.validate(transform(NodeSeq.Empty)) shouldBe
@@ -101,11 +106,10 @@ class XMLRulesSpec extends RulesSpec[List[XML]] {
     }
 
     "validate optional attributes" in {
-      import testCases.base
       def r0 = at(Path \ "phones" \ "phone").is(req(attr("label").is(opt[String])))
       def r1 = at(Path \ "phones" \ "phone").is(req(attr("fake").is(opt[String])))
-      r0.validate(transform(base.info)) shouldBe Valid(Option("mobile"))
-      r1.validate(transform(base.info)) shouldBe Valid(None)
+      r0.validate(transform(info)) shouldBe Valid(Option("mobile"))
+      r1.validate(transform(info)) shouldBe Valid(None)
     }
 
   }

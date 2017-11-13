@@ -12,6 +12,12 @@ object JsonTestCases extends TestCases[JsValue] {
 
     val info =
       Json.obj(
+        "label" -> "Personal",
+        "email" -> "fakecontact@gmail.com",
+        "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
+
+    val infoNoLabel =
+      Json.obj(
         "email" -> "fakecontact@gmail.com",
         "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
 
@@ -26,19 +32,17 @@ object JsonTestCases extends TestCases[JsValue] {
       Json.obj("firstname" -> "Julien",
                "lastname" -> "Tournay",
                "age" -> 27,
-               "informations" ->
-                  (Json.obj("label" -> "Personal") ++ info),
-               "contacts" -> Seq(
-                  Json.obj("label" -> "Personal") ++ info))
+               "informations" -> info,
+               "contacts" -> Seq(info))
 
     val invalid =
       Json.obj("firstname" -> "Julien",
                "lastname" -> "Tournay",
                "age" -> 27,
                "informations" ->
-                  (Json.obj("label" -> "") ++ info),
+                  (Json.obj("label" -> "") ++ infoNoLabel),
                "contacts" -> Seq(
-                  Json.obj("label" -> "") ++ info))
+                  Json.obj("label" -> "") ++ infoNoLabel))
 
     val smthTrue = Json.obj("issmth" -> true)
     val smthFalse = Json.obj("issmth" -> false)

@@ -132,14 +132,15 @@ trait WritesSpec[T] extends WordSpec with Matchers {
       import testCases.base._
       val w =
         (
+          at(Path \ "label").is(opt[String]) ~:
           at(Path \ "email").is(opt[String]) ~:
           at(Path \ "phones").is(opt[Seq[String]].contramap[Seq[String]]{ ss => ss.headOption.map(_ => ss) }) ~:
           knil
         ).tupled
 
-      val v = Some("fakecontact@gmail.com") -> Seq("01.23.45.67.89", "98.76.54.32.10")
+      val v = (Some("Personal"), Some("fakecontact@gmail.com"), Seq("01.23.45.67.89", "98.76.54.32.10"))
       transform(w.writes(v)) shouldBe testCases.base.info
-      transform(w.writes(None -> Nil)) shouldBe noInfo
+      transform(w.writes((None, None, Nil))) shouldBe noInfo
     }
 
     // "write Invalid" in {

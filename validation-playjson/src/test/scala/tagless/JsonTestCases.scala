@@ -15,8 +15,7 @@ object JsonTestCases extends TestCases[JsValue] {
         "email" -> "fakecontact@gmail.com",
         "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
 
-    val noInfo =
-      Json.obj("phones" -> Seq.empty[String])
+    val noInfo = Json.obj()
 
     val jto = Json.obj(
       "firstname" -> "Julien",
@@ -86,9 +85,9 @@ object JsonTestCases extends TestCases[JsValue] {
   }
 
   val map = new map {
-    val foobar = Json.obj("n" -> Json.obj("foo" -> "bar"))
-    val ints = Json.obj("n" -> Json.obj("foo" -> 4, "bar" -> 5))
-    val mixed = Json.obj("n" -> Json.obj("foo" -> 4, "bar" -> "frack"))
+    val foobar = Json.obj("n" -> Json.obj("foo" -> List("bar")))
+    val ints = Json.obj("n" -> Json.obj("foo" -> List(4), "bar" -> List(5)))
+    val mixed = Json.obj("n" -> Json.obj("foo" -> List(4), "bar" -> List("frack")))
   }
 
   val password = new password {
@@ -115,7 +114,7 @@ object JsonTestCases extends TestCases[JsValue] {
     val bobAndFriends =
       Json.obj("name" -> "bob",
                "friends" -> Seq(
-                   Json.obj("name" -> "tom", "friends" -> Seq[JsObject]())))
+                   Json.obj("name" -> "tom")))
 
     val bobAndFriend =
       Json.obj(

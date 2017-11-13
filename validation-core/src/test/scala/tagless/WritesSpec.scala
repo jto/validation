@@ -101,9 +101,6 @@ trait WritesSpec[T] extends WordSpec with Matchers {
 
         transform(at(Path \ "n").is(req[Map[String, Seq[Int]]])
           .writes(Map("foo" -> Seq(4), "bar" -> Seq(5)))) shouldBe ints
-
-        transform(at(Path \ "n").is(req[Map[String, Seq[String]]])
-          .writes(Map("foo" -> Seq("4"), "bar" -> Seq("frack")))) shouldBe mixed
       }
 
 
@@ -130,6 +127,8 @@ trait WritesSpec[T] extends WordSpec with Matchers {
     }
 
     "compose" in {
+      // TODO: Add a test of required list that can be empty
+      // and validate that it works in XML
       import testCases.base._
       val w =
         (

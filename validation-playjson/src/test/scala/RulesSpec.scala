@@ -236,12 +236,15 @@ class RulesSpec extends WordSpec with Matchers {
         (Path \ "n")
           .read[JsValue, Option[Boolean]]
           .validate(Json.obj("n" -> true)) shouldBe (Valid(Some(true)))
+
         (Path \ "n")
           .read[JsValue, Option[Boolean]]
           .validate(Json.obj("n" -> JsNull)) shouldBe (Valid(None))
+
         (Path \ "n")
           .read[JsValue, Option[Boolean]]
           .validate(Json.obj("foo" -> "bar")) shouldBe (Valid(None))
+
         (Path \ "n")
           .read[JsValue, Option[Boolean]]
           .validate(Json.obj("n" -> "bar")) shouldBe
@@ -441,10 +444,11 @@ class RulesSpec extends WordSpec with Matchers {
                         "password" -> "s3cr3t",
                         "verify" -> "bam")
 
+      // TODO: document the andThen path change
       val passRule = From[JsValue] { __ =>
         ((__ \ "password").read(notEmpty) ~ (__ \ "verify").read(notEmpty)).tupled
           .andThen(
-            Rule.uncurry(Rules.equalTo[String]).repath(_ => (Path \ "verify")))
+            Rule.uncurry(Rules.equalTo[String]))
       }
 
       val rule = From[JsValue] { __ =>
@@ -490,7 +494,7 @@ class RulesSpec extends WordSpec with Matchers {
             .map(C.apply)
         }
 
-        val rule = rb orElse rc orElse Rule(Path)(_ => typeInvalid)
+        val rule = rb orElse rc orElse Rule(_ => typeInvalid)
 
         rule.validate(b) shouldBe (Valid(B(4)))
         rule.validate(c) shouldBe (Valid(C(6)))
@@ -504,7 +508,7 @@ class RulesSpec extends WordSpec with Matchers {
           (__ \ "name").read[String].flatMap[A] {
             case "B" => (__ \ "foo").read[Int].map(B.apply)
             case "C" => (__ \ "bar").read[Int].map(C.apply)
-            case _ => Rule(Path)(_ => typeInvalid)
+            case _ => Rule(_ => typeInvalid)
           }
         }
 

@@ -5,14 +5,10 @@ package playjson
 import play.api.libs.json.{JsValue, JsObject, JsNumber}
 import jto.validation.playjson.Writes
 
-object WriteTypeAlias {
-  // I should be able to use flip[Write]#λ instead of creating this ugly
-  // type alias but somehow, not naming the type breaks inference...
-  type FWrite[A, B] = Write[B, A]
-}
+import types.flip
 
 trait WritesGrammar
-  extends JsonGrammar[WriteTypeAlias.FWrite]
+  extends JsonGrammar[flip[Write]#λ]
   with WriteConstraints
   with WritesTypeclasses[JsValue] {
   self =>
@@ -25,26 +21,23 @@ trait WritesGrammar
 
   def mapPath(f: Path => Path): P =
     new WritesGrammar {
-      override def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: JsValue]]): Write[A,JsObject] =
-        self.at(f(p))(k)
+      override def at(p: Path) =
+        self.at(f(p))
     }
 
-  def at[A](p: Path)(k: => Write[A, Option[_ >: Out <: JsValue]]): Write[A, JsObject] =
-    Write { t =>
-      val js = k.writes(t)
-      val w2 = Writes.optionW(Write.zero[JsValue])(Writes.writeJson _)(p)
-      w2.writes(js)
+  def at(p: Path): At[flip[Write]#λ ,Out, JsValue] =
+    new At[flip[Write]#λ ,Out, JsValue] {
+      def run: Write[Option[JsValue], Out] =
+        Writes.optionW(Write.zero[JsValue])(Writes.writeJson _)(p)
     }
+
+  def is[A](implicit K: Write[A, _ >: Out <: JsValue]): Write[A, JsValue] = K
 
   def opt[A](implicit K: Write[A, _ >: Out <: JsValue]): Write[Option[A], Option[JsValue]] =
-    Write {
-      _.map(K.writes)
-    }
+    Write { _.map(K.writes) }
 
   def req[A](implicit K: Write[A, _ >: Out <: JsValue]): Write[A, Option[JsValue]] =
-    Write { a =>
-      Option(K.writes(a))
-    }
+    Write { a => Option(K.writes(a)) }
 
   implicit def int = Writes.intW
   implicit def string = Writes.string

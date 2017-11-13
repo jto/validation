@@ -8,23 +8,27 @@ class JsonRulesSpec extends RulesSpec[JsValue] {
   val grammar = RulesGrammar
   val testCases = JsonTestCases
 
-  import grammar._
+  type From = JsValue
+  def transform = identity
 
+  import grammar._
 
   "Specific JSON Rules" should {
 
     "check json types" when {
       "string" in {
         import testCases.string._
-        def n = at(Path \ "n")(req[String])
-        def o = at(Path \ "o")(req[String])
+        def n = at(Path \ "n").is(req[String])
+        def o = at(Path \ "o").is(req[String])
 
         n.validate(_42) shouldBe
           (Invalid(Seq(Path \ "n" -> Seq(
             ValidationError("error.invalid", "String")))))
+
         n.validate(foos) shouldBe
           (Invalid(Seq(Path \ "n" -> Seq(
             ValidationError("error.invalid", "String")))))
+
         o.validate(onFoo) shouldBe
           (Invalid(Seq(Path \ "o" -> Seq(
             ValidationError("error.invalid", "String")))))
@@ -33,12 +37,12 @@ class JsonRulesSpec extends RulesSpec[JsValue] {
       "Traversable" in {
         import testCases.seq._
 
-        at(Path \ "n")(req[Traversable[String]])
+        at(Path \ "n").is(req[Traversable[String]])
           .validate(paf) shouldBe
             (Invalid(Seq(Path \ "n" -> Seq(
               ValidationError("error.invalid", "Array")))))
 
-        at(Path \ "n")(req[Traversable[String]])
+        at(Path \ "n").is(req[Traversable[String]])
           .validate(mixed) shouldBe
             (Invalid(Seq(Path \ "n" \ 1 -> Seq(
               ValidationError("error.invalid", "String")))))
@@ -46,19 +50,19 @@ class JsonRulesSpec extends RulesSpec[JsValue] {
 
       "Seq" in {
         import testCases.seq._
-        at(Path \ "n")(req[Seq[String]])
+        at(Path \ "n").is(req[Seq[String]])
           .validate(paf) shouldBe
             (Invalid(Seq(Path \ "n" -> Seq(
               ValidationError("error.invalid", "Array")))))
 
-        at(Path \ "n")(req[Seq[String]]).validate(mixed) shouldBe
+        at(Path \ "n").is(req[Seq[String]]).validate(mixed) shouldBe
           (Invalid(Seq(Path \ "n" \ 1 -> Seq(
             ValidationError("error.invalid", "String")))))
       }
     }
 
     "support null" in {
-        val jn = at(Path \ "n")(req[JsNull.type])
+        val jn = at(Path \ "n").is(req[JsNull.type])
 
         jn.validate(Json.obj("n" -> JsNull)) shouldBe Valid(JsNull)
 
@@ -72,11 +76,11 @@ class JsonRulesSpec extends RulesSpec[JsValue] {
       }
 
       "JsObject" in {
-        at(Path \ "o")(req[JsObject])
+        at(Path \ "o").is(req[JsObject])
           .validate(Json.obj("o" -> Json.obj("n" -> "foo"))) shouldBe
             Valid(JsObject(Seq("n" -> JsString("foo"))))
 
-        def n = at(Path \ "n")(req[JsObject])
+        def n = at(Path \ "n").is(req[JsObject])
 
         n.validate(Json.obj("n" -> 42)) shouldBe
           Invalid(Seq(Path \ "n" -> Seq(
@@ -92,7 +96,7 @@ class JsonRulesSpec extends RulesSpec[JsValue] {
       }
 
      "JsString" in {
-        def n = at(Path \ "n")(req[JsString])
+        def n = at(Path \ "n").is(req[JsString])
         n.validate(Json.obj("n" -> "foo")) shouldBe Valid(JsString("foo"))
         n.validate(Json.obj("n" -> 42)) shouldBe
           Invalid(Seq(Path \ "n" -> Seq(
@@ -100,7 +104,7 @@ class JsonRulesSpec extends RulesSpec[JsValue] {
       }
 
       "JsNumber" in {
-        def n = at(Path \ "n")(req[JsNumber])
+        def n = at(Path \ "n").is(req[JsNumber])
         n.validate(Json.obj("n" -> 4)) shouldBe Valid(JsNumber(4))
 
         n.validate(Json.obj("n" -> "foo")) shouldBe
@@ -111,7 +115,7 @@ class JsonRulesSpec extends RulesSpec[JsValue] {
       }
 
       "JsBoolean" in {
-        def n = at(Path \ "n")(req[JsBoolean])
+        def n = at(Path \ "n").is(req[JsBoolean])
         n.validate(Json.obj("n" -> true)) shouldBe Valid(JsBoolean(true))
         n.validate(Json.obj("n" -> "foo")) shouldBe
           Invalid(Seq(Path \ "n" -> Seq(

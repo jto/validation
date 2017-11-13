@@ -169,22 +169,22 @@ trait RulesSpec[T] extends WordSpec with Matchers {
             ValidationError("error.invalid", "Boolean")))))
       }
 
-      "Map[String, V]" in {
+      "Map[String, Seq[V]]" in {
         import testCases.map._
 
-        at(Path \ "n").is(req[Map[String, String]])
-          .validate(transform(foobar)) shouldBe Valid(Map("foo" -> "bar"))
+        at(Path \ "n").is(req[Map[String, Seq[String]]])
+          .validate(transform(foobar)) shouldBe Valid(Map("foo" -> Seq("bar")))
 
-        at(Path \ "n").is(req[Map[String, Int]])
-          .validate(transform(ints)) shouldBe Valid(Map("foo" -> 4, "bar" -> 5))
+        at(Path \ "n").is(req[Map[String, Seq[Int]]])
+          .validate(transform(ints)) shouldBe Valid(Map("foo" -> Seq(4), "bar" -> Seq(5)))
 
-        at(Path \ "x").is(req[Map[String, Int]])
+        at(Path \ "x").is(req[Map[String, Seq[Int]]])
           .validate(transform(mixed)) shouldBe
             Invalid(Seq(Path \ "x" -> Seq(ValidationError("error.required"))))
 
-        at(Path \ "n").is(req[Map[String, Int]])
+        at(Path \ "n").is(req[Map[String, Seq[Int]]])
           .validate(transform(mixed)) shouldBe
-            Invalid(Seq(Path \ "n" \ "bar" -> Seq(
+            Invalid(Seq(Path \ "n" \ "bar" \ 0 -> Seq(
               ValidationError("error.number", "Int"))))
       }
 

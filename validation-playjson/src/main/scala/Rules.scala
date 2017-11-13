@@ -129,11 +129,12 @@ trait Rules extends DefaultRules[JsValue] {
       case Nil => Some(json)
     }
 
-    Rule[II, JsValue](p) { (json: II) =>
+    Rule[II, JsValue] { (json: II) =>
       search(p, json) match {
         case None =>
-          Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
-        case Some(js) => Valid(js)
+          Invalid(Seq(p -> Seq(ValidationError("error.required"))))
+        case Some(js) =>
+          Valid(p -> js)
       }
     }.andThen(r)
   }

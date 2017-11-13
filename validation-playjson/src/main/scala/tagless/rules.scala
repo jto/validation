@@ -5,7 +5,11 @@ package playjson
 import play.api.libs.json.{JsValue, JsObject, JsArray}
 import jto.validation.playjson.Rules
 
-trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints with RulesTypeclasses[JsValue] {
+trait RulesGrammar
+  extends JsonGrammar[Rule]
+  with RuleConstraints
+  with RulesTypeclasses[JsValue] {
+
   self =>
 
   type Sup = JsValue
@@ -14,8 +18,8 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints with RulesType
 
   def mapPath(f: Path => Path): P =
     new RulesGrammar {
-      override def at[A](p: Path)(k: => Rule[Option[_ >: Out <: JsValue], A]) =
-        self.at(f(p))(k)
+      override def at(p: Path) =
+        self.at(f(p))
     }
 
   @inline private def search(path: Path, json: JsValue): Option[JsValue] =
@@ -35,21 +39,31 @@ trait RulesGrammar extends JsonGrammar[Rule] with RuleConstraints with RulesType
         Some(json)
     }
 
-  def at[A](p: Path)(k: => Rule[Option[_ >: Out <: JsValue], A]): Rule[JsValue, A] =
-    Rule(p) { js => k.validate(search(p, js)) }
+  def at(p: Path): At[Rule, JsValue, JsValue] =
+    new At[Rule, JsValue, JsValue]{
+      def run: Rule[JsValue, Option[JsValue]] =
+        Rule { js =>
+          Valid(p -> search(p, js))
+        }
+    }
+
+  def is[A](implicit K: Rule[_ >: JsValue <: JsValue, A]): Rule[JsValue, A] = K
+
 
   def opt[A](implicit K: Rule[_ >: Out <: JsValue, A]): Rule[Option[JsValue], Option[A]] =
-    Rule(Path) {
+    Rule {
       case Some(x) =>
-        K.validate(x).map(Option.apply)
+        K.validateWithPath(x).map{ case (p, v) =>
+          (p, Option(v))
+        }
       case None =>
-        Valid(None)
+        Valid(Path -> None)
     }
 
   def req[A](implicit K: Rule[_ >: Out <: JsValue, A]): Rule[Option[JsValue], A] =
-    Rule(Path) {
+    Rule {
       case Some(x) =>
-        K.validate(x)
+        K.validateWithPath(x)
       case None =>
         Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
     }

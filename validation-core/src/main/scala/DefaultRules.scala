@@ -419,18 +419,20 @@ trait DefaultRules[I] extends GenericRules with DateRules {
           (pick(path).validate(d).map(Some.apply) orElse Valid(None))
 
         Validated.fromEither(
-            v.toEither.right.flatMap {
-              case None => Right(path -> None)
-              case Some(i) =>
-                isNone
-                  .orElse(Rule
-                    .toRule(coerce)
-                    .andThen(r)
-                    .map[Option[O]](Some.apply))
-                  .validate(i)
-                  .map(path -> _)
-                  .toEither
-            }
+          v.toEither.right.flatMap {
+            case None =>
+              Right(path -> None)
+            case Some(i) =>
+              val realValidation =
+                Rule.toRule(coerce)
+                  .repath(path ++ _)
+                  .andThen(r)
+                  .map[Option[O]](Some.apply)
+
+              isNone.orElse(realValidation)
+                .validateWithPath(i)
+                .toEither
+          }
         )
     }
 

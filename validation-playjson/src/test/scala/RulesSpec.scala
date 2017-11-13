@@ -548,14 +548,20 @@ class RulesSpec extends WordSpec with Matchers {
                        "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))))
 
       val infoValidated = From[JsValue] { __ =>
-        ((__ \ "label").read(notEmpty) ~ (__ \ "email").read(optionR(email)) ~
-            (__ \ "phones").read(seqR(notEmpty)))(ContactInformation.apply)
+        (
+          (__ \ "label").read(notEmpty) ~
+          (__ \ "email").read(optionR(email)) ~
+          (__ \ "phones").read(seqR(notEmpty))
+        )(ContactInformation.apply)
       }
 
       val contactValidated = From[JsValue] { __ =>
-        ((__ \ "firstname").read(notEmpty) ~ (__ \ "lastname").read(notEmpty) ~
-            (__ \ "company").read[Option[String]] ~ (__ \ "informations").read(
-                seqR(infoValidated)))(Contact.apply)
+        (
+          (__ \ "firstname").read(notEmpty) ~
+          (__ \ "lastname").read(notEmpty) ~
+          (__ \ "company").read[Option[String]] ~
+          (__ \ "informations").read(seqR(infoValidated))
+        )(Contact.apply)
       }
 
       val expected = Contact(

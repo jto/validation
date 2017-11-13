@@ -399,7 +399,7 @@ class RulesSpec extends WordSpec with Matchers {
                                      Some("fakecontact@gmail.com"),
                                      List("01.02", "02.03")))
 
-        // contactValidated.validate(valid) shouldBe (Valid(expected))
+        contactValidated.validate(valid) shouldBe (Valid(expected))
         contactValidated.validate(invalid) shouldBe
         (Invalid(Seq((Path \ "informations") -> Seq(
                          ValidationError("error.required")),

@@ -14,8 +14,17 @@ trait WritesGrammar
     with WriteConstraints
     with WritesTypeclasses[List[XML]] {
 
+  self =>
+
   type _I = List[XML]
   type Out = List[XML]
+  type P = WritesGrammar
+
+  def mapPath(f: Path => Path) =
+    new WritesGrammar {
+      override def at(p: Path) =
+        self.at(f(p))
+    }
 
   private def writeAt(p: Path)(ns: NodeSeq): NodeSeq =
     p.path match {
@@ -68,7 +77,6 @@ trait WritesGrammar
     }
 
   def is[A](implicit K: Write[A, _ >: Out <: _I]): Write[A, _I] = K
-  def mapPath(f: jto.validation.Path => jto.validation.Path): P = ???
 
   def opt[A](
       implicit K: Write[A, _ >: Out <: _I]): Write[Option[A], Option[_I]] =

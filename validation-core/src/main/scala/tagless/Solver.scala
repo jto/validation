@@ -5,6 +5,7 @@ import shapeless.{ ::, HNil, HList, Generic }
 import cats.Functor
 
 // TODO: Add helpful implicit not found message
+// Or derive using Magnolia !
 trait Solver[I, O] {
   def solve(h: I): O
 }

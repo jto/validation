@@ -2,7 +2,8 @@ package jto.validation
 
 import cats.Applicative
 import cats.arrow.Arrow
-import cats.syntax.cartesian._
+// import cats.syntax.cartesian._
+import cats.syntax.apply._
 import shapeless.tag, tag.@@
 
 sealed trait RuleLike[I, O] {
@@ -81,10 +82,13 @@ trait Rule[I, O] extends RuleLike[I, O] {
     Rule { i=>
       val va = validateWithPath(i)
       val vf = mf.validateWithPath(i)
-      (vf |@| va).map { (f, a) =>
+      (vf, va).mapN { (f, a) =>
         (a._1, f._2(a._2)) // XXX: Not sure which path to keep.
       }
     }
+
+  def *>[B](other: Rule[I, B]) =
+    cats.Apply[Rule[I, ?]].*>(this)(other)
 
   def to[T](implicit g: shapeless.Generic.Aux[T, O]) =
     map(o => g.from(o))
@@ -173,19 +177,6 @@ object Rule {
       r: Rule[I, O])(implicit fcb: SyntaxCombine[Rule[I, ?]])
     : FunctorSyntaxObs[Rule[I, ?], O] =
     new FunctorSyntaxObs[Rule[I, ?], O](r)(fcb)
-
-  import cats.arrow.FunctionK
-  implicit def ruleLiftFunctionK[Out]: FunctionK[Rule[?, Option[Out]], λ[α => Rule[Option[α],Option[Out]]]] =
-    new FunctionK[Rule[?, Option[Out]], λ[α => Rule[Option[α],Option[Out]]]] {
-      def apply[A](fa: Rule[A, Option[Out]]): Rule[Option[A], Option[Out]] =
-        Rule { ma =>
-          ma.map { a =>
-            fa.validateWithPath(a)
-          }.getOrElse {
-            Valid((Path, None))
-          }
-        }
-    }
 
   implicit def ruleArrow =
     new Arrow[Rule] {

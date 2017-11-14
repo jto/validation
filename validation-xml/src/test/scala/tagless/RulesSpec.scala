@@ -22,7 +22,7 @@ class XMLRulesSpec extends RulesSpec[List[XML]] {
         <phone label="home">98.76.54.32.10</phone>
       </phones>
 
-    import grammar.{ map => _, _ }
+    import grammar.{map => _, _}
 
     "validate required attributes at root level" in {
       val xml = transform(<test label="bar"></test>)
@@ -30,28 +30,34 @@ class XMLRulesSpec extends RulesSpec[List[XML]] {
       val rs1 = at(Path \ "test").is(req(attr("fake").is(req[String])))
       rs0.validate(xml) shouldBe Valid("bar")
       rs1.validate(xml) shouldBe
-        Invalid(Seq(Path \ "test" \ "@fake" ->
-          Seq(ValidationError("error.required"))))
+        Invalid(
+          Seq(Path \ "test" \ "@fake" ->
+            Seq(ValidationError("error.required"))))
     }
 
     // TODO: Add test case for index path node in RuleSpec
     "validate list of required attributes" in {
 
       def phone(s: String) =
-        at(Path \ "phones").is(req(
-          at(Path \ "phone").is(req(
-            list(attr(s).is(req[String]))
+        at(Path \ "phones").is(
+          req(
+            at(Path \ "phone").is(
+              req(
+                list(attr(s).is(req[String]))
+              ))
           ))
-        ))
 
       phone("label").validate(transform(info)) shouldBe
         Valid(List("mobile", "home"))
 
       phone("fake").validate(transform(info)) shouldBe
-        Invalid(Seq(
-          (Path \ "phones" \ "phone" \ 0 \ "@fake") -> Seq(ValidationError("error.required")),
-          (Path \ "phones" \ "phone" \ 1 \ "@fake") -> Seq(ValidationError("error.required"))
-        ))
+        Invalid(
+          Seq(
+            (Path \ "phones" \ "phone" \ 0 \ "@fake") -> Seq(
+              ValidationError("error.required")),
+            (Path \ "phones" \ "phone" \ 1 \ "@fake") -> Seq(
+              ValidationError("error.required"))
+          ))
     }
 
     "validate required attributes AND node" in {
@@ -60,26 +66,28 @@ class XMLRulesSpec extends RulesSpec[List[XML]] {
 
       val rs0 =
         is[String] ~:
-        attr("label").is(req[String]) ~:
-        knil
+          attr("label").is(req[String]) ~:
+          knil
 
       val ruleOK =
-        at(Path \ "phones").is(req(
-          at(Path \ "phone").is(req(rs0.tupled))
-        ))
+        at(Path \ "phones").is(
+          req(
+            at(Path \ "phone").is(req(rs0.tupled))
+          ))
 
       ruleOK.validate(transform(info)) shouldBe
         Valid(("01.23.45.67.89", "mobile"))
 
       val rs1 =
         is[String] ~:
-        attr("fake").is(req[String]) ~:
-        knil
+          attr("fake").is(req[String]) ~:
+          knil
 
       val ruleNOK =
-        at(Path \ "phones").is(req(
-          at(Path \ "phone").is(req(rs1.tupled))
-        ))
+        at(Path \ "phones").is(
+          req(
+            at(Path \ "phone").is(req(rs1.tupled))
+          ))
 
       val attrErr =
         (p \ "@fake") -> Seq(ValidationError("error.required"))
@@ -101,18 +109,19 @@ class XMLRulesSpec extends RulesSpec[List[XML]] {
 
       val xml2 = <test label="bar"></test>
       r.validate(transform(xml2)) shouldBe
-        Invalid(Seq(Path \ "test" \ "@label" ->
-          Seq(ValidationError("error.number", "Int"))))
+        Invalid(
+          Seq(Path \ "test" \ "@label" ->
+            Seq(ValidationError("error.number", "Int"))))
     }
 
     "validate optional attributes" in {
-      def r0 = at(Path \ "phones" \ "phone").is(req(attr("label").is(opt[String])))
-      def r1 = at(Path \ "phones" \ "phone").is(req(attr("fake").is(opt[String])))
+      def r0 =
+        at(Path \ "phones" \ "phone").is(req(attr("label").is(opt[String])))
+      def r1 =
+        at(Path \ "phones" \ "phone").is(req(attr("fake").is(opt[String])))
       r0.validate(transform(info)) shouldBe Valid(Option("mobile"))
       r1.validate(transform(info)) shouldBe Valid(None)
     }
 
   }
 }
-
-

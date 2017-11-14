@@ -95,8 +95,10 @@ class ValidatedSpec extends WordSpec with Matchers {
 
       import cats.instances.list._
       import cats.syntax.traverse._
-      List(s1, s2).sequenceU shouldBe (Valid(List("1", "2")))
-      List(f1, f2).sequenceU shouldBe (Invalid(List("err1", "err2")))
+      List(s1, s2).sequence[Validated[List[String], ?], String] shouldBe
+        (Valid(List("1", "2")))
+      List(f1, f2).sequence[Validated[List[String], ?], String] shouldBe
+        (Invalid(List("err1", "err2")))
     }
   }
 }

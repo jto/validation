@@ -1,28 +1,9 @@
 package jto.validation
 
 import cats.Monoid
-import cats.functor.Contravariant
+import cats.Contravariant
 import shapeless.tag, tag.@@
-import shapeless.{Generic, HList}
-
-trait Tupler[H] {
-  type In
-  def to(t: In): H
-  def from(t: H): In
-}
-
-object Tupler {
-  type Aux[H, T] = Tupler[H]{ type In = T }
-
-  implicit def hlistTupler[H <: HList, T](implicit
-    G: Generic.Aux[T, H]
-  ): Aux[H, T] =
-    new Tupler[H] {
-      type In = T
-      def to(t: T): H = G.to(t)
-      def from(t: H): T = G.from(t)
-    }
-}
+import shapeless.Generic
 
 trait WriteLike[I, +O] {
 

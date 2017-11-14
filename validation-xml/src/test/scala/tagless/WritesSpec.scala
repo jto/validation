@@ -17,9 +17,11 @@ class XMLWritesSpec extends WritesSpec[List[XML]] {
 
     "write required attributes at root level" in {
       val out =
-        at(Path \ "root").is(
-          req(attr("label").is(req[String]))
-        ).writes("bar")
+        at(Path \ "root")
+          .is(
+            req(attr("label").is(req[String]))
+          )
+          .writes("bar")
       transform(out) shouldBe
         <root label="bar"></root> ++ NodeSeq.Empty
     }
@@ -27,9 +29,10 @@ class XMLWritesSpec extends WritesSpec[List[XML]] {
     "write list of required attributes" in {
       val ws = attr("label").is(req[String])
       val w =
-        at(Path \ "phones").is(req(
-          at(Path \ "phone").is(req(list(ws)))
-        ))
+        at(Path \ "phones").is(
+          req(
+            at(Path \ "phone").is(req(list(ws)))
+          ))
       transform(w.writes(List("mobile", "home"))) shouldBe
         <phones><phone label="mobile"></phone><phone label="home"></phone></phones> ++ NodeSeq.Empty
     }
@@ -37,13 +40,14 @@ class XMLWritesSpec extends WritesSpec[List[XML]] {
     "write required attributes AND node" in {
       val ws =
         is[String] ~:
-        attr("label").is(req[String]) ~:
-        knil
+          attr("label").is(req[String]) ~:
+          knil
 
       val w =
-        at(Path \ "phones").is(req(
-          at(Path \ "phone").is(req(ws.tupled))
-        ))
+        at(Path \ "phones").is(
+          req(
+            at(Path \ "phone").is(req(ws.tupled))
+          ))
 
       val d = List(("01.23.45.67.89", "mobile"), ("98.76.54.32.10", "home"))
 
@@ -51,9 +55,10 @@ class XMLWritesSpec extends WritesSpec[List[XML]] {
         <phones><phone label="mobile">01.23.45.67.89</phone></phones> ++ NodeSeq.Empty
 
       val w2 =
-        at(Path \ "phones").is(req(
-          at(Path \ "phone").is(req(list(ws.tupled)))
-        ))
+        at(Path \ "phones").is(
+          req(
+            at(Path \ "phone").is(req(list(ws.tupled)))
+          ))
 
       transform(w2.writes(d)) shouldBe
         <phones><phone label="mobile">01.23.45.67.89</phone><phone label="home">98.76.54.32.10</phone></phones> ++ NodeSeq.Empty
@@ -68,7 +73,6 @@ class XMLWritesSpec extends WritesSpec[List[XML]] {
     "write optional attributes" in {
       val r = at(Path \ "phones" \ "phone")
       val r0 = r.is(req(attr("label").is(opt[String])))
-      val r1 = r.is(req(attr("fake").is(opt[String])))
 
       transform(r0.writes(Option("mobile"))) shouldBe
         <phones><phone label="mobile"></phone></phones> ++ NodeSeq.Empty
@@ -80,4 +84,3 @@ class XMLWritesSpec extends WritesSpec[List[XML]] {
   }
 
 }
-

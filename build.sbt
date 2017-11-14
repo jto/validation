@@ -4,7 +4,7 @@ val org = "io.github.jto"
 val license =
   ("Apache License", url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 
-val catsVersion = "0.9.0"
+val catsVersion = "1.0.0-RC1"
 val jodaConvertVersion = "1.9.2"
 val jodaTimeVersion = "2.9.9"
 val kindProjectorVersion = "0.9.4"
@@ -124,7 +124,11 @@ lazy val settings = Seq(
   crossScalaVersions := Seq("2.11.8"),
   organization := org,
   scalacOptions ++= commonScalacOptions,
-  scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Ywarn-unused-import")),
+  scalacOptions in (Compile, console) ~= (_ filterNot { o =>
+    o == "-Ywarn-unused-import" ||
+    o == "-Xfatal-warnings" ||
+    o == "-Xlint"
+  }),
   scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value,
   resolvers ++= commonResolvers,
   testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
@@ -161,7 +165,7 @@ val commonResolvers = Seq(
 
 val dependencies = Seq(
   libraryDependencies ++= Seq(
-    "org.typelevel" %%% "cats" % catsVersion,
+    "org.typelevel" %%% "cats-core" % catsVersion,
     "com.chuusai" %%% "shapeless" % "2.3.2",
     "org.scalatest" %%% "scalatest" % scalatestVersion % "test",
     "joda-time" % "joda-time" % jodaTimeVersion,

@@ -412,8 +412,6 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 
       "by trying all possible Rules" in {
-        import cats.syntax.cartesian._
-
         val rb: Rule[grammar.Out, A] =
           (
             at(Path \ "name").is(req[String] andThen equalTo("B")) *>

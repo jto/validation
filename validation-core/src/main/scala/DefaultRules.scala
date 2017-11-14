@@ -209,7 +209,7 @@ trait GenericRules {
         }
       import cats.instances.list._
       import cats.syntax.traverse._
-      withI.toList.sequenceU.map(Path -> _)
+      withI.toList.sequence.map(Path -> _)
     }
 
   /**
@@ -449,7 +449,7 @@ trait DefaultRules[I] extends GenericRules with DateRules {
         }
         import cats.instances.list._
         import cats.syntax.traverse._
-        validations.toList.sequenceU.map(Path -> _.toMap)
+        validations.toList.sequence[VA, (String, O)].map(Path -> _.toMap)
       }
     Rule.toRule(p).andThen(next)
   }

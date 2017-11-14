@@ -30,20 +30,20 @@ object XMLTestCases extends TestCases[NodeSeq] {
     def jto =
       <firstname>Julien</firstname>
       <lastname>Tournay</lastname> ++
-      trim {
-        <informations>
+        trim {
+          <informations>
           {info}
         </informations>
-      }
+        }
 
     def valid =
-        <firstname>Julien</firstname>
+      <firstname>Julien</firstname>
         <lastname>Tournay</lastname>
         <age>27</age>
-        <informations>{info}</informations> ++ {contacts}
+        <informations>{info}</informations> ++ { contacts }
 
     def invalid =
-        <firstname>Julien</firstname>
+      <firstname>Julien</firstname>
         <lastname>Tournay</lastname>
         <age>27</age>
         <informations label="">
@@ -97,15 +97,14 @@ object XMLTestCases extends TestCases[NodeSeq] {
     def foos = <n>foo</n> ++ NodeSeq.Empty
 
     def fooBars =
-        <foo>bar</foo>
+      <foo>bar</foo>
 
     def foofoobars =
-        <foo><foo>bar</foo></foo> ++ NodeSeq.Empty
+      <foo><foo>bar</foo></foo> ++ NodeSeq.Empty
 
     def ns =
       <n>foo</n>
       <n></n>
-
 
     def ints =
       <n>1</n>
@@ -134,12 +133,10 @@ object XMLTestCases extends TestCases[NodeSeq] {
       <password>s3cr3t</password>
       <verify>s3cr3t</verify>
 
-
     def empty =
       <login>Alice</login>
       <password>s3cr3t</password>
       <verify/>
-
 
     def err =
       <login>Alice</login>

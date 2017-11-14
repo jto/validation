@@ -118,7 +118,7 @@ trait RulesGrammar
             case (n, i) =>
               k.repath((Path \ i) ++ _).validate(List(n))
           }
-          .sequenceU
+          .sequence
           .map(Path -> _)
     }
 
@@ -146,7 +146,7 @@ trait RulesGrammar
                 .map(n.label -> _)
             }
         }
-        .sequenceU
+        .sequence[VA, (String, A)]
         .map(Path -> _.toMap)
     }
 

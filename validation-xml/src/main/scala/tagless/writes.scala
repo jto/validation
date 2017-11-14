@@ -30,7 +30,6 @@ trait WritesGrammar
   // TODO: Non empty Path only
   def at(p: Path): At[flip[Write]#λ, Out, _I] =
     new At[flip[Write]#λ, Out, _I] {
-      def prepare: Write[Option[_I], Option[_I]] = Write.zero
 
       def run: Write[Option[_I], Out] =
         Write {

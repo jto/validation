@@ -4,28 +4,29 @@ import jto.validation.jsjson.Rules._
 import org.scalatest._
 import scala.scalajs.js
 
+import js.Dynamic.{literal => lit}
+import js.{Array => arr}
+
 class RulesSpec extends WordSpec with Matchers {
 
   "Json Rules" should {
 
-    val valid = js.Dynamic.literal(
+    val valid = lit(
       "firstname" -> "Julien",
       "lastname" -> "Tournay",
       "age" -> 27,
-      "informations" -> js.Dynamic.literal(
-        "label" -> "Personal",
-        "email" -> "fakecontact@gmail.com",
-        "phones" -> js.Array("01.23.45.67.89", "98.76.54.32.10"))
+      "informations" -> lit("label" -> "Personal",
+                            "email" -> "fakecontact@gmail.com",
+                            "phones" -> arr("01.23.45.67.89", "98.76.54.32.10"))
     )
 
-    val invalid = js.Dynamic.literal(
+    val invalid = lit(
       "firstname" -> "Julien",
       "lastname" -> "Tournay",
       "age" -> 27,
-      "informations" -> js.Dynamic.literal(
-        "label" -> "",
-        "email" -> "fakecontact@gmail.com",
-        "phones" -> js.Array("01.23.45.67.89", "98.76.54.32.10"))
+      "informations" -> lit("label" -> "",
+                            "email" -> "fakecontact@gmail.com",
+                            "phones" -> arr("01.23.45.67.89", "98.76.54.32.10"))
     )
 
     "extract data" in {
@@ -38,14 +39,14 @@ class RulesSpec extends WordSpec with Matchers {
     }
 
     "support checked" in {
-      val json = js.Dynamic.literal("issmth" -> true)
+      val json = lit("issmth" -> true)
       val p = Path \ "issmth"
       p.from[js.Dynamic](checked).validate(json) shouldBe (Valid(true))
-      p.from[js.Dynamic](checked).validate(js.Dynamic.literal()) shouldBe
+      p.from[js.Dynamic](checked).validate(lit()) shouldBe
         (Invalid(
           Seq(Path \ "issmth" -> Seq(ValidationError("error.required")))))
       p.from[js.Dynamic](checked)
-        .validate(js.Dynamic.literal("issmth" -> false)) shouldBe
+        .validate(lit("issmth" -> false)) shouldBe
         (Invalid(
           Seq(Path \ "issmth" -> Seq(ValidationError("error.equals", true)))))
     }
@@ -55,15 +56,15 @@ class RulesSpec extends WordSpec with Matchers {
       "null" in {
         (Path \ "n")
           .read[js.Dynamic, Null]
-          .validate(js.Dynamic.literal("n" -> null)) shouldBe (Valid(null))
+          .validate(lit("n" -> null)) shouldBe (Valid(null))
         (Path \ "n")
           .read[js.Dynamic, Null]
-          .validate(js.Dynamic.literal("n" -> "foo")) shouldBe
+          .validate(lit("n" -> "foo")) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
         (Path \ "n")
           .read[js.Dynamic, Null]
-          .validate(js.Dynamic.literal("n" -> 4.5)) shouldBe
+          .validate(lit("n" -> 4.5)) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
       }
@@ -71,37 +72,35 @@ class RulesSpec extends WordSpec with Matchers {
       "Int" in {
         (Path \ "n")
           .read[js.Dynamic, Int]
-          .validate(js.Dynamic.literal("n" -> 4)) shouldBe (Valid(4))
+          .validate(lit("n" -> 4)) shouldBe (Valid(4))
         (Path \ "n")
           .read[js.Dynamic, Int]
-          .validate(js.Dynamic.literal("n" -> "foo")) shouldBe
+          .validate(lit("n" -> "foo")) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
         (Path \ "n")
           .read[js.Dynamic, Int]
-          .validate(js.Dynamic.literal("n" -> 4.5)) shouldBe
+          .validate(lit("n" -> 4.5)) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
         (Path \ "n" \ "o")
           .read[js.Dynamic, Int]
-          .validate(js.Dynamic.literal("n" -> js.Dynamic.literal("o" -> 4))) shouldBe
+          .validate(lit("n" -> lit("o" -> 4))) shouldBe
           (Valid(4))
         (Path \ "n" \ "o")
           .read[js.Dynamic, Int]
-          .validate(js.Dynamic.literal("n" -> js.Dynamic.literal("o" -> "foo"))) shouldBe
+          .validate(lit("n" -> lit("o" -> "foo"))) shouldBe
           (Invalid(
             Seq(
               Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
 
         (Path \ "n" \ "o" \ "p")
           .read[js.Dynamic, Int]
-          .validate(js.Dynamic.literal("n" -> js.Dynamic.literal(
-            "o" -> js.Dynamic.literal("p" -> 4)))) shouldBe
+          .validate(lit("n" -> lit("o" -> lit("p" -> 4)))) shouldBe
           (Valid(4))
         (Path \ "n" \ "o" \ "p")
           .read[js.Dynamic, Int]
-          .validate(js.Dynamic.literal("n" -> js.Dynamic.literal(
-            "o" -> js.Dynamic.literal("p" -> "foo")))) shouldBe
+          .validate(lit("n" -> lit("o" -> lit("p" -> "foo")))) shouldBe
           (Invalid(
             Seq(Path \ "n" \ "o" \ "p" -> Seq(
               ValidationError("error.number", "Int")))))
@@ -111,22 +110,22 @@ class RulesSpec extends WordSpec with Matchers {
           Invalid(Seq(errPath -> Seq(ValidationError("error.required"))))
         errPath
           .read[js.Dynamic, Int]
-          .validate(js.Dynamic.literal("n" -> 4)) shouldBe
+          .validate(lit("n" -> 4)) shouldBe
           (error)
       }
 
       "Short" in {
         (Path \ "n")
           .read[js.Dynamic, Short]
-          .validate(js.Dynamic.literal("n" -> 4)) shouldBe (Valid(4))
+          .validate(lit("n" -> 4)) shouldBe (Valid(4))
         (Path \ "n")
           .read[js.Dynamic, Short]
-          .validate(js.Dynamic.literal("n" -> "foo")) shouldBe
+          .validate(lit("n" -> "foo")) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
         (Path \ "n")
           .read[js.Dynamic, Short]
-          .validate(js.Dynamic.literal("n" -> 4.5)) shouldBe
+          .validate(lit("n" -> 4.5)) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
       }
@@ -134,15 +133,15 @@ class RulesSpec extends WordSpec with Matchers {
       "Long" in {
         (Path \ "n")
           .read[js.Dynamic, Long]
-          .validate(js.Dynamic.literal("n" -> 4)) shouldBe (Valid(4))
+          .validate(lit("n" -> 4)) shouldBe (Valid(4))
         (Path \ "n")
           .read[js.Dynamic, Long]
-          .validate(js.Dynamic.literal("n" -> "foo")) shouldBe
+          .validate(lit("n" -> "foo")) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
         (Path \ "n")
           .read[js.Dynamic, Long]
-          .validate(js.Dynamic.literal("n" -> 4.5)) shouldBe
+          .validate(lit("n" -> 4.5)) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
       }
@@ -150,81 +149,81 @@ class RulesSpec extends WordSpec with Matchers {
       "Float" in {
         (Path \ "n")
           .read[js.Dynamic, Float]
-          .validate(js.Dynamic.literal("n" -> 4)) shouldBe (Valid(4))
+          .validate(lit("n" -> 4)) shouldBe (Valid(4))
         (Path \ "n")
           .read[js.Dynamic, Float]
-          .validate(js.Dynamic.literal("n" -> "foo")) shouldBe
+          .validate(lit("n" -> "foo")) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
         (Path \ "n")
           .read[js.Dynamic, Float]
-          .validate(js.Dynamic.literal("n" -> 4.5)) shouldBe (Valid(4.5F))
+          .validate(lit("n" -> 4.5)) shouldBe (Valid(4.5F))
       }
 
       "Double" in {
         (Path \ "n")
           .read[js.Dynamic, Double]
-          .validate(js.Dynamic.literal("n" -> 4)) shouldBe (Valid(4))
+          .validate(lit("n" -> 4)) shouldBe (Valid(4))
         (Path \ "n")
           .read[js.Dynamic, Double]
-          .validate(js.Dynamic.literal("n" -> "foo")) shouldBe
+          .validate(lit("n" -> "foo")) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
         (Path \ "n")
           .read[js.Dynamic, Double]
-          .validate(js.Dynamic.literal("n" -> 4.5)) shouldBe (Valid(4.5))
+          .validate(lit("n" -> 4.5)) shouldBe (Valid(4.5))
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
         (Path \ "n")
           .read[js.Dynamic, jBigDecimal]
-          .validate(js.Dynamic.literal("n" -> 4)) shouldBe
+          .validate(lit("n" -> 4)) shouldBe
           (Valid(new jBigDecimal("4")))
         (Path \ "n")
           .read[js.Dynamic, jBigDecimal]
-          .validate(js.Dynamic.literal("n" -> "foo")) shouldBe
+          .validate(lit("n" -> "foo")) shouldBe
           (Invalid(Seq(
             Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
         (Path \ "n")
           .read[js.Dynamic, jBigDecimal]
-          .validate(js.Dynamic.literal("n" -> 4.5)) shouldBe
+          .validate(lit("n" -> 4.5)) shouldBe
           (Valid(new jBigDecimal("4.5")))
       }
 
       "scala BigDecimal" in {
         (Path \ "n")
           .read[js.Dynamic, BigDecimal]
-          .validate(js.Dynamic.literal("n" -> 4)) shouldBe
+          .validate(lit("n" -> 4)) shouldBe
           (Valid(BigDecimal(4)))
         (Path \ "n")
           .read[js.Dynamic, BigDecimal]
-          .validate(js.Dynamic.literal("n" -> "foo")) shouldBe
+          .validate(lit("n" -> "foo")) shouldBe
           (Invalid(Seq(
             Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
         (Path \ "n")
           .read[js.Dynamic, BigDecimal]
-          .validate(js.Dynamic.literal("n" -> 4.5)) shouldBe
+          .validate(lit("n" -> 4.5)) shouldBe
           (Valid(BigDecimal(4.5)))
       }
 
       "String" in {
         (Path \ "n")
           .read[js.Dynamic, String]
-          .validate(js.Dynamic.literal("n" -> "foo")) shouldBe (Valid("foo"))
+          .validate(lit("n" -> "foo")) shouldBe (Valid("foo"))
         (Path \ "n")
           .read[js.Dynamic, String]
-          .validate(js.Dynamic.literal("n" -> 42)) shouldBe
+          .validate(lit("n" -> 42)) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "String")))))
         (Path \ "n")
           .read[js.Dynamic, String]
-          .validate(js.Dynamic.literal("n" -> js.Array("foo"))) shouldBe
+          .validate(lit("n" -> arr("foo"))) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "String")))))
         (Path \ "o")
           .read[js.Dynamic, String]
-          .validate(js.Dynamic.literal("o" -> js.Dynamic.literal("n" -> "foo"))) shouldBe
+          .validate(lit("o" -> lit("n" -> "foo"))) shouldBe
           (Invalid(
             Seq(Path \ "o" -> Seq(ValidationError("error.invalid", "String")))))
       }
@@ -233,21 +232,21 @@ class RulesSpec extends WordSpec with Matchers {
         (Path \ "o")
           .read[js.Dynamic, js.Dictionary[js.Dynamic]]
           .map(_.toSeq)
-          .validate(js.Dynamic.literal("o" -> js.Dynamic.literal("n" -> "foo"))) shouldBe
+          .validate(lit("o" -> lit("n" -> "foo"))) shouldBe
           (Valid(Seq("n" -> "foo")))
         (Path \ "n")
           .read[js.Dynamic, js.Dictionary[js.Dynamic]]
-          .validate(js.Dynamic.literal("n" -> 42)) shouldBe
+          .validate(lit("n" -> 42)) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Object")))))
         (Path \ "n")
           .read[js.Dynamic, js.Dictionary[js.Dynamic]]
-          .validate(js.Dynamic.literal("n" -> "foo")) shouldBe
+          .validate(lit("n" -> "foo")) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Object")))))
         (Path \ "n")
           .read[js.Dynamic, js.Dictionary[js.Dynamic]]
-          .validate(js.Dynamic.literal("n" -> js.Array("foo"))) shouldBe
+          .validate(lit("n" -> arr("foo"))) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Object")))))
       }
@@ -255,10 +254,10 @@ class RulesSpec extends WordSpec with Matchers {
       "Boolean" in {
         (Path \ "n")
           .read[js.Dynamic, Boolean]
-          .validate(js.Dynamic.literal("n" -> true)) shouldBe (Valid(true))
+          .validate(lit("n" -> true)) shouldBe (Valid(true))
         (Path \ "n")
           .read[js.Dynamic, Boolean]
-          .validate(js.Dynamic.literal("n" -> "foo")) shouldBe
+          .validate(lit("n" -> "foo")) shouldBe
           (Invalid(
             Seq(
               Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
@@ -267,17 +266,17 @@ class RulesSpec extends WordSpec with Matchers {
       "Option" in {
         (Path \ "n")
           .read[js.Dynamic, Option[Boolean]]
-          .validate(js.Dynamic.literal("n" -> true)) shouldBe
+          .validate(lit("n" -> true)) shouldBe
           (Valid(Some(true)))
         (Path \ "n")
           .read[js.Dynamic, Option[Boolean]]
-          .validate(js.Dynamic.literal("n" -> null)) shouldBe (Valid(None))
+          .validate(lit("n" -> null)) shouldBe (Valid(None))
         (Path \ "n")
           .read[js.Dynamic, Option[Boolean]]
-          .validate(js.Dynamic.literal("foo" -> "bar")) shouldBe (Valid(None))
+          .validate(lit("foo" -> "bar")) shouldBe (Valid(None))
         (Path \ "n")
           .read[js.Dynamic, Option[Boolean]]
-          .validate(js.Dynamic.literal("n" -> "bar")) shouldBe
+          .validate(lit("n" -> "bar")) shouldBe
           (Invalid(
             Seq(
               Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
@@ -286,23 +285,19 @@ class RulesSpec extends WordSpec with Matchers {
       "Map[String, V]" in {
         (Path \ "n")
           .read[js.Dynamic, Map[String, String]]
-          .validate(js.Dynamic.literal(
-            "n" -> js.Dynamic.literal("foo" -> "bar"))) shouldBe
+          .validate(lit("n" -> lit("foo" -> "bar"))) shouldBe
           (Valid(Map("foo" -> "bar")))
         (Path \ "n")
           .read[js.Dynamic, Map[String, Int]]
-          .validate(js.Dynamic.literal(
-            "n" -> js.Dynamic.literal("foo" -> 4, "bar" -> 5))) shouldBe
+          .validate(lit("n" -> lit("foo" -> 4, "bar" -> 5))) shouldBe
           (Valid(Map("foo" -> 4, "bar" -> 5)))
         (Path \ "x")
           .read[js.Dynamic, Map[String, Int]]
-          .validate(js.Dynamic.literal(
-            "n" -> js.Dynamic.literal("foo" -> 4, "bar" -> "frack"))) shouldBe
+          .validate(lit("n" -> lit("foo" -> 4, "bar" -> "frack"))) shouldBe
           (Invalid(Seq(Path \ "x" -> Seq(ValidationError("error.required")))))
         (Path \ "n")
           .read[js.Dynamic, Map[String, Int]]
-          .validate(js.Dynamic.literal(
-            "n" -> js.Dynamic.literal("foo" -> 4, "bar" -> "frack"))) shouldBe
+          .validate(lit("n" -> lit("foo" -> 4, "bar" -> "frack"))) shouldBe
           (Invalid(Seq(
             Path \ "n" \ "bar" -> Seq(ValidationError("error.number", "Int")))))
       }
@@ -310,39 +305,39 @@ class RulesSpec extends WordSpec with Matchers {
       "Traversable" in {
         (Path \ "n")
           .read[js.Dynamic, Traversable[String]]
-          .validate(js.Dynamic.literal("n" -> js.Array("foo")))
+          .validate(lit("n" -> arr("foo")))
           .toOption
           .get
           .toSeq shouldBe (Seq("foo"))
         (Path \ "n")
           .read[js.Dynamic, Traversable[Int]]
-          .validate(js.Dynamic.literal("n" -> js.Array(1, 2, 3)))
+          .validate(lit("n" -> arr(1, 2, 3)))
           .toOption
           .get
           .toSeq shouldBe (Seq(1, 2, 3))
         (Path \ "n")
           .read[js.Dynamic, Traversable[String]]
-          .validate(js.Dynamic.literal("n" -> "paf")) shouldBe
+          .validate(lit("n" -> "paf")) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Array")))))
       }
 
       "Array" in {
         (Path \ "n")
-          .read[js.Dynamic, js.Array[String]]
-          .validate(js.Dynamic.literal("n" -> js.Array("foo")))
+          .read[js.Dynamic, arr[String]]
+          .validate(lit("n" -> arr("foo")))
           .toOption
           .get
           .toSeq shouldBe (Seq("foo"))
         (Path \ "n")
-          .read[js.Dynamic, js.Array[Int]]
-          .validate(js.Dynamic.literal("n" -> js.Array(1, 2, 3)))
+          .read[js.Dynamic, arr[Int]]
+          .validate(lit("n" -> arr(1, 2, 3)))
           .toOption
           .get
           .toSeq shouldBe (Seq(1, 2, 3))
         (Path \ "n")
-          .read[js.Dynamic, js.Array[String]]
-          .validate(js.Dynamic.literal("n" -> "paf")) shouldBe
+          .read[js.Dynamic, arr[String]]
+          .validate(lit("n" -> "paf")) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Array")))))
       }
@@ -350,22 +345,22 @@ class RulesSpec extends WordSpec with Matchers {
       "Seq" in {
         (Path \ "n")
           .read[js.Dynamic, Seq[String]]
-          .validate(js.Dynamic.literal("n" -> js.Array("foo")))
+          .validate(lit("n" -> arr("foo")))
           .toOption
           .get shouldBe (Seq("foo"))
         (Path \ "n")
           .read[js.Dynamic, Seq[Int]]
-          .validate(js.Dynamic.literal("n" -> js.Array(1, 2, 3)))
+          .validate(lit("n" -> arr(1, 2, 3)))
           .toOption
           .get shouldBe (Seq(1, 2, 3))
         (Path \ "n")
           .read[js.Dynamic, Seq[String]]
-          .validate(js.Dynamic.literal("n" -> "paf")) shouldBe
+          .validate(lit("n" -> "paf")) shouldBe
           (Invalid(
             Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Array")))))
         (Path \ "n")
           .read[js.Dynamic, Seq[String]]
-          .validate(js.Dynamic.literal("n" -> js.Array("foo", 2))) shouldBe
+          .validate(lit("n" -> arr("foo", 2))) shouldBe
           (Invalid(Seq(
             Path \ "n" \ 1 -> Seq(ValidationError("error.invalid", "String")))))
       }
@@ -455,35 +450,30 @@ class RulesSpec extends WordSpec with Matchers {
     "lift validations to seq validations" in {
       (Path \ "foo")
         .from[js.Dynamic](seqR(notEmpty))
-        .validate(js.Dynamic.literal("foo" -> js.Array("bar")))
+        .validate(lit("foo" -> arr("bar")))
         .toOption
         .get shouldBe (Seq("bar"))
 
       From[js.Dynamic] { __ =>
         (__ \ "foo").read((__ \ "foo").read(seqR(notEmpty)))
-      }.validate(js.Dynamic.literal(
-          "foo" -> js.Dynamic.literal("foo" -> js.Array("bar"))))
+      }.validate(lit("foo" -> lit("foo" -> arr("bar"))))
         .toOption
         .get shouldBe (Seq("bar"))
 
       (Path \ "n")
         .from[js.Dynamic](seqR(notEmpty))
-        .validate(js.Dynamic.literal("n" -> js.Array("foo", ""))) shouldBe
+        .validate(lit("n" -> arr("foo", ""))) shouldBe
         (Invalid(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.required")))))
     }
 
     "validate dependent fields" in {
-      val v = js.Dynamic.literal("login" -> "Alice",
-                                 "password" -> "s3cr3t",
-                                 "verify" -> "s3cr3t")
+      val v =
+        lit("login" -> "Alice", "password" -> "s3cr3t", "verify" -> "s3cr3t")
 
-      val i1 = js.Dynamic.literal("login" -> "Alice",
-                                  "password" -> "s3cr3t",
-                                  "verify" -> "")
+      val i1 = lit("login" -> "Alice", "password" -> "s3cr3t", "verify" -> "")
 
-      val i2 = js.Dynamic.literal("login" -> "Alice",
-                                  "password" -> "s3cr3t",
-                                  "verify" -> "bam")
+      val i2 =
+        lit("login" -> "Alice", "password" -> "s3cr3t", "verify" -> "bam")
 
       val passRule = From[js.Dynamic] { __ =>
         (
@@ -513,15 +503,14 @@ class RulesSpec extends WordSpec with Matchers {
       case class B(foo: Int) extends A
       case class C(bar: Int) extends A
 
-      val b = js.Dynamic.literal("name" -> "B", "foo" -> 4)
-      val c = js.Dynamic.literal("name" -> "C", "bar" -> 6)
-      val e = js.Dynamic.literal("name" -> "E", "eee" -> 6)
+      val b = lit("name" -> "B", "foo" -> 4)
+      val c = lit("name" -> "C", "bar" -> 6)
+      val e = lit("name" -> "E", "eee" -> 6)
 
       val typeInvalid =
         Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 
       "trying all possible Rules" in {
-        import cats.syntax.cartesian._
 
         val rb: Rule[js.Dynamic, A] = From[js.Dynamic] { __ =>
           (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo")
@@ -573,26 +562,24 @@ class RulesSpec extends WordSpec with Matchers {
                                     email: Option[String],
                                     phones: Seq[String])
 
-      val validJson = js.Dynamic.literal(
+      val validJson = lit(
         "firstname" -> "Julien",
         "lastname" -> "Tournay",
         "age" -> 27,
-        "informations" -> js.Array(
-          js.Dynamic.literal("label" -> "Personal",
-                             "email" -> "fakecontact@gmail.com",
-                             "phones" -> js.Array("01.23.45.67.89",
-                                                  "98.76.54.32.10")))
+        "informations" -> arr(
+          lit("label" -> "Personal",
+              "email" -> "fakecontact@gmail.com",
+              "phones" -> arr("01.23.45.67.89", "98.76.54.32.10")))
       )
 
-      val invalidJson = js.Dynamic.literal(
+      val invalidJson = lit(
         "firstname" -> "Julien",
         "lastname" -> "Tournay",
         "age" -> 27,
-        "informations" -> js.Array(
-          js.Dynamic.literal("label" -> "",
-                             "email" -> "fakecontact@gmail.com",
-                             "phones" -> js.Array("01.23.45.67.89",
-                                                  "98.76.54.32.10")))
+        "informations" -> arr(
+          lit("label" -> "",
+              "email" -> "fakecontact@gmail.com",
+              "phones" -> arr("01.23.45.67.89", "98.76.54.32.10")))
       )
 
       val infoValidated = From[js.Dynamic] { __ =>
@@ -626,16 +613,13 @@ class RulesSpec extends WordSpec with Matchers {
       case class RecUser(name: String, friends: Seq[RecUser] = Nil)
       val u = RecUser("bob", Seq(RecUser("tom")))
 
-      val m = js.Dynamic.literal(
-        "name" -> "bob",
-        "friends" -> js.Array(
-          js.Dynamic.literal("name" -> "tom", "friends" -> js.Array())))
+      val m = lit("name" -> "bob",
+                  "friends" -> arr(lit("name" -> "tom", "friends" -> arr())))
 
       case class User1(name: String, friend: Option[User1] = None)
       val u1 = User1("bob", Some(User1("tom")))
       val m1 =
-        js.Dynamic.literal("name" -> "bob",
-                           "friend" -> js.Dynamic.literal("name" -> "tom"))
+        lit("name" -> "bob", "friend" -> lit("name" -> "tom"))
 
       "using explicit notation" in {
         lazy val w: Rule[js.Dynamic, RecUser] = From[js.Dynamic] { __ =>
@@ -685,8 +669,8 @@ class RulesSpec extends WordSpec with Matchers {
         genR[js.Dynamic](optionR(_))
       }
 
-      val json = js.Dynamic.literal("name" -> "bob", "color" -> "blue")
-      val invalidJson = js.Dynamic.literal("color" -> "blue")
+      val json = lit("name" -> "bob", "color" -> "blue")
+      val invalidJson = lit("color" -> "blue")
 
       jsonR.validate(json) shouldBe Valid(("bob", Some("blue")))
       jsonR.validate(invalidJson) shouldBe Invalid(

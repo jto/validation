@@ -104,38 +104,26 @@ trait Rules extends DefaultRules[JValue] {
   implicit def jsValueR[O](implicit r: RuleLike[JObject, O]): Rule[JValue, O] =
     jsObjectR.andThen(r)
 
-  implicit def atJson[II <: JValue] =
-    new At[Rule, II, Option[JValue]] {
-      def apply(p: Path): Rule[II, Option[JValue]] = {
-
-        def search(path: Path, json: JValue): Option[JValue] =
-          path.path match {
-            case KeyPathNode(k) :: t =>
-              json match {
-                case JObject(js) =>
-                  js.find(_._1 == k).flatMap(kv => search(Path(t), kv._2))
-                case _ => None
-              }
-
-            case IdxPathNode(i) :: t =>
-              json match {
-                case JArray(js) => js.lift(i).flatMap(j => search(Path(t), j))
-                case _ => None
-              }
-
-            case Nil => Some(json)
-          }
-
-        Rule[II, Option[JValue]](p) { json =>
-          Valid(search(p, json))
+  @inline private def search(path: Path, json: JValue): Option[JValue] =
+    path.path match {
+      case KeyPathNode(k) :: t =>
+        json match {
+          case JObject(js) =>
+            js.find(_._1 == k).flatMap(kv => search(Path(t), kv._2))
+          case _ => None
         }
-      }
+      case IdxPathNode(i) :: t =>
+        json match {
+          case JArray(js) => js.lift(i).flatMap(j => search(Path(t), j))
+          case _ => None
+        }
+      case Nil => Some(json)
     }
 
   implicit def pickInJson[II <: JValue, O](p: Path)(implicit r: RuleLike[JValue, O]): Rule[II, O] =
-    At[Rule, II, Option[JValue]].apply(p)
-      .andThen(required[JValue])
-      .andThen(r)
+    Rule[II, Option[JValue]] { json =>
+      Valid(p -> search(p, json))
+    }.andThen(required[JValue]).andThen(r)
 
 
   // XXX: a bit of boilerplate

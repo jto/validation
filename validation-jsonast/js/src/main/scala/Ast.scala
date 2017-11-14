@@ -49,7 +49,7 @@ object Ast {
 
   val from: Rule[js.Dynamic, JValue] = Rule { j =>
     try {
-      Valid(unsafeAny2JValue(j, Path))
+      Valid(Path -> unsafeAny2JValue(j, Path))
     } catch {
       case FunctionInJsonException(path) =>
         Invalid(

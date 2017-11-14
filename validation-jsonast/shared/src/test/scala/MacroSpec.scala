@@ -123,6 +123,7 @@ class MacroSpec extends WordSpec with Matchers {
                       Map("name" -> JString("toto"), "age" -> JNumber(45)))
               ))
       ) shouldBe (Valid(Dog("medor", User(45, "toto"))))
+      (userRule, dogRule)
     }
 
     "create a Write[Dog]" in {
@@ -138,6 +139,7 @@ class MacroSpec extends WordSpec with Matchers {
                       Map("name" -> JString("toto"), "age" -> JNumber(45)))
               ))
       )
+      (userWrite, dogWrite)
     }
 
     "create a Rule[RecUser]" in {
@@ -298,33 +300,33 @@ class MacroSpec extends WordSpec with Matchers {
       "Rule" in {
         import Rules._
         implicit val XRule = Rule.gen[JValue, X]
-        ()
+        (XRule, XRule)
       }
 
       "Write" in {
         import Writes._
         implicit val XWrites = Write.gen[X, JObject]
-        ()
+        (XWrites, XWrites)
       }
     }
 
     "test inception with overriden object" in {
       import Rules._
       implicit val programFormat = Rule.gen[JValue, Program]
-      ()
+      (programFormat, programFormat)
     }
 
     "test case class 1 field" when {
       "Rule" in {
         import Rules._
         implicit val totoRule = Rule.gen[JValue, Toto]
-        ()
+        (totoRule, totoRule)
       }
 
       "Write" in {
         import Writes._
         implicit val totoWrite = Write.gen[Toto, JObject]
-        ()
+        (totoWrite, totoWrite)
       }
     }
 
@@ -332,13 +334,13 @@ class MacroSpec extends WordSpec with Matchers {
       "Rule" in {
         import Rules._
         implicit val toto2Rule = Rule.gen[JValue, Toto2]
-        ()
+        (toto2Rule, toto2Rule)
       }
 
       "Write" in {
         import Writes._
         implicit val toto2Write = Write.gen[Toto2, JObject]
-        ()
+        (toto2Write, toto2Write)
       }
     }
 
@@ -346,13 +348,13 @@ class MacroSpec extends WordSpec with Matchers {
       "Rule" in {
         import Rules._
         implicit val toto3Rule = Rule.gen[JValue, Toto3]
-        ()
+        (toto3Rule, toto3Rule)
       }
 
       "Write" in {
         import Writes._
         implicit val toto3Write = Write.gen[Toto3, JObject]
-        ()
+        (toto3Write, toto3Write)
       }
     }
 
@@ -360,13 +362,13 @@ class MacroSpec extends WordSpec with Matchers {
       "Rule" in {
         import Rules._
         implicit val toto4Rule = Rule.gen[JValue, Toto4]
-        ()
+        (toto4Rule, toto4Rule)
       }
 
       "Write" in {
         import Writes._
         implicit val toto4Write = Write.gen[Toto4, JObject]
-        ()
+        (toto4Write, toto4Write)
       }
     }
 
@@ -374,13 +376,13 @@ class MacroSpec extends WordSpec with Matchers {
       "Rule" in {
         import Rules._
         implicit val toto5Rule = Rule.gen[JValue, Toto5]
-        ()
+        (toto5Rule, toto5Rule)
       }
 
       "Write" in {
         import Writes._
         implicit val toto5Write = Write.gen[Toto5, JObject]
-        ()
+        (toto5Write, toto5Write)
       }
     }
 
@@ -411,6 +413,7 @@ class MacroSpec extends WordSpec with Matchers {
                       Dog("brutus", User(23, "tata"))
                   ))
           ))
+      (userRule, dogRule)
     }
 
     "test case reads in companion object" in {

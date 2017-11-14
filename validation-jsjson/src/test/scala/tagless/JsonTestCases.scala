@@ -18,17 +18,17 @@ object JsonTestCases extends TestCases[js.Dynamic] {
     val info =
       lit("label" -> "Personal",
           "email" -> "fakecontact@gmail.com",
-          "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
+          "phones" -> arr("01.23.45.67.89", "98.76.54.32.10"))
 
     val infoNoLabel =
       lit("email" -> "fakecontact@gmail.com",
-          "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
+          "phones" -> arr("01.23.45.67.89", "98.76.54.32.10"))
 
     val noInfo = lit()
 
     val jto = lit("firstname" -> "Julien",
                   "lastname" -> "Tournay",
-                  "informations" -> Seq(
+                  "informations" -> arr(
                     combine(lit("label" -> "Personal"), info)
                   ))
 
@@ -37,7 +37,7 @@ object JsonTestCases extends TestCases[js.Dynamic] {
           "lastname" -> "Tournay",
           "age" -> 27,
           "informations" -> info,
-          "contacts" -> Seq(info))
+          "contacts" -> arr(info))
 
     val invalid =
       lit(
@@ -46,7 +46,7 @@ object JsonTestCases extends TestCases[js.Dynamic] {
         "age" -> 27,
         "informations" ->
           combine(lit("label" -> ""), infoNoLabel),
-        "contacts" -> Seq(combine(lit("label" -> ""), infoNoLabel))
+        "contacts" -> arr(combine(lit("label" -> ""), infoNoLabel))
       )
 
     val smthTrue = lit("issmth" -> true)
@@ -71,7 +71,7 @@ object JsonTestCases extends TestCases[js.Dynamic] {
 
   val string = new string {
     val foo = int.foo
-    val foos = lit("n" -> Seq("foo"))
+    val foos = lit("n" -> arr("foo"))
     val _42 = lit("n" -> 42)
     val onFoo = lit("o" -> lit("n" -> "foo"))
   }
@@ -84,21 +84,21 @@ object JsonTestCases extends TestCases[js.Dynamic] {
   }
 
   val seq = new seq {
-    val foos = lit("n" -> Seq("foo"))
-    val fooBars = lit("foo" -> Seq("bar"))
-    val foofoobars = lit("foo" -> lit("foo" -> Seq("bar")))
-    val ns = lit("n" -> Seq("foo", ""))
-    val ints = lit("n" -> Seq(1, 2, 3))
+    val foos = lit("n" -> arr("foo"))
+    val fooBars = lit("foo" -> arr("bar"))
+    val foofoobars = lit("foo" -> lit("foo" -> arr("bar")))
+    val ns = lit("n" -> arr("foo", ""))
+    val ints = lit("n" -> arr(1, 2, 3))
     val paf = lit("n" -> "paf")
     private val as: js.Array[Any] = arr("foo", 2)
     val mixed = lit("n" -> as)
   }
 
   val map = new map {
-    val foobar = lit("n" -> lit("foo" -> List("bar")))
-    val ints = lit("n" -> lit("foo" -> List(4), "bar" -> List(5)))
+    val foobar = lit("n" -> lit("foo" -> arr("bar")))
+    val ints = lit("n" -> lit("foo" -> arr(4), "bar" -> arr(5)))
     val mixed =
-      lit("n" -> lit("foo" -> List(4), "bar" -> List("frack")))
+      lit("n" -> lit("foo" -> arr(4), "bar" -> arr("frack")))
   }
 
   val password = new password {
@@ -120,7 +120,7 @@ object JsonTestCases extends TestCases[js.Dynamic] {
 
   val rec = new rec {
     val bobAndFriends =
-      lit("name" -> "bob", "friends" -> Seq(lit("name" -> "tom")))
+      lit("name" -> "bob", "friends" -> arr(lit("name" -> "tom")))
 
     val bobAndFriend =
       lit("name" -> "bob", "friend" -> lit("name" -> "tom"))

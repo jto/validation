@@ -68,6 +68,7 @@ object XMLTestCases extends TestCases[NodeSeq] {
     def ok = <n>4</n> ++ NodeSeq.Empty
     def foo = <n>foo</n> ++ NodeSeq.Empty
     def float = <n>4.5</n> ++ NodeSeq.Empty
+    def bigdecimal = <n>4.5</n> ++ NodeSeq.Empty
     def noOK = <n><o>4</o></n> ++ NodeSeq.Empty
     def noFoo = <n><o>foo</o></n> ++ NodeSeq.Empty
     def nopOK = <n><o><p>4</p></o></n> ++ NodeSeq.Empty

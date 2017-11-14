@@ -58,6 +58,7 @@ object JsonTestCases extends TestCases[js.Dynamic] {
     val ok = lit("n" -> 4)
     val foo = lit("n" -> "foo")
     val float = lit("n" -> 4.5)
+    val bigdecimal = lit("n" -> "4.5")
     val noOK = lit("n" -> lit("o" -> 4))
     val noFoo = lit("n" -> lit("o" -> "foo"))
     val nopOK = lit("n" -> lit("o" -> lit("p" -> 4)))

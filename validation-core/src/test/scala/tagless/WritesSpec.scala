@@ -2,6 +2,7 @@ package jto.validation
 package v3.tagless
 
 import org.scalatest._
+import org.scalactic.{Equality, Prettifier}
 
 trait WritesSpec[T] extends WordSpec with Matchers {
 
@@ -11,6 +12,8 @@ trait WritesSpec[T] extends WordSpec with Matchers {
   val grammar: Grammar[T, types.flip[Write]#λ]
   def transform: grammar.Out => To
 
+  implicit def equality: Equality[To] = Equality.default
+  implicit def prettifier: Prettifier = Prettifier.default
 
   import grammar._
 
@@ -36,93 +39,93 @@ trait WritesSpec[T] extends WordSpec with Matchers {
     "support primitives types" when {
       "Int" in {
         import testCases.int._
-        transform(at(Path \ "n").is(req[Int]).writes(4)) shouldBe ok
-        transform(at(Path \ "n" \ "o").is(req[Int]).writes(4)) shouldBe noOK
-        transform(at(Path \ "n" \ "o" \ "p").is(req[Int]).writes(4)) shouldBe nopOK
+        transform(at(Path \ "n").is(req[Int]).writes(4)) should equal (ok)
+        transform(at(Path \ "n" \ "o").is(req[Int]).writes(4)) should equal (noOK)
+        transform(at(Path \ "n" \ "o" \ "p").is(req[Int]).writes(4)) should equal (nopOK)
       }
 
       "Short" in {
         import testCases.int._
-        transform(at(Path \ "n").is(req[Short]).writes(4)) shouldBe ok
-        transform(at(Path \ "n" \ "o").is(req[Short]).writes(4)) shouldBe noOK
-        transform(at(Path \ "n" \ "o" \ "p").is(req[Short]).writes(4)) shouldBe nopOK
+        transform(at(Path \ "n").is(req[Short]).writes(4)) should equal (ok)
+        transform(at(Path \ "n" \ "o").is(req[Short]).writes(4)) should equal (noOK)
+        transform(at(Path \ "n" \ "o" \ "p").is(req[Short]).writes(4)) should equal (nopOK)
       }
 
       "Long" in {
         import testCases.int._
-        transform(at(Path \ "n").is(req[Long]).writes(4)) shouldBe ok
-        transform(at(Path \ "n" \ "o").is(req[Long]).writes(4)) shouldBe noOK
-        transform(at(Path \ "n" \ "o" \ "p").is(req[Long]).writes(4)) shouldBe nopOK
+        transform(at(Path \ "n").is(req[Long]).writes(4)) should equal (ok)
+        transform(at(Path \ "n" \ "o").is(req[Long]).writes(4)) should equal (noOK)
+        transform(at(Path \ "n" \ "o" \ "p").is(req[Long]).writes(4)) should equal (nopOK)
       }
 
       "Float" in {
         import testCases.int.{float => f}
-        transform(at(Path \ "n").is(req[Float]).writes(4.5f)) shouldBe f
+        transform(at(Path \ "n").is(req[Float]).writes(4.5f)) should equal (f)
       }
 
       "Double" in {
         import testCases.int.{float => f}
-        transform(at(Path \ "n").is(req[Double]).writes(4.5d)) shouldBe f
+        transform(at(Path \ "n").is(req[Double]).writes(4.5d)) should equal (f)
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => JBigDecimal}
-        import testCases.int.{float => f}
-        transform(at(Path \ "n").is(req[JBigDecimal]).writes(new JBigDecimal("4.5"))) shouldBe f
+        import testCases.int.{bigdecimal => f}
+        transform(at(Path \ "n").is(req[JBigDecimal]).writes(new JBigDecimal("4.5"))) should equal (f)
       }
 
       "scala BigDecimal" in {
-        import testCases.int.{float => f}
-        transform(at(Path \ "n").is(req[BigDecimal]).writes(BigDecimal("4.5"))) shouldBe f
+        import testCases.int.{bigdecimal => f}
+        transform(at(Path \ "n").is(req[BigDecimal]).writes(BigDecimal("4.5"))) should equal (f)
       }
 
       "Boolean" in {
         import testCases.boolean._
-        transform(at(Path \ "n").is(req[Boolean]).writes(true)) shouldBe ok
+        transform(at(Path \ "n").is(req[Boolean]).writes(true)) should equal (ok)
       }
 
       "String" in {
         import testCases.string._
-        transform(at(Path \ "n").is(req[String]).writes("foo")) shouldBe foo
-        transform(at(Path \ "o" \ "n").is(req[String]).writes("foo")) shouldBe onFoo
+        transform(at(Path \ "n").is(req[String]).writes("foo")) should equal (foo)
+        transform(at(Path \ "o" \ "n").is(req[String]).writes("foo")) should equal (onFoo)
       }
 
       "Option" in {
         import testCases.option._
-        transform(at(Path \ "foo").is(opt[String]).writes(Option("bar"))) shouldBe fooBar
-        transform(at(Path \ "foo").is(opt[String]).writes(None)) shouldBe none
-        transform(at(Path \ "foo" \ "bar").is(opt[String]).writes(None)) shouldBe none
+        transform(at(Path \ "foo").is(opt[String]).writes(Option("bar"))) should equal (fooBar)
+        transform(at(Path \ "foo").is(opt[String]).writes(None)) should equal (none)
+        transform(at(Path \ "foo" \ "bar").is(opt[String]).writes(None)) should equal (none)
       }
 
       "Map[String, Seq[V]]" in {
         import testCases.map._
         transform(at(Path \ "n").is(req[Map[String, Seq[String]]])
-          .writes(Map("foo" -> Seq("bar")))) shouldBe foobar
+          .writes(Map("foo" -> Seq("bar")))) should equal (foobar)
 
         transform(at(Path \ "n").is(req[Map[String, Seq[Int]]])
-          .writes(Map("foo" -> Seq(4), "bar" -> Seq(5)))) shouldBe ints
+          .writes(Map("foo" -> Seq(4), "bar" -> Seq(5)))) should equal (ints)
       }
 
 
       "Seq" in {
         import testCases.seq._
-        transform(at(Path \ "n").is(req[Seq[String]]).writes(Seq("foo"))) shouldBe foos
-        transform(at(Path \ "foo" \ "foo").is(req[Seq[String]]).writes(Seq("bar"))) shouldBe foofoobars
-        transform(at(Path \ "n").is(req[Seq[Int]]).writes(Seq(1, 2, 3))) shouldBe ints
+        transform(at(Path \ "n").is(req[Seq[String]]).writes(Seq("foo"))) should equal (foos)
+        transform(at(Path \ "foo" \ "foo").is(req[Seq[String]]).writes(Seq("bar"))) should equal (foofoobars)
+        transform(at(Path \ "n").is(req[Seq[Int]]).writes(Seq(1, 2, 3))) should equal (ints)
       }
 
       "List" in {
         import testCases.seq._
-        transform(at(Path \ "n").is(req[List[String]]).writes(List("foo"))) shouldBe foos
-        transform(at(Path \ "foo" \ "foo").is(req[List[String]]).writes(List("bar"))) shouldBe foofoobars
-        transform(at(Path \ "n").is(req[List[Int]]).writes(List(1, 2, 3))) shouldBe ints
+        transform(at(Path \ "n").is(req[List[String]]).writes(List("foo"))) should equal (foos)
+        transform(at(Path \ "foo" \ "foo").is(req[List[String]]).writes(List("bar"))) should equal (foofoobars)
+        transform(at(Path \ "n").is(req[List[Int]]).writes(List(1, 2, 3))) should equal (ints)
       }
 
       "Array" in {
         import testCases.seq._
-        transform(at(Path \ "n").is(req[Array[String]]).writes(Array("foo"))) shouldBe foos
-        transform(at(Path \ "foo" \ "foo").is(req[Array[String]]).writes(Array("bar"))) shouldBe foofoobars
-        transform(at(Path \ "n").is(req[Array[Int]]).writes(Array(1, 2, 3))) shouldBe ints
+        transform(at(Path \ "n").is(req[Array[String]]).writes(Array("foo"))) should equal (foos)
+        transform(at(Path \ "foo" \ "foo").is(req[Array[String]]).writes(Array("bar"))) should equal (foofoobars)
+        transform(at(Path \ "n").is(req[Array[Int]]).writes(Array(1, 2, 3))) should equal (ints)
       }
     }
 
@@ -141,8 +144,8 @@ trait WritesSpec[T] extends WordSpec with Matchers {
       import shapeless._
 
       val v = Some("Personal") :: Some("fakecontact@gmail.com") :: Seq("01.23.45.67.89", "98.76.54.32.10") :: HNil
-      transform(w.writes(v)) shouldBe testCases.base.info
-      transform(w.writes(None :: None :: Nil :: HNil)) shouldBe noInfo
+      transform(w.writes(v)) should equal (testCases.base.info)
+      transform(w.writes(None :: None :: Nil :: HNil)) should equal (noInfo)
     }
 
     // "write Invalid" in {
@@ -159,7 +162,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
     //           "args" -> Seq("Int")))))
 
     //   (Path \ "errors").write[Invalid[(Path, Seq[ValidationError]), String], JsObject]
-    //     .writes(f) shouldBe(error)
+    //     .writes(f) should equal((error))
     // }
 
     "write Map" in {
@@ -183,7 +186,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
         }.from[Contact]
 
       // TODO: use solver ?
-      transform(contactWrite.writes(contact)) shouldBe jto
+      transform(contactWrite.writes(contact)) should equal (jto)
     }
 
     "write recursive" when {
@@ -202,7 +205,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
             knil
           }.from[RecUser]
 
-        transform(w.writes(u)) shouldBe bobAndFriends
+        transform(w.writes(u)) should equal (bobAndFriends)
 
         lazy val w2: Write[User1, Out] =
           {
@@ -211,7 +214,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
             knil
           }.from[User1]
 
-        transform(w2.writes(u1)) shouldBe bobAndFriend
+        transform(w2.writes(u1)) should equal (bobAndFriend)
       }
 
       "using implicit notation" in {
@@ -223,7 +226,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
             knil
           }.from[RecUser]
 
-        transform(w.writes(u)) shouldBe bobAndFriends
+        transform(w.writes(u)) should equal (bobAndFriends)
 
         implicit lazy val w2: Write[User1, Out] =
           {
@@ -232,7 +235,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
             knil
           }.from[User1]
 
-        transform(w2.writes(u1)) shouldBe bobAndFriend
+        transform(w2.writes(u1)) should equal (bobAndFriend)
       }
     }
 
@@ -241,7 +244,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
       import TestValueClass._
 
       val w = at(Path \ "id").is(Id.writes andThen req[String])
-      transform(w.writes(Id("1"))) shouldBe id
+      transform(w.writes(Id("1"))) should equal (id)
     }
   }
 

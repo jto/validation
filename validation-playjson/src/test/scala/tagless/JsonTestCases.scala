@@ -52,6 +52,7 @@ object JsonTestCases extends TestCases[JsValue] {
     val ok = Json.obj("n" -> 4)
     val foo = Json.obj("n" -> "foo")
     val float = Json.obj("n" -> 4.5)
+    val bigdecimal = Json.obj("n" -> 4.5)
     val noOK = Json.obj("n" -> Json.obj("o" -> 4))
     val noFoo = Json.obj("n" -> Json.obj("o" -> "foo"))
     val nopOK = Json.obj("n" -> Json.obj("o" -> Json.obj("p" -> 4)))

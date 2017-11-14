@@ -18,6 +18,7 @@ trait TestCases[T] {
     def ok: T
     def foo: T
     def float: T
+    def bigdecimal: T
     def noOK: T
     def noFoo: T
     def nopOK: T

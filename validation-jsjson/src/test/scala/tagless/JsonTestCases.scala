@@ -8,6 +8,9 @@ import js.{Array => arr}
 
 object JsonTestCases extends TestCases[js.Dynamic] {
 
+  def combine(a1: js.Dynamic, a2: js.Dynamic): js.Dynamic =
+    jto.validation.jsjson.Writes.jsonMonoid.combine(a1, a2)
+
   override val base = new base {
 
     val id = lit("id" -> "1")
@@ -25,7 +28,9 @@ object JsonTestCases extends TestCases[js.Dynamic] {
 
     val jto = lit("firstname" -> "Julien",
                   "lastname" -> "Tournay",
-                  "informations" -> Seq((lit("label" -> "Personal") ++ info)))
+                  "informations" -> Seq(
+                    combine(lit("label" -> "Personal"), info)
+                  ))
 
     val valid =
       lit("firstname" -> "Julien",
@@ -40,8 +45,8 @@ object JsonTestCases extends TestCases[js.Dynamic] {
         "lastname" -> "Tournay",
         "age" -> 27,
         "informations" ->
-          (lit("label" -> "") ++ infoNoLabel),
-        "contacts" -> Seq(lit("label" -> "") ++ infoNoLabel)
+          combine(lit("label" -> ""), infoNoLabel),
+        "contacts" -> Seq(combine(lit("label" -> ""), infoNoLabel))
       )
 
     val smthTrue = lit("issmth" -> true)

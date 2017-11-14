@@ -7,7 +7,8 @@ import scala.util.Try
 trait Rules extends DefaultRules[js.Dynamic] {
   private def jsonAs[T](
       f: PartialFunction[js.Any, Validated[Seq[ValidationError], T]])(
-      msg: String, args: Any*) =
+      msg: String,
+      args: Any*) =
     Rule.fromMapping[js.Dynamic, T](f.orElse {
       case j => Invalid(Seq(ValidationError(msg, args: _*)))
     })
@@ -41,8 +42,7 @@ trait Rules extends DefaultRules[js.Dynamic] {
 
   implicit def jsObjectR =
     jsonAs[js.Dictionary[js.Dynamic]] {
-      case v
-          if v != null && js.typeOf(v) == "object" && !js.Array.isArray(v) =>
+      case v if v != null && js.typeOf(v) == "object" && !js.Array.isArray(v) =>
         Valid(v.asInstanceOf[js.Dictionary[js.Dynamic]])
     }("error.invalid", "Object")
 
@@ -78,13 +78,13 @@ trait Rules extends DefaultRules[js.Dynamic] {
     case v if v == null => Valid(null)
   }("error.invalid", "null")
 
-  implicit def ooo[O](
-      p: Path)(implicit pick: Path => RuleLike[js.Dynamic, js.Dynamic],
-               coerce: RuleLike[js.Dynamic, O]): Rule[js.Dynamic, Option[O]] =
+  implicit def ooo[O](p: Path)(
+      implicit pick: Path => RuleLike[js.Dynamic, js.Dynamic],
+      coerce: RuleLike[js.Dynamic, O]): Rule[js.Dynamic, Option[O]] =
     optionR(Rule.zero[O])(pick, coerce)(p)
 
-  def optionR[J, O](
-      r: => RuleLike[J, O], noneValues: RuleLike[js.Dynamic, js.Dynamic]*)(
+  def optionR[J, O](r: => RuleLike[J, O],
+                    noneValues: RuleLike[js.Dynamic, js.Dynamic]*)(
       implicit pick: Path => RuleLike[js.Dynamic, js.Dynamic],
       coerce: RuleLike[js.Dynamic, J]): Path => Rule[js.Dynamic, Option[O]] =
     super.opt[J, O](r, (jsNullR.map(n => n: js.Dynamic) +: noneValues): _*)
@@ -94,8 +94,7 @@ trait Rules extends DefaultRules[js.Dynamic] {
     super.mapR[js.Dynamic, O](r, jsObjectR.map(_.toSeq))
 
   implicit def jsDictToDyn[O](
-      implicit r: RuleLike[js.Dictionary[js.Dynamic], O])
-    : Rule[js.Dynamic, O] =
+      implicit r: RuleLike[js.Dictionary[js.Dynamic], O]): Rule[js.Dynamic, O] =
     jsObjectR.andThen(r)
 
   implicit def pickInJson[II <: js.Dynamic, O](p: Path)(

@@ -5,18 +5,21 @@ import scala.xml._
 import shapeless.tag, tag.@@
 
 trait Rules extends DefaultRules[Node] with ParsingRules {
-  implicit def nodeR[O](implicit r: RuleLike[String, O]): Rule[Node, O] @@ Root =
+  implicit def nodeR[O](
+      implicit r: RuleLike[String, O]): Rule[Node, O] @@ Root =
     tag[Root] {
       Rule
         .fromMapping[Node, String] { node =>
           val children = (node \ "_")
           if (children.isEmpty) Valid(node.text)
           else
-            Invalid(Seq(ValidationError(
-                        "error.invalid",
-                        "a non-leaf node can not be validated to String")))
+            Invalid(
+              Seq(
+                ValidationError(
+                  "error.invalid",
+                  "a non-leaf node can not be validated to String")))
         }
-      .andThen(r)
+        .andThen(r)
     }
 
   def attributeR[O](key: String)(
@@ -25,7 +28,7 @@ trait Rules extends DefaultRules[Node] with ParsingRules {
       .fromMapping[Node, String] { node =>
         node.attribute(key).flatMap(_.headOption).map(_.text) match {
           case Some(value) => Valid(value)
-          case None => Invalid(Seq(ValidationError("error.required")))
+          case None        => Invalid(Seq(ValidationError("error.required")))
         }
       }
       .andThen(r)
@@ -35,7 +38,7 @@ trait Rules extends DefaultRules[Node] with ParsingRules {
     Rule[Node, Option[O]] { node =>
       node.attribute(key).flatMap(_.headOption).map(_.text) match {
         case Some(str) =>
-          r.validateWithPath(str).map{ case (p, o) => (p, Some(o)) } // TODO: test this
+          r.validateWithPath(str).map { case (p, o) => (p, Some(o)) } // TODO: test this
         case None =>
           Valid(Path -> None)
       }
@@ -46,7 +49,7 @@ trait Rules extends DefaultRules[Node] with ParsingRules {
     def search(path: Path, node: Node): Option[Node] = path.path match {
       case KeyPathNode(key) :: tail =>
         (node \ key).headOption.flatMap(childNode =>
-              search(Path(tail), childNode))
+          search(Path(tail), childNode))
 
       case IdxPathNode(idx) :: tail =>
         (node \ "_")
@@ -78,16 +81,15 @@ trait Rules extends DefaultRules[Node] with ParsingRules {
     pickInS(seqR[Node, O])
   implicit def pickSet[O](implicit r: RuleLike[Node, O]): Rule[Node, Set[O]] =
     pickInS(setR[Node, O])
-  implicit def pickList[O](
-      implicit r: RuleLike[Node, O]): Rule[Node, List[O]] =
+  implicit def pickList[O](implicit r: RuleLike[Node, O]): Rule[Node, List[O]] =
     pickInS(listR[Node, O])
   implicit def pickTraversable[O](
       implicit r: RuleLike[Node, O]): Rule[Node, Traversable[O]] =
     pickInS(traversableR[Node, O])
 
-  implicit def ooo[O](
-      p: Path)(implicit pick: Path => RuleLike[Node, Node],
-               coerce: RuleLike[Node, O]): Rule[Node, Option[O]] =
+  implicit def ooo[O](p: Path)(
+      implicit pick: Path => RuleLike[Node, Node],
+      coerce: RuleLike[Node, O]): Rule[Node, Option[O]] =
     optionR(Rule.zero[O])(pick, coerce)(p)
 
   def optionR[J, O](r: => RuleLike[J, O], noneValues: RuleLike[Node, Node]*)(
@@ -96,25 +98,34 @@ trait Rules extends DefaultRules[Node] with ParsingRules {
     super.opt[J, O](r, noneValues: _*)
 
   def pickChildsWithAttribute[O](
-      key: String, attrKey: String, attrValue: String)(
-      implicit r: RuleLike[Node, O]): Rule[Node, Seq[O]] =
-    Rule.fromMapping[Node, Seq[Node]] { node =>
-      Valid( (node \ key).filter(_.attribute(attrKey).exists(_.text == attrValue)).toSeq )
-    }.andThen(seqR(r))
+      key: String,
+      attrKey: String,
+      attrValue: String)(implicit r: RuleLike[Node, O]): Rule[Node, Seq[O]] =
+    Rule
+      .fromMapping[Node, Seq[Node]] { node =>
+        Valid(
+          (node \ key)
+            .filter(_.attribute(attrKey).exists(_.text == attrValue))
+            .toSeq)
+      }
+      .andThen(seqR(r))
 
   def pickChildWithAttribute[O](
-      key: String, attrKey: String, attrValue: String)(
-      implicit r: RuleLike[Node, O]): Rule[Node, O] =
+      key: String,
+      attrKey: String,
+      attrValue: String)(implicit r: RuleLike[Node, O]): Rule[Node, O] =
     Rule
       .fromMapping[Node, Node] { node =>
         val maybeChild = (node \ key).find(
-            _.attribute(attrKey).filter(_.text == attrValue).isDefined)
+          _.attribute(attrKey).filter(_.text == attrValue).isDefined)
         maybeChild match {
           case Some(child) => Valid(child)
           case None =>
-            Invalid(Seq(ValidationError(
-                        "error.required",
-                        s"child with attribute $attrKey = $attrValue not found")))
+            Invalid(
+              Seq(
+                ValidationError(
+                  "error.required",
+                  s"child with attribute $attrKey = $attrValue not found")))
         }
       }
       .andThen(r)

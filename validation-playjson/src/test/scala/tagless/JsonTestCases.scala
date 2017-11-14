@@ -11,15 +11,13 @@ object JsonTestCases extends TestCases[JsValue] {
     val id = Json.obj("id" -> "1")
 
     val info =
-      Json.obj(
-        "label" -> "Personal",
-        "email" -> "fakecontact@gmail.com",
-        "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
+      Json.obj("label" -> "Personal",
+               "email" -> "fakecontact@gmail.com",
+               "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
 
     val infoNoLabel =
-      Json.obj(
-        "email" -> "fakecontact@gmail.com",
-        "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
+      Json.obj("email" -> "fakecontact@gmail.com",
+               "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))
 
     val noInfo = Json.obj()
 
@@ -36,13 +34,14 @@ object JsonTestCases extends TestCases[JsValue] {
                "contacts" -> Seq(info))
 
     val invalid =
-      Json.obj("firstname" -> "Julien",
-               "lastname" -> "Tournay",
-               "age" -> 27,
-               "informations" ->
-                  (Json.obj("label" -> "") ++ infoNoLabel),
-               "contacts" -> Seq(
-                  Json.obj("label" -> "") ++ infoNoLabel))
+      Json.obj(
+        "firstname" -> "Julien",
+        "lastname" -> "Tournay",
+        "age" -> 27,
+        "informations" ->
+          (Json.obj("label" -> "") ++ infoNoLabel),
+        "contacts" -> Seq(Json.obj("label" -> "") ++ infoNoLabel)
+      )
 
     val smthTrue = Json.obj("issmth" -> true)
     val smthFalse = Json.obj("issmth" -> false)
@@ -91,21 +90,19 @@ object JsonTestCases extends TestCases[JsValue] {
   val map = new map {
     val foobar = Json.obj("n" -> Json.obj("foo" -> List("bar")))
     val ints = Json.obj("n" -> Json.obj("foo" -> List(4), "bar" -> List(5)))
-    val mixed = Json.obj("n" -> Json.obj("foo" -> List(4), "bar" -> List("frack")))
+    val mixed =
+      Json.obj("n" -> Json.obj("foo" -> List(4), "bar" -> List("frack")))
   }
 
   val password = new password {
-    val ok = Json.obj("login" -> "Alice",
-                     "password" -> "s3cr3t",
-                     "verify" -> "s3cr3t")
+    val ok =
+      Json.obj("login" -> "Alice", "password" -> "s3cr3t", "verify" -> "s3cr3t")
 
-    val empty = Json.obj("login" -> "Alice",
-                      "password" -> "s3cr3t",
-                      "verify" -> "")
+    val empty =
+      Json.obj("login" -> "Alice", "password" -> "s3cr3t", "verify" -> "")
 
-    val err = Json.obj("login" -> "Alice",
-                      "password" -> "s3cr3t",
-                      "verify" -> "bam")
+    val err =
+      Json.obj("login" -> "Alice", "password" -> "s3cr3t", "verify" -> "bam")
   }
 
   val subclasses = new subclasses {
@@ -116,14 +113,10 @@ object JsonTestCases extends TestCases[JsValue] {
 
   val rec = new rec {
     val bobAndFriends =
-      Json.obj("name" -> "bob",
-               "friends" -> Seq(
-                   Json.obj("name" -> "tom")))
+      Json.obj("name" -> "bob", "friends" -> Seq(Json.obj("name" -> "tom")))
 
     val bobAndFriend =
-      Json.obj(
-        "name" -> "bob",
-        "friend" -> Json.obj("name" -> "tom"))
+      Json.obj("name" -> "bob", "friend" -> Json.obj("name" -> "tom"))
   }
 
 }

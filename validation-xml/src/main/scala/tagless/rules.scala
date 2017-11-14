@@ -7,9 +7,9 @@ import shapeless.tag, tag.@@
 import scala.xml.{NodeSeq, Null}
 
 trait RulesGrammar
-  extends XmlGrammar[List[XML], Rule]
-  with RuleConstraints
-  with RulesTypeclasses[List[XML]] {
+    extends XmlGrammar[List[XML], Rule]
+    with RuleConstraints
+    with RulesTypeclasses[List[XML]] {
   self =>
 
   type N = List[XML]
@@ -24,21 +24,21 @@ trait RulesGrammar
     }
 
   /**
-  * Find the node with a given name
-  */
+    * Find the node with a given name
+    */
   @inline private def lookup(key: String, nodes: N): N = {
     for {
       (_, ns) <- nodes
       node <- ns if node.label == key
     } yield (node.attributes, NodeSeq.fromSeq(node.child))
   }
-
-
   @inline private def search(path: Path, n: N): Option[N] =
     path.path match {
       case KeyPathNode(key) :: Nil =>
         val ns = lookup(key, n)
-        ns.headOption.map { _ => ns }
+        ns.headOption.map { _ =>
+          ns
+        }
 
       case KeyPathNode(key) :: tail =>
         val ns = lookup(key, n)
@@ -49,9 +49,9 @@ trait RulesGrammar
       case IdxPathNode(idx) :: tail =>
         // TODO: check this one
         ???
-        // (node \ "_")
-        //   .lift(idx)
-        //   .flatMap(childNode => search(Path(tail), childNode))
+      // (node \ "_")
+      //   .lift(idx)
+      //   .flatMap(childNode => search(Path(tail), childNode))
 
       case Nil =>
         Some(n)
@@ -60,7 +60,7 @@ trait RulesGrammar
   def at(p: Path): At[Rule, Out, N] =
     new At[Rule, Out, N] {
       def run =
-        Rule.zero[Out].repath(_ => p).map{ search(p, _) }
+        Rule.zero[Out].repath(_ => p).map { search(p, _) }
     }
 
   def is[A](implicit K: Rule[_ >: Out <: N, A]): Rule[N, A] = K
@@ -83,14 +83,19 @@ trait RulesGrammar
 
   private def nodeR[O](implicit r: RuleLike[String, O]): Rule[N, O] @@ Root =
     tag[Root] {
-      Rule.fromMapping[N, String] { case ns =>
-        ns.headOption.map { case (_, n) =>
-          Valid(n.text)
-        }.getOrElse {
-          Valid("") // XXX: really hackish
+      Rule
+        .fromMapping[N, String] {
+          case ns =>
+            ns.headOption
+              .map {
+                case (_, n) =>
+                  Valid(n.text)
+              }
+              .getOrElse {
+                Valid("") // XXX: really hackish
+              }
         }
-      }
-      .andThen(r)
+        .andThen(r)
     }
 
   implicit def int = nodeR(Rules.intR)
@@ -104,49 +109,65 @@ trait RulesGrammar
   implicit def short = nodeR(Rules.shortR)
 
   implicit def list[A](implicit k: Rule[_ >: Out <: N, A]): Rule[N, List[A]] =
-    Rule[N, List[A]] { case ns =>
-      import cats.instances.list._
-      import cats.syntax.traverse._
-      ns.zipWithIndex
-        .map { case (n, i) =>
-          k.repath((Path \ i) ++  _).validate(List(n))
-        }.sequenceU.map(Path -> _)
+    Rule[N, List[A]] {
+      case ns =>
+        import cats.instances.list._
+        import cats.syntax.traverse._
+        ns.zipWithIndex
+          .map {
+            case (n, i) =>
+              k.repath((Path \ i) ++ _).validate(List(n))
+          }
+          .sequenceU
+          .map(Path -> _)
     }
 
-  implicit def array[A: scala.reflect.ClassTag](implicit k: Rule[_ >: Out <: N, A]): Rule[N, Array[A]] =
+  implicit def array[A: scala.reflect.ClassTag](
+      implicit k: Rule[_ >: Out <: N, A]): Rule[N, Array[A]] =
     list(k).map(_.toArray)
 
   implicit def seq[A](implicit k: Rule[_ >: Out <: N, A]): Rule[N, Seq[A]] =
     list[A](k).map(_.toSeq)
 
-  implicit def traversable[A](implicit k: Rule[_ >: Out <: N, A]): Rule[N, Traversable[A]] =
+  implicit def traversable[A](
+      implicit k: Rule[_ >: Out <: N, A]): Rule[N, Traversable[A]] =
     list(k).map(_.toTraversable)
 
-  implicit def map[A](implicit k: Rule[_ >: Out <: N, A]): Rule[N, Map[String, A]] =
+  implicit def map[A](
+      implicit k: Rule[_ >: Out <: N, A]): Rule[N, Map[String, A]] =
     Rule[N, Map[String, A]] { in =>
       import cats.instances.list._
       import cats.syntax.traverse._
-      in.flatMap { case (_, ns) =>
-        ns.theSeq.map { n =>
-          k.repath((Path \ n.label) ++  _)
-           .validate(List(n.attributes -> NodeSeq.fromSeq(n.child)))
-           .map(n.label -> _)
+      in.flatMap {
+          case (_, ns) =>
+            ns.theSeq.map { n =>
+              k.repath((Path \ n.label) ++ _)
+                .validate(List(n.attributes -> NodeSeq.fromSeq(n.child)))
+                .map(n.label -> _)
+            }
         }
-      }.sequenceU.map(Path -> _.toMap)
+        .sequenceU
+        .map(Path -> _.toMap)
     }
 
   def attr[A](key: String): At[Rule, N, N] =
     new At[Rule, N, N] {
       def run: Rule[N, Option[N]] =
-        Rule.zero[N]
+        Rule
+          .zero[N]
           .repath(_ \ s"@$key")
           .map { ns =>
             val attrs =
-              ns.flatMap { case (as, _) =>
-                val nodes = NodeSeq.fromSeq(Option(as(key)).toList.flatten)
-                nodes.headOption.map { _ => (Null, nodes) }.toList
+              ns.flatMap {
+                case (as, _) =>
+                  val nodes = NodeSeq.fromSeq(Option(as(key)).toList.flatten)
+                  nodes.headOption.map { _ =>
+                    (Null, nodes)
+                  }.toList
               }
-            attrs.headOption.map { _ => attrs }
+            attrs.headOption.map { _ =>
+              attrs
+            }
           }
     }
 

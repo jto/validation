@@ -1,7 +1,8 @@
 val home = "https://github.com/jto/validation"
 val repo = "git@github.com:jto/validation.git"
 val org = "io.github.jto"
-val license = ("Apache License", url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+val license =
+  ("Apache License", url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 
 val catsVersion = "0.9.0"
 val jodaConvertVersion = "1.8.1"
@@ -13,9 +14,22 @@ val scalacVersion = "2.12.4"
 val scalatestVersion = "3.2.0-SNAP7"
 val scalaXmlVersion = "1.0.6"
 
-lazy val root = aggregate("validation", validationJVM, validationJS, docs).in(file("."))
-lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, jsonAstJVM, `validation-playjson`, `validation-xml`, `date-tests`)
-lazy val validationJS = aggregate("validationJS", coreJS, formJS, delimitedJS, jsonAstJS, `validation-jsjson`)
+lazy val root =
+  aggregate("validation", validationJVM, validationJS, docs).in(file("."))
+lazy val validationJVM = aggregate("validationJVM",
+                                   coreJVM,
+                                   formJVM,
+                                   delimitedJVM,
+                                   jsonAstJVM,
+                                   `validation-playjson`,
+                                   `validation-xml`,
+                                   `date-tests`)
+lazy val validationJS = aggregate("validationJS",
+                                  coreJS,
+                                  formJS,
+                                  delimitedJS,
+                                  jsonAstJS,
+                                  `validation-jsjson`)
 
 lazy val `validation-core` = crossProject
   .crossType(CrossType.Pure)
@@ -43,7 +57,8 @@ lazy val `validation-delimited` = crossProject
   .dependsOn(`validation-core`)
 lazy val delimitedJVM = `validation-delimited`.jvm
 lazy val delimitedJS = `validation-delimited`.js
-lazy val delimited = aggregate("validation-delimited", delimitedJVM, delimitedJS)
+lazy val delimited =
+  aggregate("validation-delimited", delimitedJVM, delimitedJS)
 
 lazy val `validation-jsonast` = crossProject
   .crossType(CrossType.Full)
@@ -80,12 +95,21 @@ lazy val docs = project
   .settings(dontPublish: _*)
   .settings(crossTarget := file(".") / "docs" / "target")
   .settings(scalacOptions -= "-Ywarn-unused-import")
-  .dependsOn(coreJVM, formJVM, delimitedJVM, jsonAstJVM, `validation-playjson`, `validation-xml`)
+  .dependsOn(coreJVM,
+             formJVM,
+             delimitedJVM,
+             jsonAstJVM,
+             `validation-playjson`,
+             `validation-xml`)
 
 lazy val `date-tests` = project
   .settings(validationSettings: _*)
   .settings(dontPublish: _*)
-  .dependsOn(coreJVM, formJVM, jsonAstJVM, `validation-playjson`, `validation-xml`)
+  .dependsOn(coreJVM,
+             formJVM,
+             jsonAstJVM,
+             `validation-playjson`,
+             `validation-xml`)
 
 def aggregate(name: String, projects: ProjectReference*): Project =
   Project(name, file("." + name))
@@ -105,12 +129,14 @@ lazy val settings = Seq(
   resolvers ++= commonResolvers,
   testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
   scalaJSStage in Global := FastOptStage,
-  parallelExecution := false
+  parallelExecution := false,
+  scalafmtOnCompile := true
 )
 
 val commonScalacOptions = Seq(
   "-deprecation",
-  "-encoding", "UTF-8",
+  "-encoding",
+  "UTF-8",
   "-feature",
   "-language:existentials",
   "-language:higherKinds",
@@ -120,7 +146,6 @@ val commonScalacOptions = Seq(
   "-unchecked",
   "-Xfatal-warnings",
   "-Xlint",
-  // "-Yinline-warnings",
   "-Yno-adapted-args",
   // "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
@@ -146,12 +171,13 @@ val dependencies = Seq(
 )
 
 val generateBoilerplate = Seq(
-  sourceGenerators in Compile <+= (sourceManaged in Compile).map(Boilerplate.gen)
+  sourceGenerators in Compile <+= (sourceManaged in Compile).map(
+    Boilerplate.gen)
 )
 
 val doPublish = Seq(
   homepage := Some(url(home)),
-  scmInfo :=  Some(ScmInfo(url(home), "scm:git:" + repo)),
+  scmInfo := Some(ScmInfo(url(home), "scm:git:" + repo)),
   licenses := Seq(license),
   publishMavenStyle := true,
   publishTo := {
@@ -159,10 +185,9 @@ val doPublish = Seq(
     if (isSnapshot.value)
       Some("snapshots" at nexus + "content/repositories/snapshots")
     else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+      Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
-  pomExtra := (
-    <developers>
+  pomExtra := (<developers>
       <developer>
         <id>jto</id>
         <name>Julien Tournay</name>

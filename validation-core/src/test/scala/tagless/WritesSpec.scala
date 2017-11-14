@@ -136,11 +136,13 @@ trait WritesSpec[T] extends WordSpec with Matchers {
           at(Path \ "email").is(opt[String]) ~:
           at(Path \ "phones").is(opt[Seq[String]].contramap[Seq[String]]{ ss => ss.headOption.map(_ => ss) }) ~:
           knil
-        ).tupled
+        )
 
-      val v = (Some("Personal"), Some("fakecontact@gmail.com"), Seq("01.23.45.67.89", "98.76.54.32.10"))
+      import shapeless._
+
+      val v = Some("Personal") :: Some("fakecontact@gmail.com") :: Seq("01.23.45.67.89", "98.76.54.32.10") :: HNil
       transform(w.writes(v)) shouldBe testCases.base.info
-      transform(w.writes((None, None, Nil))) shouldBe noInfo
+      transform(w.writes(None :: None :: Nil :: HNil)) shouldBe noInfo
     }
 
     // "write Invalid" in {
@@ -163,7 +165,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
     "write Map" in {
       import testCases.base._
 
-      implicit val contactInformation =
+      val contactInformation =
         {
           at(Path \ "label").is(req[String]) ~:
           at(Path \ "email").is(opt[String]) ~:
@@ -176,7 +178,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
           at(Path \ "firstname").is(req[String]) ~:
           at(Path \ "lastname").is(req[String]) ~:
           at(Path \ "company").is(opt[String]) ~:
-          at(Path \ "informations").is(req[Seq[ContactInformation]]) ~:
+          at(Path \ "informations").is(req(seq(contactInformation))) ~:
           knil
         }.from[Contact]
 

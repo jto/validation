@@ -2,7 +2,15 @@ package jto.validation
 package playjson
 
 import shapeless.tag.@@
-import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray}
+import play.api.libs.json.{
+  JsValue,
+  JsObject,
+  Json,
+  JsString,
+  JsNumber,
+  JsBoolean,
+  JsArray
+}
 
 trait DefaultMonoids {
   import cats.Monoid
@@ -19,26 +27,28 @@ trait Writes
     with GenericWrites[JsValue] {
 
   private def writeObj(j: JsValue, n: PathNode) = n match {
-    case IdxPathNode(_) => Json.arr(j)
+    case IdxPathNode(_)   => Json.arr(j)
     case KeyPathNode(key) => Json.obj(key -> j)
   }
 
   implicit val validationErrorW = Write[ValidationError, JsValue] { err =>
-    Json.obj("msg" -> JsString(err.message),
-             "args" -> err.args.foldLeft(Json.arr()) { (arr, arg) =>
-               arr :+
-               (arg match {
-                     case s: String => JsString(s)
-                     case nb: Int => JsNumber(nb)
-                     case nb: Short => JsNumber(nb)
-                     case nb: Long => JsNumber(nb)
-                     case nb: Double => JsNumber(nb)
-                     case nb: Float => JsNumber(nb)
-                     case b: Boolean => JsBoolean(b)
-                     case js: JsValue => js
-                     case x => JsString(x.toString)
-                   })
-             })
+    Json.obj(
+      "msg" -> JsString(err.message),
+      "args" -> err.args.foldLeft(Json.arr()) { (arr, arg) =>
+        arr :+
+          (arg match {
+            case s: String   => JsString(s)
+            case nb: Int     => JsNumber(nb)
+            case nb: Short   => JsNumber(nb)
+            case nb: Long    => JsNumber(nb)
+            case nb: Double  => JsNumber(nb)
+            case nb: Float   => JsNumber(nb)
+            case b: Boolean  => JsBoolean(b)
+            case js: JsValue => js
+            case x           => JsString(x.toString)
+          })
+      }
+    )
   }
 
   implicit def errorsW(

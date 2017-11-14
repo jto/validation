@@ -1,7 +1,16 @@
 import jto.validation._
 import jto.validation.playjson._
 import org.scalatest._
-import play.api.libs.json.{JsValue, JsObject, Json, JsString, JsNumber, JsBoolean, JsArray, JsNull}
+import play.api.libs.json.{
+  JsValue,
+  JsObject,
+  Json,
+  JsString,
+  JsNumber,
+  JsBoolean,
+  JsArray,
+  JsNull
+}
 
 class RulesSpec extends WordSpec with Matchers {
 
@@ -9,26 +18,30 @@ class RulesSpec extends WordSpec with Matchers {
     import Rules._
 
     val valid =
-      Json.obj("firstname" -> "Julien",
-               "lastname" -> "Tournay",
-               "age" -> 27,
-               "informations" -> Json.obj("label" -> "Personal",
-                                          "email" -> "fakecontact@gmail.com",
-                                          "phones" -> Seq("01.23.45.67.89",
-                                                          "98.76.54.32.10")))
+      Json.obj(
+        "firstname" -> "Julien",
+        "lastname" -> "Tournay",
+        "age" -> 27,
+        "informations" -> Json.obj("label" -> "Personal",
+                                   "email" -> "fakecontact@gmail.com",
+                                   "phones" -> Seq("01.23.45.67.89",
+                                                   "98.76.54.32.10"))
+      )
 
     val invalid =
-      Json.obj("firstname" -> "Julien",
-               "lastname" -> "Tournay",
-               "age" -> 27,
-               "informations" -> Json.obj("label" -> "",
-                                          "email" -> "fakecontact@gmail.com",
-                                          "phones" -> Seq("01.23.45.67.89",
-                                                          "98.76.54.32.10")))
+      Json.obj(
+        "firstname" -> "Julien",
+        "lastname" -> "Tournay",
+        "age" -> 27,
+        "informations" -> Json.obj("label" -> "",
+                                   "email" -> "fakecontact@gmail.com",
+                                   "phones" -> Seq("01.23.45.67.89",
+                                                   "98.76.54.32.10"))
+      )
 
     "extract data" in {
       (Path \ "firstname").read[JsValue, String].validate(valid) shouldBe
-      (Valid("Julien"))
+        (Valid("Julien"))
       val errPath = Path \ "foo"
       val error =
         Invalid(Seq(errPath -> Seq(ValidationError("error.required"))))
@@ -40,10 +53,11 @@ class RulesSpec extends WordSpec with Matchers {
       val p = Path \ "issmth"
       p.from[JsValue](checked).validate(js) shouldBe (Valid(true))
       p.from[JsValue](checked).validate(Json.obj()) shouldBe
-      (Invalid(Seq(Path \ "issmth" -> Seq(ValidationError("error.required")))))
+        (Invalid(
+          Seq(Path \ "issmth" -> Seq(ValidationError("error.required")))))
       p.from[JsValue](checked).validate(Json.obj("issmth" -> false)) shouldBe
-      (Invalid(Seq(Path \ "issmth" -> Seq(
-                      ValidationError("error.equals", true)))))
+        (Invalid(
+          Seq(Path \ "issmth" -> Seq(ValidationError("error.equals", true)))))
     }
 
     "support all types of Json values" when {
@@ -55,181 +69,239 @@ class RulesSpec extends WordSpec with Matchers {
         (Path \ "n")
           .read[JsValue, JsNull.type]
           .validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.invalid", "null")))))
-        (Path \ "n").read[JsValue, JsNull.type].validate(Json.obj("n" -> 4.5)) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.invalid", "null")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
+        (Path \ "n")
+          .read[JsValue, JsNull.type]
+          .validate(Json.obj("n" -> 4.5)) shouldBe
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "null")))))
       }
 
       "Int" in {
         (Path \ "n").read[JsValue, Int].validate(Json.obj("n" -> 4)) shouldBe
-        (Valid(4))
-        (Path \ "n").read[JsValue, Int].validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.number", "Int")))))
+          (Valid(4))
+        (Path \ "n")
+          .read[JsValue, Int]
+          .validate(Json.obj("n" -> "foo")) shouldBe
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
         (Path \ "n").read[JsValue, Int].validate(Json.obj("n" -> 4.5)) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.number", "Int")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.number", "Int")))))
         (Path \ "n" \ "o")
           .read[JsValue, Int]
           .validate(Json.obj("n" -> Json.obj("o" -> 4))) shouldBe (Valid(4))
         (Path \ "n" \ "o")
           .read[JsValue, Int]
           .validate(Json.obj("n" -> Json.obj("o" -> "foo"))) shouldBe
-        (Invalid(Seq(Path \ "n" \ "o" -> Seq(
-                        ValidationError("error.number", "Int")))))
+          (Invalid(
+            Seq(
+              Path \ "n" \ "o" -> Seq(ValidationError("error.number", "Int")))))
 
         (Path \ "n" \ "o" \ "p")
           .read[JsValue, Int]
           .validate(Json.obj("n" -> Json.obj("o" -> Json.obj("p" -> 4)))) shouldBe
-        (Valid(4))
+          (Valid(4))
         (Path \ "n" \ "o" \ "p")
           .read[JsValue, Int]
           .validate(Json.obj("n" -> Json.obj("o" -> Json.obj("p" -> "foo")))) shouldBe
-        (Invalid(Seq(Path \ "n" \ "o" \ "p" -> Seq(
-                        ValidationError("error.number", "Int")))))
+          (Invalid(
+            Seq(Path \ "n" \ "o" \ "p" -> Seq(
+              ValidationError("error.number", "Int")))))
 
         val errPath = Path \ "foo"
         val error =
           Invalid(Seq(errPath -> Seq(ValidationError("error.required"))))
         errPath.read[JsValue, Int].validate(Json.obj("n" -> 4)) shouldBe
-        (error)
+          (error)
       }
 
       "Short" in {
         (Path \ "n").read[JsValue, Short].validate(Json.obj("n" -> 4)) shouldBe
-        (Valid(4))
-        (Path \ "n").read[JsValue, Short].validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.number", "Short")))))
-        (Path \ "n").read[JsValue, Short].validate(Json.obj("n" -> 4.5)) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.number", "Short")))))
+          (Valid(4))
+        (Path \ "n")
+          .read[JsValue, Short]
+          .validate(Json.obj("n" -> "foo")) shouldBe
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
+        (Path \ "n")
+          .read[JsValue, Short]
+          .validate(Json.obj("n" -> 4.5)) shouldBe
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.number", "Short")))))
       }
 
       "Long" in {
         (Path \ "n").read[JsValue, Long].validate(Json.obj("n" -> 4)) shouldBe
-        (Valid(4))
-        (Path \ "n").read[JsValue, Long].validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.number", "Long")))))
+          (Valid(4))
+        (Path \ "n")
+          .read[JsValue, Long]
+          .validate(Json.obj("n" -> "foo")) shouldBe
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
         (Path \ "n").read[JsValue, Long].validate(Json.obj("n" -> 4.5)) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.number", "Long")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.number", "Long")))))
       }
 
       "Float" in {
         (Path \ "n").read[JsValue, Float].validate(Json.obj("n" -> 4)) shouldBe
-        (Valid(4))
-        (Path \ "n").read[JsValue, Float].validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.number", "Float")))))
-        (Path \ "n").read[JsValue, Float].validate(Json.obj("n" -> 4.5)) shouldBe
-        (Valid(4.5F))
+          (Valid(4))
+        (Path \ "n")
+          .read[JsValue, Float]
+          .validate(Json.obj("n" -> "foo")) shouldBe
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.number", "Float")))))
+        (Path \ "n")
+          .read[JsValue, Float]
+          .validate(Json.obj("n" -> 4.5)) shouldBe
+          (Valid(4.5F))
       }
 
       "Double" in {
         (Path \ "n").read[JsValue, Double].validate(Json.obj("n" -> 4)) shouldBe
-        (Valid(4))
-        (Path \ "n").read[JsValue, Double].validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.number", "Double")))))
-        (Path \ "n").read[JsValue, Double].validate(Json.obj("n" -> 4.5)) shouldBe
-        (Valid(4.5))
+          (Valid(4))
+        (Path \ "n")
+          .read[JsValue, Double]
+          .validate(Json.obj("n" -> "foo")) shouldBe
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.number", "Double")))))
+        (Path \ "n")
+          .read[JsValue, Double]
+          .validate(Json.obj("n" -> 4.5)) shouldBe
+          (Valid(4.5))
       }
 
       "java BigDecimal" in {
         import java.math.{BigDecimal => jBigDecimal}
-        (Path \ "n").read[JsValue, jBigDecimal].validate(Json.obj("n" -> 4)) shouldBe
-        (Valid(new jBigDecimal("4")))
+        (Path \ "n")
+          .read[JsValue, jBigDecimal]
+          .validate(Json.obj("n" -> 4)) shouldBe
+          (Valid(new jBigDecimal("4")))
         (Path \ "n")
           .read[JsValue, jBigDecimal]
           .validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.number", "BigDecimal")))))
-        (Path \ "n").read[JsValue, jBigDecimal].validate(Json.obj("n" -> 4.5)) shouldBe
-        (Valid(new jBigDecimal("4.5")))
+          (Invalid(Seq(
+            Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
+        (Path \ "n")
+          .read[JsValue, jBigDecimal]
+          .validate(Json.obj("n" -> 4.5)) shouldBe
+          (Valid(new jBigDecimal("4.5")))
       }
 
       "scala BigDecimal" in {
-        (Path \ "n").read[JsValue, BigDecimal].validate(Json.obj("n" -> 4)) shouldBe
-        (Valid(BigDecimal(4)))
-        (Path \ "n").read[JsValue, BigDecimal].validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.number", "BigDecimal")))))
-        (Path \ "n").read[JsValue, BigDecimal].validate(Json.obj("n" -> 4.5)) shouldBe
-        (Valid(BigDecimal(4.5)))
+        (Path \ "n")
+          .read[JsValue, BigDecimal]
+          .validate(Json.obj("n" -> 4)) shouldBe
+          (Valid(BigDecimal(4)))
+        (Path \ "n")
+          .read[JsValue, BigDecimal]
+          .validate(Json.obj("n" -> "foo")) shouldBe
+          (Invalid(Seq(
+            Path \ "n" -> Seq(ValidationError("error.number", "BigDecimal")))))
+        (Path \ "n")
+          .read[JsValue, BigDecimal]
+          .validate(Json.obj("n" -> 4.5)) shouldBe
+          (Valid(BigDecimal(4.5)))
       }
 
       "Boolean" in {
-        (Path \ "n").read[JsValue, Boolean].validate(Json.obj("n" -> true)) shouldBe
-        (Valid(true))
-        (Path \ "n").read[JsValue, Boolean].validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.invalid", "Boolean")))))
+        (Path \ "n")
+          .read[JsValue, Boolean]
+          .validate(Json.obj("n" -> true)) shouldBe
+          (Valid(true))
+        (Path \ "n")
+          .read[JsValue, Boolean]
+          .validate(Json.obj("n" -> "foo")) shouldBe
+          (Invalid(
+            Seq(
+              Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
       }
 
       "String" in {
-        (Path \ "n").read[JsValue, String].validate(Json.obj("n" -> "foo")) shouldBe
-        (Valid("foo"))
-        (Path \ "n").read[JsValue, String].validate(Json.obj("n" -> 42)) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.invalid", "String")))))
+        (Path \ "n")
+          .read[JsValue, String]
+          .validate(Json.obj("n" -> "foo")) shouldBe
+          (Valid("foo"))
+        (Path \ "n")
+          .read[JsValue, String]
+          .validate(Json.obj("n" -> 42)) shouldBe
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "String")))))
         (Path \ "n")
           .read[JsValue, String]
           .validate(Json.obj("n" -> Seq("foo"))) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.invalid", "String")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "String")))))
         (Path \ "o")
           .read[JsValue, String]
           .validate(Json.obj("o" -> Json.obj("n" -> "foo"))) shouldBe
-        (Invalid(Seq(Path \ "o" -> Seq(
-                        ValidationError("error.invalid", "String")))))
+          (Invalid(
+            Seq(Path \ "o" -> Seq(ValidationError("error.invalid", "String")))))
       }
 
       "JsObject" in {
         (Path \ "o")
           .read[JsValue, JsObject]
           .validate(Json.obj("o" -> Json.obj("n" -> "foo"))) shouldBe
-        (Valid(JsObject(Seq("n" -> JsString("foo")))))
-        (Path \ "n").read[JsValue, JsObject].validate(Json.obj("n" -> 42)) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.invalid", "Object")))))
-        (Path \ "n").read[JsValue, JsObject].validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.invalid", "Object")))))
+          (Valid(JsObject(Seq("n" -> JsString("foo")))))
+        (Path \ "n")
+          .read[JsValue, JsObject]
+          .validate(Json.obj("n" -> 42)) shouldBe
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Object")))))
+        (Path \ "n")
+          .read[JsValue, JsObject]
+          .validate(Json.obj("n" -> "foo")) shouldBe
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Object")))))
         (Path \ "n")
           .read[JsValue, JsObject]
           .validate(Json.obj("n" -> Seq("foo"))) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.invalid", "Object")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Object")))))
       }
 
       "JsString" in {
-        (Path \ "n").read[JsValue, JsString].validate(Json.obj("n" -> "foo")) shouldBe
-        (Valid(JsString("foo")))
-        (Path \ "n").read[JsValue, JsString].validate(Json.obj("n" -> 42)) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.invalid", "String")))))
+        (Path \ "n")
+          .read[JsValue, JsString]
+          .validate(Json.obj("n" -> "foo")) shouldBe
+          (Valid(JsString("foo")))
+        (Path \ "n")
+          .read[JsValue, JsString]
+          .validate(Json.obj("n" -> 42)) shouldBe
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "String")))))
       }
 
       "JsNumber" in {
-        (Path \ "n").read[JsValue, JsNumber].validate(Json.obj("n" -> 4)) shouldBe
-        (Valid(JsNumber(4)))
-        (Path \ "n").read[JsValue, JsNumber].validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.number", "Number")))))
-        (Path \ "n").read[JsValue, JsNumber].validate(Json.obj("n" -> 4.5)) shouldBe
-        (Valid(JsNumber(4.5)))
+        (Path \ "n")
+          .read[JsValue, JsNumber]
+          .validate(Json.obj("n" -> 4)) shouldBe
+          (Valid(JsNumber(4)))
+        (Path \ "n")
+          .read[JsValue, JsNumber]
+          .validate(Json.obj("n" -> "foo")) shouldBe
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.number", "Number")))))
+        (Path \ "n")
+          .read[JsValue, JsNumber]
+          .validate(Json.obj("n" -> 4.5)) shouldBe
+          (Valid(JsNumber(4.5)))
       }
 
       "JsBoolean" in {
-        (Path \ "n").read[JsValue, JsBoolean].validate(Json.obj("n" -> true)) shouldBe
-        (Valid(JsBoolean(true)))
-        (Path \ "n").read[JsValue, JsBoolean].validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.invalid", "Boolean")))))
+        (Path \ "n")
+          .read[JsValue, JsBoolean]
+          .validate(Json.obj("n" -> true)) shouldBe
+          (Valid(JsBoolean(true)))
+        (Path \ "n")
+          .read[JsValue, JsBoolean]
+          .validate(Json.obj("n" -> "foo")) shouldBe
+          (Invalid(
+            Seq(
+              Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
       }
 
       "Option" in {
@@ -248,28 +320,29 @@ class RulesSpec extends WordSpec with Matchers {
         (Path \ "n")
           .read[JsValue, Option[Boolean]]
           .validate(Json.obj("n" -> "bar")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.invalid", "Boolean")))))
+          (Invalid(
+            Seq(
+              Path \ "n" -> Seq(ValidationError("error.invalid", "Boolean")))))
       }
 
       "Map[String, V]" in {
         (Path \ "n")
           .read[JsValue, Map[String, String]]
           .validate(Json.obj("n" -> Json.obj("foo" -> "bar"))) shouldBe
-        (Valid(Map("foo" -> "bar")))
+          (Valid(Map("foo" -> "bar")))
         (Path \ "n")
           .read[JsValue, Map[String, Int]]
           .validate(Json.obj("n" -> Json.obj("foo" -> 4, "bar" -> 5))) shouldBe
-        (Valid(Map("foo" -> 4, "bar" -> 5)))
+          (Valid(Map("foo" -> 4, "bar" -> 5)))
         (Path \ "x")
           .read[JsValue, Map[String, Int]]
           .validate(Json.obj("n" -> Json.obj("foo" -> 4, "bar" -> "frack"))) shouldBe
-        (Invalid(Seq(Path \ "x" -> Seq(ValidationError("error.required")))))
+          (Invalid(Seq(Path \ "x" -> Seq(ValidationError("error.required")))))
         (Path \ "n")
           .read[JsValue, Map[String, Int]]
           .validate(Json.obj("n" -> Json.obj("foo" -> 4, "bar" -> "frack"))) shouldBe
-        (Invalid(Seq(Path \ "n" \ "bar" -> Seq(
-                        ValidationError("error.number", "Int")))))
+          (Invalid(Seq(
+            Path \ "n" \ "bar" -> Seq(ValidationError("error.number", "Int")))))
       }
 
       "Traversable" in {
@@ -288,8 +361,8 @@ class RulesSpec extends WordSpec with Matchers {
         (Path \ "n")
           .read[JsValue, Traversable[String]]
           .validate(Json.obj("n" -> "paf")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.invalid", "Array")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Array")))))
       }
 
       "Array" in {
@@ -308,8 +381,8 @@ class RulesSpec extends WordSpec with Matchers {
         (Path \ "n")
           .read[JsValue, Array[String]]
           .validate(Json.obj("n" -> "paf")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.invalid", "Array")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Array")))))
       }
 
       "Seq" in {
@@ -326,32 +399,34 @@ class RulesSpec extends WordSpec with Matchers {
         (Path \ "n")
           .read[JsValue, Seq[String]]
           .validate(Json.obj("n" -> "paf")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.invalid", "Array")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(ValidationError("error.invalid", "Array")))))
         (Path \ "n")
           .read[JsValue, Seq[String]]
-          .validate(JsObject(Seq("n" -> JsArray(Seq(JsString("foo"),
-                                                    JsNumber(2)))))) shouldBe
-        (Invalid(Seq(Path \ "n" \ 1 -> Seq(
-                        ValidationError("error.invalid", "String")))))
+          .validate(JsObject(
+            Seq("n" -> JsArray(Seq(JsString("foo"), JsNumber(2)))))) shouldBe
+          (Invalid(Seq(
+            Path \ "n" \ 1 -> Seq(ValidationError("error.invalid", "String")))))
       }
     }
 
     "validate data" in {
       (Path \ "firstname").from[JsValue](notEmpty).validate(valid) shouldBe
-      (Valid("Julien"))
+        (Valid("Julien"))
 
       val p = (Path \ "informations" \ "label")
       p.from[JsValue](notEmpty).validate(valid) shouldBe (Valid("Personal"))
       p.from[JsValue](notEmpty).validate(invalid) shouldBe
-      (Invalid(Seq(p -> Seq(ValidationError("error.required")))))
+        (Invalid(Seq(p -> Seq(ValidationError("error.required")))))
     }
 
     "validate optional" in {
-      (Path \ "firstname").read[JsValue, Option[String]].validate(valid) shouldBe
-      (Valid(Some("Julien")))
+      (Path \ "firstname")
+        .read[JsValue, Option[String]]
+        .validate(valid) shouldBe
+        (Valid(Some("Julien")))
       (Path \ "foobar").read[JsValue, Option[String]].validate(valid) shouldBe
-      (Valid(None))
+        (Valid(None))
     }
 
     "validate deep" in {
@@ -364,7 +439,7 @@ class RulesSpec extends WordSpec with Matchers {
       From[JsValue] { __ =>
         (__ \ "informations").read((__ \ "label").read(notEmpty))
       }.validate(invalid) shouldBe
-      (Invalid(Seq(p -> Seq(ValidationError("error.required")))))
+        (Invalid(Seq(p -> Seq(ValidationError("error.required")))))
     }
 
     "validate deep optional" in {
@@ -376,27 +451,28 @@ class RulesSpec extends WordSpec with Matchers {
     "coerce type" in {
       (Path \ "age").read[JsValue, Int].validate(valid) shouldBe (Valid(27))
       (Path \ "age").from[JsValue](min(20)).validate(valid) shouldBe
-      (Valid(27))
+        (Valid(27))
       (Path \ "age").from[JsValue](max(50)).validate(valid) shouldBe
-      (Valid(27))
+        (Valid(27))
       (Path \ "age").from[JsValue](min(50)).validate(valid) shouldBe
-      (Invalid(Seq((Path \ "age") -> Seq(ValidationError("error.min", 50)))))
+        (Invalid(Seq((Path \ "age") -> Seq(ValidationError("error.min", 50)))))
       (Path \ "age").from[JsValue](max(0)).validate(valid) shouldBe
-      (Invalid(Seq((Path \ "age") -> Seq(ValidationError("error.max", 0)))))
+        (Invalid(Seq((Path \ "age") -> Seq(ValidationError("error.max", 0)))))
       (Path \ "firstname").read[JsValue, Int].validate(valid) shouldBe
-      (Invalid(Seq((Path \ "firstname") -> Seq(
-                      ValidationError("error.number", "Int")))))
+        (Invalid(Seq(
+          (Path \ "firstname") -> Seq(ValidationError("error.number", "Int")))))
     }
 
     "compose constraints" in {
       import cats.syntax.semigroup._
       val composed = notEmpty |+| minLength(3)
       (Path \ "firstname").from[JsValue](composed).validate(valid) shouldBe
-      (Valid("Julien"))
+        (Valid("Julien"))
 
       val p = Path \ "informations" \ "label"
-      val err = Invalid(Seq(p -> Seq(ValidationError("error.required"),
-                                     ValidationError("error.minLength", 3))))
+      val err = Invalid(
+        Seq(p -> Seq(ValidationError("error.required"),
+                     ValidationError("error.minLength", 3))))
       p.from[JsValue](composed).validate(invalid) shouldBe (err)
     }
 
@@ -407,10 +483,10 @@ class RulesSpec extends WordSpec with Matchers {
 
       From[JsValue] { __ =>
         ((__ \ "firstname").read(notEmpty) ~ (__ \ "lastname").read(notEmpty) ~
-            (__ \ "informations" \ "label").read(notEmpty)).tupled
+          (__ \ "informations" \ "label").read(notEmpty)).tupled
       }.validate(invalid) shouldBe Invalid(
-          Seq((Path \ "informations" \ "label") -> Seq(
-                  ValidationError("error.required"))))
+        Seq((Path \ "informations" \ "label") -> Seq(
+          ValidationError("error.required"))))
     }
 
     "lift validations to seq validations" in {
@@ -422,13 +498,15 @@ class RulesSpec extends WordSpec with Matchers {
 
       From[JsValue] { __ =>
         (__ \ "foo").read((__ \ "foo").read(seqR(notEmpty)))
-      }.validate(Json.obj("foo" -> Json.obj("foo" -> Seq("bar")))).toOption.get shouldBe
-      (Seq("bar"))
+      }.validate(Json.obj("foo" -> Json.obj("foo" -> Seq("bar"))))
+        .toOption
+        .get shouldBe
+        (Seq("bar"))
 
       (Path \ "n")
         .from[JsValue](seqR(notEmpty))
         .validate(Json.obj("n" -> Seq("foo", ""))) shouldBe
-      (Invalid(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.required")))))
+        (Invalid(Seq(Path \ "n" \ 1 -> Seq(ValidationError("error.required")))))
     }
 
     "validate dependent fields" in {
@@ -436,19 +514,16 @@ class RulesSpec extends WordSpec with Matchers {
                        "password" -> "s3cr3t",
                        "verify" -> "s3cr3t")
 
-      val i1 = Json.obj("login" -> "Alice",
-                        "password" -> "s3cr3t",
-                        "verify" -> "")
+      val i1 =
+        Json.obj("login" -> "Alice", "password" -> "s3cr3t", "verify" -> "")
 
-      val i2 = Json.obj("login" -> "Alice",
-                        "password" -> "s3cr3t",
-                        "verify" -> "bam")
+      val i2 =
+        Json.obj("login" -> "Alice", "password" -> "s3cr3t", "verify" -> "bam")
 
       // TODO: document the andThen path change
       val passRule = From[JsValue] { __ =>
         ((__ \ "password").read(notEmpty) ~ (__ \ "verify").read(notEmpty)).tupled
-          .andThen(
-            Rule.uncurry(Rules.equalTo[String]))
+          .andThen(Rule.uncurry(Rules.equalTo[String]))
       }
 
       val rule = From[JsValue] { __ =>
@@ -458,12 +533,12 @@ class RulesSpec extends WordSpec with Matchers {
       rule.validate(v).shouldBe(Valid("Alice" -> "s3cr3t"))
       rule
         .validate(i1)
-        .shouldBe(Invalid(Seq(Path \ "verify" -> Seq(
-                        ValidationError("error.required")))))
+        .shouldBe(Invalid(
+          Seq(Path \ "verify" -> Seq(ValidationError("error.required")))))
       rule
         .validate(i2)
-        .shouldBe(Invalid(Seq(Path \ "verify" -> Seq(
-                        ValidationError("error.equals", "s3cr3t")))))
+        .shouldBe(Invalid(Seq(
+          Path \ "verify" -> Seq(ValidationError("error.equals", "s3cr3t")))))
     }
 
     "validate subclasses (and parse the concrete class)" when {
@@ -499,7 +574,7 @@ class RulesSpec extends WordSpec with Matchers {
         rule.validate(b) shouldBe (Valid(B(4)))
         rule.validate(c) shouldBe (Valid(C(6)))
         rule.validate(e) shouldBe
-        (Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType")))))
+          (Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType")))))
       }
 
       "by dicriminating on fields" in {
@@ -508,14 +583,16 @@ class RulesSpec extends WordSpec with Matchers {
           (__ \ "name").read[String].flatMap[A] {
             case "B" => (__ \ "foo").read[Int].map(B.apply)
             case "C" => (__ \ "bar").read[Int].map(C.apply)
-            case _ => Rule(_ => typeInvalid)
+            case _   => Rule(_ => typeInvalid)
           }
         }
 
         rule.validate(b) shouldBe (Valid(B(4)))
         rule.validate(c) shouldBe (Valid(C(6)))
         rule.validate(e) shouldBe
-        (Invalid(Seq(Path \ "name" -> Seq(ValidationError("validation.unknownType")))))
+          (Invalid(
+            Seq(
+              Path \ "name" -> Seq(ValidationError("validation.unknownType")))))
       }
     }
 
@@ -526,56 +603,61 @@ class RulesSpec extends WordSpec with Matchers {
                          company: Option[String],
                          informations: Seq[ContactInformation])
 
-      case class ContactInformation(
-          label: String, email: Option[String], phones: Seq[String])
+      case class ContactInformation(label: String,
+                                    email: Option[String],
+                                    phones: Seq[String])
 
       val validJson = Json.obj(
-          "firstname" -> "Julien",
-          "lastname" -> "Tournay",
-          "age" -> 27,
-          "informations" -> Seq(
-              Json.obj("label" -> "Personal",
-                       "email" -> "fakecontact@gmail.com",
-                       "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))))
+        "firstname" -> "Julien",
+        "lastname" -> "Tournay",
+        "age" -> 27,
+        "informations" -> Seq(
+          Json.obj("label" -> "Personal",
+                   "email" -> "fakecontact@gmail.com",
+                   "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10")))
+      )
 
       val invalidJson = Json.obj(
-          "firstname" -> "Julien",
-          "lastname" -> "Tournay",
-          "age" -> 27,
-          "informations" -> Seq(
-              Json.obj("label" -> "",
-                       "email" -> "fakecontact@gmail.com",
-                       "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10"))))
+        "firstname" -> "Julien",
+        "lastname" -> "Tournay",
+        "age" -> 27,
+        "informations" -> Seq(
+          Json.obj("label" -> "",
+                   "email" -> "fakecontact@gmail.com",
+                   "phones" -> Seq("01.23.45.67.89", "98.76.54.32.10")))
+      )
 
       val infoValidated = From[JsValue] { __ =>
         (
           (__ \ "label").read(notEmpty) ~
-          (__ \ "email").read(optionR(email)) ~
-          (__ \ "phones").read(seqR(notEmpty))
+            (__ \ "email").read(optionR(email)) ~
+            (__ \ "phones").read(seqR(notEmpty))
         )(ContactInformation.apply)
       }
 
       val contactValidated = From[JsValue] { __ =>
         (
           (__ \ "firstname").read(notEmpty) ~
-          (__ \ "lastname").read(notEmpty) ~
-          (__ \ "company").read[Option[String]] ~
-          (__ \ "informations").read(seqR(infoValidated))
+            (__ \ "lastname").read(notEmpty) ~
+            (__ \ "company").read[Option[String]] ~
+            (__ \ "informations").read(seqR(infoValidated))
         )(Contact.apply)
       }
 
-      val expected = Contact(
-          "Julien",
-          "Tournay",
-          None,
-          Seq(ContactInformation("Personal",
-                                 Some("fakecontact@gmail.com"),
-                                 List("01.23.45.67.89", "98.76.54.32.10"))))
+      val expected =
+        Contact("Julien",
+                "Tournay",
+                None,
+                Seq(
+                  ContactInformation("Personal",
+                                     Some("fakecontact@gmail.com"),
+                                     List("01.23.45.67.89", "98.76.54.32.10"))))
 
       contactValidated.validate(validJson) shouldBe (Valid(expected))
       contactValidated.validate(invalidJson) shouldBe
-      (Invalid(Seq((Path \ "informations" \ 0 \ "label") -> Seq(
-                      ValidationError("error.required")))))
+        (Invalid(
+          Seq((Path \ "informations" \ 0 \ "label") -> Seq(
+            ValidationError("error.required")))))
     }
 
     "read recursive" when {
@@ -585,7 +667,7 @@ class RulesSpec extends WordSpec with Matchers {
       val m =
         Json.obj("name" -> "bob",
                  "friends" -> Seq(
-                     Json.obj("name" -> "tom", "friends" -> Seq[JsObject]())))
+                   Json.obj("name" -> "tom", "friends" -> Seq[JsObject]())))
 
       case class User1(name: String, friend: Option[User1] = None)
       val u1 = User1("bob", Some(User1("tom")))
@@ -594,18 +676,18 @@ class RulesSpec extends WordSpec with Matchers {
       "using explicit notation" in {
         lazy val w: Rule[JsValue, RecUser] = From[JsValue] { __ =>
           ((__ \ "name").read[String] ~ (__ \ "friends").read(seqR(w)))(
-              RecUser.apply)
+            RecUser.apply)
         }
         w.validate(m) shouldBe Valid(u)
 
         lazy val w2: Rule[JsValue, RecUser] =
           ((Path \ "name").read[JsValue, String] ~ (Path \ "friends")
-                .from[JsValue](seqR(w2)))(RecUser.apply)
+            .from[JsValue](seqR(w2)))(RecUser.apply)
         w2.validate(m) shouldBe Valid(u)
 
         lazy val w3: Rule[JsValue, User1] = From[JsValue] { __ =>
           ((__ \ "name").read[String] ~ (__ \ "friend").read(optionR(w3)))(
-              User1.apply)
+            User1.apply)
         }
         w3.validate(m1) shouldBe Valid(u1)
       }
@@ -613,13 +695,13 @@ class RulesSpec extends WordSpec with Matchers {
       "using implicit notation" in {
         implicit lazy val w: Rule[JsValue, RecUser] = From[JsValue] { __ =>
           ((__ \ "name").read[String] ~ (__ \ "friends").read[Seq[RecUser]])(
-              RecUser.apply)
+            RecUser.apply)
         }
         w.validate(m) shouldBe Valid(u)
 
         implicit lazy val w3: Rule[JsValue, User1] = From[JsValue] { __ =>
           ((__ \ "name").read[String] ~ (__ \ "friend").read[Option[User1]])(
-              User1.apply)
+            User1.apply)
         }
         w3.validate(m1) shouldBe Valid(u1)
       }
@@ -629,8 +711,7 @@ class RulesSpec extends WordSpec with Matchers {
       type OptString[In] =
         Rule[String, String] => Path => Rule[In, Option[String]]
 
-      def genR[In](opt: OptString[In])(
-          implicit exs: Path => Rule[In, String]) =
+      def genR[In](opt: OptString[In])(implicit exs: Path => Rule[In, String]) =
         From[In] { __ =>
           ((__ \ "name").read(notEmpty) ~ (__ \ "color").read(opt(notEmpty))).tupled
         }
@@ -645,7 +726,7 @@ class RulesSpec extends WordSpec with Matchers {
 
       jsonR.validate(json) shouldBe Valid(("bob", Some("blue")))
       jsonR.validate(invalidJson) shouldBe Invalid(
-          Seq((Path \ "name", Seq(ValidationError("error.required")))))
+        Seq((Path \ "name", Seq(ValidationError("error.required")))))
     }
   }
 }

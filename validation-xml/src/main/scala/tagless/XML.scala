@@ -6,4 +6,3 @@ import scala.xml.{NodeSeq, MetaData}
 package object xml {
   type XML = (MetaData, NodeSeq)
 }
-

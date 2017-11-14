@@ -9,8 +9,8 @@ trait DefaultMonoids {
     // TODO: Should this be a deepMerge?
     def combine(a1: js.Dynamic, a2: js.Dynamic): js.Dynamic =
       js.Dictionary[js.Dynamic](
-            (a1.asInstanceOf[js.Dictionary[js.Dynamic]] ++ a2
-                  .asInstanceOf[js.Dictionary[js.Dynamic]]).toSeq: _*
+          (a1.asInstanceOf[js.Dictionary[js.Dynamic]] ++ a2
+            .asInstanceOf[js.Dictionary[js.Dynamic]]).toSeq: _*
         )
         .asInstanceOf[js.Dynamic]
 
@@ -24,17 +24,16 @@ trait Writes
     with DefaultMonoids
     with GenericWrites[js.Dynamic] {
   private def writeObj(j: js.Dynamic, n: PathNode): js.Dynamic = n match {
-    case IdxPathNode(_) => js.Array(j).asInstanceOf[js.Dynamic]
+    case IdxPathNode(_)   => js.Array(j).asInstanceOf[js.Dynamic]
     case KeyPathNode(key) => js.Dynamic.literal(key -> j)
   }
 
   implicit val validationErrorW = Write[ValidationError, js.Dynamic] { err =>
     js.Dynamic.literal(
-        "msg" -> err.message,
-        "args" -> err.args.foldLeft(js.Array(js.Array[Object]())) {
-          (arr, arg) =>
-            js.Array(arr :+ arg.toString)
-        })
+      "msg" -> err.message,
+      "args" -> err.args.foldLeft(js.Array(js.Array[Object]())) { (arr, arg) =>
+        js.Array(arr :+ arg.toString)
+      })
   }
 
   implicit def errorsW(
@@ -90,27 +89,26 @@ trait Writes
   implicit def vaW[I](implicit w: WriteLike[I, js.Dynamic]) =
     Write[VA[I], js.Dynamic] { va =>
       js.Dictionary(
-            "isValid" -> va.isValid.asInstanceOf[js.Dynamic],
-            "output" -> va.fold(_ => null, w.writes),
-            "errors" -> va.fold(e => failureW.writes(Invalid(e)), _ => null)
+          "isValid" -> va.isValid.asInstanceOf[js.Dynamic],
+          "output" -> va.fold(_ => null, w.writes),
+          "errors" -> va.fold(e => failureW.writes(Invalid(e)), _ => null)
         )
         .asInstanceOf[js.Dynamic]
     }
 
   implicit def writeJson[I](path: Path)(
-      implicit w: WriteLike[I, js.Dynamic]): Write[I, js.Dynamic] = Write {
-    i =>
-      path match {
-        case Path(KeyPathNode(x) :: _) \: _ =>
-          val ps = path.path.reverse
-          val h = ps.head
-          val o = writeObj(w.writes(i), h)
-          ps.tail.foldLeft(o)(writeObj).asInstanceOf[js.Dynamic]
-        case Path(Nil) =>
-          w.writes(i).asInstanceOf[js.Dynamic]
-        case _ =>
-          throw new RuntimeException(s"path $path is not a path of JsObject") // XXX: should be a compile time error
-      }
+      implicit w: WriteLike[I, js.Dynamic]): Write[I, js.Dynamic] = Write { i =>
+    path match {
+      case Path(KeyPathNode(x) :: _) \: _ =>
+        val ps = path.path.reverse
+        val h = ps.head
+        val o = writeObj(w.writes(i), h)
+        ps.tail.foldLeft(o)(writeObj).asInstanceOf[js.Dynamic]
+      case Path(Nil) =>
+        w.writes(i).asInstanceOf[js.Dynamic]
+      case _ =>
+        throw new RuntimeException(s"path $path is not a path of JsObject") // XXX: should be a compile time error
+    }
   }
 }
 

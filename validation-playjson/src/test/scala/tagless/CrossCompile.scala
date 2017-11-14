@@ -15,7 +15,8 @@ class CrossCompile extends WordSpec with Matchers {
 
   "grammar" should {
     case class Info(label: String, email: Option[String], phones: Seq[String])
-    val ex = Info("label", Option("fakecontact@gmail.com"), Seq("phone1", "phone2"))
+    // val ex =
+    //   Info("label", Option("fakecontact@gmail.com"), Seq("phone1", "phone2"))
 
     // TODO: PORT TEST
     // "compile to symetric rule and write" in {

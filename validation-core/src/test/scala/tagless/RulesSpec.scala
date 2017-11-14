@@ -154,6 +154,9 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         def n = at(Path \ "n").is(req[String])
         def o = at(Path \ "o").is(req[String])
         n.validate(transform(foo)) shouldBe (Valid("foo"))
+        o.validate(transform(foo)) shouldBe
+          (Invalid(Seq(Path \ "o" -> Seq(
+            ValidationError("error.required")))))
       }
 
       "Option" in {

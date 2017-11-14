@@ -7,9 +7,7 @@ addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.5.6")
 
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.21")
 
-addSbtPlugin("com.geirsson" %% "sbt-scalafmt" % "0.5.5")
-
-// addSbtPlugin("com.lucidchart" % "neo-sbt-scalafmt" % "1.14")
+addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.14")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
 

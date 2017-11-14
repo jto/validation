@@ -20,7 +20,8 @@ trait Writes
     with DefaultMonoids
     with GenericWrites[XmlWriter] {
 
-  implicit def nodeW[I](implicit w: WriteLike[I, String]): Write[I, XmlWriter] @@ Root = Write {
+  implicit def nodeW[I](
+      implicit w: WriteLike[I, String]): Write[I, XmlWriter] @@ Root = Write {
     i => node =>
       node.copy(child = node.child :+ new Text(w.writes(i)))
   }
@@ -28,14 +29,15 @@ trait Writes
   def attributeW[I](name: String)(
       implicit w: WriteLike[I, String]): Write[I, XmlWriter] = Write {
     i => node =>
-      node.copy(attributes = node.attributes.append(
-              new UnprefixedAttribute(name, w.writes(i), Null)))
+      node.copy(
+        attributes = node.attributes.append(
+          new UnprefixedAttribute(name, w.writes(i), Null)))
   }
 
   def optAttributeW[I](name: String)(
       implicit w: WriteLike[I, String]): Write[Option[I], XmlWriter] = Write {
     case Some(i) => attributeW(name)(w).writes(i)
-    case None => xmlMonoid.empty
+    case None    => xmlMonoid.empty
   }
 
   implicit def writeXml[I](path: Path)(
@@ -55,9 +57,9 @@ trait Writes
         node =>
           node.copy(child = node.child :+ newNode)
 
-        case IdxPathNode(_) :: _ =>
+      case IdxPathNode(_) :: _ =>
         throw new RuntimeException(
-            "cannot write an attribute to a node with an index path")
+          "cannot write an attribute to a node with an index path")
     }
   }
 

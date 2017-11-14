@@ -10,9 +10,9 @@ import scala.xml.{Null, Text, Attribute, NodeSeq, MetaData, Elem, TopScope}
 import cats.Monoid
 
 trait WritesGrammar
-  extends XmlGrammar[List[XML], flip[Write]#λ]
-  with WriteConstraints
-  with WritesTypeclasses[List[XML]] {
+    extends XmlGrammar[List[XML], flip[Write]#λ]
+    with WriteConstraints
+    with WritesTypeclasses[List[XML]] {
 
   type _I = List[XML]
   type Out = List[XML]
@@ -21,9 +21,10 @@ trait WritesGrammar
     p.path match {
       case Nil => ns
       case KeyPathNode(key) :: tail =>
-        writeAt(Path(tail))(new Elem(null, key, Null, TopScope, false, ns:_*))
+        writeAt(Path(tail))(new Elem(null, key, Null, TopScope, false, ns: _*))
       case IdxPathNode(_) :: _ =>
-        throw new RuntimeException("cannot write an attribute to a node with an index path")
+        throw new RuntimeException(
+          "cannot write an attribute to a node with an index path")
     }
 
   // TODO: Non empty Path only
@@ -38,41 +39,51 @@ trait WritesGrammar
             val key =
               rev match {
                 case Nil =>
-                  throw new RuntimeException("cannot write an attribute to a node with an empty path")
+                  throw new RuntimeException(
+                    "cannot write an attribute to a node with an empty path")
                 case KeyPathNode(key) :: _ =>
                   key
                 case IdxPathNode(_) :: _ =>
-                  throw new RuntimeException("cannot write an attribute to a node with an index path")
+                  throw new RuntimeException(
+                    "cannot write an attribute to a node with an index path")
               }
 
             val child =
-              i.map { case (as, ns) =>
-                new Elem(null, key, as, TopScope, false, ns:_*)
+              i.map {
+                case (as, ns) =>
+                  new Elem(null, key, as, TopScope, false, ns: _*)
               }
 
             // if i is empty, we're in the case where the node is required but it's content
             // is optional AND is None. In that case, write the empty node.
             val cs =
-              child.headOption.map { _ =>
-                child
-              }.getOrElse(new Elem(null, key, Null, TopScope, false))
+              child.headOption
+                .map { _ =>
+                  child
+                }
+                .getOrElse(new Elem(null, key, Null, TopScope, false))
 
             List((Null, writeAt(Path(rev.tail))(NodeSeq.fromSeq(cs))))
           }.getOrElse(Nil)
         }
     }
 
-  def is[A](implicit K: Write[A, _ >: Out <: _I]): Write[A,_I] = K
+  def is[A](implicit K: Write[A, _ >: Out <: _I]): Write[A, _I] = K
   def mapPath(f: jto.validation.Path => jto.validation.Path): P = ???
 
-  def opt[A](implicit K: Write[A, _ >: Out <: _I]): Write[Option[A], Option[_I]] =
+  def opt[A](
+      implicit K: Write[A, _ >: Out <: _I]): Write[Option[A], Option[_I]] =
     Write { _.map(K.writes) }
 
   def req[A](implicit K: Write[A, _ >: Out <: _I]): Write[A, Option[_I]] =
-    Write { a => Option(K.writes(a)) }
+    Write { a =>
+      Option(K.writes(a))
+    }
 
   private def txt[A](w: Write[A, String]): Write[A, _I] @@ Root =
-    Write { a => List(Null -> Text(w.writes(a))) }
+    Write { a =>
+      List(Null -> Text(w.writes(a)))
+    }
 
   implicit def string: Write[String, _I] @@ Root = txt(Write.zero)
   implicit def bigDecimal: Write[BigDecimal, _I] @@ Root = txt(W.bigDecimalW)
@@ -80,25 +91,30 @@ trait WritesGrammar
   implicit def double: Write[Double, _I] @@ Root = txt(W.doubleW)
   implicit def float: Write[Float, _I] @@ Root = txt(W.floatW)
   implicit def int: Write[Int, _I] @@ Root = txt(W.intW)
-  implicit def jBigDecimal: Write[java.math.BigDecimal, _I] @@ Root = txt(Write(_.toString))
+  implicit def jBigDecimal: Write[java.math.BigDecimal, _I] @@ Root =
+    txt(Write(_.toString))
   implicit def long: Write[Long, _I] @@ Root = txt(W.longW)
   implicit def short: Write[Short, _I] @@ Root = txt(W.shortW)
 
-  implicit def list[A](implicit k: Write[A, _ >: Out <: _I]): Write[List[A], _I] =
+  implicit def list[A](
+      implicit k: Write[A, _ >: Out <: _I]): Write[List[A], _I] =
     Write { as =>
       as.flatMap(k.writes)
     }
 
-  implicit def array[A: scala.reflect.ClassTag](implicit k: Write[A, _ >: Out <: _I]): Write[Array[A], _I] =
+  implicit def array[A: scala.reflect.ClassTag](
+      implicit k: Write[A, _ >: Out <: _I]): Write[Array[A], _I] =
     list[A](k).contramap(_.toList)
 
   implicit def seq[A](implicit k: Write[A, _ >: Out <: _I]): Write[Seq[A], _I] =
     list[A](k).contramap(_.toList)
 
-  implicit def traversable[A](implicit k: Write[A, _ >: Out <: _I]): Write[Traversable[A], _I] =
+  implicit def traversable[A](
+      implicit k: Write[A, _ >: Out <: _I]): Write[Traversable[A], _I] =
     list[A](k).contramap(_.toList)
 
-  implicit def map[A](implicit k: Write[A, _ >: Out <: _I]): Write[Map[String, A], _I] =
+  implicit def map[A](
+      implicit k: Write[A, _ >: Out <: _I]): Write[Map[String, A], _I] =
     Write[Map[String, A], _I] { m =>
       m.toList.foldLeft(iMonoid.empty) { (is, el) =>
         val (key, a) = el
@@ -112,9 +128,10 @@ trait WritesGrammar
       def run: Write[Option[_I], _I] =
         Write { mi =>
           val is: _I = mi.getOrElse(Nil)
-          is.map { case(as, ns) =>
-            val meta: MetaData = as.append(Attribute(key, ns, Null))
-            (meta, NodeSeq.Empty)
+          is.map {
+            case (as, ns) =>
+              val meta: MetaData = as.append(Attribute(key, ns, Null))
+              (meta, NodeSeq.Empty)
           }
         }
     }

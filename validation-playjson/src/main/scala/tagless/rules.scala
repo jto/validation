@@ -6,9 +6,9 @@ import play.api.libs.json.{JsValue, JsObject, JsArray}
 import jto.validation.playjson.Rules
 
 trait RulesGrammar
-  extends JsonGrammar[Rule]
-  with RuleConstraints
-  with RulesTypeclasses[JsValue] {
+    extends JsonGrammar[Rule]
+    with RuleConstraints
+    with RulesTypeclasses[JsValue] {
 
   self =>
 
@@ -33,14 +33,14 @@ trait RulesGrammar
       case IdxPathNode(i) :: t =>
         json match {
           case JsArray(js) => js.lift(i).flatMap(j => search(Path(t), j))
-          case _ => None
+          case _           => None
         }
       case Nil =>
         Some(json)
     }
 
   def at(p: Path): At[Rule, JsValue, JsValue] =
-    new At[Rule, JsValue, JsValue]{
+    new At[Rule, JsValue, JsValue] {
       def run: Rule[JsValue, Option[JsValue]] =
         Rule { js =>
           Valid(p -> search(p, js))
@@ -49,18 +49,20 @@ trait RulesGrammar
 
   def is[A](implicit K: Rule[_ >: JsValue <: JsValue, A]): Rule[JsValue, A] = K
 
-
-  def opt[A](implicit K: Rule[_ >: Out <: JsValue, A]): Rule[Option[JsValue], Option[A]] =
+  def opt[A](implicit K: Rule[_ >: Out <: JsValue, A])
+    : Rule[Option[JsValue], Option[A]] =
     Rule {
       case Some(x) =>
-        K.validateWithPath(x).map{ case (p, v) =>
-          (p, Option(v))
+        K.validateWithPath(x).map {
+          case (p, v) =>
+            (p, Option(v))
         }
       case None =>
         Valid(Path -> None)
     }
 
-  def req[A](implicit K: Rule[_ >: Out <: JsValue, A]): Rule[Option[JsValue], A] =
+  def req[A](
+      implicit K: Rule[_ >: Out <: JsValue, A]): Rule[Option[JsValue], A] =
     Rule {
       case Some(x) =>
         K.validateWithPath(x)
@@ -78,11 +80,15 @@ trait RulesGrammar
   implicit def long = Rules.longR
   implicit def short = Rules.shortR
 
-  implicit def seq[A](implicit k: Rule[_ >: Out <: JsValue, A]) = Rules.pickSeq(k)
-  implicit def list[A](implicit k: Rule[_ >: Out <: JsValue, A]) = Rules.pickList(k)
-  implicit def array[A: scala.reflect.ClassTag](implicit k: Rule[_ >: Out <: JsValue, A]) = Rules.pickArray
+  implicit def seq[A](implicit k: Rule[_ >: Out <: JsValue, A]) =
+    Rules.pickSeq(k)
+  implicit def list[A](implicit k: Rule[_ >: Out <: JsValue, A]) =
+    Rules.pickList(k)
+  implicit def array[A: scala.reflect.ClassTag](
+      implicit k: Rule[_ >: Out <: JsValue, A]) = Rules.pickArray
   implicit def map[A](implicit k: Rule[_ >: Out <: JsValue, A]) = Rules.mapR
-  implicit def traversable[A](implicit k: Rule[_ >: Out <: JsValue, A]) = Rules.pickTraversable(k)
+  implicit def traversable[A](implicit k: Rule[_ >: Out <: JsValue, A]) =
+    Rules.pickTraversable(k)
 
   implicit def jsNull = Rules.jsNullR
   implicit def jsObject = Rules.jsObjectR

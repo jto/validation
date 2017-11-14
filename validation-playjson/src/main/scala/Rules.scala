@@ -2,13 +2,22 @@ package jto.validation
 package playjson
 
 import shapeless.tag.@@
-import play.api.libs.json.{JsValue, JsObject, JsString, JsNumber, JsBoolean, JsArray, JsNull}
+import play.api.libs.json.{
+  JsValue,
+  JsObject,
+  JsString,
+  JsNumber,
+  JsBoolean,
+  JsArray,
+  JsNull
+}
 
 trait Rules extends DefaultRules[JsValue] {
 
   private def jsonAs[T](
       f: PartialFunction[JsValue, Validated[Seq[ValidationError], T]])(
-      msg: String, args: Any*) =
+      msg: String,
+      args: Any*) =
     Rule.fromMapping[JsValue, T](f.orElse {
       case j => Invalid(Seq(ValidationError(msg, args: _*)))
     })
@@ -92,13 +101,13 @@ trait Rules extends DefaultRules[JsValue] {
       case JsNull => Valid(JsNull)
     }("error.invalid", "null")
 
-  implicit def ooo[O](
-      p: Path)(implicit pick: Path => RuleLike[JsValue, JsValue],
-               coerce: RuleLike[JsValue, O]): Rule[JsValue, Option[O]] =
+  implicit def ooo[O](p: Path)(
+      implicit pick: Path => RuleLike[JsValue, JsValue],
+      coerce: RuleLike[JsValue, O]): Rule[JsValue, Option[O]] =
     optionR(Rule.zero[O])(pick, coerce)(p)
 
-  def optionR[J, O](
-      r: => RuleLike[J, O], noneValues: RuleLike[JsValue, JsValue]*)(
+  def optionR[J, O](r: => RuleLike[J, O],
+                    noneValues: RuleLike[JsValue, JsValue]*)(
       implicit pick: Path => RuleLike[JsValue, JsValue],
       coerce: RuleLike[JsValue, J]): Path => Rule[JsValue, Option[O]] =
     super.opt[J, O](r, (jsNullR.map(n => n: JsValue) +: noneValues): _*)
@@ -107,8 +116,7 @@ trait Rules extends DefaultRules[JsValue] {
       implicit r: RuleLike[JsValue, O]): Rule[JsValue, Map[String, O]] =
     super.mapR[JsValue, O](r, jsObjectR.map { case JsObject(fs) => fs.toSeq })
 
-  implicit def JsValue[O](
-      implicit r: RuleLike[JsObject, O]): Rule[JsValue, O] =
+  implicit def JsValue[O](implicit r: RuleLike[JsObject, O]): Rule[JsValue, O] =
     jsObjectR.andThen(r)
 
   implicit def pickInJson[II <: JsValue, O](p: Path)(
@@ -124,7 +132,7 @@ trait Rules extends DefaultRules[JsValue] {
       case IdxPathNode(i) :: t =>
         json match {
           case JsArray(js) => js.lift(i).flatMap(j => search(Path(t), j))
-          case _ => None
+          case _           => None
         }
       case Nil => Some(json)
     }

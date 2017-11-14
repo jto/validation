@@ -88,6 +88,7 @@ lazy val `validation-jsjson` = project
   .enablePlugins(ScalaJSPlugin)
   .settings(validationSettings: _*)
   .dependsOn(coreJS)
+  .dependsOn(coreJS % "test->test")
 
 lazy val docs = project
   .enablePlugins(TutPlugin)

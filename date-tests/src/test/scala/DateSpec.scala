@@ -13,13 +13,14 @@ class DateSpec extends WordSpec with Matchers {
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
           (__ \ "n").format(dateR, dateW)
         }.validate(Map("n" -> Seq("1985-09-10"))) shouldBe
-        (Valid(f.parse("1985-09-10")))
+          (Valid(f.parse("1985-09-10")))
 
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
           (__ \ "n").format(dateR, dateW)
         }.validate(Map("n" -> Seq("foo"))) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date",
-                                                       "yyyy-MM-dd")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.date", "yyyy-MM-dd")))))
       }
 
       "iso date (Can't test on CI)" ignore {
@@ -28,13 +29,14 @@ class DateSpec extends WordSpec with Matchers {
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
           (__ \ "n").format(isoDateR, isoDateW)
         }.validate(Map("n" -> Seq("1985-09-10T00:00:00+02:00"))) shouldBe
-        (Valid(f.parse("1985-09-10")))
+          (Valid(f.parse("1985-09-10")))
 
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
           (__ \ "n").format(isoDateR, isoDateW)
         }.validate(Map("n" -> Seq("foo"))) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.expected.date.isoformat")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.date.isoformat")))))
       }
 
       "joda" when {
@@ -52,9 +54,11 @@ class DateSpec extends WordSpec with Matchers {
           Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
             (__ \ "n").format(jodaDateR, jodaDateW)
           }.validate(Map("n" -> Seq("foo"))) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(
-                          ValidationError("error.expected.jodadate.format",
-                                          "yyyy-MM-dd")))))
+            (Invalid(
+              Seq(
+                Path \ "n" -> Seq(
+                  ValidationError("error.expected.jodadate.format",
+                                  "yyyy-MM-dd")))))
         }
 
         "time" in {
@@ -65,9 +69,11 @@ class DateSpec extends WordSpec with Matchers {
           Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
             (__ \ "n").format(jodaDateR, jodaTimeW)
           }.validate(Map("n" -> Seq("foo"))) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(
-                          ValidationError("error.expected.jodadate.format",
-                                          "yyyy-MM-dd")))))
+            (Invalid(
+              Seq(
+                Path \ "n" -> Seq(
+                  ValidationError("error.expected.jodadate.format",
+                                  "yyyy-MM-dd")))))
         }
 
         "local date" in {
@@ -81,8 +87,8 @@ class DateSpec extends WordSpec with Matchers {
           Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
             (__ \ "n").format(jodaLocalDateR, jodaLocalDateW)
           }.validate(Map("n" -> Seq("foo"))) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(ValidationError(
-                              "error.expected.jodadate.format", "")))))
+            (Invalid(Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.jodadate.format", "")))))
         }
       }
 
@@ -105,13 +111,14 @@ class DateSpec extends WordSpec with Matchers {
         From[UrlFormEncoded] { __ =>
           (__ \ "n").read(dateR)
         }.validate(Map("n" -> Seq("1985-09-10"))) shouldBe
-        (Valid(f.parse("1985-09-10")))
+          (Valid(f.parse("1985-09-10")))
 
         From[UrlFormEncoded] { __ =>
           (__ \ "n").read(dateR)
         }.validate(Map("n" -> Seq("foo"))) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date",
-                                                       "yyyy-MM-dd")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.date", "yyyy-MM-dd")))))
       }
 
       "iso date (Can't test on CI)" ignore {
@@ -120,13 +127,14 @@ class DateSpec extends WordSpec with Matchers {
         From[UrlFormEncoded] { __ =>
           (__ \ "n").read(isoDateR)
         }.validate(Map("n" -> Seq("1985-09-10T00:00:00+02:00"))) shouldBe
-        (Valid(f.parse("1985-09-10")))
+          (Valid(f.parse("1985-09-10")))
 
         From[UrlFormEncoded] { __ =>
           (__ \ "n").read(isoDateR)
         }.validate(Map("n" -> Seq("foo"))) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.expected.date.isoformat")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.date.isoformat")))))
       }
 
       "joda" when {
@@ -144,9 +152,11 @@ class DateSpec extends WordSpec with Matchers {
           From[UrlFormEncoded] { __ =>
             (__ \ "n").read(jodaDateR)
           }.validate(Map("n" -> Seq("foo"))) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(
-                          ValidationError("error.expected.jodadate.format",
-                                          "yyyy-MM-dd")))))
+            (Invalid(
+              Seq(
+                Path \ "n" -> Seq(
+                  ValidationError("error.expected.jodadate.format",
+                                  "yyyy-MM-dd")))))
         }
 
         "time" in {
@@ -157,9 +167,11 @@ class DateSpec extends WordSpec with Matchers {
           From[UrlFormEncoded] { __ =>
             (__ \ "n").read(jodaDateR)
           }.validate(Map("n" -> Seq("foo"))) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(
-                          ValidationError("error.expected.jodadate.format",
-                                          "yyyy-MM-dd")))))
+            (Invalid(
+              Seq(
+                Path \ "n" -> Seq(
+                  ValidationError("error.expected.jodadate.format",
+                                  "yyyy-MM-dd")))))
         }
 
         "local date" in {
@@ -173,8 +185,8 @@ class DateSpec extends WordSpec with Matchers {
           From[UrlFormEncoded] { __ =>
             (__ \ "n").read(jodaLocalDateR)
           }.validate(Map("n" -> Seq("foo"))) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(ValidationError(
-                              "error.expected.jodadate.format", "")))))
+            (Invalid(Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.jodadate.format", "")))))
         }
       }
 
@@ -261,13 +273,14 @@ class DateSpec extends WordSpec with Matchers {
         Formatting[JsValue, JsObject] { __ =>
           (__ \ "n").format(dateR, dateW)
         }.validate(Json.obj("n" -> "1985-09-10")) shouldBe
-        (Valid(f.parse("1985-09-10")))
+          (Valid(f.parse("1985-09-10")))
 
         Formatting[JsValue, JsObject] { __ =>
           (__ \ "n").format(dateR, dateW)
         }.validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date",
-                                                       "yyyy-MM-dd")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.date", "yyyy-MM-dd")))))
       }
 
       "iso date (Can't test on CI)" ignore {
@@ -276,13 +289,14 @@ class DateSpec extends WordSpec with Matchers {
         Formatting[JsValue, JsObject] { __ =>
           (__ \ "n").format(isoDateR, isoDateW)
         }.validate(Json.obj("n" -> "1985-09-10T00:00:00+02:00")) shouldBe
-        (Valid(f.parse("1985-09-10")))
+          (Valid(f.parse("1985-09-10")))
 
         Formatting[JsValue, JsObject] { __ =>
           (__ \ "n").format(isoDateR, isoDateW)
         }.validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.expected.date.isoformat")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.date.isoformat")))))
       }
 
       "joda" when {
@@ -300,9 +314,11 @@ class DateSpec extends WordSpec with Matchers {
           Formatting[JsValue, JsObject] { __ =>
             (__ \ "n").format(jodaDateR, jodaDateW)
           }.validate(Json.obj("n" -> "foo")) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(
-                          ValidationError("error.expected.jodadate.format",
-                                          "yyyy-MM-dd")))))
+            (Invalid(
+              Seq(
+                Path \ "n" -> Seq(
+                  ValidationError("error.expected.jodadate.format",
+                                  "yyyy-MM-dd")))))
         }
 
         "time" in {
@@ -313,9 +329,11 @@ class DateSpec extends WordSpec with Matchers {
           Formatting[JsValue, JsObject] { __ =>
             (__ \ "n").format(jodaDateR, jodaTimeW)
           }.validate(Json.obj("n" -> "foo")) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(
-                          ValidationError("error.expected.jodadate.format",
-                                          "yyyy-MM-dd")))))
+            (Invalid(
+              Seq(
+                Path \ "n" -> Seq(
+                  ValidationError("error.expected.jodadate.format",
+                                  "yyyy-MM-dd")))))
         }
 
         "local date" in {
@@ -329,8 +347,8 @@ class DateSpec extends WordSpec with Matchers {
           Formatting[JsValue, JsObject] { __ =>
             (__ \ "n").format(jodaLocalDateR, jodaLocalDateW)
           }.validate(Json.obj("n" -> "foo")) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(ValidationError(
-                              "error.expected.jodadate.format", "")))))
+            (Invalid(Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.jodadate.format", "")))))
         }
       }
 
@@ -353,10 +371,13 @@ class DateSpec extends WordSpec with Matchers {
         (Path \ "n")
           .from[JsValue](dateR)
           .validate(Json.obj("n" -> "1985-09-10")) shouldBe
-        (Valid(f.parse("1985-09-10")))
-        (Path \ "n").from[JsValue](dateR).validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date",
-                                                       "yyyy-MM-dd")))))
+          (Valid(f.parse("1985-09-10")))
+        (Path \ "n")
+          .from[JsValue](dateR)
+          .validate(Json.obj("n" -> "foo")) shouldBe
+          (Invalid(
+            Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.date", "yyyy-MM-dd")))))
       }
 
       "iso date (Can't test on CI)" ignore {
@@ -365,10 +386,13 @@ class DateSpec extends WordSpec with Matchers {
         (Path \ "n")
           .from[JsValue](isoDateR)
           .validate(Json.obj("n" -> "1985-09-10T00:00:00+02:00")) shouldBe
-        (Valid(f.parse("1985-09-10")))
-        (Path \ "n").from[JsValue](isoDateR).validate(Json.obj("n" -> "foo")) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.expected.date.isoformat")))))
+          (Valid(f.parse("1985-09-10")))
+        (Path \ "n")
+          .from[JsValue](isoDateR)
+          .validate(Json.obj("n" -> "foo")) shouldBe
+          (Invalid(
+            Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.date.isoformat")))))
       }
 
       "joda" when {
@@ -385,9 +409,11 @@ class DateSpec extends WordSpec with Matchers {
           (Path \ "n")
             .from[JsValue](jodaDateR)
             .validate(Json.obj("n" -> "foo")) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(
-                          ValidationError("error.expected.jodadate.format",
-                                          "yyyy-MM-dd")))))
+            (Invalid(
+              Seq(
+                Path \ "n" -> Seq(
+                  ValidationError("error.expected.jodadate.format",
+                                  "yyyy-MM-dd")))))
         }
 
         "time" in {
@@ -397,9 +423,11 @@ class DateSpec extends WordSpec with Matchers {
           (Path \ "n")
             .from[JsValue](jodaDateR)
             .validate(Json.obj("n" -> "foo")) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(
-                          ValidationError("error.expected.jodadate.format",
-                                          "yyyy-MM-dd")))))
+            (Invalid(
+              Seq(
+                Path \ "n" -> Seq(
+                  ValidationError("error.expected.jodadate.format",
+                                  "yyyy-MM-dd")))))
         }
 
         "local date" in {
@@ -411,8 +439,8 @@ class DateSpec extends WordSpec with Matchers {
           (Path \ "n")
             .from[JsValue](jodaLocalDateR)
             .validate(Json.obj("n" -> "foo")) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(ValidationError(
-                              "error.expected.jodadate.format", "")))))
+            (Invalid(Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.jodadate.format", "")))))
         }
       }
 
@@ -433,7 +461,7 @@ class DateSpec extends WordSpec with Matchers {
           new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val d = f.parse("1985-09-10")
         (Path \ "n").write(dateW).writes(d) shouldBe
-        (Json.obj("n" -> "1985-09-10"))
+          (Json.obj("n" -> "1985-09-10"))
       }
 
       "iso date (Can't test on CI)" ignore {
@@ -441,7 +469,7 @@ class DateSpec extends WordSpec with Matchers {
           new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val d = f.parse("1985-09-10")
         (Path \ "n").write(isoDateW).writes(d) shouldBe
-        (Json.obj("n" -> "1985-09-10T00:00:00+02:00"))
+          (Json.obj("n" -> "1985-09-10T00:00:00+02:00"))
       }
 
       "joda" when {
@@ -453,19 +481,19 @@ class DateSpec extends WordSpec with Matchers {
 
         "date" in {
           (Path \ "n").write(jodaDateW).writes(jd) shouldBe
-          (Json.obj("n" -> "1985-09-10"))
+            (Json.obj("n" -> "1985-09-10"))
         }
 
         "time" in {
           (Path \ "n").write(jodaTimeW).writes(jd) shouldBe
-          (Json.obj("n" -> dd.getTime))
+            (Json.obj("n" -> dd.getTime))
         }
 
         "local date" in {
           import org.joda.time.LocalDate
           val ld = new LocalDate()
           (Path \ "n").write(jodaLocalDateW).writes(ld) shouldBe
-          (Json.obj("n" -> ld.toString))
+            (Json.obj("n" -> ld.toString))
         }
       }
 
@@ -475,7 +503,7 @@ class DateSpec extends WordSpec with Matchers {
         val dd = f.parse("1985-09-10")
         val ds = new java.sql.Date(dd.getTime())
         (Path \ "n").write(sqlDateW).writes(ds) shouldBe
-        (Json.obj("n" -> "1985-09-10"))
+          (Json.obj("n" -> "1985-09-10"))
       }
     }
   }
@@ -491,13 +519,14 @@ class DateSpec extends WordSpec with Matchers {
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format(dateR, dateW)
         }.validate(JObject(Map("n" -> JString("1985-09-10")))) shouldBe
-        (Valid(f.parse("1985-09-10")))
+          (Valid(f.parse("1985-09-10")))
 
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format(dateR, dateW)
         }.validate(JObject(Map("n" -> JString("foo")))) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date",
-                                                       "yyyy-MM-dd")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.date", "yyyy-MM-dd")))))
       }
 
       "iso date (Can't test on CI)" ignore {
@@ -506,13 +535,14 @@ class DateSpec extends WordSpec with Matchers {
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format(isoDateR, isoDateW)
         }.validate(JObject(Map("n" -> JString("1985-09-10T00:00:00+02:00")))) shouldBe
-        (Valid(f.parse("1985-09-10")))
+          (Valid(f.parse("1985-09-10")))
 
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format(isoDateR, isoDateW)
         }.validate(JObject(Map("n" -> JString("foo")))) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.expected.date.isoformat")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.date.isoformat")))))
       }
 
       "joda" when {
@@ -526,28 +556,32 @@ class DateSpec extends WordSpec with Matchers {
           Formatting[JValue, JObject] { __ =>
             (__ \ "n").format(jodaDateR, jodaDateW)
           }.validate(JObject(Map("n" -> JString("1985-09-10")))) shouldBe
-          (Valid(jd))
+            (Valid(jd))
 
           Formatting[JValue, JObject] { __ =>
             (__ \ "n").format(jodaDateR, jodaDateW)
           }.validate(JObject(Map("n" -> JString("foo")))) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(
-                          ValidationError("error.expected.jodadate.format",
-                                          "yyyy-MM-dd")))))
+            (Invalid(
+              Seq(
+                Path \ "n" -> Seq(
+                  ValidationError("error.expected.jodadate.format",
+                                  "yyyy-MM-dd")))))
         }
 
         "time" in {
           Formatting[JValue, JObject] { __ =>
             (__ \ "n").format(jodaTimeR, jodaTimeW)
           }.validate(JObject(Map("n" -> JNumber(dd.getTime.toString)))) shouldBe
-          (Valid(jd))
+            (Valid(jd))
 
           Formatting[JValue, JObject] { __ =>
             (__ \ "n").format(jodaDateR, jodaTimeW)
           }.validate(JObject(Map("n" -> JString("foo")))) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(
-                          ValidationError("error.expected.jodadate.format",
-                                          "yyyy-MM-dd")))))
+            (Invalid(
+              Seq(
+                Path \ "n" -> Seq(
+                  ValidationError("error.expected.jodadate.format",
+                                  "yyyy-MM-dd")))))
         }
 
         "local date" in {
@@ -557,13 +591,13 @@ class DateSpec extends WordSpec with Matchers {
           Formatting[JValue, JObject] { __ =>
             (__ \ "n").format(jodaLocalDateR, jodaLocalDateW)
           }.validate(JObject(Map("n" -> JString(ld.toString())))) shouldBe
-          (Valid(ld))
+            (Valid(ld))
 
           Formatting[JValue, JObject] { __ =>
             (__ \ "n").format(jodaLocalDateR, jodaLocalDateW)
           }.validate(JObject(Map("n" -> JString("foo")))) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(ValidationError(
-                              "error.expected.jodadate.format", "")))))
+            (Invalid(Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.jodadate.format", "")))))
         }
       }
 
@@ -576,7 +610,7 @@ class DateSpec extends WordSpec with Matchers {
         Formatting[JValue, JObject] { __ =>
           (__ \ "n").format(sqlDateR, sqlDateW)
         }.validate(JObject(Map("n" -> JString("1985-09-10")))) shouldBe
-        (Valid(ds))
+          (Valid(ds))
       }
     }
 
@@ -587,12 +621,13 @@ class DateSpec extends WordSpec with Matchers {
         (Path \ "n")
           .from[JValue](dateR)
           .validate(JObject(Map("n" -> JString("1985-09-10")))) shouldBe
-        (Valid(f.parse("1985-09-10")))
+          (Valid(f.parse("1985-09-10")))
         (Path \ "n")
           .from[JValue](dateR)
           .validate(JObject(Map("n" -> JString("foo")))) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(ValidationError("error.expected.date",
-                                                       "yyyy-MM-dd")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.date", "yyyy-MM-dd")))))
       }
 
       "iso date (Can't test on CI)" ignore {
@@ -601,12 +636,13 @@ class DateSpec extends WordSpec with Matchers {
         (Path \ "n")
           .from[JValue](isoDateR)
           .validate(JObject(Map("n" -> JString("1985-09-10T00:00:00+02:00")))) shouldBe
-        (Valid(f.parse("1985-09-10")))
+          (Valid(f.parse("1985-09-10")))
         (Path \ "n")
           .from[JValue](isoDateR)
           .validate(JObject(Map("n" -> JString("foo")))) shouldBe
-        (Invalid(Seq(Path \ "n" -> Seq(
-                        ValidationError("error.expected.date.isoformat")))))
+          (Invalid(
+            Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.date.isoformat")))))
       }
 
       "joda" when {
@@ -620,26 +656,30 @@ class DateSpec extends WordSpec with Matchers {
           (Path \ "n")
             .from[JValue](jodaDateR)
             .validate(JObject(Map("n" -> JString("1985-09-10")))) shouldBe
-          (Valid(jd))
+            (Valid(jd))
           (Path \ "n")
             .from[JValue](jodaDateR)
             .validate(JObject(Map("n" -> JString("foo")))) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(
-                          ValidationError("error.expected.jodadate.format",
-                                          "yyyy-MM-dd")))))
+            (Invalid(
+              Seq(
+                Path \ "n" -> Seq(
+                  ValidationError("error.expected.jodadate.format",
+                                  "yyyy-MM-dd")))))
         }
 
         "time" in {
           (Path \ "n")
             .from[JValue](jodaTimeR)
             .validate(JObject(Map("n" -> JNumber(dd.getTime)))) shouldBe
-          (Valid(jd))
+            (Valid(jd))
           (Path \ "n")
             .from[JValue](jodaDateR)
             .validate(JObject(Map("n" -> JString("foo")))) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(
-                          ValidationError("error.expected.jodadate.format",
-                                          "yyyy-MM-dd")))))
+            (Invalid(
+              Seq(
+                Path \ "n" -> Seq(
+                  ValidationError("error.expected.jodadate.format",
+                                  "yyyy-MM-dd")))))
         }
 
         "local date" in {
@@ -648,12 +688,12 @@ class DateSpec extends WordSpec with Matchers {
           (Path \ "n")
             .from[JValue](jodaLocalDateR)
             .validate(JObject(Map("n" -> JString(ld.toString())))) shouldBe
-          (Valid(ld))
+            (Valid(ld))
           (Path \ "n")
             .from[JValue](jodaLocalDateR)
             .validate(JObject(Map("n" -> JString("foo")))) shouldBe
-          (Invalid(Seq(Path \ "n" -> Seq(ValidationError(
-                              "error.expected.jodadate.format", "")))))
+            (Invalid(Seq(Path \ "n" -> Seq(
+              ValidationError("error.expected.jodadate.format", "")))))
         }
       }
 
@@ -665,7 +705,7 @@ class DateSpec extends WordSpec with Matchers {
         (Path \ "n")
           .from[JValue](sqlDateR)
           .validate(JObject(Map("n" -> JString("1985-09-10")))) shouldBe
-        (Valid(ds))
+          (Valid(ds))
       }
     }
 
@@ -675,7 +715,7 @@ class DateSpec extends WordSpec with Matchers {
           new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val d = f.parse("1985-09-10")
         (Path \ "n").write(dateW).writes(d) shouldBe
-        (JObject(Map("n" -> JString("1985-09-10"))))
+          (JObject(Map("n" -> JString("1985-09-10"))))
       }
 
       "iso date (Can't test on CI)" ignore {
@@ -683,7 +723,7 @@ class DateSpec extends WordSpec with Matchers {
           new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         val d = f.parse("1985-09-10")
         (Path \ "n").write(isoDateW).writes(d) shouldBe
-        (JObject(Map("n" -> JString("1985-09-10T00:00:00+02:00"))))
+          (JObject(Map("n" -> JString("1985-09-10T00:00:00+02:00"))))
       }
 
       "joda" when {
@@ -695,19 +735,19 @@ class DateSpec extends WordSpec with Matchers {
 
         "date" in {
           (Path \ "n").write(jodaDateW).writes(jd) shouldBe
-          (JObject(Map("n" -> JString("1985-09-10"))))
+            (JObject(Map("n" -> JString("1985-09-10"))))
         }
 
         "time" in {
           (Path \ "n").write(jodaTimeW).writes(jd) shouldBe
-          (JObject(Map("n" -> JNumber(dd.getTime))))
+            (JObject(Map("n" -> JNumber(dd.getTime))))
         }
 
         "local date" in {
           import org.joda.time.LocalDate
           val ld = new LocalDate()
           (Path \ "n").write(jodaLocalDateW).writes(ld) shouldBe
-          (JObject(Map("n" -> JString(ld.toString))))
+            (JObject(Map("n" -> JString(ld.toString))))
         }
       }
 
@@ -717,7 +757,7 @@ class DateSpec extends WordSpec with Matchers {
         val dd = f.parse("1985-09-10")
         val ds = new java.sql.Date(dd.getTime())
         (Path \ "n").write(sqlDateW).writes(ds) shouldBe
-        (JObject(Map("n" -> JString("1985-09-10"))))
+          (JObject(Map("n" -> JString("1985-09-10"))))
       }
     }
   }
@@ -732,10 +772,10 @@ class DateSpec extends WordSpec with Matchers {
         val f =
           new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE)
         Path.from[Node](dateR).validate(<a>1985-09-10</a>) shouldBe
-        (Valid(f.parse("1985-09-10")))
+          (Valid(f.parse("1985-09-10")))
         Path.from[Node](dateR).validate(<a>foo</a>) shouldBe
-        (Invalid(Seq(Path -> Seq(ValidationError("error.expected.date",
-                                                 "yyyy-MM-dd")))))
+          (Invalid(Seq(
+            Path -> Seq(ValidationError("error.expected.date", "yyyy-MM-dd")))))
       }
 
       "joda" when {
@@ -747,30 +787,32 @@ class DateSpec extends WordSpec with Matchers {
 
         "date" in {
           Path.from[Node](jodaDateR).validate(<a>1985-09-10</a>) shouldBe
-          (Valid(jd))
+            (Valid(jd))
           Path.from[Node](jodaDateR).validate(<a>foo</a>) shouldBe
-          (Invalid(Seq(Path -> Seq(
-                          ValidationError("error.expected.jodadate.format",
-                                          "yyyy-MM-dd")))))
+            (Invalid(
+              Seq(Path -> Seq(ValidationError("error.expected.jodadate.format",
+                                              "yyyy-MM-dd")))))
         }
 
         "time" in {
           Path.from[Node](jodaTimeR).validate(<a>{dd.getTime}</a>) shouldBe
-          (Valid(jd))
+            (Valid(jd))
           Path.from[Node](jodaDateR).validate(<a>foo</a>) shouldBe
-          (Invalid(Seq(Path -> Seq(
-                          ValidationError("error.expected.jodadate.format",
-                                          "yyyy-MM-dd")))))
+            (Invalid(
+              Seq(Path -> Seq(ValidationError("error.expected.jodadate.format",
+                                              "yyyy-MM-dd")))))
         }
 
         "local date" in {
           import org.joda.time.LocalDate
           val ld = new LocalDate()
-          Path.from[Node](jodaLocalDateR).validate(<a>{ld.toString}</a>) shouldBe
-          (Valid(ld))
+          Path
+            .from[Node](jodaLocalDateR)
+            .validate(<a>{ld.toString}</a>) shouldBe
+            (Valid(ld))
           Path.from[Node](jodaLocalDateR).validate(<a>foo</a>) shouldBe
-          (Invalid(Seq(Path -> Seq(ValidationError(
-                              "error.expected.jodadate.format", "")))))
+            (Invalid(Seq(Path -> Seq(
+              ValidationError("error.expected.jodadate.format", "")))))
         }
       }
 
@@ -780,7 +822,7 @@ class DateSpec extends WordSpec with Matchers {
         val dd = f.parse("1985-09-10")
         val ds = new java.sql.Date(dd.getTime())
         Path.from[Node](sqlDateR).validate(<a>1985-09-10</a>) shouldBe
-        (Valid(ds))
+          (Valid(ds))
       }
     }
 
@@ -801,14 +843,14 @@ class DateSpec extends WordSpec with Matchers {
 
         "date" in {
           Path.write(jodaDateW).writes(jd)(<a></a>) shouldBe
-          (<a>1985-09-10</a>)
+            (<a>1985-09-10</a>)
         }
 
         "local date" in {
           import org.joda.time.LocalDate
           val ld = new LocalDate()
           Path.write(jodaLocalDateW).writes(ld)(<a></a>) shouldBe
-          (<a>{ld.toString}</a>)
+            (<a>{ld.toString}</a>)
         }
       }
 

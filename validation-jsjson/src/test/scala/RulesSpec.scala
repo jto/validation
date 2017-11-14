@@ -417,6 +417,7 @@ class RulesSpec extends WordSpec with Matchers {
     }
 
     "compose constraints" in {
+      import cats.syntax.semigroup._
       val composed = notEmpty |+| minLength(3)
       (Path \ "firstname").from[js.Dynamic](composed).validate(valid) shouldBe
       (Valid("Julien"))
@@ -474,9 +475,10 @@ class RulesSpec extends WordSpec with Matchers {
                                   "verify" -> "bam")
 
       val passRule = From[js.Dynamic] { __ =>
-        ((__ \ "password").read(notEmpty) ~ (__ \ "verify").read(notEmpty)).tupled
-          .andThen(
-            Rule.uncurry(Rules.equalTo[String]).repath(_ => (Path \ "verify")))
+        (
+          (__ \ "password").read(notEmpty) ~
+          (__ \ "verify").read(notEmpty)
+        ).tupled.andThen(Rule.uncurry(Rules.equalTo[String]))
       }
 
       val rule = From[js.Dynamic] { __ =>
@@ -543,7 +545,7 @@ class RulesSpec extends WordSpec with Matchers {
         rule.validate(b) shouldBe (Valid(B(4)))
         rule.validate(c) shouldBe (Valid(C(6)))
         rule.validate(e) shouldBe
-        (Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType")))))
+        (Invalid(Seq(Path \ "name" -> Seq(ValidationError("validation.unknownType")))))
       }
     }
 

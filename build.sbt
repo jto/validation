@@ -6,11 +6,11 @@ val license = ("Apache License", url("http://www.apache.org/licenses/LICENSE-2.0
 val catsVersion = "0.9.0"
 val jodaConvertVersion = "1.8.1"
 val jodaTimeVersion = "2.9.7"
-val kindProjectorVersion = "0.9.3"
+val kindProjectorVersion = "0.9.4"
 val parserCombinatorsVersion = "1.0.5"
 val playVersion = "2.6.0-M1"
-val scalacVersion = "2.12.1"
-val scalatestVersion = "3.2.0-SNAP3"
+val scalacVersion = "2.12.4"
+val scalatestVersion = "3.2.0-SNAP7"
 val scalaXmlVersion = "1.0.6"
 
 lazy val root = aggregate("validation", validationJVM, validationJS, docs).in(file("."))
@@ -75,10 +75,10 @@ lazy val `validation-jsjson` = project
   .dependsOn(coreJS)
 
 lazy val docs = project
+  .enablePlugins(TutPlugin)
   .settings(validationSettings: _*)
   .settings(dontPublish: _*)
   .settings(crossTarget := file(".") / "docs" / "target")
-  .settings(tutSettings: _*)
   .settings(scalacOptions -= "-Ywarn-unused-import")
   .dependsOn(coreJVM, formJVM, delimitedJVM, jsonAstJVM, `validation-playjson`, `validation-xml`)
 

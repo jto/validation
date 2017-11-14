@@ -4,7 +4,6 @@ import cats.Monoid
 import cats.functor.Contravariant
 import shapeless.tag, tag.@@
 import shapeless.{Generic, HList}
-import shapeless.ops.hlist.{Tupler => STupler}
 
 trait Tupler[H] {
   type In
@@ -16,7 +15,6 @@ object Tupler {
   type Aux[H, T] = Tupler[H]{ type In = T }
 
   implicit def hlistTupler[H <: HList, T](implicit
-    T: STupler.Aux[H, T],
     G: Generic.Aux[T, H]
   ): Aux[H, T] =
     new Tupler[H] {

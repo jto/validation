@@ -120,8 +120,8 @@ trait Rules extends DefaultRules[js.Dynamic] {
     Rule[II, js.Dynamic] { json =>
       search(p, json) match {
         case None =>
-          Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
-        case Some(js) => Valid(js)
+          Invalid(Seq(p -> Seq(ValidationError("error.required"))))
+        case Some(js) => Valid(p -> js)
       }
     }.andThen(r)
   }

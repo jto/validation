@@ -1,5 +1,7 @@
+package jto.validation
+package forms
+
 import jto.validation._
-import jto.validation.forms._
 import org.scalatest._
 
 class RulesSpec extends WordSpec with Matchers {
@@ -379,6 +381,7 @@ class RulesSpec extends WordSpec with Matchers {
     }
 
     "compose constraints" in {
+      import cats.syntax.semigroup._
       val composed = notEmpty |+| minLength(3)
       From[UrlFormEncoded] { __ =>
         (__ \ "firstname").read(composed)
@@ -423,7 +426,7 @@ class RulesSpec extends WordSpec with Matchers {
       val passRule: Rule[UrlFormEncoded, String] = From[UrlFormEncoded] { __ =>
         ((__ \ "password").read(notEmpty) ~ (__ \ "verify").read(notEmpty)).tupled
           .andThen(
-            Rule.uncurry(Rules.equalTo[String]).repath(_ => (Path \ "verify")))
+            Rule.uncurry(Rules.equalTo[String]))
       }
 
       val rule = From[UrlFormEncoded] { __ =>
@@ -455,7 +458,6 @@ class RulesSpec extends WordSpec with Matchers {
         Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 
       "by trying all possible Rules" in {
-        import cats.syntax.cartesian._
 
         val rb: Rule[UrlFormEncoded, A] = From[UrlFormEncoded] { __ =>
           (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo")
@@ -490,7 +492,7 @@ class RulesSpec extends WordSpec with Matchers {
         rule.validate(b) shouldBe (Valid(B(4)))
         rule.validate(c) shouldBe (Valid(C(6)))
         rule.validate(e) shouldBe (Invalid(
-                Seq(Path -> Seq(ValidationError("validation.unknownType")))))
+                Seq(Path \ "name" -> Seq(ValidationError("validation.unknownType")))))
       }
     }
 

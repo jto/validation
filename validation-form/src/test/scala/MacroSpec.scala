@@ -1,5 +1,7 @@
+package jto.validation
+package forms
+
 import jto.validation._
-import jto.validation.forms._
 import org.scalatest._
 
 case class User(age: Int, name: String)
@@ -110,6 +112,7 @@ class MacroSpec extends WordSpec with Matchers {
               "master.age" -> Seq("45")
           )
       ) shouldBe (Valid(Dog("medor", User(45, "toto"))))
+      (userRule, dogRule)
     }
 
     "create a Write[Dog]" in {
@@ -121,22 +124,7 @@ class MacroSpec extends WordSpec with Matchers {
               "name" -> Seq("medor"),
               "master.name" -> Seq("toto"),
               "master.age" -> Seq("45")))
-    }
-
-    "create a Format[Dog]" in {
-      import Rules._
-      import Writes._
-
-      implicit val userRule = Format.gen[UrlFormEncoded, UrlFormEncoded, User]
-      implicit val dogRule = Format.gen[UrlFormEncoded, UrlFormEncoded, Dog]
-
-      dogRule.validate(
-          Map(
-              "name" -> Seq("medor"),
-              "master.name" -> Seq("toto"),
-              "master.age" -> Seq("45")
-          )
-      ) shouldBe (Valid(Dog("medor", User(45, "toto"))))
+      (userWrite, dogWrite)
     }
 
     "create a Rule[RecUser]" in {
@@ -196,37 +184,6 @@ class MacroSpec extends WordSpec with Matchers {
       )
     }
 
-    "create a Format[RecUser]" in {
-      import Rules._
-      import Writes._
-
-      implicit val catFormat = Format.gen[UrlFormEncoded, UrlFormEncoded, Cat]
-      val cat = Cat("minou")
-      val catMap = Map("name" -> Seq("minou"))
-
-      catFormat.writes(cat) shouldBe (catMap)
-      catFormat.validate(catMap) shouldBe (Valid(cat))
-
-      implicit lazy val recUserFormat: Format[UrlFormEncoded,
-                                              UrlFormEncoded,
-                                              RecUser] =
-        Format.gen[UrlFormEncoded, UrlFormEncoded, RecUser]
-
-      val recMap = Map("name" -> Seq("bob"),
-                       "cat.name" -> Seq("minou"),
-                       "hobbies[0]" -> Seq("bobsleig"),
-                       "hobbies[1]" -> Seq("manhunting"),
-                       "friends[0].name" -> Seq("tom"))
-
-      val u = RecUser("bob",
-                      Some(Cat("minou")),
-                      List("bobsleig", "manhunting"),
-                      List(RecUser("tom")))
-
-      recUserFormat.validate(recMap) shouldBe (Valid(u))
-      recUserFormat.writes(u) shouldBe (recMap)
-    }
-
     "create a Rule[User1]" in {
       import Rules._
 
@@ -253,22 +210,6 @@ class MacroSpec extends WordSpec with Matchers {
       userWrites.writes(
           User1("bob", Some(User1("tom")))
       ) shouldBe (Map("name" -> Seq("bob"), "friend.name" -> Seq("tom")))
-    }
-
-    "create a Format[User1]" in {
-      import Rules._
-      import Writes._
-
-      implicit lazy val userFormat: Format[UrlFormEncoded,
-                                           UrlFormEncoded,
-                                           User1] =
-        Format.gen[UrlFormEncoded, UrlFormEncoded, User1]
-
-      val userMap = Map("name" -> Seq("bob"), "friend.name" -> Seq("tom"))
-      val user = User1("bob", Some(User1("tom")))
-
-      userFormat.validate(userMap) shouldBe (Valid(user))
-      userFormat.writes(user) shouldBe (userMap)
     }
 
     "manage Boxed class" in {
@@ -301,48 +242,33 @@ class MacroSpec extends WordSpec with Matchers {
       "Rule" in {
         import Rules._
         implicit val XRule = Rule.gen[UrlFormEncoded, X]
-        ()
+        (XRule, XRule)
       }
 
       "Write" in {
         import Writes._
         implicit val XWrites = Write.gen[X, UrlFormEncoded]
-        ()
-      }
-
-      "Format" in {
-        import Rules._
-        import Writes._
-        implicit val XWrites = Format.gen[UrlFormEncoded, UrlFormEncoded, X]
-        ()
+        (XWrites, XWrites)
       }
     }
 
     "test inception with overriden object" in {
       import Rules._
       implicit val programFormat = Rule.gen[UrlFormEncoded, Program]
-      ()
+      (programFormat, programFormat)
     }
 
     "test case class 1 field" when {
       "Rule" in {
         import Rules._
         implicit val totoRule = Rule.gen[UrlFormEncoded, Toto]
-        ()
+        (totoRule, totoRule)
       }
 
       "Write" in {
         import Writes._
         implicit val totoWrite = Write.gen[Toto, UrlFormEncoded]
-        ()
-      }
-
-      "Format" in {
-        import Rules._
-        import Writes._
-        implicit val totoFormat =
-          Format.gen[UrlFormEncoded, UrlFormEncoded, Toto]
-        ()
+        (totoWrite, totoWrite)
       }
     }
 
@@ -350,21 +276,13 @@ class MacroSpec extends WordSpec with Matchers {
       "Rule" in {
         import Rules._
         implicit val toto2Rule = Rule.gen[UrlFormEncoded, Toto2]
-        ()
+        (toto2Rule, toto2Rule)
       }
 
       "Write" in {
         import Writes._
         implicit val toto2Write = Write.gen[Toto2, UrlFormEncoded]
-        ()
-      }
-
-      "Format" in {
-        import Rules._
-        import Writes._
-        implicit val toto2Format =
-          Format.gen[UrlFormEncoded, UrlFormEncoded, Toto2]
-        ()
+        (toto2Write, toto2Write)
       }
     }
 
@@ -372,21 +290,13 @@ class MacroSpec extends WordSpec with Matchers {
       "Rule" in {
         import Rules._
         implicit val toto3Rule = Rule.gen[UrlFormEncoded, Toto3]
-        ()
+        (toto3Rule, toto3Rule)
       }
 
       "Write" in {
         import Writes._
         implicit val toto3Write = Write.gen[Toto3, UrlFormEncoded]
-        ()
-      }
-
-      "Format" in {
-        import Rules._
-        import Writes._
-        implicit val toto3Format =
-          Format.gen[UrlFormEncoded, UrlFormEncoded, Toto3]
-        ()
+        (toto3Write, toto3Write)
       }
     }
 
@@ -394,21 +304,13 @@ class MacroSpec extends WordSpec with Matchers {
       "Rule" in {
         import Rules._
         implicit val toto4Rule = Rule.gen[UrlFormEncoded, Toto4]
-        ()
+        (toto4Rule, toto4Rule)
       }
 
       "Write" in {
         import Writes._
         implicit val toto4Write = Write.gen[Toto4, UrlFormEncoded]
-        ()
-      }
-
-      "Format" in {
-        import Rules._
-        import Writes._
-        implicit val toto4Format =
-          Format.gen[UrlFormEncoded, UrlFormEncoded, Toto4]
-        ()
+        (toto4Write, toto4Write)
       }
     }
 
@@ -416,21 +318,13 @@ class MacroSpec extends WordSpec with Matchers {
       "Rule" in {
         import Rules._
         implicit val toto5Rule = Rule.gen[UrlFormEncoded, Toto5]
-        ()
+        (toto5Rule, toto5Rule)
       }
 
       "Write" in {
         import Writes._
         implicit val toto5Write = Write.gen[Toto5, UrlFormEncoded]
-        ()
-      }
-
-      "Format" in {
-        import Rules._
-        import Writes._
-        implicit val toto5Format =
-          Format.gen[UrlFormEncoded, UrlFormEncoded, Toto5]
-        ()
+        (toto5Write, toto5Write)
       }
     }
 
@@ -454,6 +348,8 @@ class MacroSpec extends WordSpec with Matchers {
                       Dog("brutus", User(23, "tata"))
                   ))
           ))
+
+      (userRule, dogRule)
     }
 
     "test case reads in companion object" in {

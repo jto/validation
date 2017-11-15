@@ -1,10 +1,12 @@
 package jto.validation
 package jsonast
 
+import shapeless.tag.@@
+
 trait Rules extends DefaultRules[JValue] {
   private def jsonAs[T](
       f: PartialFunction[JValue, Validated[Seq[ValidationError], T]])(
-      msg: String, args: Any*) =
+      msg: String, args: Any*): Rule[JValue, T] @@ Root =
     Rule.fromMapping[JValue, T](f.orElse {
       case j => Invalid(Seq(ValidationError(msg, args: _*)))
     })
@@ -36,7 +38,7 @@ trait Rules extends DefaultRules[JValue] {
       case JNumber(v) if BigDecimal(v).isValidLong => Valid(v.toLong)
     }("error.number", "Long")
 
-  implicit def jsNumber =
+  implicit def jsNumberR =
     jsonAs[JNumber] {
       case v @ JNumber(_) => Valid(v)
     }("error.number", "Number")
@@ -82,9 +84,10 @@ trait Rules extends DefaultRules[JValue] {
       case JNumber(v) => Valid(BigDecimal(v).bigDecimal)
     }("error.number", "BigDecimal")
 
-  implicit val jsNullR: Rule[JValue, JNull.type] = jsonAs[JNull.type] {
-    case JNull => Valid(JNull)
-  }("error.invalid", "null")
+  implicit val jsNullR =
+    jsonAs[JNull.type] {
+      case JNull => Valid(JNull)
+    }("error.invalid", "null")
 
   implicit def ooo[O](
       p: Path)(implicit pick: Path => RuleLike[JValue, JValue],

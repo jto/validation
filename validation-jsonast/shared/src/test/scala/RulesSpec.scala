@@ -1,5 +1,7 @@
+package jto.validation
+package jsonast
+
 import jto.validation._
-import jto.validation.jsonast._
 import org.scalatest._
 
 class RulesSpec extends WordSpec with Matchers {

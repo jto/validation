@@ -2,6 +2,7 @@ package jto.validation
 package jsonast
 
 import cats.Monoid
+import shapeless.tag.@@
 
 trait DefaultMonoids {
   implicit def jsonMonoid = new Monoid[JObject] {
@@ -61,9 +62,9 @@ trait Writes
         errs.map(w.writes).reduce(jsonMonoid.combine)
     }
 
-  implicit val stringW: Write[String, JValue] = Write(s => JString(s))
+  implicit val stringW: Write[String, JValue] @@ Root = Write(s => JString(s))
 
-  private def tToJs[T]: Write[T, JValue] =
+  private def tToJs[T]: Write[T, JValue] @@ Root =
     Write[T, JValue](i => JNumber(i.toString))
 
   implicit val intW = tToJs[Int]
@@ -71,7 +72,7 @@ trait Writes
   implicit val longW = tToJs[Long]
   implicit val floatW = tToJs[Float]
   implicit val doubleW = tToJs[Double]
-  implicit val bigDecimalW: Write[BigDecimal, JValue] =
+  implicit val bigDecimalW: Write[BigDecimal, JValue] @@ Root =
     Write[BigDecimal, JValue](b => JNumber(b.toString))
   implicit def javanumberW[T <: java.lang.Number] = tToJs[T]
 

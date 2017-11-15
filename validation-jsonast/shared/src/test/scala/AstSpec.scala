@@ -1,5 +1,7 @@
+package jto.validation
+package jsonast
+
 import jto.validation.Valid
-import jto.validation.jsonast._
 import org.scalatest._
 
 class AstSpec extends WordSpec with Matchers {

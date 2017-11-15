@@ -64,8 +64,9 @@ lazy val `validation-jsonast` = crossProject
   .crossType(CrossType.Full)
   .settings(validationSettings: _*)
   .dependsOn(`validation-core`)
-  .jvmSettings(libraryDependencies +=
-    "com.typesafe.play" %% "play-json" % playVersion)
+  .dependsOn(`validation-core` % "test->test")
+  .jvmSettings(
+    libraryDependencies += "com.typesafe.play" %% "play-json" % playVersion)
 lazy val jsonAstJVM = `validation-jsonast`.jvm
 lazy val jsonAstJS = `validation-jsonast`.js
 lazy val jsonAst = aggregate("validation-jsonast", jsonAstJVM, jsonAstJS)

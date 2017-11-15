@@ -1,12 +1,13 @@
 package jto.validation
 package forms
 
+import shapeless.tag, tag.@@
 import scala.util.parsing.combinator.RegexParsers
 
 /**
   * Play provides you a `Map[String, Seq[String]]` (aliased as `UrlFormEncoded`) in request body for urlFormEncoded requests.
-  * It's generally a lot more convenient to work on `Map[Path, Seq[String]]` to define Rules.
-  * This object contains methods used to convert `Map[String, Seq[String]]` <-> `Map[Path, Seq[String]]`
+  * It's generally a lot more convenient to work on `Map[Path, String]` to define Rules.
+  * This object contains methods used to convert `Map[String, Seq[String]]` <-> `Map[Path, String]`
   * @note We use the alias `UrlFormEncoded`, which is just a `Map[String, Seq[String]]`
   */
 object PM {
@@ -136,12 +137,12 @@ trait Rules extends DefaultRules[PM.PM] with ParsingRules {
       Rule.zero[UrlFormEncoded].map(toPM).andThen(o)
     }
 
-  implicit def parseString[O](implicit r: RuleLike[String, O]): Rule[PM, O] = {
+  implicit def parseString[O](implicit r: RuleLike[String, O]): Rule[PM, O] @@ Root = {
     val find = Rule[Option[String], String] {
       _.map(x => Valid(Path -> x)).getOrElse(
           Invalid(Seq(Path -> Seq(ValidationError("error.required")))))
     }
-    Rule.zero[PM].map(_.get(Path)).andThen(find).andThen(r)
+    tag[Root](Rule.zero[PM].map(_.get(Path)).andThen(find).andThen(r))
   }
 
   implicit def inArray[O: scala.reflect.ClassTag](

@@ -47,6 +47,7 @@ lazy val `validation-form` = crossProject
   .jsSettings(libraryDependencies +=
     "org.scala-lang.modules" %%% "scala-parser-combinators" % parserCombinatorsVersion)
   .dependsOn(`validation-core`)
+  .dependsOn(`validation-core` % "test->test")
 lazy val formJVM = `validation-form`.jvm
 lazy val formJS = `validation-form`.js
 lazy val form = aggregate("validation-form", formJVM, formJS)

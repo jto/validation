@@ -53,7 +53,6 @@ trait Primitives[I, K[_, _]] {
   // def at[A](p: Path)(k: => K[Option[_ >: Out <: I], A]): K[Out, A]
   def at(p: Path): At[K, Out, I]
   def knil: K[Out, HNil]
-  def kopt: K[Option[Out], HNil]
 
   def is[A](implicit K: K[_ >: Out <: I, A]): K[I, A]
   def req[A](implicit K: K[_ >: Out <: I, A]): K[Option[I], A]

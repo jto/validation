@@ -12,7 +12,6 @@ trait WritesTypeclasses[I] extends Typeclasses[I, flip[Write]#λ]{
   self: Primitives[I, flip[Write]#λ] =>
 
   def knil = Write[HNil, Out] { _ => iMonoid.empty }
-  def kopt = Write[HNil, Option[Out]] { _ => None }
 
   def liftHList[B](fb: Write[B, I]): Write[B :: HNil, I] =
     fb.contramap { _.head }

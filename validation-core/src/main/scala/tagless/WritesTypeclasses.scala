@@ -55,4 +55,11 @@ trait WritesTypeclasses[I] extends Typeclasses[I, flip[Write]#λ]{
     new Semigroup[Write[O, I0] @@ Root] {
       def combine(x: Write[O, I0] @@ Root, y: Write[O, I0] @@ Root): Write[O, I0] @@ Root = x
     }
+
+  import v3.tagless.MkLazy
+  implicit def mkLazy: MkLazy[types.flip[Write]#λ] =
+    new MkLazy[types.flip[Write]#λ] {
+      def apply[A, B](k: => Write[B, A]): Write[B, A] =
+        Write { b => k.writes(b) }
+    }
 }

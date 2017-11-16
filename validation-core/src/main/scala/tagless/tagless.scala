@@ -102,8 +102,9 @@ trait LowPriorityTypeClasses[I, K[_, _]] {
 
 trait Typeclasses[I, K[_, _]] extends LowPriorityTypeClasses[I, K] {
   self: Primitives[I, K] =>
-
   import cats.arrow.Compose
+
+  implicit def mkLazy: MkLazy[K]
   implicit def composeTC: Compose[K]
   implicit def semigroupTC[I0, O]: cats.Semigroup[K[I0, O] @@ Root]
   implicit def mergeTC: Merge[K, Out]

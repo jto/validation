@@ -117,12 +117,4 @@ object Write {
           (fa.writes(a), c)
         }
     }
-
-  import v3.tagless.types.flip
-  import v3.tagless.MkLazy
-  implicit def mkLazyWrite: MkLazy[flip[Write]#λ] =
-    new MkLazy[flip[Write]#λ] {
-      def apply[A, B](k: => Write[B, A]): Write[B, A] =
-        Write { b => k.writes(b) }
-    }
 }

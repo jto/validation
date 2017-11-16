@@ -35,4 +35,10 @@ trait RulesTypeclasses[I] extends Typeclasses[I, Rule]{
 
   implicit def semigroupTC[I0, O]: Semigroup[Rule[I0, O] @@ Root] =
     Rule.ruleSemigroup
+
+  implicit def mkLazy =
+    new v3.tagless.MkLazy[Rule] {
+      def apply[A, B](k: => Rule[A, B]): Rule[A, B] =
+        Rule { a => k.validateWithPath(a) }
+    }
 }

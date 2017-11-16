@@ -193,12 +193,6 @@ object Rule {
       def compose[A, B, C](f: Rule[B, C],g: Rule[A,B]): Rule[A, C] =
         g andThen f
     }
-
-  implicit def mkLazyRule =
-    new v3.tagless.MkLazy[Rule] {
-      def apply[A, B](k: => Rule[A, B]): Rule[A, B] =
-        Rule { a => k.validateWithPath(a) }
-    }
 }
 
 object Read {

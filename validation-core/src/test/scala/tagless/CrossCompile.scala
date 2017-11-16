@@ -19,7 +19,7 @@ trait CrossCompile[T] extends WordSpec with Matchers {
       case class Info(label: String, email: Option[String], phones: Seq[String])
       val ex = Info("label", Option("fakecontact@gmail.com"), Seq("phone1", "phone2"))
 
-      def info[K[_, _]](g: Grammar[T, K])(implicit L: MkLazy[K]) = {
+      def info[K[_, _]](g: Grammar[T, K]) = {
         import g._
         at(Path \ "label").is(req[String] andThen notEmpty) ~:
         at(Path \ "email").is(opt(is[String] andThen email)) ~:
@@ -28,7 +28,6 @@ trait CrossCompile[T] extends WordSpec with Matchers {
       }
 
       import cats.syntax.profunctor._
-
       def write = info[flip[Write]#λ](wg).from[Info].rmap(upcast)
       def rule = info[Rule](rg).to[Info]
       def sym = (rule.validate _) compose (write.writes _)

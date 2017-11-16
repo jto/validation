@@ -3,6 +3,7 @@ package v3.tagless
 
 import org.scalatest._
 import cats.syntax.compose._
+import cats.syntax.profunctor._
 
 trait CrossCompile[T] extends WordSpec with Matchers {
 
@@ -14,8 +15,6 @@ trait CrossCompile[T] extends WordSpec with Matchers {
   def upcast: wg.Out <:< rg.Out
 
   "grammar" should {
-
-    "compile to symetric rule and write" in {
       case class Info(label: String, email: Option[String], phones: Seq[String])
       val ex = Info("label", Option("fakecontact@gmail.com"), Seq("phone1", "phone2"))
 
@@ -27,73 +26,64 @@ trait CrossCompile[T] extends WordSpec with Matchers {
         knil
       }
 
-      import cats.syntax.profunctor._
+    "compile to symetric rule and write" in {
       def write = info[flip[Write]#λ](wg).from[Info].rmap(upcast)
       def rule = info[Rule](rg).to[Info]
       def sym = (rule.validate _) compose (write.writes _)
       sym(ex) should === (Valid(ex))
     }
 
-    // "compose" in {
-    //   case class Id(value: String)
-    //   implicit val idW: Write[Id, String] = Write(id => id.value)
-    //   implicit val idR: Rule[String, Id] = Rule.zero[String].map(Id.apply)
+    "merge Ks" in {
+      import cats.syntax.semigroup._
+      val p = Path \ "percent"
+      def percent[K[_, _]](g: Grammar[T, K]) = {
+        import g._
+        at(p).is(req[Int] andThen min(0) |+| max(100))
+      }
 
-    //   def id[K[_, _]](implicit g: Grammar[JsValue, K], valid: K[String, Id]) = {
-    //     import g._
-    //     at(Path \ "id")(req[String] andThen valid)
-    //   }
+      val write = percent[flip[Write]#λ](wg).rmap(upcast)
+      val rule = percent[Rule](rg)
+      val sym = (rule.validate _) compose (write.writes _)
 
-    //   val ex = Id("value")
+      sym(10) shouldBe Valid(10)
+      sym(-10) shouldBe Invalid(Seq((p) -> Seq(ValidationError("error.min", 0))))
+      sym(200) shouldBe Invalid(Seq((p) -> Seq(ValidationError("error.max", 100))))
+    }
 
-    //   val write = id[flip[Write]#λ]
-    //   val rule = id[Rule]
-    //   val sym = (rule.validate _) compose (write.writes _)
-    //   sym(ex) shouldBe Valid(ex)
+    "change path" in {
+      val f = { (p: Path) =>
+        val p2 =
+          p.path.collect { case KeyPathNode(x) =>
+            KeyPathNode(x.reverse)
+          }
+        Path(p2)
+      }
 
-    // }
+      def write = info[flip[Write]#λ](wg).from[Info].rmap(upcast)
+      def writeInvert = info[flip[Write]#λ](wg.mapPath(f)).from[Info].rmap(upcast)
+      def rule = info[Rule](rg).to[Info]
+      def ruleInvert = info[Rule](rg.mapPath(f)).to[Info]
 
-    // "merge Ks" in {
-    //   import cats.syntax.semigroup._
-    //   val p = Path \ "percent"
-    //   def percent[K[_, _]](implicit g: Grammar[JsValue, K]) = {
-    //     import g._
-    //     at(p)(req[Int] andThen min(0) |+| max(100))
-    //   }
+      def sym = (ruleInvert.validate _) compose (writeInvert.writes _)
+      sym(ex) should === (Valid(ex))
 
-    //   val write = percent[flip[Write]#λ]
-    //   val rule = percent[Rule]
-    //   val sym = (rule.validate _) compose (write.writes _)
+      def invert = (rule.validate _) compose (write.writes _)
+      invert(ex) should === (Valid(ex))
 
-    //   sym(10) shouldBe Valid(10)
-    //   sym(-10) shouldBe Invalid(Seq((p) -> Seq(ValidationError("error.min", 0))))
-    //   sym(200) shouldBe Invalid(Seq((p) -> Seq(ValidationError("error.max", 100))))
-    // }
+      def invertKO = (rule.validate _) compose (writeInvert.writes _)
+      invertKO(ex) should === (
+        Invalid(List(
+          (Path \ "label", List(ValidationError("error.required"))),
+          (Path \ "phones", List(ValidationError("error.required")))
+        )))
 
-    // TODO: PORT
-    // "change path" in {
-    //   def info[K[_, _]](g: Grammar[JsValue, K]) = {
-    //     import g._
-    //     at(Path \ "label")(req[String] andThen notEmpty) ~:
-    //     at(Path \ "email")(opt(is[String] andThen email)) ~:
-    //     at(Path \ "phones")(req[Seq[String]] andThen forall(notEmpty)) ~:
-    //     knil
-    //   }
-
-    //   val f = { (p: Path) =>
-    //     val p2 =
-    //       p.path.collect { case KeyPathNode(x) =>
-    //         KeyPathNode(x.reverse)
-    //       }
-    //     Path(p2)
-    //   }
-
-    //   val write = info(WritesGrammar.mapPath(f)).from[Info]
-    //   val rule = info(RulesGrammar.mapPath(f)).to[Info]
-    //   val json = write.writes(ex)
-    //   json shouldBe Json.parse("""{"lebal":"label","liame":"fakecontact@gmail.com","senohp":["phone1","phone2"]}""")
-    //   rule.validate(json) shouldBe Valid(ex)
-    // }
+      def symKO = (ruleInvert.validate _) compose (write.writes _)
+      symKO(ex) should === (
+        Invalid(List(
+          (Path \ "lebal", List(ValidationError("error.required"))),
+          (Path \ "senohp", List(ValidationError("error.required")))
+        )))
+    }
   }
 
 }

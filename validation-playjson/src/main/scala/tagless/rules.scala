@@ -16,7 +16,7 @@ trait RulesGrammar
   type Out = JsValue
   type P = RulesGrammar
 
-  def mapPath(f: Path => Path): P =
+  def mapPath(f: Path => Path) =
     new RulesGrammar {
       override def at(p: Path) =
         self.at(f(p))

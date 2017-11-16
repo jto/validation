@@ -1,10 +1,8 @@
 package jto.validation
 package v3.tagless
-package jsonast
+package xml
 
-import jto.validation.jsonast._
-
-class CrossCompile extends v3.tagless.CrossCompile[JValue] {
+class CrossCompile extends v3.tagless.CrossCompile[List[XML]] {
   val rg = RulesGrammar
   val wg = WritesGrammar
   def upcast = implicitly

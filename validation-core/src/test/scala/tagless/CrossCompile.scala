@@ -16,9 +16,8 @@ trait CrossCompile[T] extends WordSpec with Matchers {
   "grammar" should {
 
     "compile to symetric rule and write" in {
-      import shapeless.{ ::, HNil }
-      type Info = String :: Option[String] :: Seq[String] :: shapeless.HNil
-      val ex: Info = "label" :: Option("fakecontact@gmail.com") :: Seq("phone1", "phone2") :: HNil
+      case class Info(label: String, email: Option[String], phones: Seq[String])
+      val ex = Info("label", Option("fakecontact@gmail.com"), Seq("phone1", "phone2"))
 
       def info[K[_, _]](g: Grammar[T, K])(implicit L: MkLazy[K]) = {
         import g._
@@ -30,8 +29,8 @@ trait CrossCompile[T] extends WordSpec with Matchers {
 
       import cats.syntax.profunctor._
 
-      def write = info[flip[Write]#λ](wg).rmap(upcast)
-      def rule = info[Rule](rg)
+      def write = info[flip[Write]#λ](wg).from[Info].rmap(upcast)
+      def rule = info[Rule](rg).to[Info]
       def sym = (rule.validate _) compose (write.writes _)
       sym(ex) should === (Valid(ex))
     }

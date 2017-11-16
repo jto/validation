@@ -25,10 +25,10 @@ case class MergeOps[K[_, _], Out, B <: HList](fb: K[Out, B])(implicit M: Merge[K
 }
 
 trait Primitives[I, K[_, _]] {
-  self: Constraints[K] with Typeclasses[I, K] =>
+  self: Grammar[I, K] =>
 
   type Out <: I // XXX: This is dubious
-  type P <: Primitives[I, K]
+  type P <: Grammar[I, K] { type Out = self.Out }
 
   @inline private def camelToUnderscores(name: String) =
     "[A-Z]".r.replaceAllIn(name, { m =>

@@ -6,8 +6,8 @@ import jto.validation.jsonast._
 
 import types.flip
 
-trait WritesGrammar
-    extends JsonGrammar[flip[Write]#λ]
+sealed trait WritesGrammar
+    extends JsonGrammar[Write.Co]
     with WriteConstraints
     with WritesTypeclasses[JValue] {
   self =>

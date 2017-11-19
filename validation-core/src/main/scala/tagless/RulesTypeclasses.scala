@@ -9,6 +9,10 @@ import cats.syntax.apply._
 trait RulesTypeclasses[I] extends Typeclasses[I, Rule]{
   self: Primitives[I, Rule] =>
 
+  def asType[H, B](k: Rule[_ >: this.Out <: I, H])(
+      implicit G: shapeless.Generic.Aux[B, H]): Rule[_ >: Out <: I, B] =
+    k.map(x => G.from(x))
+
   def knil: Rule[Out, HNil] = Rule.zero[Out].map { _ => HNil }
 
   def liftHList[B](fb: Rule[Out, B]): Rule[Out, B :: HNil] =

@@ -4,7 +4,7 @@ package forms
 
 import jto.validation.forms._
 
-trait RulesGrammar
+sealed trait RulesGrammar
     extends FormGrammar[Rule]
     with RuleConstraints
     with RulesTypeclasses[PM.PM] {

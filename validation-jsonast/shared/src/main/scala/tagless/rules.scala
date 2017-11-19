@@ -4,7 +4,7 @@ package jsonast
 
 import jto.validation.jsonast._
 
-trait RulesGrammar
+sealed trait RulesGrammar
     extends JsonGrammar[Rule]
     with RuleConstraints
     with RulesTypeclasses[JValue] {

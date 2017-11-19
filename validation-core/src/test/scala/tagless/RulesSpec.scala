@@ -463,7 +463,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         phones: Seq[String])
 
       def info =
-        goal[ContactInformation] {
+        as[ContactInformation].from {
           at(Path \ "label").is(req[String] andThen notEmpty) ~:
           at(Path \ "email").is(opt(is[String] andThen email)) ~:
           at(Path \ "phones").is(req[Seq[String]] andThen forall(notEmpty)) ~:
@@ -471,7 +471,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
         }
 
       def contact =
-        goal[Contact]{
+        as[Contact].from {
           at(Path \ "firstname").is(req[String] andThen notEmpty) ~:
           at(Path \ "lastname").is(req[String] andThen notEmpty) ~:
           at(Path \ "company").is(opt[String]) ~:
@@ -488,7 +488,7 @@ trait RulesSpec[T] extends WordSpec with Matchers {
              Some("fakecontact@gmail.com"),
              List("01.23.45.67.89", "98.76.54.32.10"))))
 
-      val rule = contact.map(h => solve(h))
+      val rule = contact
 
       import testCases.base._
       rule.validate(transform(valid)) shouldBe (Valid(expected))

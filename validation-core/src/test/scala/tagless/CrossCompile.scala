@@ -86,64 +86,52 @@ trait CrossCompile[T] extends WordSpec with Matchers {
     }
 
     "support complex use cases" in {
-      // case class Contact(
-      //   firstname: String,
-      //   lastname: String,
-      //   company: Option[String],
-      //   informations: Seq[ContactInformation])
+      case class Contact(
+        firstname: String,
+        lastname: String,
+        company: Option[String],
+        informations: Seq[ContactInformation])
 
-      // case class ContactInformation(
-      //   label: String,
-      //   email: Option[String],
-      //   phones: Seq[String])
+      case class ContactInformation(
+        label: String,
+        email: Option[String],
+        phones: Seq[String])
 
-      // def info[K[_, _]](g: Grammar[T, K]) = {
-      //   import g._
-      //   goal[ContactInformation] {
-      //     at(Path \ "label").is(req[String] andThen notEmpty) ~:
-      //     at(Path \ "email").is(opt(is[String] andThen email)) ~:
-      //     at(Path \ "phones").is(req[Seq[String]] andThen forall(notEmpty)) ~:
-      //     knil
-      //   }
-      // }
+      def info[K[_, _]](g: Grammar[T, K]) = {
+        import g._
+        as[ContactInformation].from {
+          at(Path \ "label").is(req[String] andThen notEmpty) ~:
+          at(Path \ "email").is(opt(is[String] andThen email)) ~:
+          at(Path \ "phones").is(req[Seq[String]] andThen forall(notEmpty)) ~:
+          knil
+        }
+      }
 
-      // def contact[K[_, _]](g: Grammar[T, K]) = {
-      //   import g._
-      //   goal[Contact] {
-      //     at(Path \ "firstname").is(req[String] andThen notEmpty) ~:
-      //     at(Path \ "lastname").is(req[String] andThen notEmpty) ~:
-      //     at(Path \ "company").is(opt[String]) ~:
-      //     at(Path \ "contacts").is(req(seq(info(g)))) ~:
-      //     knil
-      //   }
-      // }
+      def contact[K[_, _]](g: Grammar[T, K]) = {
+        import g._
+        as[Contact].from {
+          at(Path \ "firstname").is(req[String] andThen notEmpty) ~:
+          at(Path \ "lastname").is(req[String] andThen notEmpty) ~:
+          at(Path \ "company").is(opt[String]) ~:
+          at(Path \ "contacts").is(req(seq(info(g)))) ~:
+          knil
+        }
+      }
 
-      // val expected = Contact(
-      //     "Julien",
-      //     "Tournay",
-      //     None,
-      //     Seq(
-      //       ContactInformation("Personal",
-      //        Some("fakecontact@gmail.com"),
-      //        List("01.23.45.67.89", "98.76.54.32.10"))))
+      val expected = Contact(
+          "Julien",
+          "Tournay",
+          None,
+          Seq(
+            ContactInformation("Personal",
+             Some("fakecontact@gmail.com"),
+             List("01.23.45.67.89", "98.76.54.32.10"))))
 
-      // import shapeless.{::, HNil}
-      // Solver[String :: Option[String] :: Seq[String] :: HNil, ContactInformation]
-      // Solver[ContactInformation, String :: Option[String] :: Seq[String] :: HNil]
-      // val test: Int = info[Write.Co](wg)
+      val write = contact(wg).rmap(upcast)
+      val rule = contact(rg)
 
-
-      // val write: Write[Contact, rg.Out] =
-      //   contact[Write.Co](wg)
-      //     .lmap(c => solve(c))
-      //     .rmap(upcast)
-
-      // val rule: Rule[rg.Out, Contact] =
-      //   contact[Rule](rg)
-      //     .rmap(h => solve(h))
-
-      // val sym = (rule.validate _) compose (write.writes _)
-      // sym(expected) should === (Valid(ex))
+      val sym = (rule.validate _) compose (write.writes _)
+      sym(expected) should === (Valid(ex))
     }
   }
 

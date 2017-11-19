@@ -5,7 +5,7 @@ package playjson
 import play.api.libs.json.{JsValue, JsObject, JsArray}
 import jto.validation.playjson.Rules
 
-trait RulesGrammar
+sealed trait RulesGrammar
     extends JsonGrammar[Rule]
     with RuleConstraints
     with RulesTypeclasses[JsValue] {
@@ -95,8 +95,6 @@ trait RulesGrammar
   implicit def jsString = Rules.jsStringR
   implicit def jsNumber = Rules.jsNumberR
   implicit def jsBoolean = Rules.jsBooleanR
-
-  def toGoal[Repr, A] = _.map { Goal.apply }
 }
 
 object RulesGrammar extends RulesGrammar

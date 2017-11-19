@@ -48,6 +48,7 @@ trait Write[I, +O] extends WriteLike[I, O] {
 }
 
 object Write {
+
   def gen[I, O]: Write[I, O] = macro MappingMacros.write[I, O]
 
   def apply[I, O](w: I => O): Write[I, O] @@ Root =

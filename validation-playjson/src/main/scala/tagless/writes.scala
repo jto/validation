@@ -7,7 +7,7 @@ import jto.validation.playjson.Writes
 
 import types.flip
 
-trait WritesGrammar
+sealed trait WritesGrammar
     extends JsonGrammar[flip[Write]#λ]
     with WriteConstraints
     with WritesTypeclasses[JsValue] {
@@ -72,9 +72,6 @@ trait WritesGrammar
   implicit def jsString = Write.zero
   implicit def jsNumber = Write.zero
   implicit def jsBoolean = Write.zero
-
-  def toGoal[Repr, A]: Write[Repr, Out] => Write[Goal[Repr, A], Out] =
-    _.contramap { _.value }
 }
 
 object WritesGrammar extends WritesGrammar

@@ -7,7 +7,7 @@ import jto.validation.forms._
 import shapeless.tag.@@
 import types.flip
 
-trait WritesGrammar
+sealed trait WritesGrammar
     extends FormGrammar[flip[Write]#λ]
     with WriteConstraints
     with WritesTypeclasses[PM.PM] {

@@ -5,7 +5,7 @@ package jsjson
 import scala.scalajs.js
 import jto.validation.jsjson.Rules
 
-trait RulesGrammar
+sealed trait RulesGrammar
     extends JsonGrammar[Rule]
     with RuleConstraints
     with RulesTypeclasses[js.Dynamic] {
@@ -91,8 +91,6 @@ trait RulesGrammar
   implicit def map[A](implicit k: Rule[_ >: Out <: js.Dynamic, A]) = Rules.mapR
   implicit def traversable[A](implicit k: Rule[_ >: Out <: js.Dynamic, A]) =
     Rules.pickTraversable(k)
-
-  def toGoal[Repr, A] = _.map { Goal.apply }
 }
 
 object RulesGrammar extends RulesGrammar

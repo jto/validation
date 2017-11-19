@@ -6,7 +6,7 @@ import jto.validation.xml.Rules
 import shapeless.tag, tag.@@
 import scala.xml.{NodeSeq, Null}
 
-trait RulesGrammar
+sealed trait RulesGrammar
     extends XmlGrammar[List[XML], Rule]
     with RuleConstraints
     with RulesTypeclasses[List[XML]] {

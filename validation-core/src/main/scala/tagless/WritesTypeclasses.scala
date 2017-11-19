@@ -11,6 +11,10 @@ import types.flip
 trait WritesTypeclasses[I] extends Typeclasses[I, flip[Write]#λ]{
   self: Primitives[I, flip[Write]#λ] =>
 
+  def asType[H, B](k: Write[H, _ >: Out <: I])(
+      implicit G: shapeless.Generic.Aux[B, H]): Write[B, _ >: Out <: I] =
+    k.contramap(b => G.to(b))
+
   def knil = Write[HNil, Out] { _ => iMonoid.empty }
 
   def liftHList[B](fb: Write[B, I]): Write[B :: HNil, I] =

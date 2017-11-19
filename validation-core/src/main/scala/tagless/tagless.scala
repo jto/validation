@@ -8,10 +8,6 @@ object types {
   type flip[F[_, _]] = { type λ[B, A] = F[A, B] }
 }
 
-case class Goal[A, B](value: A) {
-  def trivial(implicit ev: A =:= (B :: HNil)): B = value.head
-}
-
 trait MkLazy[K[_, _]] {
   def apply[A, B](k: => K[A, B]): K[A, B]
 }
@@ -50,7 +46,6 @@ trait Primitives[I, K[_, _]] {
   def mapPath(f: Path => Path): P
 
   // TODO: Introduce NonEmptyPath
-  // def at[A](p: Path)(k: => K[Option[_ >: Out <: I], A]): K[Out, A]
   def at(p: Path): At[K, Out, I]
   def knil: K[Out, HNil]
 
@@ -58,13 +53,15 @@ trait Primitives[I, K[_, _]] {
   def req[A](implicit K: K[_ >: Out <: I, A]): K[Option[I], A]
   def opt[A](implicit K: K[_ >: Out <: I, A]): K[Option[I], Option[A]]
 
-  def toGoal[Repr, A]: K[Out, Repr] => K[Out, Goal[Repr, A]]
+  import shapeless.Generic
+  protected def asType[H, B](k: K[_ >: Out <: I, H])(implicit G: Generic.Aux[B, H]): K[_ >: Out <: I, B]
 
-  sealed trait Defered[A] {
-    def apply[Repr](k: K[Out, Repr]): K[Out, Goal[Repr, A]] = toGoal(k)
+  final class As[B, H](G: Generic.Aux[B, H]) {
+    def from(k: K[_ >: Out <: I, H]): K[_ >: Out <: I, B] =
+      asType(k)(G)
   }
 
-  def goal[A] = new Defered[A]{}
+  def as[B](implicit G: Generic[B]) = new As[B, G.Repr](G)
 
   implicit def int: K[I, Int] @@ Root
   implicit def string: K[I, String] @@ Root

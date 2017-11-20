@@ -4,10 +4,10 @@ package jsonast
 
 import jto.validation.jsonast._
 
-import types.flip
+import types.op
 
 sealed trait WritesGrammar
-    extends JsonGrammar[flip[Write]#λ]
+    extends JsonGrammar[op[Write]#λ]
     with WriteConstraints
     with WritesTypeclasses[JValue] {
   self =>
@@ -24,8 +24,8 @@ sealed trait WritesGrammar
         self.at(f(p))
     }
 
-  def at(p: Path): At[flip[Write]#λ, Out, JValue] =
-    new At[flip[Write]#λ, Out, JValue] {
+  def at(p: Path): At[op[Write]#λ, Out, JValue] =
+    new At[op[Write]#λ, Out, JValue] {
       def run: Write[Option[JValue], Out] =
         Writes.optionW(Write.zero[JValue])(Writes.writeJson _)(p)
     }

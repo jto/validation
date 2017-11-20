@@ -10,7 +10,7 @@ trait CrossCompile[T] extends WordSpec with Matchers {
   import types._
 
   val rg: Grammar[T, Rule]
-  val wg: Grammar[T, flip[Write]#λ]
+  val wg: Grammar[T, op[Write]#λ]
 
   def upcast: wg.Out <:< rg.Out
 
@@ -27,7 +27,7 @@ trait CrossCompile[T] extends WordSpec with Matchers {
       }
 
     "compile to symetric rule and write" in {
-      def write = info[flip[Write]#λ](wg).from[Info].rmap(upcast)
+      def write = info[op[Write]#λ](wg).from[Info].rmap(upcast)
       def rule = info[Rule](rg).to[Info]
       def sym = (rule.validate _) compose (write.writes _)
       sym(ex) should === (Valid(ex))
@@ -41,7 +41,7 @@ trait CrossCompile[T] extends WordSpec with Matchers {
         at(p).is(req[Int] andThen min(0) |+| max(100))
       }
 
-      val write = percent[flip[Write]#λ](wg).rmap(upcast)
+      val write = percent[op[Write]#λ](wg).rmap(upcast)
       val rule = percent[Rule](rg)
       val sym = (rule.validate _) compose (write.writes _)
 
@@ -59,8 +59,8 @@ trait CrossCompile[T] extends WordSpec with Matchers {
         Path(p2)
       }
 
-      def write = info[flip[Write]#λ](wg).from[Info].rmap(upcast)
-      def writeInvert = info[flip[Write]#λ](wg.mapPath(f)).from[Info].rmap(upcast)
+      def write = info[op[Write]#λ](wg).from[Info].rmap(upcast)
+      def writeInvert = info[op[Write]#λ](wg.mapPath(f)).from[Info].rmap(upcast)
       def rule = info[Rule](rg).to[Info]
       def ruleInvert = info[Rule](rg.mapPath(f)).to[Info]
 
@@ -128,7 +128,7 @@ trait CrossCompile[T] extends WordSpec with Matchers {
              List("01.23.45.67.89", "98.76.54.32.10"))))
 
       val write =
-        contact[flip[Write]#λ](wg)
+        contact[op[Write]#λ](wg)
       val rule =
         contact[Rule](rg)
 

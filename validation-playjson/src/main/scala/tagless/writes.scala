@@ -5,10 +5,10 @@ package playjson
 import play.api.libs.json.{JsValue, JsObject, JsNumber}
 import jto.validation.playjson.Writes
 
-import types.flip
+import types.op
 
 sealed trait WritesGrammar
-    extends JsonGrammar[flip[Write]#λ]
+    extends JsonGrammar[op[Write]#λ]
     with WriteConstraints
     with WritesTypeclasses[JsValue] {
   self =>
@@ -25,8 +25,8 @@ sealed trait WritesGrammar
         self.at(f(p))
     }
 
-  def at(p: Path): At[flip[Write]#λ, Out, JsValue] =
-    new At[flip[Write]#λ, Out, JsValue] {
+  def at(p: Path): At[op[Write]#λ, Out, JsValue] =
+    new At[op[Write]#λ, Out, JsValue] {
       def run: Write[Option[JsValue], Out] =
         Writes.optionW(Write.zero[JsValue])(Writes.writeJson _)(p)
     }

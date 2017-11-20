@@ -1,7 +1,7 @@
 package jto.validation
 package v3.tagless
 
-trait WriteConstraints extends Constraints[types.flip[Write]#λ] {
+trait WriteConstraints extends Constraints[types.op[Write]#λ] {
   def max[A](a: A)(implicit O: Ordering[A]) = Write.zero
   def min[A](a: A)(implicit O: Ordering[A]) = Write.zero
   def notEmpty = Write.zero

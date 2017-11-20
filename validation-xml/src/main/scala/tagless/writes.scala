@@ -2,7 +2,7 @@ package jto.validation
 package v3.tagless
 package xml
 
-import types.flip
+import types.op
 import jto.validation.xml.{Writes => W}
 
 import shapeless.tag, tag.@@
@@ -10,7 +10,7 @@ import scala.xml.{Null, Text, Attribute, NodeSeq, MetaData, Elem, TopScope}
 import cats.Monoid
 
 sealed trait WritesGrammar
-    extends XmlGrammar[List[XML], flip[Write]#λ]
+    extends XmlGrammar[List[XML], op[Write]#λ]
     with WriteConstraints
     with WritesTypeclasses[List[XML]] {
 
@@ -37,8 +37,8 @@ sealed trait WritesGrammar
     }
 
   // TODO: Non empty Path only
-  def at(p: Path): At[flip[Write]#λ, Out, _I] =
-    new At[flip[Write]#λ, Out, _I] {
+  def at(p: Path): At[op[Write]#λ, Out, _I] =
+    new At[op[Write]#λ, Out, _I] {
 
       def run: Write[Option[_I], Out] =
         Write {
@@ -130,8 +130,8 @@ sealed trait WritesGrammar
       }
     }
 
-  def attr[A](key: String): At[flip[Write]#λ, _I, _I] =
-    new At[flip[Write]#λ, _I, _I] {
+  def attr[A](key: String): At[op[Write]#λ, _I, _I] =
+    new At[op[Write]#λ, _I, _I] {
       def run: Write[Option[_I], _I] =
         Write { mi =>
           val is: _I = mi.getOrElse(Nil)

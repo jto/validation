@@ -5,10 +5,10 @@ package forms
 import jto.validation.forms._
 
 import shapeless.tag.@@
-import types.flip
+import types.op
 
 sealed trait WritesGrammar
-    extends FormGrammar[flip[Write]#λ]
+    extends FormGrammar[op[Write]#λ]
     with WriteConstraints
     with WritesTypeclasses[PM.PM] {
   self =>
@@ -29,8 +29,8 @@ sealed trait WritesGrammar
         self.at(f(p))
     }
 
-  def at(p: Path): At[flip[Write]#λ, Out, PM.PM] =
-    new At[flip[Write]#λ, Out, PM.PM] {
+  def at(p: Path): At[op[Write]#λ, Out, PM.PM] =
+    new At[op[Write]#λ, Out, PM.PM] {
       def run: Write[Option[PM.PM], Out] =
         Write[Option[PM.PM], Out] { opm =>
           val pm: PM.PM = opm.getOrElse[PM.PM](Map.empty)

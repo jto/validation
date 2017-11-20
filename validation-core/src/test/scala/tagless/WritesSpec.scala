@@ -9,7 +9,7 @@ trait WritesSpec[T] extends WordSpec with Matchers {
   type To
 
   val testCases: TestCases[To]
-  val grammar: Grammar[T, types.flip[Write]#λ]
+  val grammar: Grammar[T, types.op[Write]#λ]
   def transform: grammar.Out => To
 
   implicit def equality: Equality[To] = Equality.default

@@ -6,10 +6,10 @@ import cats.{Semigroup, Monoid}
 import cats.arrow.Compose
 import shapeless.{::, HNil}
 import shapeless.tag.@@
-import types.flip
+import types.op
 
-trait WritesTypeclasses[I] extends Typeclasses[I, flip[Write]#λ]{
-  self: Primitives[I, flip[Write]#λ] =>
+trait WritesTypeclasses[I] extends Typeclasses[I, op[Write]#λ]{
+  self: Primitives[I, op[Write]#λ] =>
 
   def asType[H, B](k: Write[H, _ >: Out <: I])(
       implicit G: shapeless.Generic.Aux[B, H]): Write[B, _ >: Out <: I] =
@@ -23,7 +23,7 @@ trait WritesTypeclasses[I] extends Typeclasses[I, flip[Write]#λ]{
   def iMonoid: Monoid[Out]
 
   implicit def composeTC =
-    new Compose[types.flip[Write]#λ] {
+    new Compose[types.op[Write]#λ] {
       def compose[A, B, C0](f: Write[C0, B], g: Write[B, A]): Write[C0, A] =
         f andThen g
     }
@@ -31,7 +31,7 @@ trait WritesTypeclasses[I] extends Typeclasses[I, flip[Write]#λ]{
   import shapeless.{::, HList}
 
   implicit def mergeTC =
-    new Merge[flip[Write]#λ, Out] {
+    new Merge[op[Write]#λ, Out] {
       def merge[A, B <: HList](fa: Write[A, Out], fb: Write[B, Out]): Write[A :: B, Out] =
         Write { case a :: b =>
           val wa = fa.writes(a)
@@ -40,8 +40,8 @@ trait WritesTypeclasses[I] extends Typeclasses[I, flip[Write]#λ]{
         }
     }
 
-  implicit def mergeTCOpt: Merge[types.flip[Write]#λ, Option[Out]] =
-    new Merge[types.flip[Write]#λ, Option[Out]] {
+  implicit def mergeTCOpt: Merge[types.op[Write]#λ, Option[Out]] =
+    new Merge[types.op[Write]#λ, Option[Out]] {
       def merge[A, B <: HList](fa: Write[A, Option[Out]], fb: Write[B, Option[Out]]): Write[A :: B, Option[Out]] =
         Write { case a :: b =>
           val wa = fa.writes(a)
@@ -61,8 +61,8 @@ trait WritesTypeclasses[I] extends Typeclasses[I, flip[Write]#λ]{
     }
 
   import v3.tagless.MkLazy
-  implicit def mkLazy: MkLazy[types.flip[Write]#λ] =
-    new MkLazy[types.flip[Write]#λ] {
+  implicit def mkLazy: MkLazy[types.op[Write]#λ] =
+    new MkLazy[types.op[Write]#λ] {
       def apply[A, B](k: => Write[B, A]): Write[B, A] =
         Write { b => k.writes(b) }
     }

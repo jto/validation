@@ -5,10 +5,10 @@ package jsjson
 import scala.scalajs.js
 import jto.validation.jsjson.Writes
 
-import types.flip
+import types.op
 
 sealed trait WritesGrammar
-    extends JsonGrammar[flip[Write]#λ]
+    extends JsonGrammar[op[Write]#λ]
     with WriteConstraints
     with WritesTypeclasses[js.Dynamic] {
   self =>
@@ -25,8 +25,8 @@ sealed trait WritesGrammar
         self.at(f(p))
     }
 
-  def at(p: Path): At[flip[Write]#λ, Out, js.Dynamic] =
-    new At[flip[Write]#λ, Out, js.Dynamic] {
+  def at(p: Path): At[op[Write]#λ, Out, js.Dynamic] =
+    new At[op[Write]#λ, Out, js.Dynamic] {
       def run: Write[Option[js.Dynamic], Out] =
         Writes.optionW(Write.zero[js.Dynamic])(Writes.writeJson _)(p)
     }

@@ -5,7 +5,7 @@ import shapeless.{ ::, HNil, HList }
 import shapeless.tag.@@
 
 object types {
-  type flip[F[_, _]] = { type λ[B, A] = F[A, B] }
+  type op[F[_, _]] = { type λ[B, A] = F[A, B] }
 }
 
 trait MkLazy[K[_, _]] {

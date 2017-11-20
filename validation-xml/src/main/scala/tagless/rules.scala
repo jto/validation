@@ -170,8 +170,6 @@ sealed trait RulesGrammar
             }
           }
     }
-
-  def toGoal[Repr, A] = _.map { Goal.apply }
 }
 
 object RulesGrammar extends RulesGrammar

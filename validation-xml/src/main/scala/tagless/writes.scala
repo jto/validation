@@ -143,8 +143,6 @@ sealed trait WritesGrammar
         }
     }
 
-  def toGoal[Repr, A]: Write[Repr, Out] => Write[Goal[Repr, A], Out] = ???
-
   def iMonoid: Monoid[Out] =
     new Monoid[Out] {
       def empty: Out = Nil

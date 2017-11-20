@@ -85,9 +85,6 @@ sealed trait WritesGrammar
 
   implicit def traversable[A](implicit k: Write[A, _ >: Out <: PM.PM]) =
     list(k).contramap(_.toList)
-
-  def toGoal[Repr, A]: Write[Repr, Out] => Write[Goal[Repr, A], Out] =
-    _.contramap { _.value }
 }
 
 object WritesGrammar extends WritesGrammar

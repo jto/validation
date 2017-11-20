@@ -97,8 +97,6 @@ sealed trait RulesGrammar
 
   implicit def traversable[A](implicit k: Rule[_ >: Out <: PM.PM, A]) =
     Rules.inT(Rules.traversableR(k))(Path)
-
-  def toGoal[Repr, A] = _.map { Goal.apply }
 }
 
 object RulesGrammar extends RulesGrammar

@@ -7,7 +7,7 @@ import jto.validation.jsonast._
 import types.flip
 
 sealed trait WritesGrammar
-    extends JsonGrammar[Write.Co]
+    extends JsonGrammar[flip[Write]#λ]
     with WriteConstraints
     with WritesTypeclasses[JValue] {
   self =>
@@ -71,9 +71,6 @@ sealed trait WritesGrammar
   implicit def jsString = Write.zero
   implicit def jsNumber = Write.zero
   implicit def jsBoolean = Write.zero
-
-  def toGoal[Repr, A]: Write[Repr, Out] => Write[Goal[Repr, A], Out] =
-    _.contramap { _.value }
 }
 
 object WritesGrammar extends WritesGrammar

@@ -127,11 +127,13 @@ trait CrossCompile[T] extends WordSpec with Matchers {
              Some("fakecontact@gmail.com"),
              List("01.23.45.67.89", "98.76.54.32.10"))))
 
-      val write = contact(wg).rmap(upcast)
-      val rule = contact(rg)
+      val write =
+        contact[flip[Write]#λ](wg)
+      val rule =
+        contact[Rule](rg)
 
       val sym = (rule.validate _) compose (write.writes _)
-      sym(expected) should === (Valid(ex))
+      sym(expected) should === (Valid(expected))
     }
   }
 

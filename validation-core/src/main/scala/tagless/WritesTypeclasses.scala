@@ -11,8 +11,8 @@ import types.op
 trait WritesTypeclasses[I] extends Typeclasses[I, op[Write]#λ]{
   self: Primitives[I, op[Write]#λ] =>
 
-  def asType[H, B](k: Write[H, _ >: Out <: I])(
-      implicit G: shapeless.Generic.Aux[B, H]): Write[B, _ >: Out <: I] =
+  def asType[H, B](k: Write[H, Out])(
+      implicit G: shapeless.Generic.Aux[B, H]) =
     k.contramap(b => G.to(b))
 
   def knil = Write[HNil, Out] { _ => iMonoid.empty }

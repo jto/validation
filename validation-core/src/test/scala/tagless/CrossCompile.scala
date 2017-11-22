@@ -14,10 +14,22 @@ trait CrossCompile[T] extends WordSpec with Matchers {
 
   def upcast: wg.Out <:< rg.Out
 
-  "grammar" should {
-      case class Info(label: String, email: Option[String], phones: Seq[String])
-      val ex = Info("label", Option("fakecontact@gmail.com"), Seq("phone1", "phone2"))
+  case class Info(label: String, email: Option[String], phones: Seq[String])
 
+  val ex = Info("label", Option("fakecontact@gmail.com"), Seq("phone1", "phone2"))
+
+  case class Contact(
+    firstname: String,
+    lastname: String,
+    company: Option[String],
+    informations: Seq[ContactInformation])
+
+  case class ContactInformation(
+    label: String,
+    email: Option[String],
+    phones: Seq[String])
+
+  "grammar" should {
       def info[K[_, _]](g: Grammar[T, K]) = {
         import g._
         at(Path \ "label").is(req[String] andThen notEmpty) ~:
@@ -86,18 +98,7 @@ trait CrossCompile[T] extends WordSpec with Matchers {
     }
 
     "support complex use cases" in {
-      case class Contact(
-        firstname: String,
-        lastname: String,
-        company: Option[String],
-        informations: Seq[ContactInformation])
-
-      case class ContactInformation(
-        label: String,
-        email: Option[String],
-        phones: Seq[String])
-
-      def info[K[_, _]](g: Grammar[T, K]) = {
+      implicit def info[K[_, _]](implicit g: Grammar[T, K]) = {
         import g._
         as[ContactInformation].from {
           at(Path \ "label").is(req[String] andThen notEmpty) ~:
@@ -107,7 +108,7 @@ trait CrossCompile[T] extends WordSpec with Matchers {
         }
       }
 
-      def contact[K[_, _]](g: Grammar[T, K]) = {
+      def contact[K[_, _]](implicit g: Grammar[T, K]) = {
         import g._
         as[Contact].from {
           at(Path \ "firstname").is(req[String] andThen notEmpty) ~:
@@ -128,12 +129,22 @@ trait CrossCompile[T] extends WordSpec with Matchers {
              List("01.23.45.67.89", "98.76.54.32.10"))))
 
       val write =
-        contact[op[Write]#λ](wg)
+        contact[op[Write]#λ](wg).rmap(upcast)
       val rule =
         contact[Rule](rg)
 
       val sym = (rule.validate _) compose (write.writes _)
       sym(expected) should === (Valid(expected))
+    }
+
+    "Automatically derive structure definitions" in {
+      // def info = auto[ContactInformation]
+        // new DerivedK {
+        //   def apply[K[_, _]](implicit g: Grammar[T, K]) = {
+        //     import g._
+        //     ...
+        //   }
+        // }
     }
   }
 

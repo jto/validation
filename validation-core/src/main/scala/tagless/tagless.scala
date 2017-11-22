@@ -54,10 +54,10 @@ trait Primitives[I, K[_, _]] {
   def opt[A](implicit K: K[_ >: Out <: I, A]): K[Option[I], Option[A]]
 
   import shapeless.Generic
-  protected def asType[H, B](k: K[_ >: Out <: I, H])(implicit G: Generic.Aux[B, H]): K[I, B]
+  protected def asType[H, B](k: K[Out, H])(implicit G: Generic.Aux[B, H]): K[Out, B]
 
   final class As[B, H](G: Generic.Aux[B, H]) {
-    def from(k: K[_ >: Out <: I, H]): K[I, B] =
+    def from(k: K[Out, H]): K[Out, B] =
       asType(k)(G)
   }
 

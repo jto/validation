@@ -173,4 +173,43 @@ object MappingMacros {
     c.Expr[Rule[I, O]](
         q"""{ _root_.jto.validation.From[${typeI}] { __ => $body } }""")
   }
+
+  def withGrammar[A: c.WeakTypeTag, G: c.WeakTypeTag, CoDo: c.WeakTypeTag](c: Context)(g: c.Expr[G], gs: c.Expr[Any]*): c.Expr[CoDo] = {
+    import c.universe._
+
+    val helper = new { val context: c.type = c } with Helper
+    import helper._
+
+    val (usingConstructor, constructorParamss) = getConstructorParamss[A]
+
+    val ks =
+      for {
+        g <- constructorParamss.headOption.toList;
+        p <- g
+      } yield {
+        val term = p.asTerm
+        val name = q"""${term.name.toString}"""
+        term.typeSignature match {
+          case t if t <:< typeOf[Option[_]] =>
+            val tn = t.dealias.typeArgs.head
+            q"""at(Path \ $name).is(opt[$tn])(composeTC, mkLazy)"""
+          case t =>
+            q"""at(Path \ $name).is(req[${term.typeSignature}])(composeTC, mkLazy)"""
+        }
+      }
+
+    val body = {
+      val rks = ks.reverse
+      val h = rks.head
+      rks.tail.foldLeft(q"mergeTC.merge($h, knil)") { (k1, k2) =>
+        q"mergeTC.merge($k2, $k1)"
+      }
+    }
+
+    val typeA = weakTypeOf[A].dealias
+    val imports = (g :: gs.toList).map { i => q"""import $i._;""" }
+    val completeBody = q"""{ ..$imports; as[$typeA].from { $body } }"""
+    println(completeBody)
+    c.Expr[CoDo](completeBody)
+  }
 }

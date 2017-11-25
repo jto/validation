@@ -129,3 +129,7 @@ trait Grammar[I, K[_, _]]
   extends Primitives[I, K]
   with Typeclasses[I, K]
   with Constraints[K]
+
+object Grammar {
+  type Aux[I, K[_, _], Out0] = Grammar[I, K]{ type Out = Out0 }
+}

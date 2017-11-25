@@ -1,5 +1,5 @@
 language: scala
-scala: 2.11.8
+scala: 2.12.4
 jdk: oraclejdk8
 sbt_args: "-J-Xmx2G"
 

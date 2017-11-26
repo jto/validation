@@ -36,7 +36,7 @@ trait Rules extends DefaultRules[Delimited] with ParsingRules {
       implicit r: RuleLike[String, O]): Rule[Delimited, O] =
     Rule[Delimited, String] { delimited =>
       p.path match {
-        case IdxPathNode(i) :: t if i < delimited.length => Valid(delimited(i))
+        case IdxPathNode(i) :: t if i < delimited.length => Valid(p -> delimited(i))
         case _ => Invalid(Seq(Path -> Seq(ValidationError("error.required"))))
       }
     }.andThen(r)
@@ -81,12 +81,14 @@ trait Rules extends DefaultRules[Delimited] with ParsingRules {
           (pick(path).validate(delimited).map(Some.apply) orElse Valid(None))
         Validated.fromEither(
             v.toEither.right.flatMap {
-              case None => Right(None)
+              case None =>
+                Right(path -> None)
               case Some(i) =>
                 isNone
                   .orElse(Rule.toRule(coerce).map[Option[O]](Some.apply))
                   .validate(i)
                   .toEither
+                  .map(path -> _)
             }
         )
     }

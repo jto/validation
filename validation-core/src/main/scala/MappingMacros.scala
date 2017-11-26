@@ -176,7 +176,6 @@ object MappingMacros {
 
   def withGrammar[A: c.WeakTypeTag, G: c.WeakTypeTag, CoDo: c.WeakTypeTag](c: Context)(g: c.Expr[G], gs: c.Expr[Any]*): c.Expr[CoDo] = {
     import c.universe._
-
     val helper = new { val context: c.type = c } with Helper
     import helper._
 
@@ -209,7 +208,6 @@ object MappingMacros {
     val typeA = weakTypeOf[A].dealias
     val imports = (g :: gs.toList).map { i => q"""import $i._;""" }
     val completeBody = q"""{ ..$imports; as[$typeA].from { $body } }"""
-    println(completeBody)
     c.Expr[CoDo](completeBody)
   }
 }

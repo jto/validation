@@ -207,16 +207,16 @@ trait CrossCompile[T] extends WordSpec with Matchers {
         val sym1 = (rule1.validate _) compose (write1.writes _)
         sym1(case1) should === (Valid(case1))
 
-
-        case class Case2(i: Int, s: String)
-        val case2 = Case2(1, "foo")
-        val auto2 = Auto[Case2]
-        val rule2 = auto2(rg)
-        val write2 = auto2[T, op[Write]#λ, wg.Out](wg).rmap(upcast)
-        val sym2 = (rule2.validate _) compose (write2.writes _)
-        sym2(case2) should === (Valid(case2))
+        // case class Case2(i: Int, s: String)
+        // val case2 = Case2(1, "foo")
+        // val auto2 = Auto[Case2]
+        // val rule2 = auto2(rg)
+        // val write2 = auto2[T, op[Write]#λ, wg.Out](wg).rmap(upcast)
+        // val sym2 = (rule2.validate _) compose (write2.writes _)
+        // sym2(case2) should === (Valid(case2))
       }
 
+      /*
       "support simple cases using extended grammar" in {
         import NelExt._
         case class CaseExtended(i: Int, s: Option[String], nel: Nel[Int])
@@ -253,6 +253,7 @@ trait CrossCompile[T] extends WordSpec with Matchers {
         val sym = (rule.validate _) compose (write.writes _)
         sym(info) should === (Valid(info))
       }
+      */
 
     }
   }

@@ -178,8 +178,8 @@ val dependencies = Seq(
 )
 
 val generateBoilerplate = Seq(
-  sourceGenerators in Compile <+= (sourceManaged in Compile).map(
-    Boilerplate.gen)
+  sourceGenerators in Compile +=
+    (sourceManaged in Compile).map(Boilerplate.gen).taskValue
 )
 
 val doPublish = Seq(
@@ -204,8 +204,8 @@ val doPublish = Seq(
 )
 
 val dontPublish = Seq(
-  publish := (),
-  publishLocal := (),
+  publish := (()),
+  publishLocal := (()),
   publishArtifact := false
 )
 

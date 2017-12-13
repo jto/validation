@@ -126,39 +126,14 @@ lazy val settings = Seq(
   scalaVersion := scalacVersion,
   crossScalaVersions := Seq("2.11.8"),
   organization := org,
-  scalacOptions ++= commonScalacOptions,
-  scalacOptions in (Compile, console) ~= (_ filterNot { o =>
-    o == "-Ywarn-unused-import" ||
-    o == "-Xfatal-warnings" ||
-    o == "-Xlint"
-  }),
+  scalacOptions ++= Scalac.commonOptions,
+  scalacOptions in (Compile, console) --= Scalac.consoleOptionsExcludes,
   scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value,
   resolvers ++= commonResolvers,
   testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
   scalaJSStage in Global := FastOptStage,
   parallelExecution := false,
   scalafmtOnCompile := true
-)
-
-val commonScalacOptions = Seq(
-  "-deprecation",
-  "-encoding",
-  "UTF-8",
-  "-feature",
-  "-language:existentials",
-  "-language:higherKinds",
-  "-language:implicitConversions",
-  "-language:experimental.macros",
-  "-language:postfixOps",
-  "-unchecked",
-  "-Xfatal-warnings",
-  "-Xlint",
-  "-Yno-adapted-args",
-  // "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen",
-  "-Ywarn-value-discard",
-  "-Ywarn-unused-import",
-  "-Xfuture"
 )
 
 val commonResolvers = Seq(

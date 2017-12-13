@@ -102,7 +102,7 @@ trait Writes
   implicit def writeJson[I](path: Path)(
       implicit w: WriteLike[I, JsValue]): Write[I, JsObject] = Write { i =>
     path match {
-      case Path(KeyPathNode(x) :: _) \: _ =>
+      case Path(KeyPathNode(_) :: _) \: _ =>
         val ps = path.path.reverse
         val h = ps.head
         val o = writeObj(w.writes(i), h)

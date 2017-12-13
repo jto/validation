@@ -242,7 +242,7 @@ trait GenericRules {
   def not[I, O](r: RuleLike[I, O]) =
     Rule[I, I] { d =>
       r.validateWithPath(d) match {
-        case Valid((p, _)) => Invalid(Nil)
+        case Valid((_, _)) => Invalid(Nil)
         case Invalid(_) => Valid(Path -> d)
       }
     }

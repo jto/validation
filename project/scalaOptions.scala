@@ -50,6 +50,7 @@ object Scalac {
   )
 
   def consoleOptionsExcludes = List(
+      "-Ywarn-unused:params",
       "-Ywarn-unused-import",
       "-Xfatal-warnings",
       "-Xlint"

@@ -19,7 +19,7 @@ trait Rules extends DefaultRules[JsValue] {
       msg: String,
       args: Any*) =
     Rule.fromMapping[JsValue, T](f.orElse {
-      case j => Invalid(Seq(ValidationError(msg, args: _*)))
+      case _ => Invalid(Seq(ValidationError(msg, args: _*)))
     })
 
   implicit def stringR =

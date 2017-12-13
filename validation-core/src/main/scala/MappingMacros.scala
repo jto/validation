@@ -179,7 +179,7 @@ object MappingMacros {
     val helper = new { val context: c.type = c } with Helper
     import helper._
 
-    val (usingConstructor, constructorParamss) = getConstructorParamss[A]
+    val (_, constructorParamss) = getConstructorParamss[A]
 
     val ks =
       for {
@@ -192,7 +192,7 @@ object MappingMacros {
           case t if t <:< typeOf[Option[_]] =>
             val tn = t.dealias.typeArgs.head
             q"""at(Path \ $name).is(opt[$tn])(composeTC, mkLazy)"""
-          case t =>
+          case _ =>
             q"""at(Path \ $name).is(req[${term.typeSignature}])(composeTC, mkLazy)"""
         }
       }

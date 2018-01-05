@@ -10,7 +10,7 @@ trait Rules extends DefaultRules[js.Dynamic] {
       msg: String,
       args: Any*) =
     Rule.fromMapping[js.Dynamic, T](f.orElse {
-      case j => Invalid(Seq(ValidationError(msg, args: _*)))
+      case _ => Invalid(Seq(ValidationError(msg, args: _*)))
     })
 
   implicit def stringR =

@@ -46,7 +46,7 @@ sealed trait RulesGrammar
           search(Path(tail), ns)
         }
 
-      case IdxPathNode(idx) :: tail =>
+      case IdxPathNode(_) :: _ =>
         // TODO: check this one
         ???
       // (node \ "_")

@@ -92,8 +92,8 @@ object PM {
   def asKey(p: Path): String =
     p.path.headOption.toList.map(asNodeKey).mkString ++ p.path.tail
       .foldLeft("") {
-      case (path, n @ IdxPathNode(i)) => path + asNodeKey(n)
-      case (path, n @ KeyPathNode(k)) => path + "." + asNodeKey(n)
+      case (path, n @ IdxPathNode(_)) => path + asNodeKey(n)
+      case (path, n @ KeyPathNode(_)) => path + "." + asNodeKey(n)
     }
 
   /**
@@ -123,10 +123,11 @@ trait Rules extends DefaultRules[PM.PM] with ParsingRules {
   private val isEmpty = validateWith[PM]("validation.empty") { pm =>
     pm.filter { case (_, vs) => !vs.isEmpty }.isEmpty
   }
+
   implicit def optionR[O](
       implicit pick: Path => RuleLike[PM, PM],
       coerce: RuleLike[PM, O]): Path => Rule[PM, Option[O]] =
-    opt(coerce, isEmpty)
+    opt(coerce, isEmpty)(pick, Rule.zero)
 
   def optionR[J, O](r: => RuleLike[J, O], noneValues: RuleLike[PM, PM]*)(
       implicit pick: Path => RuleLike[PM, PM],
@@ -160,7 +161,7 @@ trait Rules extends DefaultRules[PM.PM] with ParsingRules {
             case (Path(IdxPathNode(i) :: Nil) \: t, v) => Seq(i -> Map(t -> v))
             case _ => Nil
           }.groupBy(_._1).toSeq.sortBy(_._1).map {
-            case (i, pms) =>
+            case (_, pms) =>
               pms.map(_._2).foldLeft(Map.empty[Path, String]) { _ ++ _ }
           }
 

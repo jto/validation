@@ -78,7 +78,7 @@ sealed trait RulesGrammar
       import cats.instances.list._
       import cats.syntax.traverse._
       pm.toList.map {
-        case (Path, s) =>
+        case (Path, _) =>
           // Ignore values at root Path. Is that a desirable behaviour ?
           // Should it trigger a validation error ?
           Valid(Nil)

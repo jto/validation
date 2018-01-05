@@ -131,7 +131,7 @@ trait CrossCompile[T] extends WordSpec with Matchers {
 
     "support complex use cases" in {
 
-      implicit def info[K[_, _]](implicit g: Grammar[T, K]) = {
+      def info[K[_, _]](g: Grammar[T, K]) = {
         import g._
         as[ContactInformation].from {
           at(Path \ "label").is(req[String] andThen notEmpty) ~:
@@ -141,7 +141,7 @@ trait CrossCompile[T] extends WordSpec with Matchers {
         }
       }
 
-      def contact[K[_, _]](implicit g: Grammar[T, K]) = {
+      def contact[K[_, _]](g: Grammar[T, K]) = {
         import g._
         as[Contact].from {
           at(Path \ "firstname").is(req[String] andThen notEmpty) ~:
@@ -153,7 +153,7 @@ trait CrossCompile[T] extends WordSpec with Matchers {
       }
 
       val write = contact[op[Write]#λ](wg).rmap(upcast)
-      val rule = contact[Rule](rg)
+      val rule = contact(rg)
 
       val sym = (rule.validate _) compose (write.writes _)
       sym(expectedContact) should === (Valid(expectedContact))

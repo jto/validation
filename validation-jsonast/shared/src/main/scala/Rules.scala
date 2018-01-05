@@ -8,7 +8,7 @@ trait Rules extends DefaultRules[JValue] {
       f: PartialFunction[JValue, Validated[Seq[ValidationError], T]])(
       msg: String, args: Any*): Rule[JValue, T] @@ Root =
     Rule.fromMapping[JValue, T](f.orElse {
-      case j => Invalid(Seq(ValidationError(msg, args: _*)))
+      case _ => Invalid(Seq(ValidationError(msg, args: _*)))
     })
 
   implicit def stringR =

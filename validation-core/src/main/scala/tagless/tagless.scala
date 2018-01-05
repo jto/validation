@@ -131,5 +131,5 @@ trait Grammar[I, K[_, _]]
   with Constraints[K]
 
 object Grammar {
-  type Aux[I, K[_, _], Out0] = Grammar[I, K]{ type Out = Out0 }
+  type Aux[I, K[_, _], Out0 <: I] = Grammar[I, K]{ type Out = Out0 }
 }

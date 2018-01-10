@@ -148,9 +148,9 @@ trait Rules extends DefaultRules[PM.PM] with ParsingRules {
 
   implicit def inArray[O: scala.reflect.ClassTag](
       implicit r: RuleLike[Seq[PM], Array[O]]): Path => Rule[PM, Array[O]] =
-    inT[O, Traversable](Rule.toRule(r).map(_.toTraversable))(_).map(_.toArray)
+    inT[O, Seq](Rule.toRule(r).map(_.toSeq))(_).map(_.toArray)
 
-  implicit def inT[O, T[_] <: Traversable[_]](
+  private def inTraversable[O, T[_] <: Traversable[_]](
       implicit r: RuleLike[Seq[PM], T[O]]): Path => Rule[PM, T[O]] =
     path =>
       pickInPM(path)(Rule.zero)
@@ -167,6 +167,12 @@ trait Rules extends DefaultRules[PM.PM] with ParsingRules {
           (root +: arrays).filter(!_.isEmpty)
         }
         .andThen(r)
+
+  implicit def inT[O, T[_] <: Seq[_]](implicit r: RuleLike[Seq[PM], T[O]]): Path => Rule[PM, T[O]] =
+    inTraversable
+
+  implicit def inSet[O, T[_] <: Set[_]](implicit r: RuleLike[Seq[PM], T[O]]): Path => Rule[PM, T[O]] =
+    inTraversable
 
   implicit def pickInPM[O](p: Path)(implicit r: RuleLike[PM, O]): Rule[PM, O] =
     Rule[PM, PM] { pm =>

@@ -249,22 +249,6 @@ class RulesSpec extends WordSpec with Matchers {
                         ValidationError("error.number", "Int")))))
       }
 
-      "Traversable" in {
-        From[UrlFormEncoded] { __ =>
-          (__ \ "n").read[Traversable[String]]
-        }.validate(Map("n" -> Seq("foo"))).toOption.get.toSeq shouldBe (Seq(
-                "foo"))
-        From[UrlFormEncoded] { __ =>
-          (__ \ "n").read[Traversable[Int]]
-        }.validate(Map("n[]" -> Seq("1", "2", "3"))).toOption.get.toSeq shouldBe (Seq(
-                1, 2, 3))
-        From[UrlFormEncoded] { __ =>
-          (__ \ "n").read[Traversable[Int]]
-        }.validate(Map("n[]" -> Seq("1", "paf"))) shouldBe (Invalid(
-                Seq(Path \ "n" \ 1 -> Seq(
-                        ValidationError("error.number", "Int")))))
-      }
-
       "Array" in {
         From[UrlFormEncoded] { __ =>
           (__ \ "n").read[Array[String]]
@@ -352,19 +336,7 @@ class RulesSpec extends WordSpec with Matchers {
     }
 
     "validate deep here" in {
-      // val p = (Path \ "informations" \ "label")
-
-      // From[UrlFormEncoded] { __ =>
-      //   (__ \ "informations").read(
-      //     (__ \ "label").read(notEmpty)
-      //   )(p => convertToInM(p)(pickInPM[UrlFormEncoded] _))
-      // }.validate(valid) shouldBe (Valid("Personal"))
-
-      //  From[UrlFormEncoded] { __ =>
-      //   (__ \ "informations").read(
-      //     (__ \ "label").read(notEmpty)
-      //   )(p => convertToInM(p)(inT))
-      // }.validate(valid) shouldBe (Valid("Personal"))
+      val p = (Path \ "informations" \ "label")
 
       From[UrlFormEncoded] { __ =>
         (__ \ "informations").read(
@@ -372,10 +344,10 @@ class RulesSpec extends WordSpec with Matchers {
         )
       }.validate(valid) shouldBe (Valid("Personal"))
 
-      // From[UrlFormEncoded] { __ =>
-      //   (__ \ "informations").read((__ \ "label").read(notEmpty))
-      // }.validate(invalid) shouldBe (Invalid(
-      //         Seq(p -> Seq(ValidationError("error.required")))))
+      From[UrlFormEncoded] { __ =>
+        (__ \ "informations").read((__ \ "label").read(notEmpty))
+      }.validate(invalid) shouldBe (Invalid(
+              Seq(p -> Seq(ValidationError("error.required")))))
     }
 
     "validate deep optional" in {

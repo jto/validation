@@ -351,17 +351,31 @@ class RulesSpec extends WordSpec with Matchers {
       }.validate(valid) shouldBe (Valid(None))
     }
 
-    "validate deep" in {
-      val p = (Path \ "informations" \ "label")
+    "validate deep here" in {
+      // val p = (Path \ "informations" \ "label")
+
+      // From[UrlFormEncoded] { __ =>
+      //   (__ \ "informations").read(
+      //     (__ \ "label").read(notEmpty)
+      //   )(p => convertToInM(p)(pickInPM[UrlFormEncoded] _))
+      // }.validate(valid) shouldBe (Valid("Personal"))
+
+      //  From[UrlFormEncoded] { __ =>
+      //   (__ \ "informations").read(
+      //     (__ \ "label").read(notEmpty)
+      //   )(p => convertToInM(p)(inT))
+      // }.validate(valid) shouldBe (Valid("Personal"))
 
       From[UrlFormEncoded] { __ =>
-        (__ \ "informations").read((__ \ "label").read(notEmpty))
+        (__ \ "informations").read(
+          (__ \ "label").read(notEmpty)
+        )
       }.validate(valid) shouldBe (Valid("Personal"))
 
-      From[UrlFormEncoded] { __ =>
-        (__ \ "informations").read((__ \ "label").read(notEmpty))
-      }.validate(invalid) shouldBe (Invalid(
-              Seq(p -> Seq(ValidationError("error.required")))))
+      // From[UrlFormEncoded] { __ =>
+      //   (__ \ "informations").read((__ \ "label").read(notEmpty))
+      // }.validate(invalid) shouldBe (Invalid(
+      //         Seq(p -> Seq(ValidationError("error.required")))))
     }
 
     "validate deep optional" in {

@@ -229,7 +229,7 @@ trait GenericRules {
     *   (Path \ "foo").read(headAs(int))
     * }}}
     */
-  implicit def headAs[I, O](implicit c: RuleLike[I, O]) =
+  implicit def headAs[I, O](implicit c: RuleLike[I, O]): Rule[Seq[I], O] =
     Rule
       .fromMapping[Seq[I], I] {
         _.headOption

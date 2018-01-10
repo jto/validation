@@ -164,7 +164,6 @@ trait Rules extends DefaultRules[PM.PM] with ParsingRules {
             case (_, pms) =>
               pms.map(_._2).foldLeft(Map.empty[Path, String]) { _ ++ _ }
           }
-
           (root +: arrays).filter(!_.isEmpty)
         }
         .andThen(r)

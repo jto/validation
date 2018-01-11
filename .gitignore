@@ -27,3 +27,4 @@ npm-debug.log
 docs/tut*
 .ensime_cache
 .ensime
+.vscode

@@ -4,7 +4,6 @@ package v3.tagless
 import shapeless.{::, HList, HNil}
 import shapeless.tag.@@
 import cats.Semigroup
-import cats.syntax.apply._
 
 trait RulesTypeclasses[I] extends Typeclasses[I, Rule]{
   self: Primitives[I, Rule] =>
@@ -25,16 +24,6 @@ trait RulesTypeclasses[I] extends Typeclasses[I, Rule]{
       def merge[A, B <: HList](fa: Rule[Out, A], fb: Rule[Out, B]): Rule[Out, A :: B] = {
         Rule.applicativeRule.map2(fa, fb)(_ :: _)
       }
-    }
-
-  implicit def mergeTCOpt: Merge[Rule, Option[Out]] =
-    new Merge[Rule, Option[Out]] {
-      def merge[A, B <: HList](fa: Rule[Option[Out], A],fb: Rule[Option[Out], B]): Rule[Option[Out], A :: B] =
-        Rule { mx =>
-          (fa.validate(mx), fb.validate(mx)).mapN { (a, b) =>
-            (Path, a :: b)
-          }
-        }
     }
 
   implicit def semigroupTC[I0, O]: Semigroup[Rule[I0, O] @@ Root] =

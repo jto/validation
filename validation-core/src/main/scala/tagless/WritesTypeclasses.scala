@@ -39,22 +39,7 @@ trait WritesTypeclasses[I] extends Typeclasses[I, op[Write]#λ]{
           iMonoid.combine(wa, wb)
         }
     }
-
-  implicit def mergeTCOpt: Merge[types.op[Write]#λ, Option[Out]] =
-    new Merge[types.op[Write]#λ, Option[Out]] {
-      def merge[A, B <: HList](fa: Write[A, Option[Out]], fb: Write[B, Option[Out]]): Write[A :: B, Option[Out]] =
-        Write { case a :: b =>
-          val wa = fa.writes(a)
-          val wb = fb.writes(b)
-          (wa, wb) match {
-            case (None, None) => None
-            case (None, b) => b
-            case (a, None) => a
-            case (Some(a), Some(b)) => Some(iMonoid.combine(a, b))
-          }
-        }
-    }
-
+    
   implicit def semigroupTC[I0, O]: Semigroup[Write[O, I0] @@ Root] =
     new Semigroup[Write[O, I0] @@ Root] {
       def combine(x: Write[O, I0] @@ Root, y: Write[O, I0] @@ Root): Write[O, I0] @@ Root = x

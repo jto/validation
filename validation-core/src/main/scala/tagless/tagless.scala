@@ -4,8 +4,10 @@ package v3.tagless
 import shapeless.{ ::, HNil, HList }
 import shapeless.tag.@@
 
-object types {
+final object types {
   type op[F[_, _]] = { type λ[B, A] = F[A, B] }
+  type snd[F[_]] = { type λ[A, B] = F[B] }
+  type Ignored = Nothing
 }
 
 trait MkLazy[K[_, _]] {
@@ -105,7 +107,6 @@ trait Typeclasses[I, K[_, _]] extends LowPriorityTypeClasses[I, K] {
   implicit def composeTC: Compose[K]
   implicit def semigroupTC[I0, O]: cats.Semigroup[K[I0, O] @@ Root]
   implicit def mergeTC: Merge[K, Out]
-  implicit def mergeTCOpt: Merge[K, Option[Out]]
   implicit def toMergeOps[B <: HList, O: Merge[K, ?]](fb: K[O, B]): MergeOps[K, O, B] =
     MergeOps[K, O, B](fb)
 }

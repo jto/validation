@@ -90,8 +90,7 @@ object MappingMacros {
     }
   }
 
-  def write[I: c.WeakTypeTag, O: c.WeakTypeTag](
-      c: Context): c.Expr[Write[I, O]] = {
+  def write[I: c.WeakTypeTag, O: c.WeakTypeTag](c: Context): c.Expr[Write[I, O]] = {
     import c.universe._
 
     val helper = new { val context: c.type = c } with Helper

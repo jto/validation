@@ -35,8 +35,8 @@ trait CrossCompile[T] extends WordSpec with Matchers {
           None,
           Seq(
             ContactInformation("Personal",
-             Some("fakecontact@gmail.com"),
-             List("01.23.45.67.89", "98.76.54.32.10"))))
+              Some("fakecontact@gmail.com"),
+              List("01.23.45.67.89", "98.76.54.32.10"))))
 
   object NelExt {
     import cats.data._
@@ -243,10 +243,10 @@ trait CrossCompile[T] extends WordSpec with Matchers {
           email: Option[String],
           phones: Nel[String])
 
-         val info =
+        val info =
             ContactInformationNel("Personal",
-             Option("fakecontact@gmail.com"),
-             nel("01.23.45.67.89", "98.76.54.32.10"))
+              Option("fakecontact@gmail.com"),
+              nel("01.23.45.67.89", "98.76.54.32.10"))
 
         val auto = Auto[ContactInformationNel]
         val rule = auto(rg, ExtRules)

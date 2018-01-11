@@ -99,6 +99,7 @@ trait Rule[I, O] extends RuleLike[I, O] {
 
 object Rule {
 
+  @deprecated("Rule generation using macros from validation v2 will be removed. Use validation v3 macros", "3.0.0")
   def gen[I, O]: Rule[I, O] = macro MappingMacros.rule[I, O]
 
   /**

@@ -49,6 +49,7 @@ trait Write[I, +O] extends WriteLike[I, O] {
 
 object Write {
 
+  @deprecated("Write generation using macros from validation v2 will be removed. Use validation v3 macros", "3.0.0")
   def gen[I, O]: Write[I, O] = macro MappingMacros.write[I, O]
 
   def apply[I, O](w: I => O): Write[I, O] @@ Root =

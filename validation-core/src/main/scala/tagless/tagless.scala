@@ -7,7 +7,6 @@ import shapeless.tag.@@
 final object types {
   type op[F[_, _]] = { type λ[B, A] = F[A, B] }
   type snd[F[_]] = { type λ[A, B] = F[B] }
-  type Ignored = Nothing
 }
 
 trait MkLazy[K[_, _]] {

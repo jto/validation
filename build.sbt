@@ -79,6 +79,16 @@ lazy val `validation-playjson` = project
   .dependsOn(coreJVM)
   .dependsOn(coreJVM % "test->test")
 
+lazy val `validation-openapi` = project
+  .settings(validationSettings: _*)
+  .settings(
+    libraryDependencies ++= List(
+      "io.swagger" % "swagger-core" % "2.0.0-rc2",
+      "io.swagger" % "swagger-models" % "2.0.0-rc2"
+    ))
+  .dependsOn(coreJVM)
+  .dependsOn(coreJVM % "test->test")
+
 lazy val `validation-xml` = project
   .settings(validationSettings: _*)
   .settings(libraryDependencies +=

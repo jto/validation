@@ -17,8 +17,8 @@ trait Merge[K[_, _], Out] {
   def merge[A, B <: HList](fa: K[Out, A], fb: K[Out, B]): K[Out, A :: B]
 }
 
-case class MergeOps[K[_, _], Out, B <: HList](fb: K[Out, B])(implicit M: Merge[K, Out]) {
-  def ~:[A](fa: K[Out, A]): K[Out, A :: B] = M.merge(fa, fb)
+case class MergeOps[K[_, _], Out0, B <: HList](fb: K[Out0, B])(implicit M: Merge[K, Out0]) {
+  def ~:[A](fa: K[Out0, A]): K[Out0, A :: B] = M.merge(fa, fb)
 }
 
 trait Primitives[I, K[_, _]] {
@@ -33,7 +33,7 @@ trait Primitives[I, K[_, _]] {
     })
 
   @inline protected def mapKeyPath(f: String => String) =
-     mapPath { p =>
+    mapPath { p =>
       val ns =
         p.path.map {
           case KeyPathNode(n) => KeyPathNode(f(n))
@@ -106,8 +106,8 @@ trait Typeclasses[I, K[_, _]] extends LowPriorityTypeClasses[I, K] {
   implicit def composeTC: Compose[K]
   implicit def semigroupTC[I0, O]: cats.Semigroup[K[I0, O] @@ Root]
   implicit def mergeTC: Merge[K, Out]
-  implicit def toMergeOps[B <: HList, O: Merge[K, ?]](fb: K[O, B]): MergeOps[K, O, B] =
-    MergeOps[K, O, B](fb)
+  implicit def toMergeOps[B <: HList](fb: K[Out, B]): MergeOps[K, Out, B] =
+    MergeOps[K, Out, B](fb)(mergeTC)
 }
 
 trait Constraints[K[_, _]] {

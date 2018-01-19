@@ -51,12 +51,12 @@ private[openapi] sealed trait PropTree
 private[openapi] final case class Props(`type`: Property.Type,
                                         ps: List[Property])
     extends PropTree
-private[openapi] final case class Obj(ps: List[PropTree.Named]) extends PropTree
+private[openapi] final case class Obj(properties: List[Property],
+                                      children: List[PropTree.Named])
+    extends PropTree
 
 object PropTree {
-  private[openapi] final case class Named(name: String,
-                                          properties: List[Property],
-                                          children: PropTree)
+  private[openapi] final case class Named(name: String, children: PropTree)
 }
 
 sealed trait UntypedSchema {
@@ -72,90 +72,15 @@ final case class Schema[X, A] private[openapi] (
   import io.swagger.util.{Yaml, Json}
   import com.fasterxml.jackson.databind.node.ObjectNode
 
-  /**
-    * Turn the schema into a flat list of localized properties
-    */
-  private def addRoot(root: Path)(ps: List[(Path, Property)]) =
-    for {
-      (path, p) <- ps
-    } yield (root ++ path, p)
-
-  /**
-    * Turn the flat structure in a tree where nodes are grouped by name
-    */
-  private def toTree(ps: List[(Path, Property)]): PropTree = {
-    ps.partition { _._1 == Path } match {
-      case (r0, Nil) =>
-        val root = r0.map(_._2)
-        // XXX: type lookup is a bit unsafe...
-        val (types, prop) = root.partition {
-          case Property.Type(_) => true
-          case _                => false
-        }
-        val ts = types.collect { case t @ Property.Type(_) => t }
-        Props(ts.head, root)
-      case (root, objs) =>
-        val ts =
-          objs
-            .groupBy { _._1.path.head }
-            .toList
-            .collect {
-              // TODO: IdxPathNode ???
-              case (KeyPathNode(name), ps0) =>
-                val props = root.map(_._2)
-                val subtree =
-                  ps0.map { case (Path(_ :: t), p) => (Path(t), p) }
-                PropTree.Named(name, props, toTree(subtree))
-            }
-        Obj(ts)
-    }
-  }
-
-  /**
-    * Turn the internal tree into a Java Schema.
-    */
-  private def updateSchema(s: ASchema[_])(ps: List[Property]): ASchema[_] = {
-    ps.foreach {
-      case Property.Type(_)   => ()
-      case Property.Format(f) => s.setFormat(f)
-      case Property.Required  => () // TODO: add required on parent ?
-      case Property.NoProp    => ()
-    }
-    s
-  }
-
-  /**
-    * Turn the internal tree into a Java Schema.
-    */
-  private def toSchema(tree: PropTree): ASchema[_] = tree match {
-    case Props(Property.Integer, ps) => updateSchema(new IntegerSchema)(ps)
-    case Props(Property.Number, ps)  => updateSchema(new NumberSchema)(ps)
-    case Props(Property.String, ps)  => updateSchema(new StringSchema)(ps)
-    case Props(Property.Boolean, ps) => updateSchema(new BooleanSchema)(ps)
-
-    case Obj(ps) =>
-      val obj = new ObjectSchema()
-      ps.foreach {
-        case PropTree.Named(name, properties, children) =>
-          obj.addProperties(name, toSchema(children))
-          updateSchema(obj)(properties)
-      }
-      obj
-  }
-
-  private def aSchema: ASchema[_] = {
-    val props = addRoot(root)(properties)
-    val tree = toTree(props)
-    toSchema(tree)
-  }
-
   // TODO: use a better type than String
   def yaml: String = {
+    val aSchema = SchemaOps.aSchema(this)
     val o = Yaml.mapper.convertValue(aSchema, classOf[ObjectNode])
     Yaml.pretty(o)
   }
 
   def json: String = {
+    val aSchema = SchemaOps.aSchema(this)
     val o = Json.mapper.convertValue(aSchema, classOf[ObjectNode])
     Json.pretty(o)
   }
@@ -170,4 +95,102 @@ object Schema {
 
   def root[X, A](p: Property*) =
     tag[Root](Schema[X, A](Path, p.map(Path -> _).toList))
+}
+
+private[openapi] object SchemaOps {
+
+  /**
+    * Turn the schema into a flat list of localized properties
+    */
+  def addRoot(root: Path)(ps: List[(Path, Property)]) =
+    for {
+      (path, p) <- ps
+    } yield (root ++ path, p)
+
+  /**
+    * Turn the flat structure in a tree where nodes are grouped by name
+    */
+  def toTree(ps: List[(Path, Property)]): PropTree = {
+    ps.partition { _._1 == Path } match {
+      case (r0, Nil) =>
+        val root = r0.map(_._2)
+        // XXX: type lookup is a bit unsafe...
+        val (types, prop) = root.partition {
+          case Property.Type(_) => true
+          case _                => false
+        }
+        val ts = types.collect { case t @ Property.Type(_) => t }
+        Props(ts.head, root)
+      case (root, objs) =>
+        val props = root.map(_._2)
+        val ts =
+          objs
+            .groupBy { _._1.path.head }
+            .toList
+            .collect {
+              // TODO: IdxPathNode ???
+              case (KeyPathNode(name), ps0) =>
+                val subtree =
+                  ps0.map { case (Path(_ :: t), p) => (Path(t), p) }
+                PropTree.Named(name, toTree(subtree))
+            }
+        Obj(props, ts)
+    }
+  }
+
+  /**
+    * Turn the internal tree into a Java Schema.
+    */
+  def updateSchema(s: ASchema[_])(ps: List[Property]): ASchema[_] = {
+    ps.foreach {
+      case Property.Type(_)   => ()
+      case Property.Format(f) => s.setFormat(f)
+      case Property.Required  => () // TODO: add required on parent ?
+      case Property.NoProp    => ()
+    }
+    s
+  }
+
+  /**
+    * Turn the internal tree into a Java Schema.
+    */
+  def toSchema(tree: PropTree): ASchema[_] = tree match {
+    case Props(Property.Integer, ps) =>
+      updateSchema(new IntegerSchema)(ps)
+    case Props(Property.Number, ps) =>
+      updateSchema(new NumberSchema)(ps)
+    case Props(Property.String, ps) =>
+      updateSchema(new StringSchema)(ps)
+    case Props(Property.Boolean, ps) =>
+      updateSchema(new BooleanSchema)(ps)
+
+    case Obj(props, children) =>
+      import scala.collection.JavaConverters._
+      val obj = new ObjectSchema()
+      updateSchema(obj)(props)
+
+      val requireds =
+        children.collect {
+          case PropTree.Named(name, Props(_, subProps))
+              if subProps.contains(Property.Required) =>
+            name
+          case PropTree.Named(name, Obj(subProps, _))
+              if subProps.contains(Property.Required) =>
+            name
+        }
+
+      obj.setRequired(requireds.asJava)
+
+      children.foreach {
+        case PropTree.Named(name, children) =>
+          obj.addProperties(name, toSchema(children))
+      }
+      obj
+  }
+
+  def aSchema(sc: UntypedSchema): ASchema[_] = {
+    val props = addRoot(sc.root)(sc.properties)
+    val tree = toTree(props)
+    toSchema(tree)
+  }
 }

@@ -12,6 +12,20 @@ import io.swagger.oas.models.media.{Schema => ASchema, _}
 
 import types._
 
+/*
+import jto.validation._, v3.tagless._, openapi._
+import cats.syntax.compose._
+
+def info[T, K[_, _]](implicit g: Grammar[T, K]) = {
+    import g._
+    at(Path \ "label").is(req[String]) ~:
+    at(Path \ "email").is(opt(is[String] andThen email)) ~:
+    knil
+}
+
+info(SchemaGrammar).json
+ */
+
 /**
   * Grammar support for OpenAPI v3
   */

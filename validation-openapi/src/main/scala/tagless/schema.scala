@@ -15,60 +15,41 @@ import types._
 /**
   * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#schemaObject
   */
+sealed abstract class Type(val `type`: String) extends Property
+object Type {
+  def unapply(t: Type): Option[String] = Option(t.`type`)
+
+  final case object Integer extends Type("integer")
+  final case object Number extends Type("number")
+  final case object String extends Type("string")
+  final case object Boolean extends Type("boolean")
+}
+
 sealed trait Property
 
 object Property {
-  sealed abstract class Type(val `type`: String) extends Property
-  object Type {
-    def unapply(t: Type): Option[String] = Option(t.`type`)
-  }
-  case object Integer extends Type("integer")
-  case object Number extends Type("number")
-  case object String extends Type("string")
-  case object Boolean extends Type("boolean")
-
-  final case object Required extends Property
 
   sealed abstract class Format[T <: Type](val format: String) extends Property
-  object Format {
+  final object Format {
     def unapply[T <: Type](f: Format[T]): Option[String] = Option(f.format)
   }
-  case object Int32 extends Format[Integer.type]("int32")
-  case object Int64 extends Format[Integer.type]("int64")
-  case object Float extends Format[Number.type]("float")
-  case object Double extends Format[Number.type]("double")
-  case object Byte extends Format[String.type]("byte")
-  case object Binary extends Format[String.type]("binary")
-  case object Date extends Format[String.type]("date")
-  case object `Date-time` extends Format[String.type]("date-time")
-  case object Password extends Format[String.type]("password")
-  case class Raw[T <: Type](f: String) extends Format[T](f)
-
-  case object NoProp extends Property
+  final case object Int32 extends Format[Type.Integer.type]("int32")
+  final case object Int64 extends Format[Type.Integer.type]("int64")
+  final case object Float extends Format[Type.Number.type]("float")
+  final case object Double extends Format[Type.Number.type]("double")
+  final case object Byte extends Format[Type.String.type]("byte")
+  final case object Binary extends Format[Type.String.type]("binary")
+  final case object Date extends Format[Type.String.type]("date")
+  final case object `Date-time` extends Format[Type.String.type]("date-time")
+  final case object Password extends Format[Type.String.type]("password")
+  final case class Raw[T <: Type](f: String) extends Format[T](f)
 }
 
-private[openapi] sealed trait PropTree
-private[openapi] final case class Props(`type`: Property.Type,
-                                        ps: List[Property])
-    extends PropTree
-private[openapi] final case class Obj(properties: List[Property],
-                                      children: List[PropTree.Named])
-    extends PropTree
-
-object PropTree {
-  private[openapi] final case class Named(name: String, children: PropTree)
-}
+sealed trait IsRequired
+final case object Required extends IsRequired
+final case object Optional extends IsRequired
 
 sealed trait UntypedSchema {
-  def root: Path
-  def properties: List[(Path, Property)]
-}
-
-final case class Schema[X, A] private[openapi] (
-    root: Path,
-    properties: List[(Path, Property)]
-) extends UntypedSchema {
-
   import io.swagger.util.{Yaml, Json}
   import com.fasterxml.jackson.databind.node.ObjectNode
 
@@ -84,113 +65,80 @@ final case class Schema[X, A] private[openapi] (
     val o = Json.mapper.convertValue(aSchema, classOf[ObjectNode])
     Json.pretty(o)
   }
-
 }
+
+sealed trait Schema[X, A] extends UntypedSchema
 
 object Schema {
-  def empty[X, A] = Schema[Nothing, A](Path, Nil)
-
-  def at[X, A](p: Path, prop: Property = Property.NoProp) =
-    Schema[Nothing, A](p, List(Path -> prop))
-
-  def root[X, A](p: Property*) =
-    tag[Root](Schema[X, A](Path, p.map(Path -> _).toList))
+  def typed[X, A](t: Type, ps: Property*) =
+    tag[Root](SPrimitive[X, A](Optional, t, ps.toList))
+  def prop[X, A](ps: Property*) =
+    tag[Root](Properties[X, A](ps.toList))
 }
+
+final private[openapi] case class Loc[X, A](path: Path) extends Schema[X, A]
+final case class Properties[X, A](properties: List[Property])
+    extends Schema[X, A]
+
+sealed trait Typed[X, A] extends Schema[X, A] {
+  def isRequired: IsRequired
+}
+
+object Typed {
+  def unapply[X, A](t: Typed[X, A]): Option[(IsRequired, Typed[X, A])] =
+    Option((t.isRequired, t))
+}
+
+final case class SPrimitive[X, A](isRequired: IsRequired,
+                                  `type`: Type,
+                                  properties: List[Property])
+    extends Typed[X, A]
+final case class SObject[X, A](isRequired: IsRequired,
+                               children: List[(String, Typed[_, _])],
+                               properties: List[Property])
+    extends Typed[X, A]
+final case class SArray[X, A](isRequired: IsRequired,
+                              child: Typed[_, _],
+                              properties: List[Property])
+    extends Typed[X, A]
 
 private[openapi] object SchemaOps {
 
-  /**
-    * Turn the schema into a flat list of localized properties
-    */
-  def addRoot(root: Path)(ps: List[(Path, Property)]) =
-    for {
-      (path, p) <- ps
-    } yield (root ++ path, p)
+  private def addProps[A](schema: ASchema[A], ps: List[Property]): ASchema[A] =
+    ps.foldLeft[ASchema[A]](schema) {
+      case (s, Property.Format(sn)) =>
+        s.format(sn).asInstanceOf[ASchema[A]] // XXX: Cast because Java...
+    }
 
-  /**
-    * Turn the flat structure in a tree where nodes are grouped by name
-    */
-  def toTree(ps: List[(Path, Property)]): PropTree = {
-    ps.partition { _._1 == Path } match {
-      case (r0, Nil) =>
-        val root = r0.map(_._2)
-        // XXX: type lookup is a bit unsafe...
-        val (types, prop) = root.partition {
-          case Property.Type(_) => true
-          case _                => false
+  def aSchema(sc: UntypedSchema): ASchema[_] = sc match {
+    case SPrimitive(_, Type.Integer, ps) =>
+      addProps(new IntegerSchema, ps)
+    case SPrimitive(_, Type.Number, ps) => ???
+    case SPrimitive(_, Type.String, ps) =>
+      addProps(new StringSchema, ps)
+    case SPrimitive(_, Type.Boolean, ps) => ???
+    case SObject(_, cs, ps) => {
+      // TODO: add required properties
+      val reqs =
+        cs.collect {
+          case ((n, Typed(Required, _))) =>
+            n
         }
-        val ts = types.collect { case t @ Property.Type(_) => t }
-        Props(ts.head, root)
-      case (root, objs) =>
-        val props = root.map(_._2)
-        val ts =
-          objs
-            .groupBy { _._1.path.head }
-            .toList
-            .collect {
-              // TODO: IdxPathNode ???
-              case (KeyPathNode(name), ps0) =>
-                val subtree =
-                  ps0.map { case (Path(_ :: t), p) => (Path(t), p) }
-                PropTree.Named(name, toTree(subtree))
-            }
-        Obj(props, ts)
-    }
-  }
-
-  /**
-    * Turn the internal tree into a Java Schema.
-    */
-  def updateSchema(s: ASchema[_])(ps: List[Property]): ASchema[_] = {
-    ps.foreach {
-      case Property.Type(_)   => ()
-      case Property.Format(f) => s.setFormat(f)
-      case Property.Required  => () // TODO: add required on parent ?
-      case Property.NoProp    => ()
-    }
-    s
-  }
-
-  /**
-    * Turn the internal tree into a Java Schema.
-    */
-  def toSchema(tree: PropTree): ASchema[_] = tree match {
-    case Props(Property.Integer, ps) =>
-      updateSchema(new IntegerSchema)(ps)
-    case Props(Property.Number, ps) =>
-      updateSchema(new NumberSchema)(ps)
-    case Props(Property.String, ps) =>
-      updateSchema(new StringSchema)(ps)
-    case Props(Property.Boolean, ps) =>
-      updateSchema(new BooleanSchema)(ps)
-
-    case Obj(props, children) =>
-      import scala.collection.JavaConverters._
-      val obj = new ObjectSchema()
-      updateSchema(obj)(props)
-
-      val requireds =
-        children.collect {
-          case PropTree.Named(name, Props(_, subProps))
-              if subProps.contains(Property.Required) =>
-            name
-          case PropTree.Named(name, Obj(subProps, _))
-              if subProps.contains(Property.Required) =>
-            name
+      val obj =
+        cs.foldLeft[ASchema[_]]((new ObjectSchema)) {
+          case (o, (n, c)) =>
+            o.addProperties(n, aSchema(c))
         }
 
-      obj.setRequired(requireds.asJava)
-
-      children.foreach {
-        case PropTree.Named(name, children) =>
-          obj.addProperties(name, toSchema(children))
-      }
-      obj
-  }
-
-  def aSchema(sc: UntypedSchema): ASchema[_] = {
-    val props = addRoot(sc.root)(sc.properties)
-    val tree = toTree(props)
-    toSchema(tree)
+      val obj2 =
+        reqs.foldLeft[ASchema[_]](obj) { (o, n) =>
+          o.addRequiredItem(n)
+        }
+      addProps(obj2, ps)
+    }
+    case SArray(_, c, ps) => ???
+    case sc =>
+      throw new IllegalStateException(
+        s"Can't convert validation's schema to a Java schema. (Schema was: $sc)")
   }
 }

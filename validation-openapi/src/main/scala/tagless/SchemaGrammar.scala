@@ -16,8 +16,11 @@ import types._
 import jto.validation._, v3.tagless._, openapi._
 import cats.syntax.compose._
 def info[T, K[_, _]](g: Grammar[T, K]) = {
-    import g._
-    at(Path \ "email").is(req(is[String] andThen email))
+  import g._
+  at(Path \ "label").is(req[String]) ~:
+  at(Path \ "email").is(opt(is[String] andThen email)) ~:
+  at(Path \ "phones").is(req[String]) ~:
+  knil
 }
 info(SchemaGrammar).yaml
  */
@@ -41,7 +44,13 @@ sealed trait SchemaGrammar extends Grammar[Nothing, Schema] {
 
   protected def asType[H, B](k: Schema[Out, H])(
       implicit G: Generic.Aux[B, H]): Schema[Out, B] =
-    ???
+    k match {
+      case SPrimitive(r, t, ps) => SPrimitive(r, t, ps)
+      case SObject(r, c, ps)    => SObject(r, c, ps)
+      case SArray(r, c, ps)     => SArray(r, c, ps)
+      case Loc(p)               => Loc(p)
+      case Properties(ps)       => Properties(ps)
+    }
 
   def at(p: Path): At[Schema, Out, Nothing] =
     new At[Schema, Out, Nothing] {
@@ -88,38 +97,39 @@ sealed trait SchemaGrammar extends Grammar[Nothing, Schema] {
     Schema.typed(Type.String)
 
   implicit def short: Schema[Nothing, Short] @@ Root =
-    Schema.typed(Type.Integer)
+    Schema.typed(Type.Integer, Property.Int32)
   implicit def int: Schema[Nothing, Int] @@ Root =
-    Schema.typed(Type.Integer)
+    Schema.typed(Type.Integer, Property.Int32)
   implicit def double: Schema[Nothing, Double] @@ Root =
     Schema.typed(Type.Number, Property.Double)
   implicit def float: Schema[Nothing, Float] @@ Root =
-    ???
+    Schema.typed(Type.Number, Property.Float)
   implicit def long: Schema[Nothing, Long] @@ Root =
-    ???
+    Schema.typed(Type.Integer, Property.Int64)
   implicit def bigDecimal: Schema[Nothing, BigDecimal] @@ Root =
-    ???
+    Schema.typed(Type.Number)
   implicit def jBigDecimal: Schema[Nothing, java.math.BigDecimal] @@ Root =
-    ???
+    Schema.typed(Type.Number)
   implicit def boolean: Schema[Nothing, Boolean] @@ Root =
-    ???
+    Schema.typed(Type.Boolean)
 
   implicit def array[A: ClassTag](
       implicit k: Schema[_ >: Out <: Nothing, A]): Schema[Nothing, Array[A]] =
-    ???
+    SArray(Optional, k, Nil)
 
   implicit def list[A](
       implicit k: Schema[_ >: Out <: Nothing, A]): Schema[Nothing, List[A]] =
-    ???
+    SArray(Optional, k, Nil)
 
   implicit def map[A](implicit k: Schema[_ >: Out <: Nothing, A])
     : Schema[Nothing, Map[String, A]] = ???
 
   implicit def seq[A](
-      implicit k: Schema[_ >: Out <: Nothing, A]): Schema[Nothing, Seq[A]] = ???
+      implicit k: Schema[_ >: Out <: Nothing, A]): Schema[Nothing, Seq[A]] =
+    SArray(Optional, k, Nil)
 
   implicit def traversable[A](implicit k: Schema[_ >: Out <: Nothing, A])
-    : Schema[Nothing, Traversable[A]] = ???
+    : Schema[Nothing, Traversable[A]] = SArray(Optional, k, Nil)
 
   private def objAt[X, A](p0: Path)(t0: Typed[_, _]): SObject[X, A] = {
     def go(pns: List[PathNode])(t: Typed[_, _]): SObject[X, A] =
@@ -229,7 +239,12 @@ sealed trait SchemaGrammar extends Grammar[Nothing, Schema] {
     new Semigroup[Schema[I0, O] @@ Root] {
       def combine(x: Schema[I0, O] @@ Root,
                   y: Schema[I0, O] @@ Root): Schema[I0, O] @@ Root =
-        ???
+        (x: Schema[I0, O], y: Schema[I0, O]) match {
+          case (Properties(ps1), Properties(ps2)) =>
+            Schema.prop((ps1 ++ ps2): _*)
+          case _ =>
+            throw new IllegalStateException(s"Can't combine $x with $y")
+        }
     }
 }
 

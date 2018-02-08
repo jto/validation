@@ -98,7 +98,7 @@ final case class SObject[X, A](isRequired: IsRequired,
                                properties: List[Property])
     extends Typed[X, A]
 final case class SArray[X, A](isRequired: IsRequired,
-                              child: Typed[_, _],
+                              child: UntypedSchema,
                               properties: List[Property])
     extends Typed[X, A]
 
@@ -113,10 +113,12 @@ private[openapi] object SchemaOps {
   def aSchema(sc: UntypedSchema): ASchema[_] = sc match {
     case SPrimitive(_, Type.Integer, ps) =>
       addProps(new IntegerSchema, ps)
-    case SPrimitive(_, Type.Number, ps) => ???
+    case SPrimitive(_, Type.Number, ps) =>
+      addProps(new NumberSchema, ps)
     case SPrimitive(_, Type.String, ps) =>
       addProps(new StringSchema, ps)
-    case SPrimitive(_, Type.Boolean, ps) => ???
+    case SPrimitive(_, Type.Boolean, ps) =>
+      addProps(new BooleanSchema, ps)
     case SObject(_, cs, ps) => {
       // TODO: add required properties
       val reqs =

@@ -9,7 +9,7 @@ import shapeless.tag, tag.@@
 import scala.xml.{Null, Text, Attribute, NodeSeq, MetaData, Elem, TopScope}
 import cats.Monoid
 
-sealed trait WritesGrammar
+trait WritesGrammar
     extends XmlGrammar[List[XML], op[Write]#λ]
     with WriteConstraints
     with WritesTypeclasses[List[XML]] {

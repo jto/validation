@@ -43,6 +43,33 @@ object Property {
   final case object `Date-time` extends Format[Type.String.type]("date-time")
   final case object Password extends Format[Type.String.type]("password")
   final case class Raw[T <: Type](f: String) extends Format[T](f)
+
+  final case class MinLength(l: Int) extends Property
+  final case class MaxLength(l: Int) extends Property
+  final case class Min(l: BigDecimal) extends Property
+  final case class Max(l: BigDecimal) extends Property
+  final case class Pattern(r: scala.util.matching.Regex) extends Property
+
+  // TODO:
+  // title
+  // multipleOf
+  // exclusiveMaximum
+  // exclusiveMinimum
+  // maxItems
+  // minItems
+  // uniqueItems
+  // maxProperties
+  // minProperties
+  // enum
+
+  // allOf
+  // oneOf
+  // anyOf
+  // not
+  // items
+  // additionalProperties
+  // description
+  // default
 }
 
 sealed trait IsRequired
@@ -68,7 +95,6 @@ sealed trait UntypedSchema {
 }
 
 sealed trait Schema[X, A] extends UntypedSchema
-
 object Schema {
   def typed[X, A](t: Type, ps: Property*) =
     tag[Root](SPrimitive[X, A](Optional, t, ps.toList))
@@ -79,6 +105,8 @@ object Schema {
 final private[openapi] case class Loc[X, A](path: Path) extends Schema[X, A]
 final case class Properties[X, A](properties: List[Property])
     extends Schema[X, A]
+
+final case class Forall[F[_], X, A](s: Schema[X, A]) extends Schema[F[X], F[A]]
 
 sealed trait Typed[X, A] extends Schema[X, A] {
   def isRequired: IsRequired
@@ -97,9 +125,9 @@ final case class SObject[X, A](isRequired: IsRequired,
                                children: List[(String, Typed[_, _])],
                                properties: List[Property])
     extends Typed[X, A]
-final case class SArray[X, A](isRequired: IsRequired,
-                              child: UntypedSchema,
-                              properties: List[Property])
+final case class SArray[X, A, _X, _A](isRequired: IsRequired,
+                                      child: Schema[_X, _A],
+                                      properties: List[Property])
     extends Typed[X, A]
 
 private[openapi] object SchemaOps {
@@ -107,7 +135,20 @@ private[openapi] object SchemaOps {
   private def addProps[A](schema: ASchema[A], ps: List[Property]): ASchema[A] =
     ps.foldLeft[ASchema[A]](schema) {
       case (s, Property.Format(sn)) =>
-        s.format(sn).asInstanceOf[ASchema[A]] // XXX: Cast because Java...
+        s.format(sn).asInstanceOf[ASchema[A]] // XXX: Cast because Java..
+      case (s, Property.MinLength(l)) =>
+        s.minLength(l).asInstanceOf[ASchema[A]] // XXX: Cast because Java..
+      case (s, Property.MaxLength(l)) =>
+        s.maxLength(l).asInstanceOf[ASchema[A]] // XXX: Cast because Java..
+      case (s, Property.Min(l)) =>
+        s.minimum(l.bigDecimal)
+          .asInstanceOf[ASchema[A]] // XXX: Cast because Java..
+      case (s, Property.Max(l)) =>
+        s.maximum(l.bigDecimal)
+          .asInstanceOf[ASchema[A]] // XXX: Cast because Java..
+      case (s, Property.Pattern(r)) =>
+        s.pattern(r.toString)
+          .asInstanceOf[ASchema[A]] // XXX: Cast because Java..
     }
 
   def aSchema(sc: UntypedSchema): ASchema[_] = sc match {
@@ -138,7 +179,8 @@ private[openapi] object SchemaOps {
         }
       addProps(obj2, ps)
     }
-    case SArray(_, c, ps) => ???
+    case SArray(_, c, ps) =>
+      addProps((new ArraySchema).items(aSchema(c)), ps)
     case sc =>
       throw new IllegalStateException(
         s"Can't convert validation's schema to a Java schema. (Schema was: $sc)")

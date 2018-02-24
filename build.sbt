@@ -113,7 +113,8 @@ lazy val docs = project
              delimitedJVM,
              jsonAstJVM,
              `validation-playjson`,
-             `validation-xml`)
+             `validation-xml`,
+             `validation-openapi`)
 
 lazy val `date-tests` = project
   .settings(validationSettings: _*)

@@ -17,9 +17,9 @@ import jto.validation._, v3.tagless._, openapi._
 import cats.syntax.compose._
 def info[T, K[_, _]](g: Grammar[T, K]) = {
   import g._
-  at(Path \ "label").is(req[String]) ~:
+  at(Path \ "label").is(req[String] andThen notEmpty) ~:
   at(Path \ "email").is(opt(is[String] andThen email)) ~:
-  at(Path \ "phones").is(req[String]) ~:
+  at(Path \ "phones").is(req[Seq[String]] andThen forall(notEmpty)) ~:
   knil
 }
 info(SchemaGrammar).yaml
@@ -34,23 +34,26 @@ sealed trait SchemaGrammar extends Grammar[Nothing, Schema] {
   def email: C[String] =
     Schema.prop(Property.Raw[Type.String.type]("email"))
   def equalTo[A](a: A): C[A] = ???
-  def forall[I, O](k: Schema[I, O]): Schema[Seq[I], Seq[O]] = ???
-  def max[A](a: A)(implicit O: Ordering[A]): C[A] = ???
-  def maxLength(l: Int): C[String] = ???
+  def forall[I, O](k: Schema[I, O]): Schema[Seq[I], Seq[O]] =
+    Forall(k)
+
+  def minLength(l: Int): C[String] =
+    Schema.prop(Property.MinLength(l))
+
+  def maxLength(l: Int): C[String] =
+    Schema.prop(Property.MaxLength(l))
+
   def min[A](a: A)(implicit O: Ordering[A]): C[A] = ???
-  def minLength(l: Int): C[String] = ???
-  def notEmpty: C[String] = ???
-  def pattern(regex: scala.util.matching.Regex): C[String] = ???
+  def max[A](a: A)(implicit O: Ordering[A]): C[A] = ???
+
+  def notEmpty: C[String] =
+    minLength(1)
+  def pattern(regex: scala.util.matching.Regex): C[String] =
+    Schema.prop(Property.Pattern(regex))
 
   protected def asType[H, B](k: Schema[Out, H])(
       implicit G: Generic.Aux[B, H]): Schema[Out, B] =
-    k match {
-      case SPrimitive(r, t, ps) => SPrimitive(r, t, ps)
-      case SObject(r, c, ps)    => SObject(r, c, ps)
-      case SArray(r, c, ps)     => SArray(r, c, ps)
-      case Loc(p)               => Loc(p)
-      case Properties(ps)       => Properties(ps)
-    }
+    k.asInstanceOf // YOLO
 
   def at(p: Path): At[Schema, Out, Nothing] =
     new At[Schema, Out, Nothing] {
@@ -162,6 +165,8 @@ sealed trait SchemaGrammar extends Grammar[Nothing, Schema] {
             SObject(r, cs, ps1 ++ ps2)
           case (SArray(r, c, ps1), Properties(ps2)) =>
             SArray(r, c, ps1 ++ ps2)
+          case (SArray(r, c1, ps), Forall(c2)) =>
+            SArray(r, compose(c2, c1), ps)
           //
           case (_, _) =>
             throw new IllegalStateException(

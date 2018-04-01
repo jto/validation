@@ -80,16 +80,16 @@ sealed trait UntypedSchema {
   import io.swagger.util.{Yaml, Json}
   import com.fasterxml.jackson.databind.node.ObjectNode
 
+  def java = SchemaOps.aSchema(this)
+
   // TODO: use a better type than String
   def yaml: String = {
-    val aSchema = SchemaOps.aSchema(this)
-    val o = Yaml.mapper.convertValue(aSchema, classOf[ObjectNode])
+    val o = Yaml.mapper.convertValue(java, classOf[ObjectNode])
     Yaml.pretty(o)
   }
 
   def json: String = {
-    val aSchema = SchemaOps.aSchema(this)
-    val o = Json.mapper.convertValue(aSchema, classOf[ObjectNode])
+    val o = Json.mapper.convertValue(java, classOf[ObjectNode])
     Json.pretty(o)
   }
 }

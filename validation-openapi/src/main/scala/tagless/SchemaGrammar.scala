@@ -12,18 +12,9 @@ import io.swagger.oas.models.media.{Schema => ASchema, _}
 
 import types._
 
-/*
-import jto.validation._, v3.tagless._, openapi._
-import cats.syntax.compose._
-def info[T, K[_, _]](g: Grammar[T, K]) = {
-  import g._
-  at(Path \ "label").is(req[String] andThen notEmpty) ~:
-  at(Path \ "email").is(opt(is[String] andThen email)) ~:
-  at(Path \ "phones").is(req[Seq[String]] andThen forall(notEmpty)) ~:
-  knil
-}
-info(SchemaGrammar).yaml
- */
+/**
+  * @see: https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#schemaObject
+  */
 sealed trait SchemaGrammar extends Grammar[Nothing, Schema] {
   self =>
 
@@ -33,7 +24,8 @@ sealed trait SchemaGrammar extends Grammar[Nothing, Schema] {
 
   def email: C[String] =
     Schema.prop(Property.Raw[Type.String.type]("email"))
-  def equalTo[A](a: A): C[A] = ???
+  def equalTo[A](a: A): C[A] =
+    Schema.prop[A, A]() // This case is not supported in openapiv3
   def forall[I, O](k: Schema[I, O]): Schema[Seq[I], Seq[O]] =
     Forall(k)
 
@@ -43,8 +35,31 @@ sealed trait SchemaGrammar extends Grammar[Nothing, Schema] {
   def maxLength(l: Int): C[String] =
     Schema.prop(Property.MaxLength(l))
 
-  def min[A](a: A)(implicit O: Ordering[A]): C[A] = ???
-  def max[A](a: A)(implicit O: Ordering[A]): C[A] = ???
+  def asBigDecimal[A](a: A) =
+    a match {
+      case x: Double => Option(BigDecimal(x))
+      case x: Float  => Option(BigDecimal(x.toDouble))
+      case x: Long   => Option(BigDecimal(x))
+      case x: Int    => Option(BigDecimal(x))
+      case x: Char   => Option(BigDecimal(x.toInt))
+      case x: Short  => Option(BigDecimal(x.toInt))
+      case x: Byte   => Option(BigDecimal(x.toInt))
+      case _         => None
+    }
+
+  def min[A](a: A)(implicit O: Ordering[A]): C[A] =
+    asBigDecimal(a)
+      .map { x =>
+        Schema.prop[A, A](Property.Min(x))
+      }
+      .getOrElse(Schema.prop[A, A]())
+
+  def max[A](a: A)(implicit O: Ordering[A]): C[A] =
+    asBigDecimal(a)
+      .map { x =>
+        Schema.prop[A, A](Property.Max(x))
+      }
+      .getOrElse(Schema.prop[A, A]())
 
   def notEmpty: C[String] =
     minLength(1)

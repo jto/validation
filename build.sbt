@@ -134,6 +134,7 @@ def aggregate(name: String, projects: ProjectReference*): Project =
 lazy val validationSettings = settings ++ dependencies ++ doPublish ++ scoverageSettings
 
 lazy val settings = Seq(
+  // logLevel := Level.Debug,
   scalaVersion := scalacVersion,
   crossScalaVersions := Seq("2.11.8"),
   organization := org,

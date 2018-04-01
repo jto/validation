@@ -5,10 +5,10 @@ resolvers += Resolver.url(
 
 addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.6.2")
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.21")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.22")
 
 addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.14")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
 
-addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.2.2")
+// addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.2.3")

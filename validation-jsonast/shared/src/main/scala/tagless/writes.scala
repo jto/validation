@@ -6,7 +6,7 @@ import jto.validation.jsonast._
 
 import types.op
 
-sealed trait WritesGrammar
+trait WritesGrammar
     extends JsonGrammar[op[Write]#λ]
     with WriteConstraints
     with WritesTypeclasses[JValue] {

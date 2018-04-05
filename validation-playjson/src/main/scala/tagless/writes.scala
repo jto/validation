@@ -7,7 +7,7 @@ import jto.validation.playjson.Writes
 
 import types.op
 
-sealed trait WritesGrammar
+trait WritesGrammar
     extends JsonGrammar[op[Write]#λ]
     with WriteConstraints
     with WritesTypeclasses[JsValue] {

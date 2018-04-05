@@ -5,7 +5,7 @@ package jsjson
 import scala.scalajs.js
 import jto.validation.jsjson.Rules
 
-sealed trait RulesGrammar
+trait RulesGrammar
     extends JsonGrammar[Rule]
     with RuleConstraints
     with RulesTypeclasses[js.Dynamic] {

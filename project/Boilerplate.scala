@@ -102,7 +102,7 @@ object Boilerplate {
       block"""
         |package jto.validation
         |
-        |import cats.functor.Invariant
+        |import cats.Invariant
         |
         |class InvariantSyntax[M[_]](combine: SyntaxCombine[M]) {
         |
@@ -167,7 +167,7 @@ object Boilerplate {
       block"""
         |package jto.validation
         |
-        |import cats.functor.Contravariant
+        |import cats.Contravariant
         |
         |class ContravariantSyntax[M[_]](combine: SyntaxCombine[M]) {
         |

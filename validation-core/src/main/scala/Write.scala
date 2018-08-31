@@ -1,7 +1,7 @@
 package jto.validation
 
 import cats.Monoid
-import cats.functor.Contravariant
+import cats.Contravariant
 
 trait WriteLike[I, +O] {
 

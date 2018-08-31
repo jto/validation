@@ -1,7 +1,7 @@
 package jto.validation
 
 import cats.Applicative
-import cats.syntax.cartesian._
+import cats.syntax.apply._
 
 trait RuleLike[I, O] {
 

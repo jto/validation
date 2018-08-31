@@ -125,7 +125,7 @@ trait Rules extends DefaultRules[PM.PM] with ParsingRules {
   implicit def optionR[O](
       implicit pick: Path => RuleLike[PM, PM],
       coerce: RuleLike[PM, O]): Path => Rule[PM, Option[O]] =
-    opt(coerce, isEmpty)
+    opt(coerce, isEmpty)(pick, RuleLike.zero[PM])
 
   def optionR[J, O](r: => RuleLike[J, O], noneValues: RuleLike[PM, PM]*)(
       implicit pick: Path => RuleLike[PM, PM],

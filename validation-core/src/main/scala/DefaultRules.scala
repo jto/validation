@@ -265,7 +265,7 @@ trait GenericRules {
         }
         import cats.instances.list._
         import cats.syntax.traverse._
-        withI.toList.sequenceU
+        withI.toList.sequence[VA, O]
     }
 
   /**
@@ -279,21 +279,26 @@ trait GenericRules {
   implicit def listR[I, O](implicit r: RuleLike[I, O]): Rule[Seq[I], List[O]] =
     seqR[I, O](r).map(_.toList)
 
-  /**
-    * Create a Rule validation that a Seq[I] is not empty, and attempt to convert it's first element as a `O`
-    * {{{
-    *   (Path \ "foo").read(headAs(int))
-    * }}}
-    */
-  implicit def headAs[I, O](implicit c: RuleLike[I, O]) =
-    Rule
-      .fromMapping[Seq[I], I] {
-        _.headOption
-          .map(Valid[I](_))
-          .getOrElse(Invalid[Seq[ValidationError]](
-                  Seq(ValidationError("error.required"))))
-      }
-      .andThen(c)
+  final object unsafeImplicits {
+    /**
+      * Create a Rule validation that a Seq[I] is not empty, and attempt to convert it's first element as a `O`
+      * {{{
+      *   (Path \ "foo").read(headAs(int))
+      * }}}
+      *
+      * Note:
+      *   It is declared unsafe because it breaks many more natural implicits on sequences.
+      */
+    implicit def headAs[I, O](implicit c: RuleLike[I, O]): Rule[Seq[I], O] =
+      Rule
+        .fromMapping[Seq[I], I] {
+          _.headOption
+            .map(Valid[I](_))
+            .getOrElse(Invalid[Seq[ValidationError]](
+                    Seq(ValidationError("error.required"))))
+        }
+        .andThen(c)
+  }
 
   def not[I, O](r: RuleLike[I, O]) = Rule[I, I] { d =>
     r.validate(d) match {
@@ -415,7 +420,7 @@ trait ParsingRules { self: GenericRules =>
         .getOrElse(Invalid(Seq(ValidationError("error.number", args: _*))))
     }
 
-  implicit def intR =
+  implicit def intR: Rule[String, Int] =
     stringAs {
       case s if s.isValidInt => Valid(s.toInt)
     }("Int")
@@ -464,7 +469,7 @@ trait ParsingRules { self: GenericRules =>
   */
 trait DefaultRules[I] extends GenericRules with DateRules {
   protected def opt[J, O](r: => RuleLike[J, O], noneValues: RuleLike[I, I]*)(
-      implicit pick: Path => RuleLike[I, I], coerce: RuleLike[I, J]) =
+      implicit pick: Path => RuleLike[I, I], coerce: RuleLike[I, J]): Path => Rule[I, Option[O]] =
     (path: Path) =>
       Rule[I, Option[O]] { (d: I) =>
         val isNone =
@@ -501,7 +506,7 @@ trait DefaultRules[I] extends GenericRules with DateRules {
         }
         import cats.instances.list._
         import cats.syntax.traverse._
-        validations.toList.sequenceU.map(_.toMap)
+        validations.toList.sequence[VA, (String, O)].map(_.toMap)
       })
   }
 }

@@ -141,17 +141,17 @@ class WritesSpec extends WordSpec with Matchers {
       val w = To[XmlWriter] { __ =>
         ((__ \ "firstname").write[String] ~ (__ \ "age").write[Int]) tupled
       }
-      w.writes("Julien", 28)(<user></user>) shouldBe <user><firstname>Julien</firstname><age>28</age></user>
+      w.writes(("Julien", 28))(<user></user>) shouldBe <user><firstname>Julien</firstname><age>28</age></user>
 
       val w1 = To[XmlWriter] { __ =>
         (attributeW[String]("firstname") ~ attributeW[Int]("age")) tupled
       }
-      w1.writes("Julien", 28)(<user></user>) shouldBe <user firstname="Julien" age="28"></user>
+      w1.writes(("Julien", 28))(<user></user>) shouldBe <user firstname="Julien" age="28"></user>
 
       val w2 = To[XmlWriter] { __ =>
         (attributeW[String]("firstname") ~ (__ \ "age").write[Int]) tupled
       }
-      w2.writes("Julien", 28)(<user></user>) shouldBe <user firstname="Julien"><age>28</age></user>
+      w2.writes(("Julien", 28))(<user></user>) shouldBe <user firstname="Julien"><age>28</age></user>
     }
 
     "do a deep write" in {

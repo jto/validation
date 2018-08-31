@@ -237,6 +237,12 @@ class RulesSpec extends WordSpec with Matchers {
         }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("5"))) shouldBe (Valid(
                 Map("foo" -> Seq(4), "bar" -> Seq(5))))
         From[UrlFormEncoded] { __ =>
+           /* pickIn(_) implicits conflicts with inT(headAs(_))
+            * pickIn is the valid choice, so we hide headAs
+            * as much as necessary.
+            */
+          implicit val dirtyHack : RuleLike[Seq[String], Int] =
+            unsafeImplicits.headAs(implicitly[RuleLike[String,Int]])
           (__ \ "x").read[Map[String, Int]]
         }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("frack"))) shouldBe (Valid(
                 Map.empty))
@@ -249,6 +255,7 @@ class RulesSpec extends WordSpec with Matchers {
 
       "Traversable" in {
         From[UrlFormEncoded] { __ =>
+          import Rules.unsafeImplicits._
           (__ \ "n").read[Traversable[String]]
         }.validate(Map("n" -> Seq("foo"))).toOption.get.toSeq shouldBe (Seq(
                 "foo"))
@@ -455,18 +462,14 @@ class RulesSpec extends WordSpec with Matchers {
         Invalid(Seq(Path -> Seq(ValidationError("validation.unknownType"))))
 
       "by trying all possible Rules" in {
-        import cats.syntax.cartesian._
+        import cats.syntax.apply._
 
         val rb: Rule[UrlFormEncoded, A] = From[UrlFormEncoded] { __ =>
-          (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo")
-            .read[Int]
-            .map(B.apply)
+          (__ \ "name").read(Rules.equalTo("B")) *> (__ \ "foo").read[Int].map(B.apply)
         }
 
         val rc: Rule[UrlFormEncoded, A] = From[UrlFormEncoded] { __ =>
-          (__ \ "name").read(Rules.equalTo("C")) *> (__ \ "bar")
-            .read[Int]
-            .map(C.apply)
+          (__ \ "name").read(Rules.equalTo("C")) *> (__ \ "bar").read[Int].map(C.apply)
         }
 
         val rule = rb orElse rc orElse Rule(_ => typeInvalid)

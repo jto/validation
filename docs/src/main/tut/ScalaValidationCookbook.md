@@ -155,7 +155,7 @@ val e = Json.obj("name" -> "E", "eee" -> 6)
 #### Trying all the possible rules implementations
 
 ```tut:silent
-import cats.syntax.cartesian._
+import cats.syntax.apply._
 
 val rb: Rule[JsValue, A] = From[JsValue] { __ =>
   import jto.validation.playjson.Rules._

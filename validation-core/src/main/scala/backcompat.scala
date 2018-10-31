@@ -124,10 +124,11 @@ final case class FailProjection[+E, +A](v: Validated[Seq[E], A]) {
 }
 
 object Validation {
-  @deprecated("use .toList.sequenceU", "2.0")
+  @deprecated("use .toList.sequence", "2.0")
   def sequence[E, A](
       vs: Seq[Validated[Seq[E], A]]): Validated[Seq[E], Seq[A]] = {
     import cats.instances.list._; import cats.syntax.traverse._;
-    vs.toList.sequenceU
+    type VE[X] = Validated[Seq[E], X]
+    vs.toList.sequence[VE, A]
   }
 }

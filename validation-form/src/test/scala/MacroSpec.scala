@@ -415,6 +415,7 @@ class MacroSpec extends WordSpec with Matchers {
     "test case class 1 field map" when {
       "Rule" in {
         import Rules._
+        import Rules.unsafeImplicits._
         implicit val toto5Rule = Rule.gen[UrlFormEncoded, Toto5]
         ()
       }
@@ -428,6 +429,7 @@ class MacroSpec extends WordSpec with Matchers {
       "Format" in {
         import Rules._
         import Writes._
+        import Rules.unsafeImplicits._
         implicit val toto5Format =
           Format.gen[UrlFormEncoded, UrlFormEncoded, Toto5]
         ()

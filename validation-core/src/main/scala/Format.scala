@@ -2,7 +2,7 @@ package jto.validation
 
 import scala.annotation.implicitNotFound
 import cats.Monoid
-import cats.functor.Invariant
+import cats.Invariant
 
 @implicitNotFound(
     "No Format found for types ${IR},${IW}, ${O}. Try to implement an implicit Format[${IR}, ${IW}, ${O}].")

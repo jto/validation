@@ -262,6 +262,13 @@ class FormatSpec extends WordSpec with Matchers {
         }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("5"))) shouldBe (Valid(
                 Map("foo" -> Seq(4), "bar" -> Seq(5))))
         Formatting[UrlFormEncoded, UrlFormEncoded] { __ =>
+          /* pickIn(_) implicits conflicts with inT(headAs(_))
+           * pickIn is the valid choice, so we hide headAs
+           * as much as necessary.
+           */
+          implicit val dirtyHack : RuleLike[Seq[String], Int] =
+            unsafeImplicits.headAs(implicitly[RuleLike[String,Int]])
+
           (__ \ "x").format[Map[String, Int]]
         }.validate(Map("n.foo" -> Seq("4"), "n.bar" -> Seq("frack"))) shouldBe (Valid(
                 Map.empty))

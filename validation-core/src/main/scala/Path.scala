@@ -1,11 +1,11 @@
 package jto.validation
 
 sealed trait PathNode
-case class KeyPathNode(key: String) extends PathNode {
+final case class KeyPathNode(key: String) extends PathNode {
   override def toString = key
 }
 
-case class IdxPathNode(idx: Int) extends PathNode {
+final case class IdxPathNode(idx: Int) extends PathNode {
   override def toString = s"[$idx]"
 }
 

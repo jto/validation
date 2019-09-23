@@ -2,28 +2,28 @@ import jto.validation._
 import jto.validation.forms._
 import org.scalatest._
 
-case class User(age: Int, name: String)
-case class Dog(name: String, master: User)
-case class Cat(name: String)
-case class RecUser(name: String,
+final case class User(age: Int, name: String)
+final case class Dog(name: String, master: User)
+final case class Cat(name: String)
+final case class RecUser(name: String,
                    cat: Option[Cat] = None,
                    hobbies: Seq[String] = Seq(),
                    friends: Seq[RecUser] = Seq())
-case class User1(name: String, friend: Option[User1] = None)
-case class UserMap(name: String, friends: Map[String, UserMap] = Map())
+final case class User1(name: String, friend: Option[User1] = None)
+final case class UserMap(name: String, friends: Map[String, UserMap] = Map())
 
-case class Toto(name: String)
-case class Toto2(name: Option[String])
-case class Toto3(name: List[Double])
-case class Toto4(name: Set[Long])
-case class Toto5(name: Map[String, Int])
-case class Toto6(name: Seq[Dog])
-case class UserFail(name: String, bd: Toto)
+final case class Toto(name: String)
+final case class Toto2(name: Option[String])
+final case class Toto3(name: List[Double])
+final case class Toto4(name: Set[Long])
+final case class Toto5(name: Map[String, Int])
+final case class Toto6(name: Seq[Dog])
+final case class UserFail(name: String, bd: Toto)
 
-case class Id[A](id: A)
-case class C1[A](id: Id[A], name: String)
+final case class Id[A](id: A)
+final case class C1[A](id: Id[A], name: String)
 
-case class X(
+final case class X(
     _1: String,
     _2: String,
     _3: String,
@@ -47,7 +47,7 @@ case class X(
     _21: String
 )
 
-case class Program(id: Long,
+final case class Program(id: Long,
                    name: String,
                    logoPath: Option[String],
                    logoThumb: Option[String])
@@ -55,7 +55,7 @@ object Program {
   def programs = List.empty[Program]
 }
 
-case class Person(name: String, age: Int)
+final case class Person(name: String, age: Int)
 object Person {
   implicit val personRule = {
     import Rules._
@@ -67,7 +67,7 @@ object Person {
   }
 }
 
-case class Person2(names: List[String])
+final case class Person2(names: List[String])
 
 object Person2 {
   implicit val personRule = {

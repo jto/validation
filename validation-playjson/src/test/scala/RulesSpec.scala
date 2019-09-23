@@ -463,9 +463,9 @@ class RulesSpec extends WordSpec with Matchers {
 
     "validate subclasses (and parse the concrete class)" when {
 
-      trait A
-      case class B(foo: Int) extends A
-      case class C(bar: Int) extends A
+      sealed trait A
+      final case class B(foo: Int) extends A
+      final case class C(bar: Int) extends A
 
       val b = Json.obj("name" -> "B", "foo" -> 4)
       val c = Json.obj("name" -> "C", "bar" -> 6)
@@ -516,12 +516,12 @@ class RulesSpec extends WordSpec with Matchers {
 
     "perform complex validation" in {
 
-      case class Contact(firstname: String,
+      final case class Contact(firstname: String,
                          lastname: String,
                          company: Option[String],
                          informations: Seq[ContactInformation])
 
-      case class ContactInformation(
+      final case class ContactInformation(
           label: String, email: Option[String], phones: Seq[String])
 
       val validJson = Json.obj(
@@ -568,7 +568,7 @@ class RulesSpec extends WordSpec with Matchers {
     }
 
     "read recursive" when {
-      case class RecUser(name: String, friends: Seq[RecUser] = Nil)
+      final case class RecUser(name: String, friends: Seq[RecUser] = Nil)
       val u = RecUser("bob", Seq(RecUser("tom")))
 
       val m =
@@ -576,7 +576,7 @@ class RulesSpec extends WordSpec with Matchers {
                  "friends" -> Seq(
                      Json.obj("name" -> "tom", "friends" -> Seq[JsObject]())))
 
-      case class User1(name: String, friend: Option[User1] = None)
+      final case class User1(name: String, friend: Option[User1] = None)
       val u1 = User1("bob", Some(User1("tom")))
       val m1 = Json.obj("name" -> "bob", "friend" -> Json.obj("name" -> "tom"))
 

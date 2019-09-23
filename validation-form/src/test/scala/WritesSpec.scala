@@ -5,12 +5,12 @@ import scala.Function.unlift
 
 class WritesSpec extends WordSpec with Matchers {
 
-  case class Contact(firstname: String,
+  final case class Contact(firstname: String,
                      lastname: String,
                      company: Option[String],
                      informations: Seq[ContactInformation])
 
-  case class ContactInformation(
+  final case class ContactInformation(
       label: String, email: Option[String], phones: Seq[String])
 
   val contact = Contact(
@@ -53,7 +53,7 @@ class WritesSpec extends WordSpec with Matchers {
           "n" -> Seq("5"))
       (Path \ "n").write(optionW(intW)).writes(None) shouldBe Map.empty
 
-      case class Foo(name: String)
+      final case class Foo(name: String)
       implicit val wf =
         (Path \ "name").write[String, UrlFormEncoded].contramap((_: Foo).name)
       val wmf = (Path \ "maybe").write[Option[Foo], UrlFormEncoded]
@@ -346,12 +346,12 @@ class WritesSpec extends WordSpec with Matchers {
     }
 
     "write recursive" when {
-      case class RecUser(name: String, friends: List[RecUser] = Nil)
+      final case class RecUser(name: String, friends: List[RecUser] = Nil)
       val u = RecUser("bob", List(RecUser("tom")))
 
       val m = Map("name" -> Seq("bob"), "friends[0].name" -> Seq("tom"))
 
-      case class User1(name: String, friend: Option[User1] = None)
+      final case class User1(name: String, friend: Option[User1] = None)
       val u1 = User1("bob", Some(User1("tom")))
       val m1 = Map("name" -> Seq("bob"), "friend.name" -> Seq("tom"))
 
@@ -404,7 +404,7 @@ class WritesSpec extends WordSpec with Matchers {
 }
 
 object TestValueClass {
-  case class Id(value: String) extends AnyVal
+  final case class Id(value: String) extends AnyVal
   object Id {
     implicit val writes: Write[Id, String] = Write(id => id.value)
   }

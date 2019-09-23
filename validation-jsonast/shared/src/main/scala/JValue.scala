@@ -2,12 +2,12 @@ package jto.validation
 package jsonast
 
 sealed trait JValue
-case object JNull extends JValue
-case class JObject (value: Map[String, JValue] = Map.empty) extends JValue
-case class JArray  (value: Seq[JValue] = Seq.empty)         extends JValue
-case class JBoolean(value: Boolean)                         extends JValue
-case class JString (value: String)                          extends JValue
-case class JNumber (value: String)                          extends JValue {
+final case object JNull extends JValue
+final case class JObject (value: Map[String, JValue] = Map.empty) extends JValue
+final case class JArray  (value: Seq[JValue] = Seq.empty)         extends JValue
+final case class JBoolean(value: Boolean)                         extends JValue
+final case class JString (value: String)                          extends JValue
+final case class JNumber (value: String)                          extends JValue {
   require(JNumber.regex.matcher(value).matches)
 }
 

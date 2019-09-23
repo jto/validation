@@ -1,3 +1,7 @@
+package jto.validation
+package jsjson
+package test
+
 import jto.validation._
 import jto.validation.jsjson._
 import jto.validation.jsjson.Rules._
@@ -496,9 +500,9 @@ class RulesSpec extends WordSpec with Matchers {
 
     "validate subclasses (and parse the concrete class)" when {
 
-      trait A
-      case class B(foo: Int) extends A
-      case class C(bar: Int) extends A
+      sealed trait A
+      final case class B(foo: Int) extends A
+      final case class C(bar: Int) extends A
 
       val b = js.Dynamic.literal("name" -> "B", "foo" -> 4)
       val c = js.Dynamic.literal("name" -> "C", "bar" -> 6)

@@ -1,17 +1,21 @@
+package jto.validation
+package jsonast
+package test
+
 import jto.validation._
 import jto.validation.jsonast._
 import jto.validation.jsonast.Writes._
 import org.scalatest._
 import scala.Function.unlift
 
-class WritesSpec extends WordSpec with Matchers {
+final class WritesSpec extends WordSpec with Matchers {
 
-  case class Contact(firstname: String,
+  final case class Contact(firstname: String,
                      lastname: String,
                      company: Option[String],
                      informations: Seq[ContactInformation])
 
-  case class ContactInformation(
+  final case class ContactInformation(
       label: String, email: Option[String], phones: Seq[String])
 
   val contact = Contact(
@@ -286,10 +290,11 @@ class WritesSpec extends WordSpec with Matchers {
     }
 
     "compose" in {
-      val w = To[JObject] { __ =>
-        ((__ \ "email").write[Option[String]] ~
-            (__ \ "phones").write[Seq[String]]).tupled
-      }
+      val w: Write[(Option[String], Seq[String]), JObject] =
+        To[JObject] { __ =>
+          ((__ \ "email").write[Option[String]] ~
+              (__ \ "phones").write[Seq[String]]).tupled
+        }
 
       val v = Some("jto@foobar.com") -> Seq("01.23.45.67.89", "98.76.54.32.10")
 
@@ -339,7 +344,7 @@ class WritesSpec extends WordSpec with Matchers {
     }
 
     "write recursive" when {
-      case class RecUser(name: String, friends: List[RecUser] = Nil)
+      final case class RecUser(name: String, friends: List[RecUser] = Nil)
       val u = RecUser("bob", List(RecUser("tom")))
 
       val m = JObject(
@@ -347,7 +352,7 @@ class WritesSpec extends WordSpec with Matchers {
               "friends" -> JArray(Seq(JObject(Map("name" -> JString("tom"),
                                                   "friends" -> JArray()))))))
 
-      case class User1(name: String, friend: Option[User1] = None)
+      final case class User1(name: String, friend: Option[User1] = None)
       val u1 = User1("bob", Some(User1("tom")))
       val m1 = JObject(Map("name" -> JString("bob"),
                            "friend" -> JObject(Map("name" -> JString("tom")))))
@@ -408,7 +413,7 @@ class WritesSpec extends WordSpec with Matchers {
 }
 
 object TestValueClass {
-  case class Id(value: String) extends AnyVal
+  final case class Id(value: String) extends AnyVal
   object Id {
     implicit val writes: Write[Id, JString] = Write(id => JString(id.value))
   }

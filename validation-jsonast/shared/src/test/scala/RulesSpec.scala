@@ -1,3 +1,7 @@
+package jto.validation
+package jsonast
+package test
+
 import jto.validation._
 import jto.validation.jsonast._
 import org.scalatest._
@@ -541,9 +545,9 @@ class RulesSpec extends WordSpec with Matchers {
 
     "validate subclasses (and parse the concrete class)" when {
 
-      trait A
-      case class B(foo: Int) extends A
-      case class C(bar: Int) extends A
+      sealed trait A
+      final case class B(foo: Int) extends A
+      final case class C(bar: Int) extends A
 
       val b = JObject(Map("name" -> JString("B"), "foo" -> JNumber(4)))
       val c = JObject(Map("name" -> JString("C"), "bar" -> JNumber(6)))
@@ -594,12 +598,12 @@ class RulesSpec extends WordSpec with Matchers {
 
     "perform complex validation" in {
 
-      case class Contact(firstname: String,
+      final case class Contact(firstname: String,
                          lastname: String,
                          company: Option[String],
                          informations: Seq[ContactInformation])
 
-      case class ContactInformation(
+      final case class ContactInformation(
           label: String, email: Option[String], phones: Seq[String])
 
       val validJson = JObject(
@@ -648,14 +652,14 @@ class RulesSpec extends WordSpec with Matchers {
     }
 
     "read recursive" when {
-      case class RecUser(name: String, friends: Seq[RecUser] = Nil)
+      final case class RecUser(name: String, friends: Seq[RecUser] = Nil)
       val u = RecUser("bob", Seq(RecUser("tom")))
 
       val m = JObject(
           Map("name" -> JString("bob"),
               "friends" -> JArray(Seq(JObject(Map("name" -> JString("tom"), "friends" -> JArray()))))))
 
-      case class User1(name: String, friend: Option[User1] = None)
+      final case class User1(name: String, friend: Option[User1] = None)
       val u1 = User1("bob", Some(User1("tom")))
       val m1 = JObject(Map("name" -> JString("bob"),
                            "friend" -> JObject(Map("name" -> JString("tom")))))

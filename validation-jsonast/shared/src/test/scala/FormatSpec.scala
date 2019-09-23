@@ -1,10 +1,14 @@
+package jto.validation
+package jsonast
+package test
+
 import jto.validation._
 import jto.validation.jsonast._
 import org.scalatest._
 import scala.Function.unlift
 
 class FormatSpec extends WordSpec with Matchers {
-  case class User(id: Long, name: String)
+  final case class User(id: Long, name: String)
   val luigi = User(1, "Luigi")
 
   "Format" should {
@@ -413,7 +417,7 @@ class FormatSpec extends WordSpec with Matchers {
     }
 
     "format recursive" when {
-      case class RecUser(name: String, friends: Seq[RecUser] = Nil)
+      final case class RecUser(name: String, friends: Seq[RecUser] = Nil)
       val u = RecUser("bob", Seq(RecUser("tom")))
 
       val m = JObject(
@@ -421,7 +425,7 @@ class FormatSpec extends WordSpec with Matchers {
               "friends" -> JArray(Seq(JObject(Map("name" -> JString("tom"),
                                                   "friends" -> JArray()))))))
 
-      case class User1(name: String, friend: Option[User1] = None)
+      final case class User1(name: String, friend: Option[User1] = None)
       val u1 = User1("bob", Some(User1("tom")))
       val m1 = JObject(Map("name" -> JString("bob"),
                            "friend" -> JObject(Map("name" -> JString("tom")))))

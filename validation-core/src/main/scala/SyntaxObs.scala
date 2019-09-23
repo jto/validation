@@ -1,6 +1,6 @@
 package jto.validation
 
-case class ~[A, B](_1: A, _2: B)
+final case class ~[A, B](_1: A, _2: B)
 
 trait SyntaxCombine[M[_]] {
   def apply[A, B](ma: M[A], mb: M[B]): M[A ~ B]

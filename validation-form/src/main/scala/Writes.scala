@@ -34,7 +34,7 @@ trait Writes
 
   implicit def mapW[I](implicit w: WriteLike[I, Seq[String]]) =
     Write[Map[String, I], PM] { m =>
-      toPM(m.mapValues(w.writes))
+      toPM(m.map { case (k,v) => k -> w.writes(v) } )
     }
 
   implicit def spm[O](implicit w: WriteLike[O, PM]) =

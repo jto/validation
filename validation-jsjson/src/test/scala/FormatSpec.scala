@@ -1,3 +1,7 @@
+package jto.validation
+package jsjson
+package test
+
 import jto.validation._
 import jto.validation.jsjson.Rules._
 import jto.validation.jsjson.Writes._
@@ -5,9 +9,9 @@ import org.scalatest._
 import scala.scalajs.js
 import scala.Function.unlift
 
-class FormatSpec extends WordSpec with Matchers with JsAnyEquality {
+final class FormatSpec extends WordSpec with Matchers with JsAnyEquality {
 
-  case class User(id: Long, name: String)
+  final case class User(id: Long, name: String)
   val luigi = User(1, "Luigi")
 
   "Format" should {
@@ -362,7 +366,7 @@ class FormatSpec extends WordSpec with Matchers with JsAnyEquality {
     }
 
     "format recursive" when {
-      case class RecUser(name: String, friends: Seq[RecUser] = Nil)
+      final case class RecUser(name: String, friends: Seq[RecUser] = Nil)
       val u = RecUser("bob", Seq(RecUser("tom")))
 
       val m = js.Dynamic.literal(
@@ -370,7 +374,7 @@ class FormatSpec extends WordSpec with Matchers with JsAnyEquality {
           "friends" -> js.Array(
               js.Dynamic.literal("name" -> "tom", "friends" -> js.Array())))
 
-      case class User1(name: String, friend: Option[User1] = None)
+      final case class User1(name: String, friend: Option[User1] = None)
       val u1 = User1("bob", Some(User1("tom")))
       val m1 = js.Dynamic.literal(
           "name" -> "bob", "friend" -> js.Dynamic.literal("name" -> "tom"))

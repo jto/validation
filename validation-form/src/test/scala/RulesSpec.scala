@@ -450,9 +450,9 @@ class RulesSpec extends WordSpec with Matchers {
 
     "validate subclasses (and parse the concrete class)" when {
 
-      trait A
-      case class B(foo: Int) extends A
-      case class C(bar: Int) extends A
+      sealed trait A
+      final case class B(foo: Int) extends A
+      final case class C(bar: Int) extends A
 
       val b = Map("name" -> Seq("B"), "foo" -> Seq("4"))
       val c = Map("name" -> Seq("C"), "bar" -> Seq("6"))
@@ -498,12 +498,12 @@ class RulesSpec extends WordSpec with Matchers {
     }
 
     "perform complex validation" in {
-      case class Contact(firstname: String,
+      final case class Contact(firstname: String,
                          lastname: String,
                          company: Option[String],
                          informations: Seq[ContactInformation])
 
-      case class ContactInformation(
+      final case class ContactInformation(
           label: String, email: Option[String], phones: Seq[String])
 
       val validM = Map("firstname" -> Seq("Julien"),
@@ -596,14 +596,14 @@ class RulesSpec extends WordSpec with Matchers {
     }
 
     "read recursive" when {
-      case class RecUser(name: String, friends: Seq[RecUser] = Nil)
+      final case class RecUser(name: String, friends: Seq[RecUser] = Nil)
       val u = RecUser("bob", Seq(RecUser("tom")))
 
       val m = Map("name" -> Seq("bob"),
                   "friends[0].name" -> Seq("tom"),
                   "friends[0].friends" -> Seq())
 
-      case class User1(name: String, friend: Option[User1] = None)
+      final case class User1(name: String, friend: Option[User1] = None)
       val u1 = User1("bob", Some(User1("tom")))
       val m1 = Map("name" -> Seq("bob"), "friend.name" -> Seq("tom"))
 

@@ -4,7 +4,7 @@ import org.scalatest._
 import scala.Function.unlift
 
 class FormatSpec extends WordSpec with Matchers {
-  case class User(id: Long, name: String)
+  final case class User(id: Long, name: String)
   val luigi = User(1, "Luigi")
 
   "Format" should {
@@ -389,7 +389,7 @@ class FormatSpec extends WordSpec with Matchers {
     }
 
     "format recursive" when {
-      case class RecUser(name: String, friends: Seq[RecUser] = Nil)
+      final case class RecUser(name: String, friends: Seq[RecUser] = Nil)
       val u = RecUser("bob", Seq(RecUser("tom")))
 
       val m = Map("name" -> Seq("bob"),

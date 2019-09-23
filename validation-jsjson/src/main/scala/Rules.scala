@@ -12,7 +12,7 @@ trait Rules extends DefaultRules[js.Dynamic] {
       case j => Invalid(Seq(ValidationError(msg, args: _*)))
     })
 
-  implicit def stringR =
+  implicit def stringR: Rule[js.Dynamic, String] =
     jsonAs[String] {
       case v if (v: Any).isInstanceOf[String] => Valid(v.asInstanceOf[String])
     }("error.invalid", "String")
@@ -46,29 +46,29 @@ trait Rules extends DefaultRules[js.Dynamic] {
         Valid(v.asInstanceOf[js.Dictionary[js.Dynamic]])
     }("error.invalid", "Object")
 
-  implicit def jsArrayR[A] =
+  implicit def jsArrayR[A]: Rule[js.Dynamic, js.Array[A]] =
     jsonAs[js.Array[A]] {
       case v: js.Array[_] => Valid(v.asInstanceOf[js.Array[A]])
     }("error.invalid", "Array")
 
-  implicit def floatR =
+  implicit def floatR: Rule[js.Dynamic, Float] =
     jsonAs[Float] {
       case v if v.isInstanceOf[Float] => Valid(v.asInstanceOf[Float])
     }("error.number", "Float")
 
-  implicit def doubleR =
+  implicit def doubleR: Rule[js.Dynamic, Double] =
     jsonAs[Double] {
       case v if v.isInstanceOf[Double] => Valid(v.asInstanceOf[Double])
     }("error.number", "Double")
 
-  implicit def bigDecimal =
+  implicit def bigDecimal: Rule[js.Dynamic, BigDecimal] =
     jsonAs[BigDecimal] {
       case v if Try(BigDecimal(v.toString)).isSuccess =>
         Valid(BigDecimal(v.toString))
     }("error.number", "BigDecimal")
 
   import java.{math => jm}
-  implicit def javaBigDecimal =
+  implicit def javaBigDecimal: Rule[js.Dynamic, java.math.BigDecimal] =
     jsonAs[jm.BigDecimal] {
       case v if Try(new jm.BigDecimal(v.toString)).isSuccess =>
         Valid(new jm.BigDecimal(v.toString))
@@ -129,7 +129,7 @@ trait Rules extends DefaultRules[js.Dynamic] {
   // XXX: a bit of boilerplate
   private def pickInS[T](
       implicit r: RuleLike[Seq[js.Dynamic], T]): Rule[js.Dynamic, T] =
-    jsArrayR[js.Dynamic].map(fs => Seq(fs: _*)).andThen(r)
+    jsArrayR[js.Dynamic].map(_.toSeq).andThen(r)
   implicit def pickSeq[O](implicit r: RuleLike[js.Dynamic, O]) =
     pickInS(seqR[js.Dynamic, O])
   implicit def pickSet[O](implicit r: RuleLike[js.Dynamic, O]) =

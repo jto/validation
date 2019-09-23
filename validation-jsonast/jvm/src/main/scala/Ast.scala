@@ -6,7 +6,7 @@ import play.api.libs.json._
 object Ast {
   val to: Write[JValue, JsValue] = Write[JValue, JsValue] {
     case JNull           => JsNull
-    case JObject (value) => JsObject(value.mapValues(to.writes))
+    case JObject (value) => JsObject(value.map { case (k,v) => k -> to.writes(v) })
     case JArray  (value) => JsArray(value.map(to.writes))
     case JBoolean(value) => JsBoolean(value)
     case JString (value) => JsString(value)

@@ -6,7 +6,7 @@ import org.scalatest._
 class RulesSpec extends WordSpec with Matchers {
   "Rules" should {
     "demonstrate typical usage" in {
-      case class Contact(name: String, email: String, birthday: Option[String])
+      final case class Contact(name: String, email: String, birthday: Option[String])
 
       val contactReads = From[Delimited] { __ =>
         (

@@ -7,7 +7,7 @@ import scala.scalajs.js.JSConverters._
 object Ast {
   val to: Write[JValue, js.Dynamic] = Write[JValue, js.Any] {
     case JNull           => null
-    case JObject (value) => value.mapValues(to.writes).toJSDictionary
+    case JObject (value) => value.map{case (k,v) => k -> to.writes(v)}.toJSDictionary
     case JArray  (value) => value.map(to.writes).toJSArray
     case JBoolean(value) => value
     case JString (value) => value
@@ -17,7 +17,7 @@ object Ast {
   }.map(_.asInstanceOf[js.Dynamic])
 
   private val undefined = scala.scalajs.js.undefined
-  private case class FunctionInJsonException(path: Path) extends Exception
+  private final case class FunctionInJsonException(path: Path) extends Exception
 
   private def unsafeAny2JValue(input: Any, path: Path): JValue = input match {
     case null        => JNull
@@ -27,7 +27,7 @@ object Ast {
     case `undefined` => JNull
 
     case a: js.Array[js.Dynamic @unchecked] =>
-      JArray(a.map(v => unsafeAny2JValue(v, path \ 0)))
+      JArray(a.map(v => unsafeAny2JValue(v, path \ 0)).toSeq)
 
     case o: js.Object =>
       JObject(o.asInstanceOf[js.Dictionary[js.Dynamic]]

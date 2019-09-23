@@ -73,7 +73,7 @@ trait Writes
 
   implicit def mapW[I](implicit w: WriteLike[I, JValue]) =
     Write[Map[String, I], JObject] { m =>
-      JObject(m.mapValues(w.writes))
+      JObject(m.map { case (k,v) => k -> w.writes(v) })
     }
 
   implicit def vaW[I](implicit w: WriteLike[I, JValue]) =

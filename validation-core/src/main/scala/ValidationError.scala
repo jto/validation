@@ -6,7 +6,7 @@ package jto.validation
   * @param message the error message
   * @param args the error message arguments
   */
-case class ValidationError(messages: Seq[String], args: Any*) {
+final case class ValidationError(messages: Seq[String], args: Any*) {
   lazy val message = messages.last
 }
 

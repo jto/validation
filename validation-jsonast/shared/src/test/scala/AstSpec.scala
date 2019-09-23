@@ -1,3 +1,7 @@
+package jto.validation
+package jsonast
+package test
+
 import jto.validation.Valid
 import jto.validation.jsonast._
 import org.scalatest._

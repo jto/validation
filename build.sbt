@@ -6,15 +6,15 @@ val repo = "git@github.com:jto/validation.git"
 val org = "io.github.jto"
 val license = ("Apache License", url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 
-val catsVersion = "1.2.0"
-val jodaConvertVersion = "2.1.1"
-val jodaTimeVersion = "2.10"
-val kindProjectorVersion = "0.9.7"
-val parserCombinatorsVersion = "1.1.1"
-val playVersion = "2.6.3"
-val scalacVersion = "2.12.6"
-val scalatestVersion = "3.2.0-SNAP10"
-val scalaXmlVersion = "1.1.0"
+val catsVersion = "2.0.0"
+val jodaConvertVersion = "2.2.1"
+val jodaTimeVersion = "2.10.4"
+val kindProjectorVersion = "0.10.3"
+val parserCombinatorsVersion = "1.1.2"
+val playVersion = "2.7.4"
+val scalacVersion = "2.13.0"
+val scalatestVersion = "3.0.8"
+val scalaXmlVersion = "1.2.0"
 
 lazy val root = aggregate("validation", validationJVM, validationJS, docs).in(file("."))
 lazy val validationJVM = aggregate("validationJVM", coreJVM, formJVM, delimitedJVM, jsonAstJVM, `validation-playjson`, `validation-xml`, `date-tests`)
@@ -25,6 +25,7 @@ lazy val `validation-core` =
     .crossType(CrossType.Pure)
     .settings(validationSettings: _*)
     .settings(generateBoilerplate: _*)
+    .settings(libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value)
 lazy val coreJVM = `validation-core`.jvm
 lazy val coreJS = `validation-core`.js
 lazy val core = aggregate("validation-core", coreJVM, coreJS)
@@ -111,16 +112,17 @@ lazy val validationSettings = settings ++ dependencies ++ doPublish ++ scoverage
 
 lazy val settings = Seq(
   scalaVersion := scalacVersion,
-  crossScalaVersions := Seq(scalacVersion, "2.11.12"),
+  crossScalaVersions := Seq(scalacVersion, "2.12.10", "2.11.12"),
   organization := org,
   scalacOptions ++= commonScalacOptions,
   scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Ywarn-unused-import")),
   scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value.filterNot(_ == "-Xfatal-warnings"),
+  scalacOptions -= "-Xfatal-warnings",
   resolvers ++= commonResolvers,
   testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
   scalaJSStage in Global := FastOptStage,
   parallelExecution := false,
-  libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.0" % "test"
+  libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.1" % "test"
 )
 
 val commonScalacOptions = Seq(
@@ -136,13 +138,11 @@ val commonScalacOptions = Seq(
   "-Xfatal-warnings",
   "-Xlint",
   // "-Yinline-warnings",
-  "-Yno-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
   "-Ywarn-value-discard",
-  "-Ywarn-unused-import",
   "-Xfuture",
-  "-Ypartial-unification"
+  //"-Ypartial-unification"
 )
 
 val commonResolvers = Seq(
@@ -157,7 +157,7 @@ val dependencies = Seq(
     "joda-time" % "joda-time" % jodaTimeVersion,
     "org.joda" % "joda-convert" % jodaConvertVersion
   ),
-  addCompilerPlugin("org.spire-math" %% "kind-projector" % kindProjectorVersion)
+  addCompilerPlugin("org.typelevel" %% "kind-projector" % kindProjectorVersion)
 )
 
 val generateBoilerplate = Seq(

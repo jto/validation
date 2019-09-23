@@ -1,3 +1,7 @@
+package jto.validation
+package jsjson
+package test
+
 import jto.validation._
 import jto.validation.jsjson.Writes._
 import org.scalatest._

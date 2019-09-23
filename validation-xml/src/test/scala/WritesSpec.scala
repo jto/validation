@@ -7,14 +7,14 @@ import scala.Function.unlift
 
 class WritesSpec extends WordSpec with Matchers {
 
-  case class Contact(
+  final case class Contact(
       firstname: String,
       lastname: String,
       company: Option[String],
       informations: Seq[ContactInformation]
   )
 
-  case class ContactInformation(
+  final case class ContactInformation(
       label: String,
       email: Option[String],
       phones: Seq[String]
@@ -181,13 +181,13 @@ class WritesSpec extends WordSpec with Matchers {
     }
 
     "write recursive" when {
-      case class RecUser(name: String, friends: Seq[RecUser] = Nil)
+      final case class RecUser(name: String, friends: Seq[RecUser] = Nil)
       val u = RecUser("bob", Seq(RecUser("tom")))
 
       val m =
         <user><name>bob</name><friends><name>tom</name><friends></friends></friends></user>
 
-      case class User1(name: String, friend: Option[User1] = None)
+      final case class User1(name: String, friend: Option[User1] = None)
       val u1 = User1("bob", Some(User1("tom")))
 
       val m1 = <user><name>bob</name><friend><name>tom</name></friend></user>

@@ -65,7 +65,7 @@ object To {
     w.writes(o)
 }
 
-case class Reader[I](path: Path = Path(Nil)) {
+final case class Reader[I](path: Path = Path(Nil)) {
 
   /**
     * When applied, the rule will lookup for data at the given path, and apply the `sub` Rule on it
@@ -112,7 +112,7 @@ case class Reader[I](path: Path = Path(Nil)) {
   def \(child: PathNode): Reader[I] = Reader(path \ child)
 }
 
-case class Writer[I](path: Path = Path(Nil)) {
+final case class Writer[I](path: Path = Path(Nil)) {
 
   /**
     * Create a Write that convert data to type `I`, and put it at Path `path`
@@ -156,7 +156,7 @@ object Formatting {
   def apply[IR, IW] = new Formatting[IR, IW] {}
 }
 
-case class Formatter[IR, IW](path: Path = Path(Nil)) {
+final case class Formatter[IR, IW](path: Path = Path(Nil)) {
 
   def format[JJ, J, O](subR: => RuleLike[J, O], subW: => WriteLike[O, JJ])(
       implicit r: Path => RuleLike[IR, J],
